@@ -298,6 +298,14 @@
   .sun-row{
     display:flex;align-items:center;justify-content:center;
   }
+  /* zon overdag boven, 's nachts onder — zachte fade tussen de twee posities */
+  .sun-top, .sun-bottom{
+    transition:opacity 3s ease;
+  }
+  .sun-top{opacity:0;}      /* standaard: zon onder (nacht-stand) */
+  .sun-bottom{opacity:1;}
+  body.sun-up .sun-top{opacity:1;}     /* dag: zon boven */
+  body.sun-up .sun-bottom{opacity:0;}
 
   /* ---------- EZAN VAKTİ (gebed ingegaan: groen + knipperen) ---------- */
   @keyframes ezanBlink{
@@ -513,12 +521,18 @@ function buildPrayerCards(){
     div.className = "pcard";
     div.id = "card-"+p.key;
     if(p.key==="Sunrise"){
-      // Güneş: geen namen; lege placeholder boven houdt tijd op zelfde hoogte,
-      // zon-icoon staat op de plek (hoogte) van de Turkse naam
+      // Güneş: geen namen; zon staat overdag BOVEN de tijd, 's nachts ONDER de tijd.
+      // Beide posities aanwezig; JS fadet de juiste in (zachte overgang).
       div.innerHTML = `
-        <div class="p-arabic">&nbsp;</div>
+        <div class="p-arabic sun-row sun-top">${sunSVG}</div>
         <div class="p-time">${time}</div>
-        <div class="p-turkish sun-row">${sunSVG}</div>`;
+        <div class="p-turkish sun-row sun-bottom">${sunSVG}</div>`;
+    }else if(p.key==="Fajr"){
+      // İmsak: bovenste "FAJR" onzichtbaar (ruimte blijft zodat tijd/İMSAK op lijn blijven)
+      div.innerHTML = `
+        <div class="p-arabic" style="visibility:hidden">${p.arabic}</div>
+        <div class="p-time">${time}</div>
+        <div class="p-turkish">${p.turkish}</div>`;
     }else{
       div.innerHTML = `
         <div class="p-arabic">${p.arabic}</div>
@@ -681,6 +695,14 @@ function applyTheme(){
     isDark = false;
   }
   document.body.classList.toggle("theme-dark", isDark);
+
+  // Zon-positie: overdag (Güneş→Akşam) boven, anders onder
+  if(timings.Sunrise){
+    const sunrise = mk(timings.Sunrise);
+    const sunset  = mk(timings.Maghrib);   // Akşam = zonsondergang
+    const sunUp = (now >= sunrise && now < sunset);
+    document.body.classList.toggle("sun-up", sunUp);
+  }
 }
 
 function tick(){
