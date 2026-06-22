@@ -452,6 +452,35 @@
     text-align:center; color:var(--text-dim); font-size:1.8vh;
     padding:1.5vh 0; border-top:1px solid var(--border);
   }
+  /* ===== ZWEVENDE HADIS-ŞERİDİ (onderaan, transparant overlay) ===== */
+  .ticker{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    height:8vh;
+    overflow:hidden;
+    display:flex; align-items:center;
+    pointer-events:none;
+    z-index:40;            /* boven het scherm, onder de hutbe-overlay (z-index 50) */
+  }
+  .ticker-track{
+    display:inline-flex; align-items:center;
+    white-space:nowrap; will-change:transform;
+  }
+  .ticker-item{
+    display:inline-flex; align-items:baseline; gap:1.2vw;
+    padding:0 3vw;
+  }
+  .ticker-item .ar{
+    font-family:"Traditional Arabic","Amiri","Scheherazade New",serif;
+    direction:rtl; font-size:3.6vh; color:var(--text); font-weight:600;
+  }
+  .ticker-item .tr{
+    font-size:2.9vh; color:var(--text); font-style:italic;
+  }
+  .ticker-sep{
+    display:inline-block; width:.7vw; height:.7vw; border-radius:50%;
+    background:var(--green-light); opacity:.5; margin:0 1.6vw; align-self:center;
+  }
 </style>
 </head>
 <body>
@@ -501,7 +530,13 @@
   <div class="hadith-text" id="hadith-text">…</div>
   <div class="hadith-source" id="hadith-source"></div>
 </div>
+
 <div class="source-tag" id="source-tag"></div>
+
+<!-- ===== ZWEVENDE HADIS-ŞERİDİ ===== -->
+<div class="ticker" id="ticker">
+  <div class="ticker-track" id="ticker-track"></div>
+</div>
 
 <!-- ===== HUTBE OVERLAY (vrijdagpreek-samenvatting) ===== -->
 <div class="hutbe-overlay" id="hutbe-overlay">
@@ -594,6 +629,81 @@ const HADITHS = [
   {a:"فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ", t:"O hâlde Rabbinizin hangi nimetlerini yalanlıyorsunuz?", s:"Rahmân, 13"},
   {a:"وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ", t:"Benim başarım ancak Allah'ın yardımı iledir.", s:"Hûd, 88"},
 ];
+
+/* Namaz ile ilgili Kur'an ayetleri (alt şeritte kayar). a=Arapça, t=Türkçe meal, s=Sure+ayet.
+   NOT: Lütfen yayına almadan önce metinleri camide kontrol ettirin. */
+const NAMAZ_AYAH = [
+  {a:"إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَوْقُوتًا", t:"Şüphesiz namaz, müminlere belirli vakitlerde farz kılınmıştır.", s:"Nisâ, 103"},
+  {a:"وَأَقِيمُوا الصَّلَاةَ وَآتُوا الزَّكَاةَ وَارْكَعُوا مَعَ الرَّاكِعِينَ", t:"Namazı dosdoğru kılın, zekâtı verin ve rükû edenlerle birlikte rükû edin.", s:"Bakara, 43"},
+  {a:"حَافِظُوا عَلَى الصَّلَوَاتِ وَالصَّلَاةِ الْوُسْطَىٰ", t:"Namazlara ve orta namaza devam edin.", s:"Bakara, 238"},
+  {a:"وَأْمُرْ أَهْلَكَ بِالصَّلَاةِ وَاصْطَبِرْ عَلَيْهَا", t:"Ailene namazı emret ve kendin de ona sabırla devam et.", s:"Tâhâ, 132"},
+  {a:"قَدْ أَفْلَحَ الْمُؤْمِنُونَ ۝ الَّذِينَ هُمْ فِي صَلَاتِهِمْ خَاشِعُونَ", t:"Müminler gerçekten kurtuluşa ermiştir; onlar namazlarında huşû içindedirler.", s:"Mü'minûn, 1-2"},
+  {a:"إِنَّ الصَّلَاةَ تَنْهَىٰ عَنِ الْفَحْشَاءِ وَالْمُنْكَرِ", t:"Şüphesiz namaz, hayâsızlıktan ve kötülükten alıkoyar.", s:"Ankebût, 45"},
+  {a:"فَإِذَا قَضَيْتُمُ الصَّلَاةَ فَاذْكُرُوا اللَّهَ", t:"Namazı kıldığınızda Allah'ı anın.", s:"Nisâ, 103"},
+  {a:"وَأَقِمِ الصَّلَاةَ لِذِكْرِي", t:"Beni anmak için namaz kıl.", s:"Tâhâ, 14"},
+  {a:"وَالَّذِينَ هُمْ عَلَىٰ صَلَاتِهِمْ يُحَافِظُونَ", t:"Onlar namazlarını titizlikle koruyanlardır.", s:"Mü'minûn, 9"},
+  {a:"فَوَيْلٌ لِلْمُصَلِّينَ ۝ الَّذِينَ هُمْ عَنْ صَلَاتِهِمْ سَاهُونَ", t:"Yazıklar olsun o namaz kılanlara ki, onlar namazlarından gafildirler.", s:"Mâ'ûn, 4-5"},
+  {a:"وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ", t:"Sabır ve namazla yardım dileyin.", s:"Bakara, 45"},
+  {a:"الَّذِينَ يُؤْمِنُونَ بِالْغَيْبِ وَيُقِيمُونَ الصَّلَاةَ", t:"Onlar gayba inanırlar ve namazı dosdoğru kılarlar.", s:"Bakara, 3"},
+];
+
+/* Hz. Peygamber'in (s.a.v.) hadisleri — alttaki kayan şeritte gösterilir.
+   a=Arapça, t=Türkçe meal, s=Kaynak. NOT: Yayına almadan önce camide kontrol ettirin. */
+const HADISLER = [
+  {a:"إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ", t:"Ameller ancak niyetlere göredir.", s:"Buhârî"},
+  {a:"الدِّينُ النَّصِيحَةُ", t:"Din nasihattir (samimiyettir).", s:"Müslim"},
+  {a:"الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ", t:"Müslüman, elinden ve dilinden diğer Müslümanların güvende olduğu kimsedir.", s:"Buhârî"},
+  {a:"لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ", t:"Sizden biriniz, kendisi için istediğini kardeşi için de istemedikçe (gerçek anlamda) iman etmiş olmaz.", s:"Buhârî"},
+  {a:"الطُّهُورُ شَطْرُ الْإِيمَانِ", t:"Temizlik imanın yarısıdır.", s:"Müslim"},
+  {a:"مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الْآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ", t:"Allah'a ve âhiret gününe iman eden ya hayır söylesin ya da sussun.", s:"Buhârî"},
+  {a:"الْكَلِمَةُ الطَّيِّبَةُ صَدَقَةٌ", t:"Güzel söz sadakadır.", s:"Buhârî"},
+  {a:"تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ صَدَقَةٌ", t:"Kardeşinin yüzüne tebessüm etmen sadakadır.", s:"Tirmizî"},
+  {a:"خَيْرُكُمْ خَيْرُكُمْ لِأَهْلِهِ", t:"En hayırlınız, ailesine karşı en hayırlı olanınızdır.", s:"Tirmizî"},
+  {a:"مَنْ لَا يَرْحَمُ النَّاسَ لَا يَرْحَمُهُ اللَّهُ", t:"İnsanlara merhamet etmeyene Allah da merhamet etmez.", s:"Buhârî"},
+  {a:"الْمُؤْمِنُ لِلْمُؤْمِنِ كَالْبُنْيَانِ يَشُدُّ بَعْضُهُ بَعْضًا", t:"Mümin müminin kardeşidir; bir binanın tuğlaları gibi birbirini destekler.", s:"Buhârî"},
+  {a:"اتَّقِ اللَّهَ حَيْثُمَا كُنْتَ", t:"Nerede olursan ol Allah'a karşı sorumluluğunun bilincinde ol.", s:"Tirmizî"},
+];
+
+/* ===== ZWEVENDE HADIS-ŞERİDİ (ticker) ===== */
+/* harakat (uitspraaktekens) verwijderen → kale Arabische tekst voor gewend lezerspubliek */
+function stripHarakat(text){
+  return text.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED]/g, "");
+}
+function buildTicker(){
+  const track = document.getElementById("ticker-track");
+  if(!track) return;
+  track.innerHTML = "";
+  const makeItem = (h) => {
+    const item = document.createElement("span");
+    item.className = "ticker-item";
+    item.innerHTML =
+      `<span class="ar">${stripHarakat(h.a)}</span>` +
+      `<span class="ticker-sep"></span>` +
+      `<span class="tr">“${h.t}” (${h.s})</span>`;
+    return item;
+  };
+  const sep = () => { const s=document.createElement("span"); s.className="ticker-sep"; return s; };
+  // twee keer dezelfde reeks → naadloze lus
+  for(let copy=0; copy<2; copy++){
+    HADISLER.forEach((h)=>{ track.appendChild(makeItem(h)); track.appendChild(sep()); });
+  }
+}
+
+function startTicker(){
+  const track = document.getElementById("ticker-track");
+  if(!track) return;
+  const halfWidth = track.scrollWidth / 2;
+  if(halfWidth <= 0){ setTimeout(startTicker, 500); return; }
+  // ~20 sec leestijd per hadith
+  const PX_PER_SEC = halfWidth / (HADISLER.length * 20);
+  const duration = halfWidth / PX_PER_SEC;
+  const style = document.createElement("style");
+  style.textContent =
+    `@keyframes tickerScroll { from { transform: translateX(0); } to { transform: translateX(-${halfWidth}px); } }`;
+  document.head.appendChild(style);
+  track.style.animation = `tickerScroll ${duration}s linear infinite`;
+}
+
 
 const TR_MONTHS = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
 const TR_DAYS = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
@@ -1287,6 +1397,10 @@ setInterval(tick,1000);
 // elke 6 uur opnieuw ophalen (dag-overgang/DST)
 setInterval(loadTimings, 6*3600*1000);
 window.addEventListener("resize", alignSabahBox);
+
+// zwevende hadis-ticker onderaan
+buildTicker();
+window.addEventListener("load", ()=> setTimeout(startTicker, 300));
 
 // TEST-MODUS (?test=hutbe): haal de preek op en toon hem permanent
 if(HUTBE_TEST_MODE){
