@@ -53,6 +53,13 @@
   .pcard, .cd-box, .sabah-box, .nophone-box, .header, .pattern-bg{
     transition:background-color 4s ease, border-color 4s ease, color 4s ease, opacity 4s ease;
   }
+  /* groene "huidige" rand fadet zacht weg (10s) als de current-class verdwijnt */
+  .pcard{
+    transition:border-color 10s ease, box-shadow 10s ease, background-color 10s ease;
+  }
+  .pcard.current{
+    transition:border-color .4s ease, box-shadow .4s ease, background-color .4s ease;
+  }
 
   /* ---------- ACHTERGRONDPATROON (boven, fadet weg naar onder) ---------- */
   .pattern-bg{
@@ -258,6 +265,7 @@
     background:linear-gradient(180deg,rgba(214,40,40,.12),rgba(214,40,40,.04));
     border:2px solid var(--red);
     box-shadow:0 0 25px var(--next-glow);
+    transition:border-color .3s ease, box-shadow .3s ease;
   }
   .next-badge{
     position:absolute;top:-1.4vh;left:50%;transform:translateX(-50%);
@@ -292,11 +300,13 @@
   }
   .pcard.next .p-turkish{color:var(--red-soft);}
   .sun-icon{
-    width:4.6vh;height:4.6vh;
+    width:4.4vh;height:4.4vh;
     display:block;
   }
   .sun-row{
     display:flex;align-items:center;justify-content:center;
+    height:3.84vh;          /* = naam-regel hoogte van andere kaarten (3.2vh × 1.2) */
+    overflow:visible;        /* zon mag iets groter zijn dan de regel zonder de box te rekken */
   }
   /* zon overdag boven, 's nachts onder — zachte fade tussen de twee posities */
   .sun-top, .sun-bottom{
@@ -335,7 +345,7 @@
 
   /* ---------- HUIDIG GEBED (na ezan-fase: rustige groene rand) ---------- */
   .pcard.current{
-    background:linear-gradient(180deg,rgba(31,122,77,.10),rgba(31,122,77,.03));
+    background-color:rgba(31,122,77,.07);
     border:2px solid var(--green-light);
     box-shadow:0 0 18px rgba(46,158,99,.30);
   }
@@ -519,7 +529,8 @@
 const CITY = "Amsterdam";
 const COUNTRY = "Netherlands";
 const METHOD = 13; // 13 = Diyanet İşleri Başkanlığı (Aladhan fallback)
-const EZAN_DURATION = 120; // ezan vakti girince kaç saniye yeşil yanıp söner (120sn = 2dk)
+const EZAN_DURATION = 60; // ezan vakti girince kaç saniye yeşil yanıp söner (60sn = 1dk)
+const CURRENT_HIDE_BEFORE = 60; // huidige gebed: groene rand verdwijnt zoveel seconden vóór het volgende gebed (60sn = 1dk)
 
 /* GEÇİCİ DÜZELTME — sadece Aladhan yedeği için.
    Aladhan'ın İmsak ve Yatsı saatleri yüksek enlemde Diyanet'ten farklı çıkıyor.
@@ -712,13 +723,25 @@ function highlightNext(nextKey){
 
 /* markeer het HUIDIGE gebed (laatst ingegane, na de ezan-fase) met groene rand */
 function getCurrentPrayerKey(now){
-  // loop de echte gebeden (geen Sunrise) langs; pak de laatste waarvan de tijd al voorbij is
-  let currentKey = null;
+  // pak de laatste gebedstijd (INCL. Güneş) waarvan de tijd al voorbij is
+  let current = null;
   for(const p of prayerDates){
-    if(p.key==="Sunrise") continue;
-    if(p.date <= now) currentKey = p.key;
+    if(p.date <= now) current = p;
   }
-  return currentKey; // kan null zijn (vóór İmsak vandaag)
+  if(!current) return null; // vóór İmsak vandaag
+
+  // groene rand verdwijnt CURRENT_HIDE_BEFORE seconden vóór het volgende gebed
+  const next = getNextPrayer();
+  if(next && next.date){
+    // UITZONDERING: İmsak blijft groen tot Sabah Namazı ingaat (ze horen bij elkaar).
+    // Dus alleen wegfaden als het volgende moment NIET de Sabah Namazı is.
+    const isImsakBeforeSabah = (current.key==="Fajr" && next.key==="Sabah");
+    if(!isImsakBeforeSabah){
+      const msUntilNext = next.date - now;
+      if(msUntilNext <= CURRENT_HIDE_BEFORE*1000) return null; // laatste minuut: geen groene rand
+    }
+  }
+  return current.key;
 }
 
 function highlightCurrent(currentKey){
@@ -975,14 +998,17 @@ function tick(){
   if(ezanKey && nowMs < ezanUntil){
     const ez = prayerDates.find(x=>x.key===ezanKey);
     setEzan(ezanKey);
-    // countdown-zin tijdens ezan
+    // zin bovenaan blijft "... Ezan Vakti" tonen
     document.getElementById("next-name").textContent = ez ? ez.turkish : "";
     document.getElementById("next-label-suffix").textContent =
-      (ezanKey==="Fajr") ? " — İmsak Vakti" : " — Ezan Vakti";
-    // countdown toont 00:00:00 tijdens ezan
-    document.getElementById("cd-h").textContent = "00";
-    document.getElementById("cd-m").textContent = "00";
-    document.getElementById("cd-s").textContent = "00";
+      (ezanKey==="Fajr") ? " İmsak Vakti" : " Ezan Vakti";
+    // maar de timer telt gewoon door naar het volgende gebed
+    const nextE = getNextPrayer();
+    let diffE = Math.max(0, Math.floor((nextE.date - now)/1000));
+    document.getElementById("cd-h").textContent = pad(Math.floor(diffE/3600));
+    document.getElementById("cd-m").textContent = pad(Math.floor((diffE%3600)/60));
+    document.getElementById("cd-s").textContent = pad(diffE%60);
+    // huidige gebed (de zojuist ingegane) ook groen markeren blijft via setEzan
     return;
   }
 
