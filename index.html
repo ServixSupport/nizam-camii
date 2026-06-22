@@ -528,8 +528,10 @@ const HUTBE_API = "/api/hutbe";          // Vercel serverless endpoint
 const HUTBE_AFTER_OGLE_MIN = 10;         // kaç dakika sonra Öğle'den hutbe ekranı gelsin
 const HUTBE_DURATION_MIN   = 10;         // hutbe ekranı kaç dakika gösterilsin
 const HUTBE_DAY = 5;                      // 5 = Vrijdag (0=zo,1=ma,...5=vr)
+const HUTBE_RETRY_MIN = 15;              // zolang nog niet gevonden: elke 15 min opnieuw proberen
 let hutbeData = null;                     // {available, title, date, paragraphs}
-let hutbeFetchedFor = null;               // datum-string waarvoor al opgehaald
+let hutbeFetchedFor = null;               // datum-string waarvoor we zoeken
+let hutbeLastTry = 0;                      // tijdstip laatste ophaal-poging (ms)
 let hutbeScrollRAF = null;
 let hutbeShown = false;                    // is de overlay nu zichtbaar
 // Test-modus: open de pagina met ?test=hutbe om de preek permanent te tonen
@@ -773,14 +775,28 @@ function applyTheme(){
 // haal de preek-data op (1x per vrijdag)
 async function fetchHutbe(){
   const today = new Date().toISOString().slice(0,10);
-  if(hutbeFetchedFor === today) return; // al opgehaald vandaag
-  hutbeFetchedFor = today;
+
+  // nieuwe dag? reset zodat we opnieuw gaan zoeken
+  if(hutbeFetchedFor !== today){
+    hutbeFetchedFor = today;
+    hutbeData = null;
+    hutbeLastTry = 0;
+  }
+
+  // als we de preek van vandaag al hebben → niet opnieuw ophalen
+  if(hutbeData) return;
+
+  // anders: opnieuw proberen, maar hoogstens 1x per HUTBE_RETRY_MIN minuten
+  const nowMs = Date.now();
+  if(nowMs - hutbeLastTry < HUTBE_RETRY_MIN*60*1000) return;
+  hutbeLastTry = nowMs;
+
   try{
     const res = await fetch(HUTBE_API);
     const data = await res.json();
-    hutbeData = data && data.available ? data : null;
+    hutbeData = data && data.available ? data : null; // niet gevonden → blijft null, probeert later weer
   }catch(e){
-    hutbeData = null; // geen samenvatting → niks tonen
+    hutbeData = null; // fout → volgende keer opnieuw proberen
   }
 }
 
@@ -855,9 +871,9 @@ function checkHutbeWindow(now){
   if(now.getDay() !== HUTBE_DAY){ hideHutbe(); return; }
   if(!timings || !timings.Dhuhr){ hideHutbe(); return; }
 
-  // probeer de preek op te halen (1x per dag); pas tonen als beschikbaar
+  // blijf de preek ophalen (elke 15 min) tot hij gevonden is; pas tonen in het venster
   fetchHutbe();
-  if(!hutbeData){ hideHutbe(); return; } // geen samenvatting → niks doen
+  if(!hutbeData){ hideHutbe(); return; } // nog geen samenvatting → niks doen, later opnieuw
 
   const [h,m] = timings.Dhuhr.slice(0,5).split(":").map(Number);
   const ogle = new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m,0);
