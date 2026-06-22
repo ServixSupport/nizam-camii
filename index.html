@@ -532,6 +532,8 @@ let hutbeData = null;                     // {available, title, date, paragraphs
 let hutbeFetchedFor = null;               // datum-string waarvoor al opgehaald
 let hutbeScrollRAF = null;
 let hutbeShown = false;                    // is de overlay nu zichtbaar
+// Test-modus: open de pagina met ?test=hutbe om de preek permanent te tonen
+const HUTBE_TEST_MODE = new URLSearchParams(location.search).get("test") === "hutbe";
 
 /* Gebedstijden-bron: imsakiyem (Diyanet) met Aladhan-fallback */
 const IMSAKIYEM_BASE = "https://ezanvakti.imsakiyem.com";
@@ -846,6 +848,9 @@ function hideHutbe(){
 
 // bepaal of we NU in het hutbe-venster zitten (vrijdag, 10-20 min na Öğle)
 function checkHutbeWindow(now){
+  // TEST-MODUS: ?test=hutbe → preek permanent tonen (voor voorvertoning/demo)
+  if(HUTBE_TEST_MODE){ return; }
+
   // alleen op vrijdag
   if(now.getDay() !== HUTBE_DAY){ hideHutbe(); return; }
   if(!timings || !timings.Dhuhr){ hideHutbe(); return; }
@@ -1197,6 +1202,19 @@ setInterval(tick,1000);
 // elke 6 uur opnieuw ophalen (dag-overgang/DST)
 setInterval(loadTimings, 6*3600*1000);
 window.addEventListener("resize", alignSabahBox);
+
+// TEST-MODUS (?test=hutbe): haal de preek op en toon hem permanent
+if(HUTBE_TEST_MODE){
+  (async ()=>{
+    await fetchHutbe();
+    if(hutbeData){ showHutbe(); }
+    else {
+      document.getElementById("hutbe-title").textContent = "Geen samenvatting beschikbaar";
+      document.getElementById("hutbe-date").textContent = "(test-modus: er is geen recente preek gevonden)";
+      document.getElementById("hutbe-overlay").classList.add("show");
+    }
+  })();
+}
 setInterval(alignSabahBox, 1000); // houd uitlijning correct
 </script>
 </body>
