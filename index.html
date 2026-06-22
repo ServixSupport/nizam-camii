@@ -173,14 +173,14 @@
   }
   .nophone-box.active{
     visibility:visible;
-    animation:nophoneBlink 1.2s ease-in-out infinite;
+    animation:nophoneBlink 1s ease-in-out infinite;
   }
   @keyframes nophoneBlink{
     0%,100%{opacity:1;}
-    50%{opacity:.2;}
+    50%{opacity:.15;}
   }
   .nophone-img{
-    width:16vh;height:16vh;
+    width:22vh;height:22vh;
     object-fit:contain;
   }
   .nophone-text{
@@ -292,8 +292,7 @@
   }
   .pcard.next .p-turkish{color:var(--red-soft);}
   .sun-icon{
-    width:4vh;height:4vh;
-    color:#f4b400;          /* zon-amber */
+    width:4.6vh;height:4.6vh;
     display:block;
   }
   .sun-row{
@@ -331,6 +330,18 @@
   .ezan-badge{
     position:absolute;top:-1.4vh;left:50%;transform:translateX(-50%);
     background:var(--green);color:#fff;font-size:1.4vh;font-weight:700;
+    padding:.4vh 1.1vw;border-radius:1vh;letter-spacing:1px;white-space:nowrap;
+  }
+
+  /* ---------- HUIDIG GEBED (na ezan-fase: rustige groene rand) ---------- */
+  .pcard.current{
+    background:linear-gradient(180deg,rgba(31,122,77,.10),rgba(31,122,77,.03));
+    border:2px solid var(--green-light);
+    box-shadow:0 0 18px rgba(46,158,99,.30);
+  }
+  .current-badge{
+    position:absolute;top:-1.4vh;left:50%;transform:translateX(-50%);
+    background:var(--green-light);color:#fff;font-size:1.4vh;font-weight:700;
     padding:.4vh 1.1vw;border-radius:1vh;letter-spacing:1px;white-space:nowrap;
   }
 
@@ -593,7 +604,12 @@ function pad(n){return String(n).padStart(2,"0");}
 function buildPrayerCards(){
   const wrap = document.getElementById("prayers");
   wrap.innerHTML = "";
-  const sunSVG = `<svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`;
+  const sunSVG = `<svg class="sun-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <g>
+      <polygon fill="#f5a623" points="50,2 59,26 82,15 73,39 98,42 78,57 95,76 71,72 71,97 53,80 38,98 35,73 11,79 23,57 2,46 26,38 14,17 38,26"/>
+      <circle cx="50" cy="50" r="30" fill="#ffd400"/>
+    </g>
+  </svg>`;
   PRAYERS.forEach(p=>{
     const time = timings[p.key] ? timings[p.key].slice(0,5) : "--:--";
     const div = document.createElement("div");
@@ -693,6 +709,30 @@ function highlightNext(nextKey){
     }
   }
 }
+
+/* markeer het HUIDIGE gebed (laatst ingegane, na de ezan-fase) met groene rand */
+function getCurrentPrayerKey(now){
+  // loop de echte gebeden (geen Sunrise) langs; pak de laatste waarvan de tijd al voorbij is
+  let currentKey = null;
+  for(const p of prayerDates){
+    if(p.key==="Sunrise") continue;
+    if(p.date <= now) currentKey = p.key;
+  }
+  return currentKey; // kan null zijn (vóór İmsak vandaag)
+}
+
+function highlightCurrent(currentKey){
+  PRAYERS.forEach(p=>{
+    const card = document.getElementById("card-"+p.key);
+    if(!card) return;
+    // niet markeren als deze kaart al "next" of in ezan-fase is
+    const isCurrent = (p.key===currentKey)
+                      && !card.classList.contains("next")
+                      && !card.classList.contains("ezan");
+    card.classList.toggle("current", isCurrent);
+  });
+}
+
 
 /* zet één kaart in de groene knipperende "EZAN VAKTİ" modus */
 function setEzan(ezKey){
@@ -978,6 +1018,9 @@ function tick(){
     rotateHadith();
     lastNextKey = next.key;
   }
+
+  // markeer het huidige (al ingegane) gebed met een rustige groene rand
+  highlightCurrent(getCurrentPrayerKey(now));
 }
 
 function setDateLine(data){
