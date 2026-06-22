@@ -206,8 +206,9 @@
     background:var(--panel-2);
     border:1px solid var(--border);
     border-radius:1.2vh;
-    padding:2.2vh 1.8vw;
-    min-width:9vw;
+    padding:2.2vh 0;
+    width:13vw;
+    text-align:center;
   }
   .cd-num{
     color:var(--red);
@@ -383,6 +384,53 @@
     opacity:.45;
     letter-spacing:.5px;
   }
+  /* ===== HUTBE OVERLAY ===== */
+  .hutbe-overlay{
+    position:fixed; inset:0; z-index:50;
+    background:var(--bg);
+    display:none; flex-direction:column;
+    padding:0;
+  }
+  .hutbe-overlay.show{ display:flex; }
+  .hutbe-header{
+    display:flex; align-items:center; gap:1.4vw;
+    padding:3vh 4vw 0;
+  }
+  .hutbe-logo{ height:7vh; width:auto; }
+  .hutbe-mosque{ font-weight:800; font-size:3vh; line-height:1.15; color:var(--text); }
+  .hutbe-sub{ color:var(--text-dim); font-size:2vh; font-weight:600; margin-top:.3vh; }
+  .hutbe-content{
+    flex:1; display:flex; flex-direction:column;
+    padding:2vh 7vw 2vh; overflow:hidden;
+  }
+  .hutbe-title{
+    text-align:center; color:var(--green); font-weight:800;
+    font-size:4.2vh; line-height:1.2; margin:1vh 0 .6vh;
+    text-transform:uppercase; letter-spacing:.5px;
+  }
+  .hutbe-date{
+    text-align:center; color:var(--text-dim); font-size:2.6vh;
+    margin-bottom:2.4vh; font-weight:600;
+  }
+  .hutbe-body{
+    flex:1; overflow:hidden; position:relative;
+    max-width:82vw; margin:0 auto; width:100%;
+  }
+  .hutbe-scroll{
+    font-size:3.6vh; line-height:1.75; color:var(--text);
+    will-change:transform;
+  }
+  .hutbe-scroll p{ margin-bottom:1.6vh; }
+  .hutbe-scroll .lead{ font-weight:700; color:var(--green-light); }
+  .hutbe-scroll .quote{
+    font-style:italic; color:var(--text);
+    border-left:.5vh solid var(--green-light);
+    padding-left:1.5vw; margin:1.6vh 0;
+  }
+  .hutbe-footer{
+    text-align:center; color:var(--text-dim); font-size:1.8vh;
+    padding:1.5vh 0; border-top:1px solid var(--border);
+  }
 </style>
 </head>
 <body>
@@ -434,6 +482,23 @@
 </div>
 <div class="source-tag" id="source-tag"></div>
 
+<!-- ===== HUTBE OVERLAY (vrijdagpreek-samenvatting) ===== -->
+<div class="hutbe-overlay" id="hutbe-overlay">
+  <div class="hutbe-header">
+    <img class="hutbe-logo" id="hutbe-logo" alt="">
+    <div>
+      <div class="hutbe-mosque" id="hutbe-mosque">Amsterdam Nizam-ı Alem Süleymaniye Camii</div>
+      <div class="hutbe-sub">Cuma Hutbesi — Vrijdagpreek (samenvatting)</div>
+    </div>
+  </div>
+  <div class="hutbe-content">
+    <div class="hutbe-title" id="hutbe-title">—</div>
+    <div class="hutbe-date" id="hutbe-date"></div>
+    <div class="hutbe-body" id="hutbe-bodywrap"><div class="hutbe-scroll" id="hutbe-scroll"></div></div>
+  </div>
+  <div class="hutbe-footer">Islamitische Stichting Nederland (ISN)</div>
+</div>
+
 <div class="loading" id="loading">Vakitler yükleniyor…</div>
 
 <script>
@@ -457,6 +522,16 @@ const SABAH_BEFORE_SUNRISE = 60; // sabah namazı güneşten kaç dakika önce (
 /* OTOMATİK TEMA: gündüz beyaz, akşam (Maghrib'den önce) karanlık, İmsak'ta tekrar beyaz.
    THEME_DARK_BEFORE_MAGHRIB: Maghrib'den kaç dakika önce karanlığa geçiş başlasın. */
 const THEME_DARK_BEFORE_MAGHRIB = 5; // dakika
+
+/* ===== HUTBE (vrijdagpreek) ===== */
+const HUTBE_API = "/api/hutbe";          // Vercel serverless endpoint
+const HUTBE_AFTER_OGLE_MIN = 10;         // kaç dakika sonra Öğle'den hutbe ekranı gelsin
+const HUTBE_DURATION_MIN   = 10;         // hutbe ekranı kaç dakika gösterilsin
+const HUTBE_DAY = 5;                      // 5 = Vrijdag (0=zo,1=ma,...5=vr)
+let hutbeData = null;                     // {available, title, date, paragraphs}
+let hutbeFetchedFor = null;               // datum-string waarvoor al opgehaald
+let hutbeScrollRAF = null;
+let hutbeShown = false;                    // is de overlay nu zichtbaar
 
 /* Gebedstijden-bron: imsakiyem (Diyanet) met Aladhan-fallback */
 const IMSAKIYEM_BASE = "https://ezanvakti.imsakiyem.com";
@@ -677,24 +752,10 @@ function applyTheme(){
     const d = new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m,0);
     return d;
   };
-  // donker begint THEME_DARK_BEFORE_MAGHRIB minuten vóór Maghrib
-  let darkStart = new Date(mk(timings.Maghrib).getTime() - THEME_DARK_BEFORE_MAGHRIB*60*1000);
-  // donker eindigt bij İmsak (Fajr)
-  let lightStart = mk(timings.Fajr);
 
-  // is het nu "nacht"? (tussen darkStart vandaag en İmsak morgen, of vóór İmsak vandaag)
-  let isDark;
-  if(now >= darkStart){
-    // 's avonds na darkStart → donker (tot İmsak morgen)
-    isDark = true;
-  } else if(now < lightStart){
-    // 's nachts vóór İmsak → nog donker
-    isDark = true;
-  } else {
-    // tussen İmsak en darkStart → licht (dag)
-    isDark = false;
-  }
-  document.body.classList.toggle("theme-dark", isDark);
+  // Donker-thema is UITGESCHAKELD — scherm blijft altijd licht/wit.
+  // (De donkere variant is bewaard in index-met-donker-BACKUP.html voor de toekomst.)
+  document.body.classList.remove("theme-dark");
 
   // Zon-positie: overdag (Güneş→Akşam) boven, anders onder
   if(timings.Sunrise){
@@ -703,6 +764,103 @@ function applyTheme(){
     const sunUp = (now >= sunrise && now < sunset);
     document.body.classList.toggle("sun-up", sunUp);
   }
+}
+
+/* ===== HUTBE: ophalen, renderen, scrollen, timing ===== */
+
+// haal de preek-data op (1x per vrijdag)
+async function fetchHutbe(){
+  const today = new Date().toISOString().slice(0,10);
+  if(hutbeFetchedFor === today) return; // al opgehaald vandaag
+  hutbeFetchedFor = today;
+  try{
+    const res = await fetch(HUTBE_API);
+    const data = await res.json();
+    hutbeData = data && data.available ? data : null;
+  }catch(e){
+    hutbeData = null; // geen samenvatting → niks tonen
+  }
+}
+
+function renderHutbe(){
+  // logo + moskeenaam overnemen van het hoofdscherm
+  const mainLogo = document.querySelector(".brand img");
+  if(mainLogo) document.getElementById("hutbe-logo").src = mainLogo.src;
+
+  document.getElementById("hutbe-title").textContent = hutbeData.title || "Vrijdagpreek";
+  document.getElementById("hutbe-date").textContent = hutbeData.date || "";
+  const scroll = document.getElementById("hutbe-scroll");
+  scroll.innerHTML = "";
+  (hutbeData.paragraphs||[]).forEach(p=>{
+    const el = document.createElement("p");
+    if(p.type==="lead") el.className="lead";
+    else if(p.type==="quote") el.className="quote";
+    el.textContent = p.text;
+    scroll.appendChild(el);
+  });
+}
+
+// auto-scroll voor de preek (langzaam, met pauzes)
+const HUTBE_SCROLL_SPEED = 10;      // px/sec
+const HUTBE_PAUSE_TOP = 6000, HUTBE_PAUSE_BOTTOM = 6000;
+function startHutbeScroll(){
+  const viewport = document.getElementById("hutbe-bodywrap");
+  const scroll = document.getElementById("hutbe-scroll");
+  if(hutbeScrollRAF) cancelAnimationFrame(hutbeScrollRAF);
+  scroll.style.transition = ""; scroll.style.transform = "translateY(0)";
+  setTimeout(()=>{
+    const overflow = scroll.scrollHeight - viewport.clientHeight;
+    if(overflow <= 0) return;
+    let phase="pauseTop", phaseStart=performance.now(), y=0;
+    function step(now){
+      const el = now - phaseStart;
+      if(phase==="pauseTop"){ if(el>=HUTBE_PAUSE_TOP){ phase="scroll"; phaseStart=now; } }
+      else if(phase==="scroll"){
+        y=(el/1000)*HUTBE_SCROLL_SPEED;
+        if(y>=overflow){ y=overflow; phase="pauseBottom"; phaseStart=now; }
+        scroll.style.transform="translateY("+(-y)+"px)";
+      } else if(phase==="pauseBottom"){
+        if(el>=HUTBE_PAUSE_BOTTOM){ scroll.style.transition="transform 1.2s ease"; scroll.style.transform="translateY(0)"; phase="reset"; phaseStart=now; }
+      } else if(phase==="reset"){
+        if(el>=1300){ scroll.style.transition=""; phase="pauseTop"; phaseStart=now; }
+      }
+      hutbeScrollRAF = requestAnimationFrame(step);
+    }
+    hutbeScrollRAF = requestAnimationFrame(step);
+  }, 300);
+}
+
+function showHutbe(){
+  if(hutbeShown) return;
+  hutbeShown = true;
+  renderHutbe();
+  document.getElementById("hutbe-overlay").classList.add("show");
+  startHutbeScroll();
+}
+function hideHutbe(){
+  if(!hutbeShown) return;
+  hutbeShown = false;
+  document.getElementById("hutbe-overlay").classList.remove("show");
+  if(hutbeScrollRAF) cancelAnimationFrame(hutbeScrollRAF);
+}
+
+// bepaal of we NU in het hutbe-venster zitten (vrijdag, 10-20 min na Öğle)
+function checkHutbeWindow(now){
+  // alleen op vrijdag
+  if(now.getDay() !== HUTBE_DAY){ hideHutbe(); return; }
+  if(!timings || !timings.Dhuhr){ hideHutbe(); return; }
+
+  // probeer de preek op te halen (1x per dag); pas tonen als beschikbaar
+  fetchHutbe();
+  if(!hutbeData){ hideHutbe(); return; } // geen samenvatting → niks doen
+
+  const [h,m] = timings.Dhuhr.slice(0,5).split(":").map(Number);
+  const ogle = new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m,0);
+  const start = new Date(ogle.getTime() + HUTBE_AFTER_OGLE_MIN*60*1000);
+  const end   = new Date(start.getTime() + HUTBE_DURATION_MIN*60*1000);
+
+  if(now >= start && now < end){ showHutbe(); }
+  else { hideHutbe(); }
 }
 
 function tick(){
@@ -715,6 +873,7 @@ function tick(){
   if(!prayerDates.length) return;
 
   applyTheme(); // licht/donker automatisch
+  checkHutbeWindow(now); // vrijdagpreek tonen/verbergen op het juiste moment
 
   // 1) Detecteer of een gebedstijd zojuist is ingegaan
   for(const p of prayerDates){
