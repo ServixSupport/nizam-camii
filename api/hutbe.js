@@ -126,8 +126,19 @@ function parseHutbe(raw, dateLabel) {
   // body: vanaf "Beste..." tot we bij bron/footer komen
   const paragraphs = [];
   let buffer = [];
+  const cleanText = (t) => {
+    return t
+      // bronvermeldingen / voetnoot-staarten afknippen (alles vanaf zo'n marker)
+      .replace(/\s*\d*\s*(İnşirâh|Inşirâh)\s+Suresi.*$/i, "")
+      .replace(/\s*\d*\s*(Ahmed b\.|Tirmizî|Buhârî|Müslim|Müsned|Hanbel).*$/i, "")
+      // losse voetnoot-cijfers direct na een leesteken: Heer."1  -> Heer."
+      .replace(/([.!?”"’])\s*\d{1,2}(?=\s|$)/g, "$1")
+      // dubbele spaties
+      .replace(/\s+/g, " ")
+      .trim();
+  };
   const flush = (type) => {
-    const text = buffer.join(" ").replace(/\s+/g, " ").trim();
+    const text = cleanText(buffer.join(" "));
     if (text) paragraphs.push({ type: type || "p", text });
     buffer = [];
   };
