@@ -78,7 +78,14 @@ async function extractPdfText(url) {
   const buf = new Uint8Array(await pdfRes.arrayBuffer());
 
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-  const doc = await pdfjs.getDocument({ data: buf, useSystemFonts: true }).promise;
+  // In een serverless omgeving is er geen aparte worker-module beschikbaar.
+  // Forceer pdf.js om alles in de hoofd-thread te doen (geen losse worker laden).
+  const doc = await pdfjs.getDocument({
+    data: buf,
+    useSystemFonts: true,
+    disableWorker: true,
+    isEvalSupported: false,
+  }).promise;
 
   let text = "";
   for (let i = 1; i <= doc.numPages; i++) {
