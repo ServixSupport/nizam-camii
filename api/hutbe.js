@@ -69,7 +69,7 @@ export default async function handler(req, res) {
   }
 }
 
-// ---- PDF tekst-extractie via pdfjs-dist (legacy build werkt serverless) ----
+// ---- PDF tekst-extractie via unpdf (serverless-vriendelijk, geen worker nodig) ----
 async function extractPdfText(url) {
   const pdfRes = await fetch(url, {
     headers: { "User-Agent": "Mozilla/5.0 (compatible; NizamCamiiScreen/1.0)" },
@@ -77,32 +77,10 @@ async function extractPdfText(url) {
   if (!pdfRes.ok) return null;
   const buf = new Uint8Array(await pdfRes.arrayBuffer());
 
-  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-  // In een serverless omgeving is er geen aparte worker-module beschikbaar.
-  // Forceer pdf.js om alles in de hoofd-thread te doen (geen losse worker laden).
-  const doc = await pdfjs.getDocument({
-    data: buf,
-    useSystemFonts: true,
-    disableWorker: true,
-    isEvalSupported: false,
-  }).promise;
-
-  let text = "";
-  for (let i = 1; i <= doc.numPages; i++) {
-    const page = await doc.getPage(i);
-    const content = await page.getTextContent();
-    // groepeer per regel op basis van y-positie
-    const lines = {};
-    for (const item of content.items) {
-      if (!item.str) continue;
-      const y = Math.round(item.transform[5]);
-      (lines[y] = lines[y] || []).push(item.str);
-    }
-    const ys = Object.keys(lines).map(Number).sort((a, b) => b - a);
-    for (const y of ys) text += lines[y].join(" ") + "\n";
-    text += "\n";
-  }
-  return text;
+  const { extractText, getDocumentProxy } = await import("unpdf");
+  const pdf = await getDocumentProxy(buf);
+  const { text } = await extractText(pdf, { mergePages: true });
+  return text || null;
 }
 
 // ---- Nederlandse tekst isoleren en in paragrafen opdelen ----
@@ -113,7 +91,16 @@ function isDutchLine(line) {
 }
 
 function parseHutbe(raw, dateLabel) {
-  const allLines = raw.split("\n").map((l) => l.trim()).filter(Boolean);
+  // unpdf kan tekst met weinig newlines teruggeven; normaliseer naar regels.
+  let normalized = raw;
+  // als er nauwelijks newlines zijn, splits op duidelijke zinseinden en aanhef-woorden
+  const newlineCount = (raw.match(/\n/g) || []).length;
+  if (newlineCount < 8) {
+    normalized = raw
+      .replace(/\s+(Beste\s+(Moslims|Broeders))/g, "\n$1")
+      .replace(/([.!?”"])\s+/g, "$1\n");
+  }
+  const allLines = normalized.split("\n").map((l) => l.trim()).filter(Boolean);
 
   // titel: eerste blok HOOFDLETTER-regels dat Nederlands is (na de Arabische opening)
   let title = "";

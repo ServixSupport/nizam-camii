@@ -4,6 +4,6 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "pdfjs-dist": "^4.10.38"
+    "unpdf": "^0.12.2"
   }
 }
