@@ -838,7 +838,19 @@ function getCurrentPrayerKey(now){
   for(const p of prayerDates){
     if(p.date <= now) current = p;
   }
-  if(!current) return null; // vóór İmsak vandaag
+  // 's nachts (na middernacht, vóór İmsak van vandaag) is nog geen gebed van vandaag ingegaan;
+  // dan is İsha (Yatsı) van gisteravond het huidige gebed → İsha groen tot İmsak ingaat.
+  if(!current){
+    const isha = prayerDates.find(p=>p.key==="Isha");
+    const fajr = prayerDates.find(p=>p.key==="Fajr");
+    if(isha && fajr && now < fajr.date){
+      // wel wegfaden in de laatste minuut vóór İmsak
+      const msUntilFajr = fajr.date - now;
+      if(msUntilFajr <= CURRENT_HIDE_BEFORE*1000) return null;
+      return "Isha";
+    }
+    return null; // anders: geen huidig gebed
+  }
 
   // groene rand verdwijnt CURRENT_HIDE_BEFORE seconden vóór het volgende gebed
   const next = getNextPrayer();
