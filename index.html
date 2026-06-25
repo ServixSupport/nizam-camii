@@ -239,7 +239,7 @@
     text-align:center;
     color:var(--text);
     font-size:1.9em;
-    margin:2.8vh 0 5vh;
+    margin:2.8vh 0 3vh;
     font-weight:500;
   }
   .date-line .hijri{color:var(--text-dim);}
@@ -469,8 +469,7 @@
     left:0; right:0; bottom:0;
     height:8vh;
     overflow:hidden;
-    display:none;          /* TIJDELIJK VERBORGEN — zet op 'flex' om de ticker weer te tonen */
-    align-items:center;
+    display:flex; align-items:center;
     pointer-events:none;
     z-index:40;            /* boven het scherm, onder de hutbe-overlay (z-index 50) */
   }
