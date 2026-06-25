@@ -778,16 +778,22 @@ function computePrayerDates(){
 
 function getNextPrayer(){
   const now = new Date();
-  // bouw de keten met Sabah Namazı als virtueel moment (na İmsak, vóór Öğle)
+  // bouw de keten met Sabah Namazı + Güneş als virtuele momenten (alleen voor de countdown)
   const chain = [];
   for(const p of prayerDates){
-    if(p.key==="Sunrise") continue; // güneş is geen namaz vakti, atla
+    if(p.key==="Sunrise"){
+      // Güneş telt wel mee als countdown-doel (zonsopkomst), maar krijgt geen SIRADAKİ-rand
+      chain.push({...p, isSunriseCountdown:true});
+      continue;
+    }
     chain.push(p);
     // direct na Fajr (İmsak) het Sabah-moment invoegen
     if(p.key==="Fajr" && sabahDate){
       chain.push({key:"Sabah", turkish:"Sabah Namazı", date:new Date(sabahDate)});
     }
   }
+  // op tijd-volgorde zetten (Sabah en Güneş netjes tussen İmsak en Öğle)
+  chain.sort((a,b)=> a.date - b.date);
   for(const p of chain){
     if(p.date > now) return p;
   }
@@ -801,7 +807,8 @@ function highlightNext(nextKey){
   PRAYERS.forEach(p=>{
     const card = document.getElementById("card-"+p.key);
     if(!card) return;
-    const isNext = p.key===nextKey;
+    // Güneş (Sunrise) telt wel mee in de countdown, maar krijgt NOOIT de rode SIRADAKİ-rand
+    const isNext = (p.key===nextKey) && (p.key!=="Sunrise");
     card.classList.toggle("next", isNext);
     let badge = card.querySelector(".next-badge");
     if(isNext && !badge){
@@ -1153,10 +1160,11 @@ function tick(){
   document.getElementById("cd-m").textContent = pad(m);
   document.getElementById("cd-s").textContent = pad(s);
   document.getElementById("next-name").textContent = next.turkish;
-  // İmsak ve Sabah Namazı'nda farklı ek (İmsak namaz değil; Sabah'ta zaten "Namazı" var)
+  // İmsak/Sabah/Güneş'te farklı ek (İmsak namaz değil; Sabah'ta zaten "Namazı" var; Güneş = doğuş)
   let suffix;
   if(next.key==="Sabah") suffix = "'na kalan süre";
-  else if(next.key==="Fajr") suffix = "'a kalan süre";   // İmsak'a kalan süre
+  else if(next.key==="Fajr") suffix = "'a kalan süre";          // İmsak'a kalan süre
+  else if(next.key==="Sunrise") suffix = "'in doğmasına kalan süre"; // Güneş'in doğmasına kalan süre
   else suffix = " namazına kalan süre";
   document.getElementById("next-label-suffix").textContent = suffix;
 
