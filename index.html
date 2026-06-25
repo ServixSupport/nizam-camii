@@ -144,6 +144,9 @@
     letter-spacing:.5px;
     line-height:1.2;
     margin-bottom:1.6vh;
+    /* zelfde hoogte als de titel (2 regels) zodat de tijd in het verticale midden valt */
+    height:2.4em;
+    display:flex;align-items:flex-end;justify-content:center;
   }
   .sabah-time{
     color:var(--text);
@@ -159,6 +162,9 @@
     letter-spacing:.5px;
     margin-top:1.6vh;
     line-height:1.1;
+    /* zelfde hoogte als arabic-blok → symmetrisch rond de tijd */
+    height:2.4em;
+    display:flex;align-items:flex-start;justify-content:center;
   }
   .sabah-box.active{
     animation:ezanBlink 1s ease-in-out infinite;
