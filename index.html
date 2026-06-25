@@ -1328,6 +1328,8 @@ function alignSabahBox(){
   const box = document.getElementById("sabah-box");
   const imsak = document.getElementById("card-Fajr"); // İmsak kaart
   const cd = document.querySelector(".cd-box");        // countdown box (resterende tijd)
+  const cdNum = document.querySelector(".cd-num");     // de timer-cijfers
+  const sabahTime = box ? box.querySelector(".sabah-time") : null; // de Sabah-tijd
   if(!box || !imsak || !cd) return;
 
   const ir = imsak.getBoundingClientRect();
@@ -1338,11 +1340,23 @@ function alignSabahBox(){
   box.style.height = ir.height + "px";
   box.style.left   = ir.left + "px";
 
-  // verticaal gecentreerd op de as van de countdown (resterende tijd)
-  const cdCenter = cr.top + cr.height/2;
-  box.style.top = (cdCenter - ir.height/2) + "px";
+  // verticale uitlijning: standaard op het midden van de countdown-box
+  let cdCenter = cr.top + cr.height/2;
 
+  // eerst grof plaatsen
+  box.style.top = (cdCenter - ir.height/2) + "px";
   box.style.visibility = "visible";
+
+  // fijn-uitlijnen: zet de Sabah-TIJD op exact dezelfde as als de TIMER-CIJFERS
+  if(cdNum && sabahTime){
+    const numMid = cdNum.getBoundingClientRect();
+    const numCenterY = numMid.top + numMid.height/2;       // as van de timer-cijfers
+    const sr = sabahTime.getBoundingClientRect();
+    const sabahCenterY = sr.top + sr.height/2;             // as van de Sabah-tijd (na grof plaatsen)
+    const delta = numCenterY - sabahCenterY;               // hoeveel de box moet verschuiven
+    const curTop = parseFloat(box.style.top);
+    box.style.top = (curTop + delta) + "px";
+  }
 
   // nophone-box: rechts gespiegeld, zelfde breedte/hoogte, zelfde verticale as
   const np = document.getElementById("nophone-box");
