@@ -203,10 +203,10 @@
     letter-spacing:.5px;
   }
   .next-label{
-    font-size:1.73em;color:var(--text-dim);font-weight:500;
+    font-size:2.0em;color:var(--text-dim);font-weight:500;
     margin-bottom:1.8vh;
   }
-  .next-label b{color:var(--green-light);font-weight:800;font-size:2.1em;text-transform:uppercase;}
+  .next-label b{color:var(--green-light);font-weight:800;font-size:1.82em;text-transform:uppercase;}
   .countdown{
     display:flex;justify-content:center;align-items:center;gap:1vw;
     position:relative;
@@ -233,12 +233,12 @@
     font-size:1.24em;
     margin-top:.8vh;
   }
-  .cd-sep{color:var(--text-dim);font-size:3.8em;font-weight:700;}
+  .cd-sep{color:var(--green-light);font-size:3.8em;font-weight:700;}
 
   .date-line{
     text-align:center;
     color:var(--text);
-    font-size:1.62em;
+    font-size:1.9em;
     margin:2.8vh 0 5vh;
     font-weight:500;
   }
@@ -304,14 +304,21 @@
   }
   .pcard.next .p-turkish{color:var(--red-soft);}
   .sun-icon{
-    width:4.4vh;height:4.4vh;
+    width:1.9em;height:1.9em;
     display:block;
   }
+  /* de zon-rijen dragen ook .p-arabic/.p-turkish (voor uitlijning), maar mogen
+     NIET die marges/regelhoogte erven, anders wordt de Güneş-box te hoog.
+     Daarom hier expliciet gelijktrekken met de naam-regel-hoogte. */
   .sun-row{
     display:flex;align-items:center;justify-content:center;
-    height:3.84vh;          /* = naam-regel hoogte van andere kaarten (3.2vh × 1.2) */
-    overflow:visible;        /* zon mag iets groter zijn dan de regel zonder de box te rekken */
+    font-size:1em;            /* reset: niet de 1.73em van p-arabic erven, anders klopt de em-hoogte niet */
+    height:2.076em;           /* = naam-regel hoogte: 1.73em × line-height 1.2 (body-relatief) */
+    margin:0;                 /* overschrijf de geërfde 1.8vh marge */
+    overflow:hidden;          /* zon blijft binnen de regelhoogte */
   }
+  .sun-row.sun-top{ margin-bottom:1.8vh; }
+  .sun-row.sun-bottom{ margin-top:1.8vh; }
   /* zon overdag boven, 's nachts onder — zachte fade tussen de twee posities */
   .sun-top, .sun-bottom{
     transition:opacity 3s ease;
