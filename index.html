@@ -203,6 +203,29 @@ body.light .loading{background:rgba(255,255,255,.65)}
 #stage>header,#stage>.midrow,#stage>.grid{position:relative;z-index:1}
 :root{--silhouette:#16335f; --sil-op:.5}
 body.light{--silhouette:#b9c6da; --sil-op:.9}
+
+/* ===================== CUMA HUTBESİ OVERLAY (koyu tema) ===================== */
+.hutbe{position:fixed;inset:0;z-index:50;display:flex;
+  background:radial-gradient(120% 95% at 50% 0%, #0c2a63 0%, #0a2150 42%, #07173a 74%, #050f2b 100%);
+  color:#e9f0fb;font-family:'Inter',system-ui,sans-serif}
+.hutbe.hidden{display:none}
+.hutbe-inner{margin:auto;width:min(1480px,86vw);height:100%;display:flex;flex-direction:column;padding:3.4vh 0 2.6vh}
+.hutbe-head{display:flex;align-items:center;gap:1.4vw;flex:0 0 auto;
+  padding-bottom:1.8vh;border-bottom:2px solid rgba(255,217,138,.35)}
+.hutbe-logo{height:8vh;width:8vh;object-fit:contain;filter:drop-shadow(0 3px 12px rgba(0,0,0,.5))}
+.hutbe-mosque{font-family:'Oswald',sans-serif;font-weight:600;font-size:2.5vh;letter-spacing:1px;color:#fff;line-height:1.12}
+.hutbe-kicker{font-size:1.7vh;font-weight:700;letter-spacing:3px;color:#ffd98a;text-transform:uppercase;margin-top:.5vh}
+.hutbe-title{font-family:'Oswald',sans-serif;font-weight:700;font-size:4.4vh;line-height:1.12;
+  color:#ffd98a;text-align:center;margin:2.4vh 0 1.8vh;flex:0 0 auto;text-shadow:0 3px 20px rgba(0,0,0,.4)}
+.hutbe-scroll{flex:1 1 auto;overflow:hidden;position:relative;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 4%,#000 95%,transparent 100%);
+          mask-image:linear-gradient(180deg,transparent 0,#000 4%,#000 95%,transparent 100%)}
+.hutbe-body{font-size:2.55vh;line-height:1.62;padding:1.2vh 0}
+.hutbe-body p{margin:0 0 1.7vh}
+.hutbe-body .lead{font-weight:700;color:#fff;font-size:2.75vh;margin-bottom:2vh}
+.hutbe-body .quote{border-left:5px solid #ffd98a;padding:.2vh 0 .2vh 1.3vw;color:#cfe0ff;font-style:italic}
+.hutbe-foot{flex:0 0 auto;text-align:center;font-size:1.5vh;color:#8fa3c8;padding-top:1.4vh;
+  border-top:1px solid rgba(255,255,255,.12);letter-spacing:.5px}
 </style>
 </head>
 <body>
@@ -311,6 +334,22 @@ body.light{--silhouette:#b9c6da; --sil-op:.9}
 
   <div class="loading" id="loading">Vakitler yükleniyor…</div>
 </div>
+
+  <!-- ===== CUMA HUTBESİ (Cuma günü Öğle+10dk, 30 dk ekranda) ===== -->
+  <div id="hutbe" class="hutbe hidden" aria-hidden="true">
+    <div class="hutbe-inner">
+      <div class="hutbe-head">
+        <img class="hutbe-logo" alt="">
+        <div>
+          <div class="hutbe-mosque">NİZAM-I ALEM SÜLEYMANİYE CAMİİ</div>
+          <div class="hutbe-kicker">CUMA HUTBESİ&nbsp;·&nbsp;<span id="hutbe-date"></span></div>
+        </div>
+      </div>
+      <div class="hutbe-title" id="hutbe-title">…</div>
+      <div class="hutbe-scroll" id="hutbe-scroll"><div class="hutbe-body" id="hutbe-body"></div></div>
+      <div class="hutbe-foot">Diyanet — Cuma Hutbesi özeti · Nederlands</div>
+    </div>
+  </div>
 
 <script>
 /* ===================================================================
@@ -521,6 +560,91 @@ loadTimes();
 tick();
 // her saat tazele (saat/yaz kış saati güvenliği)
 setInterval(()=>{ if(dataReady) loadTimes(); }, 60*60*1000);
+
+/* ===================== CUMA HUTBESİ ===================== */
+const TEST_HUTBE = new URLSearchParams(location.search).get('test')==='hutbe';
+const HUTBE_DELAY_MIN = 10;   // Öğle'den sonra başlama gecikmesi (dk)
+const HUTBE_SHOW_MIN  = 30;   // ekranda kalma süresi (dk)
+let hutbeData=null, hutbeFetching=false, hutbeVisible=false, hutbeRAF=0;
+
+async function fetchHutbe(){
+  if(hutbeFetching) return;
+  hutbeFetching=true;
+  try{
+    const r=await fetch('/api/hutbe',{cache:'no-store'});
+    const j=await r.json();
+    if(j && j.available) hutbeData=j;
+  }catch(e){ /* sessiz; 15 dk'da bir tekrar denenir */ }
+  finally{ hutbeFetching=false; }
+}
+function todayDhuhr(now){
+  for(const s of schedule){
+    if(s.key==='Dhuhr' && s.date.getDate()===now.getDate()
+       && s.date.getMonth()===now.getMonth() && s.date.getFullYear()===now.getFullYear())
+      return s.date;
+  }
+  return null;
+}
+function hutbeShouldShow(now){
+  if(TEST_HUTBE) return true;
+  if(now.getDay()!==5) return false;             // 5 = Cuma
+  const dh=todayDhuhr(now); if(!dh) return false;
+  const start=dh.getTime()+HUTBE_DELAY_MIN*60000;
+  const end=start+HUTBE_SHOW_MIN*60000;
+  const t=now.getTime();
+  return t>=start && t<end;
+}
+function renderHutbe(){
+  const dEl=document.getElementById('hutbe-date');
+  const tEl=document.getElementById('hutbe-title');
+  const bEl=document.getElementById('hutbe-body');
+  if(hutbeData){
+    dEl.textContent=hutbeData.date||'';
+    tEl.textContent=hutbeData.title||'Cuma Hutbesi';
+    bEl.innerHTML='';
+    for(const p of (hutbeData.paragraphs||[])){
+      const el=document.createElement('p');
+      el.className = p.type==='lead'?'lead':(p.type==='quote'?'quote':'');
+      el.textContent=p.text;
+      bEl.appendChild(el);
+    }
+  }else{
+    dEl.textContent=''; tEl.textContent='Cuma Hutbesi';
+    bEl.innerHTML='<p>Hutbe metni yükleniyor…</p>';
+  }
+}
+function startHutbeScroll(){
+  const el=document.getElementById('hutbe-scroll');
+  cancelAnimationFrame(hutbeRAF);
+  el.scrollTop=0;
+  const max=()=>el.scrollHeight-el.clientHeight;
+  if(max()<=2) return;                          // sığıyorsa kaydırma yok
+  const DOWN=20, UP=80, WAIT_TOP=7000, WAIT_BOT=7000;  // px/sn ve bekleme(ms)
+  let phase='wt', t0=performance.now();
+  function step(now){
+    const m=max();
+    if(phase==='wt'){ if(now-t0>WAIT_TOP){phase='dn';t0=now;} }
+    else if(phase==='dn'){ el.scrollTop=Math.min(m,(now-t0)/1000*DOWN); if(el.scrollTop>=m-0.5){phase='wb';t0=now;} }
+    else if(phase==='wb'){ if(now-t0>WAIT_BOT){phase='up';t0=now;} }
+    else if(phase==='up'){ el.scrollTop=Math.max(0,m-(now-t0)/1000*UP); if(el.scrollTop<=0.5){phase='wt';t0=now;} }
+    hutbeRAF=requestAnimationFrame(step);
+  }
+  hutbeRAF=requestAnimationFrame(step);
+}
+function updateHutbe(now){
+  const want=hutbeShouldShow(now) && (hutbeData || TEST_HUTBE);
+  const ov=document.getElementById('hutbe');
+  if(want && !hutbeVisible){
+    renderHutbe(); ov.classList.remove('hidden'); hutbeVisible=true;
+    requestAnimationFrame(startHutbeScroll);
+  }else if(!want && hutbeVisible){
+    ov.classList.add('hidden'); hutbeVisible=false; cancelAnimationFrame(hutbeRAF);
+  }
+}
+(function(){ const bi=document.querySelector('.brand img'), hl=document.querySelector('.hutbe-logo'); if(bi&&hl) hl.src=bi.src; })();
+fetchHutbe();
+setInterval(fetchHutbe, 15*60*1000);                              // 15 dk'da bir tazele
+setInterval(()=>{ try{ updateHutbe(new Date()); }catch(e){} }, 1000);
 </script>
 </body>
 </html>
