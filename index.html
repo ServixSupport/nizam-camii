@@ -249,7 +249,7 @@ body.light{--silhouette:#b9c6da; --sil-op:.9}
 
   <section class="midrow">
     <!-- Sabah / Salat Al Fajr  (artık Güneş'in ikonu burada) -->
-    <div class="sun-panel" id="sun-Fajr">
+    <div class="sun-panel" id="sun-Imsak">
       <div class="sun-ico" aria-hidden="true">
         <svg viewBox="0 0 100 100">
           <g stroke="currentColor" stroke-width="5" stroke-linecap="round">
@@ -269,10 +269,10 @@ body.light{--silhouette:#b9c6da; --sil-op:.9}
         </svg>
       </div>
       <div class="sun-text">
-        <div class="sun-tr">Sabah</div>
-        <div class="sun-ar">Salat Al Fajr</div>
+        <div class="sun-tr">İmsak</div>
+        <div class="sun-ar">İmsâk</div>
       </div>
-      <div class="time num" data-time="Fajr">--:--</div>
+      <div class="time num" data-time="Imsak">--:--</div>
     </div>
 
     <div class="clockwrap">
@@ -305,9 +305,9 @@ body.light{--silhouette:#b9c6da; --sil-op:.9}
   </section>
 
   <section class="grid">
-    <div class="box" id="box-Imsak">
-      <div class="head"><span class="tr">İmsak</span><span class="ar">Fajr</span></div>
-      <div class="time num" data-time="Imsak">--:--</div>
+    <div class="box" id="box-Fajr">
+      <div class="head"><span class="tr">Sabah</span><span class="ar">Fajr</span></div>
+      <div class="time num" data-time="Fajr">--:--</div>
     </div>
     <div class="box countdown" id="box-countdown">
       <div class="head"><span class="cd-label" id="cd-label">—</span></div>
@@ -367,8 +367,8 @@ const CONFIG = {
 
 /* Görüntülenen vakitler (sıra önemli) */
 const EVENTS = [
-  { key:'Imsak',   tr:'İmsak',  dat:"İmsak'a",  banner:'İMSAK VAKTİ', takeover:true,  el:'box-Imsak' },
-  { key:'Fajr',    tr:'Sabah',  dat:"Sabah'a",  banner:'',            takeover:false, el:'sun-Fajr' },
+  { key:'Imsak',   tr:'İmsak',  dat:"İmsak'a",  banner:'İMSAK VAKTİ', takeover:true,  el:'sun-Imsak' },
+  { key:'Fajr',    tr:'Sabah',  dat:"Sabah'a",  banner:'',            takeover:false, el:'box-Fajr' },
   { key:'Sunrise', tr:'Güneş',  dat:"Güneş'e",  banner:'',            takeover:false, el:'sun-Sunrise' },
   { key:'Dhuhr',   tr:'Öğle',   dat:"Öğle'ye",  banner:'EZAN VAKTİ',  takeover:true,  el:'box-Dhuhr' },
   { key:'Asr',     tr:'İkindi', dat:"İkindi'ye",banner:'EZAN VAKTİ',  takeover:true,  el:'box-Asr' },
