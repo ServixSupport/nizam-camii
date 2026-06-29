@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 <style>
 /* Oswald gömülü (offline'da da çalışır, Google Fonts'a bağımlı değil) */
 @font-face{font-family:'Oswald';font-style:normal;font-weight:500;font-display:swap;
@@ -101,8 +102,26 @@ header{position:relative;height:118px;flex:0 0 auto}
 @keyframes sepPulse{0%,100%{opacity:1}50%{opacity:.55}}
 
 /* ===================== ALT: 6 KUTU ===================== */
-.grid{flex:1 1 auto;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);
-  gap:22px;margin-top:10px;min-height:0}
+.swap-area{flex:1 1 auto;position:relative;overflow:hidden;min-height:0;margin-top:10px}
+.swap-area>.grid,.swap-area>.feature{position:absolute;inset:0;
+  transition:transform .7s cubic-bezier(.65,0,.35,1)}
+.swap-area>.feature{transform:translateX(106%)}
+.swap-area.show-feature>.grid{transform:translateX(-106%)}
+.swap-area.show-feature>.feature{transform:translateX(0)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);
+  gap:22px;min-height:0}
+.feature{display:flex}
+.feat-card{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;gap:2.4vh;padding:5.4vh 4vw 4vh;position:relative;overflow:hidden;
+  background:var(--panel);border:2px solid var(--panel-brd);border-radius:22px}
+.feat-tag{position:absolute;top:2.6vh;left:50%;transform:translateX(-50%);
+  font-family:'Inter',sans-serif;font-weight:700;letter-spacing:5px;font-size:1.9vh;
+  color:#ffd98a;text-transform:uppercase}
+.feat-ar{font-family:'Amiri','Traditional Arabic','Noto Naskh Arabic',serif;direction:rtl;
+  font-weight:400;font-size:4.7vh;line-height:1.9;color:#fff;max-width:92%}
+.feat-tr{font-family:'Inter',sans-serif;font-weight:500;font-size:2.6vh;line-height:1.5;
+  color:#dce6f7;max-width:88%}
+.feat-src{font-family:'Inter',sans-serif;font-weight:700;font-size:2.2vh;color:#ffd98a;letter-spacing:.5px}
 
 .box{
   background:var(--panel);
@@ -200,7 +219,7 @@ body.light .loading{background:rgba(255,255,255,.65)}
 .mosque-sil{position:absolute;left:0;right:0;bottom:0;height:150px;z-index:0;pointer-events:none;
   color:var(--silhouette);opacity:var(--sil-op)}
 .mosque-sil svg{width:100%;height:100%;display:block}
-#stage>header,#stage>.midrow,#stage>.grid{position:relative;z-index:1}
+#stage>header,#stage>.midrow,#stage>.swap-area{position:relative;z-index:1}
 :root{--silhouette:#16335f; --sil-op:.5}
 body.light{--silhouette:#b9c6da; --sil-op:.9}
 
@@ -304,6 +323,7 @@ body.light{--silhouette:#b9c6da; --sil-op:.9}
     </div>
   </section>
 
+  <div class="swap-area">
   <section class="grid">
     <div class="box" id="box-Fajr">
       <div class="head"><span class="tr">Sabah</span><span class="ar">Fajr</span></div>
@@ -331,6 +351,17 @@ body.light{--silhouette:#b9c6da; --sil-op:.9}
       <div class="time num" data-time="Isha">--:--</div>
     </div>
   </section>
+
+  <!-- ===== ÂYET / HADÎS paneli (15 dk'da bir kayarak gelir) ===== -->
+  <section class="feature" id="feature" aria-hidden="true">
+    <div class="feat-card">
+      <div class="feat-tag" id="feat-tag">ÂYET-İ KERÎME</div>
+      <div class="feat-ar" id="feat-ar"></div>
+      <div class="feat-tr" id="feat-tr"></div>
+      <div class="feat-src" id="feat-src"></div>
+    </div>
+  </section>
+  </div>
 
   <div class="loading" id="loading">Vakitler yükleniyor…</div>
 </div>
@@ -376,8 +407,8 @@ const EVENTS = [
   { key:'Isha',    tr:'Yatsı',  dat:"Yatsı'ya", banner:'EZAN VAKTİ',  takeover:true,  el:'box-Isha' },
 ];
 
-const HICRI_AY = ['','Muharrem','Safer','Rebiülevvel','Rebiülahir','Cemaziyelevvel',
-  'Cemaziyelahir','Recep','Şaban','Ramazan','Şevval','Zilkade','Zilhicce'];
+const HICRI_AY = ['','Muharram','Safar','Rabi\' al-Awwal','Rabi\' al-Thani','Jumada al-Awwal',
+  'Jumada al-Thani','Rajab','Sha\'ban','Ramadan','Shawwal','Dhu al-Qa\'dah','Dhu al-Hijjah'];
 
 /* ---- 1920x1080 sahneyi ekrana sığdır ---- */
 function fitStage(){
@@ -644,7 +675,74 @@ function updateHutbe(now){
 (function(){ const bi=document.querySelector('.brand img'), hl=document.querySelector('.hutbe-logo'); if(bi&&hl) hl.src=bi.src; })();
 fetchHutbe();
 setInterval(fetchHutbe, 15*60*1000);                              // 15 dk'da bir tazele
-setInterval(()=>{ try{ updateHutbe(new Date()); }catch(e){} }, 1000);
+/* ===================== ÂYET / HADÎS PANELİ ===================== */
+/* >>> CAMİDE KONTROL ETTİR <<<  Yayına almadan önce Arapça metinleri, Türkçe
+   mealleri ve kaynakları cami hocasına doğrulat. Listelere serbestçe ekleme/
+   çıkarma yapabilirsin:  ar = Arapça (harekesiz), tr = Türkçe meal, src = kaynak */
+const AYETLER = [
+  { ar:'وأقيموا الصلاة وآتوا الزكاة واركعوا مع الراكعين',
+    tr:'Namazı dosdoğru kılın, zekâtı verin ve rükû edenlerle birlikte rükû edin.',
+    src:'Bakara sûresi, 43' },
+  { ar:'إن الصلاة تنهى عن الفحشاء والمنكر',
+    tr:'Şüphesiz namaz; hayâsızlıktan ve kötülükten alıkoyar.',
+    src:'Ankebût sûresi, 45' },
+  { ar:'وأقم الصلاة لذكري',
+    tr:'Beni anmak için namazı kıl.',
+    src:'Tâhâ sûresi, 14' },
+  { ar:'استعينوا بالصبر والصلاة',
+    tr:'Sabır ve namaz ile (Allah’tan) yardım isteyin.',
+    src:'Bakara sûresi, 153' },
+  { ar:'حافظوا على الصلوات والصلاة الوسطى وقوموا لله قانتين',
+    tr:'Namazlara ve orta namaza devam edin; Allah’ın huzurunda gönülden boyun eğerek durun.',
+    src:'Bakara sûresi, 238' },
+];
+const HADISLER = [
+  { ar:'بني الإسلام على خمس: شهادة أن لا إله إلا الله وأن محمدا رسول الله، وإقام الصلاة، وإيتاء الزكاة، وحج البيت، وصوم رمضان',
+    tr:'İslâm beş esas üzerine kurulmuştur: Allah’tan başka ilâh olmadığına ve Muhammed’in O’nun Resûlü olduğuna şehâdet etmek, namazı kılmak, zekâtı vermek, haccetmek ve ramazan orucunu tutmak.',
+    src:'Buhârî & Müslim' },
+  { ar:'أول ما يحاسب به العبد يوم القيامة الصلاة',
+    tr:'Kıyamet günü kulun ilk hesaba çekileceği amel namazdır.',
+    src:'Tirmizî & Nesâî' },
+  { ar:'العهد الذي بيننا وبينهم الصلاة فمن تركها فقد كفر',
+    tr:'Bizimle onlar arasındaki ahid namazdır; kim onu terk ederse kâfir olur.',
+    src:'Tirmizî, Nesâî & İbn Mâce' },
+  { ar:'الصلوات الخمس والجمعة إلى الجمعة كفارات لما بينهن ما لم تغش الكبائر',
+    tr:'Beş vakit namaz ve bir cumadan diğer cumaya kadar olan süre, büyük günahlardan kaçınıldığı müddetçe aralarındaki günahlara keffârettir.',
+    src:'Müslim' },
+];
+const FEATURE_SECONDS = 75;       // panel ekranda kaç sn kalsın
+let aIdx=0, hIdx=0, featCounter=0, lastFeatSlot=null, featShown=false, _featHide=0;
+
+function showFeature(kind){
+  const arr = kind==='ayet'?AYETLER:HADISLER;
+  if(!arr.length) return;
+  const item = kind==='ayet' ? arr[aIdx++ % arr.length] : arr[hIdx++ % arr.length];
+  document.getElementById('feat-tag').textContent = kind==='ayet'?'ÂYET-İ KERÎME':'HADÎS-İ ŞERÎF';
+  document.getElementById('feat-ar').textContent  = item.ar;
+  document.getElementById('feat-tr').textContent  = item.tr;
+  document.getElementById('feat-src').textContent = item.src;
+  document.querySelector('.swap-area').classList.add('show-feature');
+  featShown=true;
+  clearTimeout(_featHide);
+  _featHide=setTimeout(hideFeature, FEATURE_SECONDS*1000);
+}
+function hideFeature(){ document.querySelector('.swap-area').classList.remove('show-feature'); featShown=false; }
+
+function featureTick(now){
+  // hutbe açıksa veya bir vakit yanıp sönüyorsa paneli gösterme / açıksa kapat
+  if(hutbeVisible || document.querySelector('.flash')){ if(featShown) hideFeature(); return; }
+  const slot = now.getHours()*4 + Math.floor(now.getMinutes()/15);   // çeyrek saat dilimi
+  if(lastFeatSlot===null){ lastFeatSlot=slot; return; }              // ilk yüklemede tetikleme yok
+  if(slot!==lastFeatSlot){
+    lastFeatSlot=slot;
+    showFeature((featCounter++%2===0)?'ayet':'hadis');               // sırayla ayet → hadis
+  }
+}
+// test: ?test=ayet veya ?test=hadis ile paneli kalıcı göster
+(function(){ const t=new URLSearchParams(location.search).get('test');
+  if(t==='ayet'||t==='hadis'){ showFeature(t); clearTimeout(_featHide); } })();
+
+setInterval(()=>{ const _n=new Date(); try{ updateHutbe(_n); }catch(e){} try{ featureTick(_n); }catch(e){} }, 1000);
 </script>
 </body>
 </html>
