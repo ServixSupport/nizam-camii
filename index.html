@@ -115,13 +115,13 @@ header{position:relative;height:118px;flex:0 0 auto}
   text-align:center;gap:2.4vh;padding:5.4vh 4vw 4vh;position:relative;overflow:hidden;
   background:var(--panel);border:2px solid var(--panel-brd);border-radius:22px}
 .feat-tag{position:absolute;top:2.6vh;left:50%;transform:translateX(-50%);
-  font-family:'Inter',sans-serif;font-weight:700;letter-spacing:5px;font-size:1.9vh;
+  font-family:'Inter',sans-serif;font-weight:700;letter-spacing:5px;font-size:2.1vh;
   color:#ffd98a;text-transform:uppercase}
 .feat-ar{font-family:'Amiri','Traditional Arabic','Noto Naskh Arabic',serif;direction:rtl;
-  font-weight:400;font-size:4.7vh;line-height:1.9;color:#fff;max-width:92%}
-.feat-tr{font-family:'Inter',sans-serif;font-weight:500;font-size:2.6vh;line-height:1.5;
-  color:#dce6f7;max-width:88%}
-.feat-src{font-family:'Inter',sans-serif;font-weight:700;font-size:2.2vh;color:#ffd98a;letter-spacing:.5px}
+  font-weight:400;font-size:6.6vh;line-height:1.7;color:#fff;max-width:94%}
+.feat-tr{font-family:'Inter',sans-serif;font-weight:500;font-size:3.5vh;line-height:1.45;
+  color:#dce6f7;max-width:90%}
+.feat-src{font-family:'Inter',sans-serif;font-weight:700;font-size:2.6vh;color:#ffd98a;letter-spacing:.5px}
 
 .box{
   background:var(--panel);
@@ -723,8 +723,24 @@ function showFeature(kind){
   document.getElementById('feat-src').textContent = item.src;
   document.querySelector('.swap-area').classList.add('show-feature');
   featShown=true;
+  requestAnimationFrame(fitFeature);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitFeature);
   clearTimeout(_featHide);
   _featHide=setTimeout(hideFeature, FEATURE_SECONDS*1000);
+}
+// metni taşmayacak şekilde mümkün olan en büyük puntoya getir
+function fitFeature(){
+  const card=document.querySelector('.feat-card');
+  const ar=document.getElementById('feat-ar'), tr=document.getElementById('feat-tr');
+  if(!card) return;
+  const AR=6.6, TR=3.5;                 // büyük taban punto (vh)
+  ar.style.fontSize=AR+'vh'; tr.style.fontSize=TR+'vh';
+  let s=1, g=0;
+  while(card.scrollHeight>card.clientHeight+1 && s>0.5 && g++<60){
+    s-=0.035;
+    ar.style.fontSize=(AR*s).toFixed(2)+'vh';
+    tr.style.fontSize=(TR*s).toFixed(2)+'vh';
+  }
 }
 function hideFeature(){ document.querySelector('.swap-area').classList.remove('show-feature'); featShown=false; }
 
