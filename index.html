@@ -660,14 +660,13 @@ function startHutbeScroll(){
   el.scrollTop=0;
   const max=()=>el.scrollHeight-el.clientHeight;
   if(max()<=2) return;                          // sığıyorsa kaydırma yok
-  const DOWN=28, UP=90, WAIT_TOP=6000, WAIT_BOT=6000;  // px/sn ve bekleme(ms)
+  const DOWN=28, WAIT_TOP=6000, WAIT_BOT=6000;  // px/sn ve bekleme(ms)
   let phase='wt', t0=performance.now();
   function step(now){
     const m=max();
     if(phase==='wt'){ if(now-t0>WAIT_TOP){phase='dn';t0=now;} }
     else if(phase==='dn'){ el.scrollTop=Math.min(m,(now-t0)/1000*DOWN); if(el.scrollTop>=m-0.5){phase='wb';t0=now;} }
-    else if(phase==='wb'){ if(now-t0>WAIT_BOT){phase='up';t0=now;} }
-    else if(phase==='up'){ el.scrollTop=Math.max(0,m-(now-t0)/1000*UP); if(el.scrollTop<=0.5){phase='wt';t0=now;} }
+    else if(phase==='wb'){ if(now-t0>WAIT_BOT){ el.scrollTop=0; phase='wt'; t0=now; } }  // en alta gelince anında en üste dön
     hutbeRAF=requestAnimationFrame(step);
   }
   hutbeRAF=requestAnimationFrame(step);
