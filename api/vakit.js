@@ -55,6 +55,40 @@ async function api(path) {
   return j && j.data !== undefined ? j.data : j;
 }
 
+// Diyanet dokümanı ile gerçek servis yolu farklı olabiliyor; çalışanı otomatik bul.
+const MONTHLY_PATHS = [
+  (id) => "/api/PrayerTime/Monthly/" + id,
+  (id) => "/api/AwqatSalah/Monthly/" + id,
+  (id) => "/api/PrayerTimes/Monthly/" + id,
+  (id) => "/api/AwqatSalah/MonthlyPrayerTimes/" + id,
+];
+const DAILY_PATHS = [
+  (id) => "/api/PrayerTime/Daily/" + id,
+  (id) => "/api/AwqatSalah/Daily/" + id,
+  (id) => "/api/PrayerTimes/Daily/" + id,
+];
+
+let _goodPath = null;   // çalıştığı bilinen yol (sıcak lambda içinde saklanır)
+
+async function tryPaths(makers, id) {
+  if (_goodPath) {
+    try { return { data: await api(_goodPath), path: _goodPath }; }
+    catch (e) { _goodPath = null; }                     // artık çalışmıyorsa yeniden ara
+  }
+  let last = "";
+  for (const make of makers) {
+    const p = make(id);
+    try {
+      const data = await api(p);
+      if (data) { _goodPath = p; return { data, path: p }; }
+    } catch (e) {
+      last = String(e.message || e);
+      if (!/HTTP 404/.test(last)) throw e;              // 404 değilse (401/429 vb.) hemen bildir
+    }
+  }
+  throw new Error("uygun endpoint bulunamadı — son hata: " + last);
+}
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   // vakitler sabittir: 24 saat taze, 14 gün boyunca eski veriyi servis ederken arkada tazele
@@ -71,33 +105,63 @@ export default async function handler(req, res) {
     if (q.sehirler)
       return res.status(200).json({ ok: true, data: await api("/api/Place/Cities/" + q.sehirler) });
 
-    // ---- asıl mod: aylık namaz vakitleri ----
     const cityId = process.env.DIYANET_CITY_ID;
     if (!cityId) throw new Error("DIYANET_CITY_ID tanımlı değil");
 
-    const rows = await api("/api/AwqatSalah/Monthly/" + cityId);
-    const list = Array.isArray(rows) ? rows : [];
-    if (!list.length) throw new Error("aylık veri boş geldi");
+    // ---- teşhis modu: /api/vakit?tani=1  (hangi yol çalışıyor, tek tek dener) ----
+    if (q.tani) {
+      const out = [];
+      for (const make of [...MONTHLY_PATHS, ...DAILY_PATHS]) {
+        const p = make(cityId);
+        try {
+          const d = await api(p);
+          out.push({ yol: p, sonuc: "OK", adet: Array.isArray(d) ? d.length : 1,
+                     ornek: Array.isArray(d) ? d[0] : d });
+        } catch (e) { out.push({ yol: p, sonuc: String(e.message || e) }); }
+      }
+      res.setHeader("Cache-Control", "no-store");
+      return res.status(200).json({ cityId, denemeler: out });
+    }
+
+    // ---- asıl mod: aylık namaz vakitleri (olmazsa günlük) ----
+    let found;
+    try { found = await tryPaths(MONTHLY_PATHS, cityId); }
+    catch (e) { found = await tryPaths(DAILY_PATHS, cityId); }
+
+    const list = Array.isArray(found.data) ? found.data : [found.data];
+    if (!list.length) throw new Error("veri boş geldi");
 
     // Diyanet alan adları -> bizim ekranın beklediği sade format
     // NOT: Diyanet'te "fajr" = İMSAK, "sunrise" = GÜNEŞ. Sabah namazı vaktini
     // ekran kendisi hesaplıyor (Güneş - 60 dk).
+    const pick = (o, ...names) => {
+      for (const n of names) {
+        for (const k of Object.keys(o)) {
+          if (k.toLowerCase() === n.toLowerCase() && o[k]) return o[k];
+        }
+      }
+      return "";
+    };
     const days = list.map((x) => ({
-      date:      x.gregorianDateShort,   // "27.06.2026"
-      hijri:     x.hijriDateShort,       // "11.01.1448"
-      hijriLong: x.hijriDateLong,
-      imsak:     x.fajr,
-      gunes:     x.sunrise,
-      ogle:      x.dhuhr,
-      ikindi:    x.asr,
-      aksam:     x.maghrib,
-      yatsi:     x.isha,
-    }));
+      date:      pick(x, "gregorianDateShort", "miladiTarihKisa", "date"),
+      hijri:     pick(x, "hijriDateShort", "hicriTarihKisa"),
+      hijriLong: pick(x, "hijriDateLong", "hicriTarihUzun"),
+      imsak:     pick(x, "fajr", "imsak"),
+      gunes:     pick(x, "sunrise", "gunes"),
+      ogle:      pick(x, "dhuhr", "ogle"),
+      ikindi:    pick(x, "asr", "ikindi"),
+      aksam:     pick(x, "maghrib", "aksam"),
+      yatsi:     pick(x, "isha", "yatsi"),
+    })).filter((d) => d.date && d.ogle);
+
+    if (!days.length)
+      throw new Error("alan adları tanınmadı — /api/vakit?tani=1 ile kontrol et");
 
     return res.status(200).json({
       available: true,
       source: "diyanet",
       cityId,
+      path: found.path,
       count: days.length,
       days,
     });
