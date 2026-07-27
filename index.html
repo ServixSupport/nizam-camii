@@ -439,8 +439,49 @@ function dateAt(base, hm, offMin){
 }
 function ymd(d){ return `${pad(d.getDate())}-${pad(d.getMonth()+1)}-${d.getFullYear()}`; }
 
+/* ---- Diyanet resmî API (api/vakit.js üzerinden) ---- */
+let diyanetMap = null;                                   // 'GG.AA.YYYY' -> gün verisi
+function dmy(d){ return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()}`; }
+
+async function loadDiyanet(){
+  try{
+    const r = await fetch('/api/vakit', {cache:'no-store'});
+    const j = await r.json();
+    if(j && j.available && Array.isArray(j.days) && j.days.length){
+      diyanetMap = {};
+      for(const x of j.days) diyanetMap[x.date] = x;
+      try{ localStorage.setItem('vakitler', JSON.stringify(j.days)); }catch(e){}
+      return true;
+    }
+  }catch(e){ /* sessiz */ }
+  // API'ye ulaşılamadıysa en son indirilen ayı kullan
+  try{
+    const s = JSON.parse(localStorage.getItem('vakitler')||'null');
+    if(s && s.length){ diyanetMap = {}; for(const x of s) diyanetMap[x.date] = x; return true; }
+  }catch(e){}
+  return false;
+}
+
+// Diyanet gününü, ekranın beklediği (Aladhan benzeri) yapıya çevir
+function diyanetDay(d){
+  if(!diyanetMap) return null;
+  const x = diyanetMap[dmy(d)];
+  if(!x) return null;
+  const hp = String(x.hijri||'').split('.');             // GG.AA.YYYY
+  return {
+    _src:'diyanet',
+    timings:{ Imsak:x.imsak, Fajr:x.imsak, Sunrise:x.gunes,
+              Dhuhr:x.ogle, Asr:x.ikindi, Maghrib:x.aksam, Isha:x.yatsi },
+    date:{ hijri:{ day:(hp[0]||'').replace(/^0/,''),
+                   month:{ number:String(parseInt(hp[1],10)||0), en:'' },
+                   year:hp[2]||'' } }
+  };
+}
+
 async function fetchDay(d){
-  const url = `https://api.aladhan.com/v1/timings/${ymd(d)}`
+  const dd = diyanetDay(d);                              // önce Diyanet
+  if(dd) return dd;
+  const url = `https://api.aladhan.com/v1/timings/${ymd(d)}`   // yedek: Aladhan
     + `?latitude=${CONFIG.latitude}&longitude=${CONFIG.longitude}&method=${CONFIG.method}`;
   const r = await fetch(url);
   if(!r.ok) throw new Error('HTTP '+r.status);
@@ -464,7 +505,9 @@ function buildSchedule(){
     if(ev.key === 'Fajr'){ hm = parseHM(data.timings['Sunrise']); extra = -60; }
     else { hm = parseHM(data.timings[ev.key]); }
     if(!hm) return null;
-    return dateAt(base, hm, (CONFIG.offsets[ev.key]||0) + extra);
+    // Diyanet resmî veriyse düzeltme uygulanmaz; Aladhan yedeğinde uygulanır
+    const off = (data._src==='diyanet') ? 0 : (CONFIG.offsets[ev.key]||0);
+    return dateAt(base, hm, off + extra);
   }
 
   schedule = [];
@@ -497,6 +540,7 @@ async function loadTimes(){
   try{
     const now = new Date();
     const tom = new Date(now); tom.setDate(tom.getDate()+1);
+    await loadDiyanet();                       // önce Diyanet'in aylık verisi
     [todayData, tomData] = await Promise.all([ fetchDay(now), fetchDay(tom) ]);
     DAY = now.getDate();
     buildSchedule();
