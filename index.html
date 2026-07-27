@@ -748,6 +748,36 @@ const AYETLER = [
   { ar:'حافظوا على الصلوات والصلاة الوسطى وقوموا لله قانتين',
     tr:'Namazlara ve orta namaza devam edin; Allah’ın huzurunda gönülden boyun eğerek durun.',
     src:'Bakara sûresi, 238' },
+  { ar:'ألا بذكر الله تطمئن القلوب',
+    tr:'Bilesiniz ki kalpler ancak Allah\u2019ı anmakla huzur bulur.',
+    src:'Ra\u2019d sûresi, 28' },
+  { ar:'فاذكروني أذكركم واشكروا لي ولا تكفرون',
+    tr:'Öyleyse yalnız beni anın ki ben de sizi anayım. Bana şükredin, nankörlük etmeyin.',
+    src:'Bakara sûresi, 152' },
+  { ar:'لئن شكرتم لأزيدنكم',
+    tr:'Andolsun, eğer şükrederseniz elbette size nimetimi artırırım.',
+    src:'İbrâhîm sûresi, 7' },
+  { ar:'وإذا سألك عبادي عني فإني قريب أجيب دعوة الداع إذا دعان',
+    tr:'Kullarım sana beni sorduğunda (bilsinler ki) ben çok yakınım. Bana dua ettiğinde dua edenin dileğine karşılık veririm.',
+    src:'Bakara sûresi, 186' },
+  { ar:'إن الصلاة كانت على المؤمنين كتابا موقوتا',
+    tr:'Şüphesiz namaz, müminlere belirli vakitlere bağlı olarak farz kılınmıştır.',
+    src:'Nisâ sûresi, 103' },
+  { ar:'قد أفلح المؤمنون الذين هم في صلاتهم خاشعون',
+    tr:'Müminler gerçekten kurtuluşa ermiştir. Onlar ki namazlarında huşû içindedirler.',
+    src:'Mü\u2019minûn sûresi, 1-2' },
+  { ar:'إنما المؤمنون إخوة',
+    tr:'Müminler ancak kardeştirler.',
+    src:'Hucurât sûresi, 10' },
+  { ar:'وما خلقت الجن والإنس إلا ليعبدون',
+    tr:'Ben cinleri ve insanları ancak bana kulluk etsinler diye yarattım.',
+    src:'Zâriyât sûresi, 56' },
+  { ar:'ومن يتق الله يجعل له مخرجا ويرزقه من حيث لا يحتسب',
+    tr:'Kim Allah\u2019a karşı gelmekten sakınırsa, Allah ona bir çıkış yolu açar ve onu ummadığı yerden rızıklandırır.',
+    src:'Talâk sûresi, 2-3' },
+  { ar:'إن الله يأمر بالعدل والإحسان وإيتاء ذي القربى',
+    tr:'Şüphesiz Allah adaleti, iyilik yapmayı ve yakınlara yardım etmeyi emreder.',
+    src:'Nahl sûresi, 90' },
 ];
 const HADISLER = [
   { ar:'بني الإسلام على خمس: شهادة أن لا إله إلا الله وأن محمدا رسول الله، وإقام الصلاة، وإيتاء الزكاة، وحج البيت، وصوم رمضان',
@@ -762,19 +792,74 @@ const HADISLER = [
   { ar:'الصلوات الخمس والجمعة إلى الجمعة كفارات لما بينهن ما لم تغش الكبائر',
     tr:'Beş vakit namaz ve bir cumadan diğer cumaya kadar olan süre, büyük günahlardan kaçınıldığı müddetçe aralarındaki günahlara keffârettir.',
     src:'Müslim' },
+  { ar:'سئل النبي صلى الله عليه وسلم أي العمل أفضل؟ قال: الصلاة على وقتها',
+    tr:'Peygamber Efendimiz\u2019e “Hangi amel daha faziletlidir?” diye soruldu. “Vaktinde kılınan namaz” buyurdu.',
+    src:'Buhârî & Müslim' },
+  { ar:'من بنى لله مسجدا بنى الله له بيتا في الجنة',
+    tr:'Kim Allah rızası için bir mescid yaparsa, Allah da ona cennette bir ev yapar.',
+    src:'Buhârî & Müslim' },
+  { ar:'صلاة الجماعة أفضل من صلاة الفذ بسبع وعشرين درجة',
+    tr:'Cemaatle kılınan namaz, tek başına kılınan namazdan yirmi yedi derece daha faziletlidir.',
+    src:'Buhârî & Müslim' },
+  { ar:'لا يؤمن أحدكم حتى يحب لأخيه ما يحب لنفسه',
+    tr:'Sizden biriniz, kendisi için sevdiğini kardeşi için de sevmedikçe (kâmil manada) iman etmiş olmaz.',
+    src:'Buhârî & Müslim' },
+  { ar:'المسلم من سلم المسلمون من لسانه ويده',
+    tr:'Müslüman, elinden ve dilinden Müslümanların güvende olduğu kimsedir.',
+    src:'Buhârî & Müslim' },
+  { ar:'الطهور شطر الإيمان',
+    tr:'Temizlik imanın yarısıdır.',
+    src:'Müslim' },
+  { ar:'تبسمك في وجه أخيك صدقة',
+    tr:'Kardeşinin yüzüne tebessüm etmen sadakadır.',
+    src:'Tirmizî' },
+  { ar:'خيركم من تعلم القرآن وعلمه',
+    tr:'Sizin en hayırlınız, Kur\u2019an\u2019ı öğrenen ve öğretendir.',
+    src:'Buhârî' },
+];
+
+/* ---- DUÂLAR ---- */
+const DUALAR = [
+  { ar:'ربنا آتنا في الدنيا حسنة وفي الآخرة حسنة وقنا عذاب النار',
+    tr:'Rabbimiz! Bize dünyada da iyilik ver, âhirette de iyilik ver ve bizi ateş azabından koru.',
+    src:'Bakara sûresi, 201' },
+  { ar:'رب اشرح لي صدري ويسر لي أمري',
+    tr:'Rabbim! Gönlüme genişlik ver, işimi bana kolaylaştır.',
+    src:'Tâhâ sûresi, 25-26' },
+  { ar:'ربنا لا تؤاخذنا إن نسينا أو أخطأنا',
+    tr:'Rabbimiz! Unutur veya hataya düşersek bizi sorumlu tutma.',
+    src:'Bakara sûresi, 286' },
+  { ar:'رب اجعلني مقيم الصلاة ومن ذريتي ربنا وتقبل دعاء',
+    tr:'Rabbim! Beni ve soyumdan gelenleri namazı devamlı kılanlardan eyle. Rabbimiz, duamı kabul buyur.',
+    src:'İbrâhîm sûresi, 40' },
+  { ar:'رب زدني علما',
+    tr:'Rabbim! İlmimi artır.',
+    src:'Tâhâ sûresi, 114' },
+  { ar:'ربنا اغفر لنا ولإخواننا الذين سبقونا بالإيمان',
+    tr:'Rabbimiz! Bizi ve bizden önce iman etmiş olan kardeşlerimizi bağışla.',
+    src:'Haşr sûresi, 10' },
+  { ar:'حسبنا الله ونعم الوكيل',
+    tr:'Allah bize yeter, O ne güzel vekildir.',
+    src:'Âl-i İmrân sûresi, 173' },
+  { ar:'اللهم أعني على ذكرك وشكرك وحسن عبادتك',
+    tr:'Allahım! Seni anmak, sana şükretmek ve sana güzelce kulluk etmek için bana yardım et.',
+    src:'Ebû Dâvûd & Nesâî' },
 ];
 const FEATURE_SECONDS = 75;       // panel ekranda kaç sn kalsın
-let featCounter=0, lastFeatSlot=null, featShown=false, _featHide=0, lastA=-1, lastH=-1;
+let featCounter=0, lastFeatSlot=null, featShown=false, _featHide=0;
 function pickIdx(len,last){ if(len<=1) return 0; let i; do{ i=Math.floor(Math.random()*len); }while(i===last); return i; }
 
+const FEATURE_KINDS = ['ayet','hadis','dua'];      // sırayla dönerler
+const FEATURE_TAG = { ayet:'ÂYET-İ KERÎME', hadis:'HADÎS-İ ŞERÎF', dua:'DUÂ' };
+let lastPick = { ayet:-1, hadis:-1, dua:-1 };
+
 function showFeature(kind){
-  const arr = kind==='ayet'?AYETLER:HADISLER;
+  const arr = ({ayet:AYETLER, hadis:HADISLER, dua:DUALAR})[kind] || [];
   if(!arr.length) return;
-  let idx;
-  if(kind==='ayet'){ idx=pickIdx(arr.length,lastA); lastA=idx; }
-  else            { idx=pickIdx(arr.length,lastH); lastH=idx; }
+  const idx = pickIdx(arr.length, lastPick[kind]);
+  lastPick[kind] = idx;
   const item = arr[idx];
-  document.getElementById('feat-tag').textContent = kind==='ayet'?'ÂYET-İ KERÎME':'HADÎS-İ ŞERÎF';
+  document.getElementById('feat-tag').textContent = FEATURE_TAG[kind] || '';
   document.getElementById('feat-ar').textContent  = item.ar;
   document.getElementById('feat-tr').textContent  = item.tr;
   document.getElementById('feat-src').textContent = item.src;
@@ -808,12 +893,21 @@ function featureTick(now){
   if(lastFeatSlot===null){ lastFeatSlot=slot; return; }              // ilk yüklemede tetikleme yok
   if(slot!==lastFeatSlot){
     lastFeatSlot=slot;
-    showFeature((featCounter++%2===0)?'ayet':'hadis');               // sırayla ayet → hadis
+    showFeature(FEATURE_KINDS[featCounter++ % FEATURE_KINDS.length]);  // ayet → hadis → duâ
   }
 }
-// test: ?test=ayet veya ?test=hadis ile paneli kalıcı göster
-(function(){ const t=new URLSearchParams(location.search).get('test');
-  if(t==='ayet'||t==='hadis'){ showFeature(t); clearTimeout(_featHide); } })();
+// test: ?test=ayet / ?test=hadis / ?test=dua ile paneli kalıcı göster
+// (büyük-küçük harf ve şapkalı yazım fark etmez: Dua, DUÂ, Hadîs… hepsi çalışır)
+(function(){
+  let t = new URLSearchParams(location.search).get('test');
+  if(!t) return;
+  t = t.toLocaleLowerCase('tr').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const esle = { ayet:'ayet', ayeti:'ayet', 'ayet-i':'ayet',
+                 hadis:'hadis', hadisi:'hadis', 'hadis-i':'hadis',
+                 dua:'dua', duasi:'dua' };
+  const kind = esle[t];
+  if(kind){ showFeature(kind); clearTimeout(_featHide); }
+})();
 
 setInterval(()=>{ const _n=new Date(); try{ updateHutbe(_n); }catch(e){} try{ featureTick(_n); }catch(e){} }, 1000);
 </script>
