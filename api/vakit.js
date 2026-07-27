@@ -55,9 +55,12 @@ async function api(path) {
   return j && j.data !== undefined ? j.data : j;
 }
 
-// Diyanet dokümanı ile gerçek servis yolu farklı olabiliyor; çalışanı otomatik bul.
+// DOĞRULANDI (Temmuz 2026): çalışan yol /api/PrayerTime/Monthly/{cityId}
+// (Diyanet dokümanında "AwqatSalah" yazıyor ama servis "PrayerTime" yolunu kullanıyor.)
+// Servis 32 GÜNLÜK kayan liste döner — bugünden itibaren, ay sonu geçişinde boşluk olmaz.
+// Yol ileride değişirse aşağıdaki listedeki diğer adaylar sırayla denenir.
 const MONTHLY_PATHS = [
-  (id) => "/api/PrayerTime/Monthly/" + id,
+  (id) => "/api/PrayerTime/Monthly/" + id,          // <-- çalışan yol
   (id) => "/api/AwqatSalah/Monthly/" + id,
   (id) => "/api/PrayerTimes/Monthly/" + id,
   (id) => "/api/AwqatSalah/MonthlyPrayerTimes/" + id,
@@ -104,6 +107,12 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, data: await api("/api/Place/States/" + q.eyaletler) });
     if (q.sehirler)
       return res.status(200).json({ ok: true, data: await api("/api/Place/Cities/" + q.sehirler) });
+
+    // ---- günün içeriği: /api/vakit?gunun=1  (âyet + hadis + dua, ham hâliyle) ----
+    if (q.gunun) {
+      res.setHeader("Cache-Control", "no-store");
+      return res.status(200).json({ ok: true, data: await api("/api/DailyContent") });
+    }
 
     const cityId = process.env.DIYANET_CITY_ID;
     if (!cityId) throw new Error("DIYANET_CITY_ID tanımlı değil");
