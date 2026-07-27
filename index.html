@@ -845,7 +845,7 @@ const DUALAR = [
     tr:'Allahım! Seni anmak, sana şükretmek ve sana güzelce kulluk etmek için bana yardım et.',
     src:'Ebû Dâvûd & Nesâî' },
 ];
-const FEATURE_SECONDS = 75;       // panel ekranda kaç sn kalsın
+const FEATURE_SECONDS = 30;       // panel ekranda kaç sn kalsın
 let featCounter=0, lastFeatSlot=null, featShown=false, _featHide=0;
 function pickIdx(len,last){ if(len<=1) return 0; let i; do{ i=Math.floor(Math.random()*len); }while(i===last); return i; }
 
@@ -886,15 +886,35 @@ function fitFeature(){
 }
 function hideFeature(){ document.querySelector('.swap-area').classList.remove('show-feature'); featShown=false; }
 
+/* Namaz vakti koruması: ezandan ÖNCE ve SONRA panel açılmaz.
+   (cemaatle namaz kılınırken ekran değişmesin) */
+const FEAT_BLOCK_BEFORE = 5;    // vakitten kaç dk önce engelli
+const FEAT_BLOCK_AFTER  = 20;   // vakitten kaç dk sonra engelli (ezan + cemaat)
+const NAMAZ_KEYS = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];   // İmsak ve Güneş namaz değil
+
+function namazYakin(now){
+  const t = now.getTime();
+  for(const s of schedule){
+    if(!NAMAZ_KEYS.includes(s.key)) continue;
+    const v = s.date.getTime();
+    if(t >= v - FEAT_BLOCK_BEFORE*60000 && t <= v + FEAT_BLOCK_AFTER*60000) return true;
+  }
+  return false;
+}
+
 function featureTick(now){
-  // hutbe açıksa veya bir vakit yanıp sönüyorsa paneli gösterme / açıksa kapat
-  if(hutbeVisible || document.querySelector('.flash')){ if(featShown) hideFeature(); return; }
+  // engel: hutbe açık / bir vakit yanıp sönüyor / namaz vaktine yakın
+  const blocked = hutbeVisible
+               || !!document.querySelector('.flash')
+               || namazYakin(now);
+  if(blocked && featShown) hideFeature();          // açıksa hemen kapat
+
   const slot = now.getHours()*4 + Math.floor(now.getMinutes()/15);   // çeyrek saat dilimi
   if(lastFeatSlot===null){ lastFeatSlot=slot; return; }              // ilk yüklemede tetikleme yok
   if(slot!==lastFeatSlot){
-    lastFeatSlot=slot;
-    showFeature(FEATURE_KINDS[featCounter++ % FEATURE_KINDS.length]);  // ayet → hadis → duâ
-  }
+    lastFeatSlot=slot;                             // engelli olsa da dilimi işaretle:
+    if(!blocked) showFeature(FEATURE_KINDS[featCounter++ % FEATURE_KINDS.length]);
+  }                                                // engelliyse bu tur atlanır, sonrakini bekler
 }
 // test: ?test=ayet / ?test=hadis / ?test=dua ile paneli kalıcı göster
 // (büyük-küçük harf ve şapkalı yazım fark etmez: Dua, DUÂ, Hadîs… hepsi çalışır)
