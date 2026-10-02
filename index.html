@@ -175,9 +175,11 @@ header{position:relative;height:118px;flex:0 0 auto}
 }
 
 
-/* ===================== GÜNDÜZ (beyaz) / GECE (koyu) TEMA ===================== */
-#bglight{position:fixed;inset:0;z-index:-1;opacity:0;pointer-events:none;
-  background:radial-gradient(120% 80% at 50% 0%, #ffffff 0%, #f7f9fc 42%, #eef2f8 80%, #e7ecf3 100%)}
+/* ===================== GÜNDÜZ (beyaz) / GECE (koyu) TEMA =====================
+   Beyaz tema = namazvakti platformundaki "light" tema (src/lib/themes.ts).
+   Güneş doğunca beyaz, Akşam (gün batımı) olunca lacivert; 10 sn yumuşak geçiş. */
+#bglight{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:0;pointer-events:none;
+  background:radial-gradient(120% 80% at 50% 0%, #ffffff 0%, #f7f9fc 38%, #eef2f8 70%, #e7ecf3 100%)}
 body.light #bglight{opacity:1}
 body.fade #bglight{transition:opacity 10s linear}
 
@@ -188,36 +190,49 @@ body.fade *{transition:color 10s linear, background-color 10s linear, border-col
 /* ---- BEYAZ tema değişkenleri ---- */
 body.light{
   --bg-1:#eef2f8; --bg-2:#f7f9fc; --bg-3:#e7ecf3;
-  --panel:#ffffff; --panel-brd:#e2e8f1;
+  --panel:#ffffff; --panel-brd:#dbe3ee;
   --label:#0e57b0; --label-ar:#5c6b7c; --white:#12233a;
-  --cyan:#0c84b4; --flash:#e08a00; --gold:#f59e0b; --gold-2:#ea7a00;
+  --cyan:#0a77a3; --flash:#c46f00; --gold:#f59e0b; --gold-2:#ea7a00;
 }
 body.light .dates .d{color:#2b3a4b}
-body.light .dates .h{color:#7a8a99}
-body.light .brand .name{color:#152537;text-shadow:0 1px 2px rgba(0,0,0,.06)}
+body.light .dates .h{color:#0e57b0}
+body.light .brand .name{color:#152537;text-shadow:0 3px 16px rgba(0,0,0,.06)}
 body.light .brand .name b{color:#0e57b0}
 body.light .brand img{filter:drop-shadow(0 4px 14px rgba(0,0,0,.18))}
-body.light .rule{background:linear-gradient(90deg,transparent,#0e57b033 30%,#0e57b0 50%,#0e57b033 70%,transparent)}
-body.light .clock{color:#152537;text-shadow:0 2px 8px rgba(20,40,70,.10)}
+body.light .rule{background:linear-gradient(90deg,transparent,rgba(14,87,176,.2) 30%,#0e57b0 50%,rgba(14,87,176,.2) 70%,transparent)}
+body.light .sun-ico{filter:drop-shadow(0 0 22px rgba(245,158,11,.3))}
+body.light .clock{color:#152537;text-shadow:0 6px 40px rgba(20,40,70,.10)}
 body.light .clockwrap::before{background:radial-gradient(closest-side, rgba(12,132,180,.10), transparent 72%)}
-body.light .box{border-color:#e2e8f1;box-shadow:0 10px 26px rgba(30,50,80,.07)}
+body.light .box,body.light .feat-card{box-shadow:0 10px 26px rgba(30,50,80,.07)}
 body.light .box.next{border-color:rgba(12,132,180,.9);box-shadow:0 0 0 3px rgba(12,132,180,.5) inset,0 0 42px rgba(12,132,180,.22)}
-body.light .box.next .tr{color:#0c84b4}
+body.light .box.next .tr{color:#0a6f99}
 body.light .sun-panel.next{background:rgba(12,132,180,0.07);box-shadow:0 0 0 2px rgba(12,132,180,.6),0 0 28px rgba(12,132,180,.2)}
-body.light .sun-panel.next .sun-tr{color:#0c84b4}
+body.light .sun-panel.next .sun-tr{color:#0a6f99}
 body.light .flash.box{border-color:rgba(224,138,0,.6);box-shadow:0 0 38px rgba(224,138,0,.25)}
 body.light .sun-panel.flash .sun-ico{filter:drop-shadow(0 0 30px rgba(245,158,11,.55))}
 body.light .countdown{background:rgba(12,132,180,0.06);border-color:rgba(12,132,180,0.30)}
-body.light .cd-label{color:#0c84b4}
+body.light .cd-label{color:#0a6f99}
 body.light .cd-timer{text-shadow:0 0 26px rgba(12,132,180,.18)}
 body.light .countdown.ezan{background:rgba(224,138,0,0.12);border-color:rgba(224,138,0,.55);box-shadow:0 0 40px rgba(224,138,0,.18)}
-body.light .countdown.ezan .cd-label{color:#b45309}
+body.light .countdown.ezan .cd-label{color:#a64b08}
 body.light .cd-banner{text-shadow:0 0 30px rgba(224,138,0,.25)}
 body.light .loading{background:rgba(255,255,255,.65)}
+/* âyet / hadis / duâ paneli */
+body.light .feat-tag,body.light .feat-src{color:#0e57b0}
+body.light .feat-ar{color:#152537}
+body.light .feat-tr{color:#2b3a4b}
 
 /* ===================== ALT FOOTER: CAMİ SİLÜETİ ===================== */
 /* ÇERÇEVE: dört kenarda tek sıra geometrik desen, içe doğru solar */
-.pat-edge{position:absolute;z-index:0;pointer-events:none;background-image:var(--pat);opacity:.85}
+.pat-edge{position:absolute;z-index:0;pointer-events:none}
+/* iki katman: ::before lacivert desen (gece), ::after açık desen (gündüz); tema değişince birbirine geçer */
+.pat-edge::before,.pat-edge::after{content:"";position:absolute;top:0;right:0;bottom:0;left:0;
+  background-repeat:inherit;background-position:inherit;background-size:inherit;opacity:.85}
+.pat-edge::before{background-image:var(--pat)}
+.pat-edge::after{background-image:var(--pat-light);opacity:0}
+body.light .pat-edge::before{opacity:0}
+body.light .pat-edge::after{opacity:.85}
+body.fade .pat-edge::before,body.fade .pat-edge::after{transition:opacity 10s linear}
 .pat-bottom{left:0;right:0;bottom:0;height:120px;background-repeat:repeat-x;background-position:center bottom;background-size:auto 120px;
   -webkit-mask-image:linear-gradient(to top,#000 0,#000 22%,transparent 100%);mask-image:linear-gradient(to top,#000 0,#000 22%,transparent 100%)}
 .pat-top{left:0;right:0;top:0;height:120px;background-repeat:repeat-x;background-position:center top;background-size:auto 120px;
@@ -228,9 +243,10 @@ body.light .loading{background:rgba(255,255,255,.65)}
   -webkit-mask-image:linear-gradient(to left,#000 0,#000 22%,transparent 100%);mask-image:linear-gradient(to left,#000 0,#000 22%,transparent 100%)}
 #stage>header,#stage>.midrow,#stage>.swap-area{position:relative;z-index:1}
 :root{--silhouette:#16335f; --sil-op:.5; --pat:url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogICAgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHN0eWxlPSJpc29sYXRpb246aXNvbGF0ZSIgdmlld0JveD0iMCAwIDIwMCAyMDAiIHdpZHRoPSIxMDBweCIgaGVpZ2h0PSIxMDBweCI+CiAgICA8ZGVmcz4KICAgICAgICA8Y2xpcFBhdGggaWQ9Il9jbGlwUGF0aF9YanR1N1pxbEdpeDlndmZqS2lmR3l5ZjVTeG9RVzZoaiI+CiAgICAgICAgICAgIDxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIi8+CiAgICAgICAgPC9jbGlwUGF0aD4KICAgIDwvZGVmcz4KICAgIDxnIGNsaXAtcGF0aD0idXJsKCNfY2xpcFBhdGhfWGp0dTdacWxHaXg5Z3ZmaktpZkd5eWY1U3hvUVc2aGopIiBzdHJva2U9IiMxNjMzNWYiPgogICAgICAgIDxsaW5lIHgxPSIxMDAiIHkxPSIxNDMiIHgyPSIxMDAiIHkyPSIyMDAiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIwLjc1IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgPGxpbmUgeDE9IjEwMCIgeTE9IjAiIHgyPSIxMDAiIHkyPSI1NyIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjAuNzUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgPGxpbmUgeDE9IjU3IiB5MT0iMTAwIiB4Mj0iMCIgeTI9IjEwMCIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgIDxsaW5lIHgxPSIxNDMiIHkxPSIxMDAiIHgyPSIyMDAiIHkyPSIxMDAiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjMiLz4KICAgICAgICA8cGF0aCBzdHJva2U9IiMxNjMzNWYiIGQ9IiBNIDE1Ny41MDIgMjAwIEwgNDIuNjc2IDIwMCBMIDMwLjE0NCAxODcuNTI0IEwgMjkuOTk3IDE2OS44NTYgTCAxMi40NzUgMTY5Ljg1NiBMIDAgMTU3LjMyNCBMIDEyLjQ3NSAxNjkuODU2IEwgMzAuMTQ0IDE2OS44NTYgTCAzMC4xNDQgMTg3LjUyNCBMIDQyLjY3NiAyMDAgTCAzMC4xNDQgMTg3LjUyNCBMIDMwLjE0NCAxNjkuODU2IEwgMTIuNDc1IDE2OS44NTYgTCAwLjAxNyAxNTcuMzI0IEwgMC4wMTcgNDIuNjE5IEwgMTIuNDc1IDMwLjE0NCBMIDI5Ljk5NyAzMC4xNDQgTCAyOS45OTcgMTIuNDc1IEwgNDIuNjc2IDAgTCAxNTcuNTAyIDAgTCAxNjkuODU1IDEyLjQ3NSBMIDE2OS44NTUgMzAuMTk0IEwgMTg3LjUyNSAzMC4xOTQgTCAyMDAgNDIuNjE5IEwgMjAwIDE1Ny4zMjQgTCAxODcuNTIzIDE2OS44NTYgTCAxNjkuODU1IDE2OS44NTYgTCAxNjkuODU1IDE4Ny41MjQgTCAxNTcuNTAyIDIwMCBMIDQyLjY3NiAyMDAgTCA5OC4xNjUgMjAwIEwgMTU3LjUwMiAyMDAgWiAiIGZpbGwtcnVsZT0iZXZlbm9kZCIgZmlsbD0ibm9uZSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiIHN0cm9rZS1taXRlcmxpbWl0PSI0Ii8+CiAgICAgICAgPGc+CiAgICAgICAgICAgIDxsaW5lIHgxPSI2OSIgeTE9Ijg3LjE1OSIgeDI9IjY5IiB5Mj0iNjkiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjMiLz4KICAgICAgICAgICAgPGxpbmUgeDE9Ijg3LjE1OSIgeTE9IjY5IiB4Mj0iNjkiIHkyPSI2OSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iNTYuMTU5IiB5MT0iMTAwIiB4Mj0iNjkiIHkyPSI4Ny4xNTkiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjMiLz4KICAgICAgICAgICAgPGxpbmUgeDE9Ijg3LjE1OSIgeTE9IjY5IiB4Mj0iMTAwIiB5Mj0iNTYuMTU5IiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgICAgIDxsaW5lIHgxPSIxMzEuMTU5IiB5MT0iODcuMTU5IiB4Mj0iMTMxLjE1OSIgeTI9IjY5IiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgICAgIDxsaW5lIHgxPSIxMTMiIHkxPSI2OSIgeDI9IjEzMS4xNTkiIHkyPSI2OSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iMTQ0IiB5MT0iMTAwIiB4Mj0iMTMxLjE1OSIgeTI9Ijg3LjE1OSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iMTEzIiB5MT0iNjkiIHgyPSIxMDAuMTU5IiB5Mj0iNTYuMTU5IiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgICAgIDxsaW5lIHgxPSI2OSIgeTE9IjExMi44NDEiIHgyPSI2OSIgeTI9IjEzMSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iODcuMTU5IiB5MT0iMTMxIiB4Mj0iNjkiIHkyPSIxMzEiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjMiLz4KICAgICAgICAgICAgPGxpbmUgeDE9IjU2LjE1OSIgeTE9IjEwMCIgeDI9IjY5IiB5Mj0iMTEyLjg0MSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iODcuMTU5IiB5MT0iMTMxIiB4Mj0iMTAwIiB5Mj0iMTQzLjg0MSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iMTMxLjE1OSIgeTE9IjExMi44NDEiIHgyPSIxMzEuMTU5IiB5Mj0iMTMxIiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgICAgIDxsaW5lIHgxPSIxMTMiIHkxPSIxMzEiIHgyPSIxMzEuMTU5IiB5Mj0iMTMxIiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgICAgIDxsaW5lIHgxPSIxNDQiIHkxPSIxMDAiIHgyPSIxMzEuMTU5IiB5Mj0iMTEyLjg0MSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iMTEzIiB5MT0iMTMxIiB4Mj0iMTAwLjE1OSIgeTI9IjE0My44NDEiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjMiLz4KICAgICAgICA8L2c+CiAgICAgICAgPHBhdGggc3Ryb2tlPSIjMTYzMzVmIiBkPSIgTSAxMDAgMC4wMDcgTCA2Ni41MTYgMzMuNDkyIEwgMC4wMTEgOTkuOTk5IEwgMTAwIDE5OS45OTMgTCAxOTkuOTg3IDk5Ljk5OSBMIDEwMCAwLjAwNyBaICIgZmlsbC1ydWxlPSJldmVub2RkIiBmaWxsPSJub25lIiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtZGFzaGFycmF5PSIwLDAiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjQiLz4KICAgIDwvZz4KPC9zdmc+Cg==')}
+:root{--pat-light:url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogICAgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHN0eWxlPSJpc29sYXRpb246aXNvbGF0ZSIgdmlld0JveD0iMCAwIDIwMCAyMDAiIHdpZHRoPSIxMDBweCIgaGVpZ2h0PSIxMDBweCI+CiAgICA8ZGVmcz4KICAgICAgICA8Y2xpcFBhdGggaWQ9Il9jbGlwUGF0aF9YanR1N1pxbEdpeDlndmZqS2lmR3l5ZjVTeG9RVzZoaiI+CiAgICAgICAgICAgIDxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIi8+CiAgICAgICAgPC9jbGlwUGF0aD4KICAgIDwvZGVmcz4KICAgIDxnIGNsaXAtcGF0aD0idXJsKCNfY2xpcFBhdGhfWGp0dTdacWxHaXg5Z3ZmaktpZkd5eWY1U3hvUVc2aGopIiBzdHJva2U9IiNiOWM2ZGEiPgogICAgICAgIDxsaW5lIHgxPSIxMDAiIHkxPSIxNDMiIHgyPSIxMDAiIHkyPSIyMDAiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIwLjc1IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgPGxpbmUgeDE9IjEwMCIgeTE9IjAiIHgyPSIxMDAiIHkyPSI1NyIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjAuNzUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgPGxpbmUgeDE9IjU3IiB5MT0iMTAwIiB4Mj0iMCIgeTI9IjEwMCIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgIDxsaW5lIHgxPSIxNDMiIHkxPSIxMDAiIHgyPSIyMDAiIHkyPSIxMDAiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjMiLz4KICAgICAgICA8cGF0aCBzdHJva2U9IiNiOWM2ZGEiIGQ9IiBNIDE1Ny41MDIgMjAwIEwgNDIuNjc2IDIwMCBMIDMwLjE0NCAxODcuNTI0IEwgMjkuOTk3IDE2OS44NTYgTCAxMi40NzUgMTY5Ljg1NiBMIDAgMTU3LjMyNCBMIDEyLjQ3NSAxNjkuODU2IEwgMzAuMTQ0IDE2OS44NTYgTCAzMC4xNDQgMTg3LjUyNCBMIDQyLjY3NiAyMDAgTCAzMC4xNDQgMTg3LjUyNCBMIDMwLjE0NCAxNjkuODU2IEwgMTIuNDc1IDE2OS44NTYgTCAwLjAxNyAxNTcuMzI0IEwgMC4wMTcgNDIuNjE5IEwgMTIuNDc1IDMwLjE0NCBMIDI5Ljk5NyAzMC4xNDQgTCAyOS45OTcgMTIuNDc1IEwgNDIuNjc2IDAgTCAxNTcuNTAyIDAgTCAxNjkuODU1IDEyLjQ3NSBMIDE2OS44NTUgMzAuMTk0IEwgMTg3LjUyNSAzMC4xOTQgTCAyMDAgNDIuNjE5IEwgMjAwIDE1Ny4zMjQgTCAxODcuNTIzIDE2OS44NTYgTCAxNjkuODU1IDE2OS44NTYgTCAxNjkuODU1IDE4Ny41MjQgTCAxNTcuNTAyIDIwMCBMIDQyLjY3NiAyMDAgTCA5OC4xNjUgMjAwIEwgMTU3LjUwMiAyMDAgWiAiIGZpbGwtcnVsZT0iZXZlbm9kZCIgZmlsbD0ibm9uZSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiIHN0cm9rZS1taXRlcmxpbWl0PSI0Ii8+CiAgICAgICAgPGc+CiAgICAgICAgICAgIDxsaW5lIHgxPSI2OSIgeTE9Ijg3LjE1OSIgeDI9IjY5IiB5Mj0iNjkiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjMiLz4KICAgICAgICAgICAgPGxpbmUgeDE9Ijg3LjE1OSIgeTE9IjY5IiB4Mj0iNjkiIHkyPSI2OSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iNTYuMTU5IiB5MT0iMTAwIiB4Mj0iNjkiIHkyPSI4Ny4xNTkiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjMiLz4KICAgICAgICAgICAgPGxpbmUgeDE9Ijg3LjE1OSIgeTE9IjY5IiB4Mj0iMTAwIiB5Mj0iNTYuMTU5IiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgICAgIDxsaW5lIHgxPSIxMzEuMTU5IiB5MT0iODcuMTU5IiB4Mj0iMTMxLjE1OSIgeTI9IjY5IiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgICAgIDxsaW5lIHgxPSIxMTMiIHkxPSI2OSIgeDI9IjEzMS4xNTkiIHkyPSI2OSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iMTQ0IiB5MT0iMTAwIiB4Mj0iMTMxLjE1OSIgeTI9Ijg3LjE1OSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iMTEzIiB5MT0iNjkiIHgyPSIxMDAuMTU5IiB5Mj0iNTYuMTU5IiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgICAgIDxsaW5lIHgxPSI2OSIgeTE9IjExMi44NDEiIHgyPSI2OSIgeTI9IjEzMSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iODcuMTU5IiB5MT0iMTMxIiB4Mj0iNjkiIHkyPSIxMzEiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjMiLz4KICAgICAgICAgICAgPGxpbmUgeDE9IjU2LjE1OSIgeTE9IjEwMCIgeDI9IjY5IiB5Mj0iMTEyLjg0MSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iODcuMTU5IiB5MT0iMTMxIiB4Mj0iMTAwIiB5Mj0iMTQzLjg0MSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iMTMxLjE1OSIgeTE9IjExMi44NDEiIHgyPSIxMzEuMTU5IiB5Mj0iMTMxIiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgICAgIDxsaW5lIHgxPSIxMTMiIHkxPSIxMzEiIHgyPSIxMzEuMTU5IiB5Mj0iMTMxIiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgICAgIDxsaW5lIHgxPSIxNDQiIHkxPSIxMDAiIHgyPSIxMzEuMTU5IiB5Mj0iMTEyLjg0MSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iMTEzIiB5MT0iMTMxIiB4Mj0iMTAwLjE1OSIgeTI9IjE0My44NDEiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjMiLz4KICAgICAgICA8L2c+CiAgICAgICAgPHBhdGggc3Ryb2tlPSIjYjljNmRhIiBkPSIgTSAxMDAgMC4wMDcgTCA2Ni41MTYgMzMuNDkyIEwgMC4wMTEgOTkuOTk5IEwgMTAwIDE5OS45OTMgTCAxOTkuOTg3IDk5Ljk5OSBMIDEwMCAwLjAwNyBaICIgZmlsbC1ydWxlPSJldmVub2RkIiBmaWxsPSJub25lIiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtZGFzaGFycmF5PSIwLDAiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjQiLz4KICAgIDwvZz4KPC9zdmc+Cg==')}
 body.light{--silhouette:#b9c6da; --sil-op:.9}
 
-/* ===================== CUMA HUTBESİ OVERLAY (koyu tema) ===================== */
+/* ===================== CUMA HUTBESİ OVERLAY (koyu tema; gündüz beyaz kuralları aşağıda) ===================== */
 .hutbe{position:fixed;inset:0;z-index:50;display:flex;
   background:radial-gradient(120% 95% at 50% 0%, #0c2a63 0%, #0a2150 42%, #07173a 74%, #050f2b 100%);
   color:#e9f0fb;font-family:'Inter',system-ui,sans-serif}
@@ -252,6 +268,16 @@ body.light{--silhouette:#b9c6da; --sil-op:.9}
 .hutbe-body .quote{border-left:5px solid #ffd98a;padding:.2vh 0 .2vh 1.3vw;color:#cfe0ff;font-style:italic}
 .hutbe-foot{flex:0 0 auto;text-align:center;font-size:2vh;color:#8fa3c8;padding-top:1.4vh;
   border-top:1px solid rgba(255,255,255,.12);letter-spacing:.5px}
+/* hutbe — beyaz tema (gündüz) */
+body.light .hutbe{background:radial-gradient(120% 95% at 50% 0%, #ffffff 0%, #f7f9fc 42%, #eef2f8 74%, #e7ecf3 100%);color:#1d2d44}
+body.light .hutbe-head{border-bottom-color:rgba(14,87,176,.3)}
+body.light .hutbe-logo{filter:drop-shadow(0 3px 12px rgba(0,0,0,.18))}
+body.light .hutbe-mosque{color:#152537}
+body.light .hutbe-kicker{color:#0e57b0}
+body.light .hutbe-title{color:#0e57b0;text-shadow:0 3px 20px rgba(0,0,0,.06)}
+body.light .hutbe-body .lead{color:#152537}
+body.light .hutbe-body .quote{border-left-color:#0e57b0;color:#33507a}
+body.light .hutbe-foot{color:#5c6b7c;border-top-color:rgba(0,0,0,.1)}
 </style>
 </head>
 <body>
@@ -610,15 +636,17 @@ function tick(){
     }
   }
 
-  if(_forceTheme) applyTheme(_forceTheme==='light'?'light':'dark');
-  else applyTheme('dark');   // şimdilik her zaman KOYU tema (beyaz otomatik kapalı)
+  // tema: Güneş doğunca beyaz, Akşam (gün batımı) olunca lacivert. ?theme=light / ?theme=dark ile sabitlenir.
+  if(_forceTheme==='light' || _forceTheme==='dark') applyTheme(_forceTheme);
+  else applyTheme(desiredTheme(now));
 
   requestAnimationFrame(()=>setTimeout(tick,250));
 }
 
-/* ---- Gündüz beyaz / gece koyu; Güneş & Akşam'dan 10 sn önce 10 sn'lik fade ---- */
+/* ---- Gündüz beyaz / gece lacivert. Geçiş Güneş ve Akşam vaktinden 10 sn önce başlar,
+   vakit girdiğinde tamamlanmış olur (10 sn'lik yumuşak geçiş). ---- */
 let _theme=null, _themeReady=false;
-const _forceTheme=new URLSearchParams(location.search).get('theme'); /* ?theme=light veya ?theme=dark ile elle test; paramsız=otomatik */
+const _forceTheme=new URLSearchParams(location.search).get('theme'); /* ?theme=light veya ?theme=dark ile sabit; paramsız = otomatik */
 function desiredTheme(now){
   const t=now.getTime(); const pts=[];
   for(const s of schedule){
