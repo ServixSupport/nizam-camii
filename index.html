@@ -2,6 +2,26 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8" />
+<script>
+/* Tek link: telefon ve tablet -> /mobil/ uygulaması. TV ve bilgisayar burada kalır. Şüphede TV.
+   Elle seçim: /?ekran=tv (bu cihaz hep TV) veya /?ekran=mobil. Hata olursa hiçbir şey yapmaz. (MOBIL-APP-PLAN.md §1) */
+(function(){try{
+  var TV=['SMART-TV','SmartTV','SmartTv','Tizen','Web0S','webOS','NetCast','HbbTV','BRAVIA','GoogleTV','Android TV',
+          'CrKey','Roku','Viera','TV Safari','Large Screen','NETTV','VIDAA'];
+  var YIL=31536000, q=location.search, ua=navigator.userAgent||'', m, c, i;
+  function cerez(v){ document.cookie='ekran='+v+'; max-age='+YIL+'; path=/; SameSite=Lax'; }
+  function mobil(){ location.replace('/mobil/'); }
+  m=/[?&]ekran=(tv|mobil)(&|$)/.exec(q);
+  if(m){ cerez(m[1]); if(m[1]==='mobil') mobil(); return; }
+  if(/[?&](test|theme)=/.test(q) || window.self!==window.top) return;
+  c=/(^|;\s*)ekran=(tv|mobil)(;|$)/.exec(document.cookie);
+  if(c){ cerez(c[2]); if(c[2]==='mobil') mobil(); return; }
+  for(i=0;i<TV.length;i++){ if(ua.indexOf(TV[i])>=0) return; }
+  if(/\bAFT[A-Z]/.test(ua)) return;
+  if(/iPhone|iPod|iPad|Windows Phone/.test(ua) || /Android.*Mobile/.test(ua) ||
+     ((navigator.maxTouchPoints||0)>0 && window.matchMedia && window.matchMedia('(pointer: coarse)').matches)) mobil();
+}catch(e){}})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <title>Nizam-ı Alem Süleymaniye Camii — Namaz Vakitleri</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">

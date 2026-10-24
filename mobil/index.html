@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="nl" data-tema="gunduz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F6F1E7">
+<meta name="color-scheme" content="light dark">
+<title>Nizam Camii</title>
+<link rel="icon" href="/mobil/logo.png">
+<link rel="preload" href="/mobil/fonts/hanken-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/mobil/fonts/bodoni-moda-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/mobil/app.css">
+<script>
+/* İlk boyamadan önce dil ve tema (ekran yanıp sönmesin). Ayrıntılı mantık app.js'te. */
+(function () {
+  try {
+    var d = localStorage.getItem('nzm.dil'); if (d === 'tr' || d === 'nl' || d === 'en') document.documentElement.lang = d;
+    var t = localStorage.getItem('nzm.tema');
+    if (t !== 'gunduz' && t !== 'gece') {
+      var h = +new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Amsterdam', hour: '2-digit', hourCycle: 'h23' }).format(new Date());
+      t = (h >= 7 && h < 18) ? 'gunduz' : 'gece';
+    }
+    document.documentElement.setAttribute('data-tema', t);
+  } catch (e) {}
+})();
+</script>
+<script type="module" src="/mobil/app.js"></script>
+</head>
+<body>
+
+<nav class="menu" data-t-aria="menu">
+  <img class="menu-logo" src="/mobil/logo.png" alt="" width="52" height="52">
+  <a class="menu-oge" href="#ana" data-sekme="ana">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V11.5a7 7 0 0 1 7-8 7 7 0 0 1 7 8V21"/><path d="M9.5 21v-5a2.5 2.5 0 0 1 5 0v5"/><path d="M3 21h18"/></svg>
+    <span data-t="tabHome"></span><i aria-hidden="true"></i>
+  </a>
+  <a class="menu-oge" href="#faaliyetler" data-sekme="faaliyetler">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M12 12.6l1 2 2.2.3-1.6 1.5.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.5 2.2-.3z"/></svg>
+    <span data-t="tabEvents"></span><i aria-hidden="true"></i>
+  </a>
+  <a class="menu-oge" href="#programlar" data-sekme="programlar">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+    <span data-t="tabPrograms"></span><i aria-hidden="true"></i>
+  </a>
+  <a class="menu-oge" href="#ayarlar" data-sekme="ayarlar">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+    <span data-t="tabSettings"></span><i aria-hidden="true"></i>
+  </a>
+</nav>
+
+<main id="icerik">
+
+  <!-- ===== ANA EKRAN ===== -->
+  <section class="sekme sekme-ana" id="s-ana" data-sekme="ana">
+    <svg class="desen" aria-hidden="true">
+      <defs>
+        <pattern id="nzDesen" width="48" height="48" patternUnits="userSpaceOnUse">
+          <g class="desen-cizgi" fill="none" stroke-width="1">
+            <rect x="14" y="14" width="20" height="20"/>
+            <rect x="14" y="14" width="20" height="20" transform="rotate(45 24 24)"/>
+            <path d="M0 24h10M38 24h10M24 0v10M24 38v10"/>
+          </g>
+        </pattern>
+        <linearGradient id="nzDesenSol" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+        </linearGradient>
+        <radialGradient id="nzDesenKose" cx="0" cy="0" r="1">
+          <stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+        </radialGradient>
+        <mask id="nzDesenMaske"><rect class="desen-maske" width="100%" height="100%"/></mask>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#nzDesen)" mask="url(#nzDesenMaske)"/>
+    </svg>
+
+    <header class="ust">
+      <img src="/mobil/logo.png" data-t-alt="logoAlt" alt="" width="40" height="40">
+      <div class="ust-yazi">
+        <h1 class="ust-ad">Nizam-ı Alem Süleymaniye</h1>
+        <span class="ust-alt" data-t="camiAlt"></span>
+      </div>
+    </header>
+
+    <div class="sol">
+      <div class="tarih-satir">
+        <span class="cizgi"></span>
+        <div class="tarih"><span class="miladi">&nbsp;</span><span class="hicri">&nbsp;</span></div>
+        <span class="cizgi"></span>
+      </div>
+      <p class="ams-not" hidden></p>
+      <div class="kemer" role="group" data-t-aria="siradakiVakit">
+        <svg class="kemer-svg" viewBox="0 0 300 360" aria-hidden="true"></svg>
+        <div class="kemer-ic" aria-live="off">
+          <span class="kalan-etiket">&nbsp;</span>
+          <span class="sayac">–:––:––</span>
+          <span class="sira"><span class="sira-ad">&nbsp;</span><span class="sira-saat"></span></span>
+          <span class="sira-ar" lang="ar" dir="rtl"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sag">
+      <header class="baslik">
+        <h1 class="baslik-ad" data-t="camiTam"></h1>
+        <span class="baslik-alt">Ookmeerweg 206 · Amsterdam</span>
+      </header>
+      <ul class="vakitler" data-t-aria="vakitler"></ul>
+      <p class="durum-mesaj" role="status" hidden></p>
+      <div class="kartlar">
+        <a class="kart kart-bugun" href="#programlar">
+          <span class="kart-etiket" data-t="bugunCamide"></span>
+          <span class="kart-bos" data-t="bugunBos"></span>
+        </a>
+        <a class="kart kart-faaliyet" href="#faaliyetler">
+          <svg class="kart-yildiz" aria-hidden="true" viewBox="0 0 48 48"><g fill="none" stroke="#E8C27A" stroke-width="0.6"><rect x="14" y="14" width="20" height="20"/><rect x="14" y="14" width="20" height="20" transform="rotate(45 24 24)"/></g></svg>
+          <span class="kart-etiket" data-t="siradakiFaaliyet"></span>
+          <span class="kart-bos" data-t="faaliyetBos"></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAALİYETLER (Faz B'de gerçek veri) ===== -->
+  <section class="sekme sayfa" id="s-faaliyetler" data-sekme="faaliyetler" hidden>
+    <div class="sayfa-bas">
+      <h1 data-t="evTitle"></h1>
+      <p data-t="evSub"></p>
+    </div>
+    <div class="bos">
+      <svg aria-hidden="true" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.6"><rect x="14" y="14" width="20" height="20"/><rect x="14" y="14" width="20" height="20" transform="rotate(45 24 24)"/></g></svg>
+      <p class="bos-baslik" data-t="evEmpty"></p>
+      <p class="bos-alt" data-t="evEmptySub"></p>
+    </div>
+  </section>
+
+  <!-- ===== PROGRAMLAR (Faz B'de gerçek veri) ===== -->
+  <section class="sekme sayfa" id="s-programlar" data-sekme="programlar" hidden>
+    <div class="sayfa-bas">
+      <h1 data-t="prTitle"></h1>
+      <p data-t="prSub"></p>
+    </div>
+    <div class="bos">
+      <svg aria-hidden="true" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.6"><rect x="14" y="14" width="20" height="20"/><rect x="14" y="14" width="20" height="20" transform="rotate(45 24 24)"/></g></svg>
+      <p class="bos-baslik" data-t="prEmpty"></p>
+      <p class="bos-alt" data-t="prEmptySub"></p>
+    </div>
+  </section>
+
+  <!-- ===== AYARLAR ===== -->
+  <section class="sekme sayfa" id="s-ayarlar" data-sekme="ayarlar" hidden>
+    <h1 data-t="title"></h1>
+
+    <section class="ayar">
+      <h2 class="ayar-baslik" data-t="lang"></h2>
+      <div class="segment" role="group" data-t-aria="lang" id="dil-secim"></div>
+    </section>
+
+    <section class="ayar">
+      <h2 class="ayar-baslik" data-t="look"></h2>
+      <div class="ayar-kart">
+        <span class="ayar-ad" data-t="theme"></span>
+        <div class="secenekler" role="group" data-t-aria="theme" id="tema-secim"></div>
+        <span class="ayar-not" data-t="autoHint"></span>
+      </div>
+    </section>
+
+    <section class="ayar">
+      <h2 class="ayar-baslik" data-t="mosque"></h2>
+      <div class="ayar-kart cami-kart">
+        <img src="/mobil/logo.png" alt="" width="40" height="40">
+        <span class="cami-yazi">
+          <span class="cami-ad" data-t="camiTam"></span>
+          <a class="cami-adres" href="https://www.google.com/maps/search/?api=1&amp;query=Ookmeerweg+206+Amsterdam" target="_blank" rel="noopener">
+            Ookmeerweg 206, Amsterdam
+            <span class="gizli" data-t="harita"></span>
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
+          </a>
+          <span class="ayar-not" data-t="source"></span>
+        </span>
+      </div>
+      <a class="ayar-kart tv-link" href="/?ekran=tv">
+        <span class="tv-ikon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </span>
+        <span class="tv-yazi">
+          <span class="tv-baslik" data-t="tvTitle"></span>
+          <span class="ayar-not" data-t="tvText"></span>
+        </span>
+        <svg class="ok" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </a>
+    </section>
+  </section>
+</main>
+</body>
+</html>

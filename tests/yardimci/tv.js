@@ -81,7 +81,9 @@ export async function mockla(page, o = {}) {
   const aladhan = o.aladhan === undefined ? aladhanCevap : o.aladhan;
 
   // önce genel dış istek yakalayıcı (sonra eklenen route'lar önceliklidir)
-  await page.route((u) => !/^(127\.0\.0\.1|localhost)$/.test(u.hostname) && /^https?:$/.test(u.protocol), async (route) => {
+  const yerel = new Set(['127.0.0.1', 'localhost']);
+  if (process.env.TEST_ADRES) yerel.add(new URL(process.env.TEST_ADRES).hostname);
+  await page.route((u) => !yerel.has(u.hostname) && /^https?:$/.test(u.protocol), async (route) => {
     const u = new URL(route.request().url());
     if (u.hostname === 'fonts.googleapis.com' || u.hostname === 'fonts.gstatic.com') return fontServis(route);
     kayit.dis.push(u.href);

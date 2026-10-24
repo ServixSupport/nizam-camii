@@ -1,7 +1,9 @@
 # Mobil uygulama (telefon + tablet) ve `/admin` yönetim paneli
 
 **Durum:** plan, henüz yapılmadı. Hazırlanma tarihi 24-10-2026; tasarım kullanıcı tarafından onaylandı ("design super").
-**Faz 0:** bitti, kullanıcı onayladı, 24-10-2026'da `main`'e alındı (commit `fe4b5db`). Sıradaki: Faz A, önce S5.
+**Faz 0:** bitti, kullanıcı onayladı, 24-10-2026'da `main`'e alındı (commit `fe4b5db`).
+**Faz A:** 24-10-2026'da yapıldı, `faz-a` dalında; kullanıcı onayı bekleniyor.
+- Kararlar: S5 = Arapça-Latin isimler; ilk dil herkes için Hollandaca; Vercel Preview koruması kapatılacak (deneme linkleri girişsiz).
 Önce `CLAUDE.md`'yi oku. Oradaki kesin kurallar burada da geçerli. Faz faz çalış (§9).
 
 ---
@@ -430,6 +432,8 @@ Veri dosyası şöyle görünür (örnek):
   - Çeviri mi (Ochtend, Middag … / Morning, Noon …)?
   - Yoksa Arapça-Latin mi (Fadjr, Dhoehr …)?
   - Tasarımda Arapça-Latin örnek kullanıldı. Cemaatten birine kontrol ettirsin.
+  - **Cevap (24-10-2026):** Arapça-Latin. NL: Imsak, Fadjr, Zonsopgang, Dhoehr, Asr, Maghrib, Isja. EN: Imsak, Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha.
+  - Ayrıca: uygulama ilk açılışta herkes için Hollandaca başlar (Ayarlar'dan değişir).
 - **S6 (Faz D):** Abonelik deposu (Upstash Redis veya Vercel Blob) ve dakikalık tetikleyici (cron-job.org veya QStash).
 - **Ayrıca:** depo public. Vercel Hobby private depoyla da çalışır; private yapmayı önerebilirsin. Kararı kullanıcı verir.
 

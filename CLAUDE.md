@@ -18,6 +18,8 @@
 | `api/vakit.js` | Diyanet Awqat Salah istemcisi. Aylık vakitleri çeker; CDN'de 1 gün cache'lenir (`s-maxage=86400`). |
 | `api/hutbe.js` | Cuma hutbesi PDF'i (diyanet.nl) → metin. `unpdf` kullanır. |
 | `package.json` | `"type": "module"`, tek bağımlılık `unpdf`. |
+| `mobil/` | Telefon/tablet uygulaması (Faz A). `zaman.js` saf vakit mantığı (Amsterdam saati), `metin.js` TR/NL/EN, `app.js`, `app.css`, `fonts/` (OFL). |
+| `veri/icerik.json` | Faaliyetler + programlar (Faz B'de `/admin`'den yazılır; şimdilik boş). |
 
 **Klasör = git deposu (24-10-2026'dan beri).** GitHub `main` ile eşitlendi.
 - Temmuz'dan kalan eski dosyalar `_eski-temmuz/` içinde; git'e ve Vercel'e girmez.

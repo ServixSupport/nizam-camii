@@ -25,6 +25,14 @@ npm run rapor                   # son çalıştırmanın HTML raporu
   (`npm run goruntu-guncelle`) sadece kullanıcı bir TV değişikliğini açıkça onayladıysa.
 - Referans görüntüler bu Windows bilgisayarda çekildi; başka işletim sisteminde pikseller biraz farklı çıkabilir.
 
+## Faz A testleri
+
+- `yonlendirme/`: tek link — TV'ler (Tizen, webOS, Android TV, Fire TV, Mi Box …) ve bilgisayarlar TV'de kalır;
+  telefon, Android tablet ve iPad `/mobil/`'e gider. `?ekran=`, çerez, `?test=`/`?theme=`, iframe, betik hatası.
+- `mantik/`: `mobil/zaman.js` (Amsterdam saati, yaz saati 25-10-2026 ve 28-03-2027, vakit kuralları, kemer). Tarayıcısız.
+- `mobil/davranis.spec.js`: uygulama (390×844). TV ile aynı an aynı vakitler, başka saat dilimi, dil/tema, sekmeler.
+- `mobil/goruntu.spec.js`: referans görüntüler 390×844, 820×1180, 1180×820; yatay kaydırma kontrolü.
+
 ## Nasıl çalışıyor
 
 - `sunucu.mjs` depo kökünü sunar; `/api/*` sunulmaz, testler mock'lar (`yardimci/tv.js`).
