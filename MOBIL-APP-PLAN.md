@@ -1,7 +1,7 @@
 # Mobil uygulama (telefon + tablet) ve `/admin` yönetim paneli
 
 **Durum:** plan, henüz yapılmadı. Hazırlanma tarihi 24-10-2026; tasarım kullanıcı tarafından onaylandı ("design super").
-**Faz 0:** 24-10-2026'da yapıldı (eşitleme, git, `.vercelignore`, TV temel testleri); kullanıcı onayı bekleniyor.
+**Faz 0:** bitti, kullanıcı onayladı, 24-10-2026'da `main`'e alındı (commit `fe4b5db`). Sıradaki: Faz A, önce S5.
 Önce `CLAUDE.md`'yi oku. Oradaki kesin kurallar burada da geçerli. Faz faz çalış (§9).
 
 ---
@@ -418,6 +418,11 @@ Veri dosyası şöyle görünür (örnek):
 - **S2 (Faz B):** İçerik nerede dursun?
   - GitHub deposunda JSON (veritabanı yok, kayıttan ~1 dk sonra görünür; varsayılan).
   - Ya da Vercel Blob (anında görünür).
+  - **Ölçüldü (24-10-2026):** her deploy `/api/vakit`'in CDN cache'ini siler.
+    - Deploy'dan önce `X-Vercel-Cache: HIT` (6 saatlik), hemen sonra `MISS`.
+    - Yani GitHub seçeneğinde her kayıt = yeni deploy = yeni Diyanet isteği (limit 5).
+    - Hata cevabı da 24 saat cache'lenir; TV o zaman localStorage'daki veriyle devam eder.
+    - Bunu S2'yi sorarken kullanıcıya açıkça söyle.
 - **S3 (Faz B):** `/admin` koruması: gizli anahtarlı link (varsayılan) mı, tamamen açık mı? Tamamen açığın riskini söyle.
 - **S4:** Gruplar listesi (Herkes/Erkekler/Hanımlar/Gençlik/Çocuklar) uygun mu?
 - **S5 (Faz A):** Hollandaca ve İngilizce namaz isimleri.
