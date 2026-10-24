@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Ayarlar – mobil</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..800;1,6..96,400..700&amp;family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Noto+Kufi+Arabic:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; box-sizing: border-box; background: #F6F1E7; color: #14295A; font-family: 'Hanken Grotesk', 'Segoe UI', system-ui, sans-serif">
+
+  <div style="position: absolute; left: 0; right: 0; top: 0; bottom: 76px; overflow-y: auto; padding: 22px 18px 28px; box-sizing: border-box; display: flex; flex-direction: column; gap: 22px">
+
+    <h1 style="margin: 0; font-family: 'Bodoni Moda', Georgia, serif; font-weight: 600; font-size: 36px; line-height: 1.05; letter-spacing: -0.01em">{{L.title}}</h1>
+
+    <section style="display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-size: 11.5px; font-weight: 700; letter-spacing: 0.16em; color: #4E5B76">{{L.lang}}</h2>
+      <div role="group" aria-label="{{L.lang}}" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 16px; background: #EDE5D5">
+        <sc-for list="{{langs}}" as="g" hint-placeholder-count="3">
+          <button type="button" aria-pressed="{{g.pressed}}" onClick="{{g.pick}}" style="height: 44px; border-radius: 12px; border: 0; background: {{g.bg}}; color: {{g.fg}}; box-shadow: {{g.shadow}}; font-family: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer">{{g.label}}</button>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-size: 11.5px; font-weight: 700; letter-spacing: 0.16em; color: #4E5B76">{{L.notif}}</h2>
+      <div style="display: flex; flex-direction: column; border-radius: 20px; background: #FFFDF8; border: 1px solid #E3D8C4">
+
+        <div style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; box-shadow: inset 0 -1px 0 #E3D8C4">
+          <span style="flex: 1; font-weight: 700; font-size: 15.5px" id="nzLblMaster">{{L.master}}</span>
+          <button type="button" role="switch" aria-checked="{{masterAria}}" aria-labelledby="nzLblMaster" onClick="{{toggleMaster}}" style="position: relative; width: 52px; height: 32px; border-radius: 999px; border: 0; background: {{masterTrack}}; cursor: pointer; flex: 0 0 auto">
+            <span aria-hidden="true" style="position: absolute; top: 3px; left: {{masterKnob}}; width: 26px; height: 26px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 3px rgba(20,41,90,0.3)"></span>
+          </button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; box-shadow: inset 0 -1px 0 #E3D8C4; opacity: {{dim}}">
+          <span style="font-weight: 600; font-size: 14.5px">{{L.before}}</span>
+          <div role="group" aria-label="{{L.before}}" style="display: flex; gap: 6px">
+            <sc-for list="{{mins}}" as="m" hint-placeholder-count="5">
+              <button type="button" aria-pressed="{{m.pressed}}" onClick="{{m.pick}}" style="flex: 1; height: 44px; border-radius: 12px; border: 1px solid {{m.border}}; background: {{m.bg}}; color: {{m.fg}}; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; padding: 0">{{m.label}}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; box-shadow: inset 0 -1px 0 #E3D8C4; opacity: {{dim}}">
+          <span style="flex: 1; font-weight: 600; font-size: 14.5px" id="nzLblAtTime">{{L.atTime}}</span>
+          <button type="button" role="switch" aria-checked="{{atAria}}" aria-labelledby="nzLblAtTime" onClick="{{toggleAt}}" style="position: relative; width: 52px; height: 32px; border-radius: 999px; border: 0; background: {{atTrack}}; cursor: pointer; flex: 0 0 auto">
+            <span aria-hidden="true" style="position: absolute; top: 3px; left: {{atKnob}}; width: 26px; height: 26px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 3px rgba(20,41,90,0.3)"></span>
+          </button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 16px; opacity: {{dim}}">
+          <span style="font-weight: 600; font-size: 14.5px">{{L.which}}</span>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px">
+            <sc-for list="{{prayers}}" as="p" hint-placeholder-count="7">
+              <button type="button" aria-pressed="{{p.pressed}}" onClick="{{p.pick}}" style="height: 40px; min-width: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid {{p.border}}; background: {{p.bg}}; color: {{p.fg}}; font-family: inherit; font-size: 13.5px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer">
+                <sc-if value="{{p.on}}" hint-placeholder-val="{{true}}">
+                  <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+                </sc-if>
+                {{p.label}}
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-size: 11.5px; font-weight: 700; letter-spacing: 0.16em; color: #4E5B76">{{L.look}}</h2>
+      <div style="display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 16px; border-radius: 20px; background: #FFFDF8; border: 1px solid #E3D8C4">
+        <span style="font-weight: 600; font-size: 14.5px">{{L.theme}}</span>
+        <div role="group" aria-label="{{L.theme}}" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+          <sc-for list="{{themes}}" as="th" hint-placeholder-count="3">
+            <button type="button" aria-pressed="{{th.pressed}}" onClick="{{th.pick}}" style="height: 44px; border-radius: 12px; border: 1px solid {{th.border}}; background: {{th.bg}}; color: {{th.fg}}; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer">{{th.label}}</button>
+          </sc-for>
+        </div>
+        <span style="font-size: 13px; color: #4E5B76">{{L.autoHint}}</span>
+      </div>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-size: 11.5px; font-weight: 700; letter-spacing: 0.16em; color: #4E5B76">{{L.mosque}}</h2>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 20px; background: #FFFDF8; border: 1px solid #E3D8C4">
+        <img src="/_blob/1a2a267a69fa9a1be6ef7de516c1d69d" alt="" style="width: 40px; height: 40px; object-fit: contain">
+        <span style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+          <span style="font-weight: 700; font-size: 15px">Nizam-ı Alem Süleymaniye Camii</span>
+          <span style="font-size: 13px; color: #4E5B76">Ookmeerweg 206, Amsterdam</span>
+          <span style="font-size: 13px; color: #4E5B76">{{L.source}}</span>
+        </span>
+      </div>
+    </section>
+
+    <section aria-label="{{L.installTitle}}" style="position: relative; display: flex; gap: 14px; padding: 16px; border-radius: 20px; background: #14295A; color: #F6F1E7; overflow: hidden">
+      <span aria-hidden="true" style="flex: 0 0 auto; width: 44px; height: 44px; border-radius: 12px; background: rgba(232,194,122,0.16); display: flex; align-items: center; justify-content: center; color: #E8C27A">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"></rect><path d="M12 7.5v6M9 10.5h6"></path></svg>
+      </span>
+      <span style="display: flex; flex-direction: column; gap: 4px">
+        <span style="font-weight: 700; font-size: 15px">{{L.installTitle}}</span>
+        <span style="font-size: 13px; line-height: 1.4; color: #D4DBEA">{{L.installText}}</span>
+      </span>
+    </section>
+  </div>
+
+  <nav aria-label="{{L.menu}}" style="position: absolute; left: 0; right: 0; bottom: 0; height: 76px; box-sizing: border-box; padding: 6px 10px 14px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: rgba(250,247,240,0.96); border-top: 1px solid #E3D8C4">
+    <a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #4E5B76; font-size: 11.5px; font-weight: 600">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V11.5a7 7 0 0 1 7-8 7 7 0 0 1 7 8V21"></path><path d="M9.5 21v-5a2.5 2.5 0 0 1 5 0v5"></path><path d="M3 21h18"></path></svg>
+      <span>{{L.tabHome}}</span>
+      <span aria-hidden="true" style="width: 4px; height: 4px"></span>
+    </a>
+    <a href="Mobil-Faaliyetler.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #4E5B76; font-size: 11.5px; font-weight: 600">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path><path d="M12 12.6l1 2 2.2.3-1.6 1.5.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.5 2.2-.3z"></path></svg>
+      <span>{{L.tabEvents}}</span>
+      <span aria-hidden="true" style="width: 4px; height: 4px"></span>
+    </a>
+    <a href="Mobil-Programlar.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #4E5B76; font-size: 11.5px; font-weight: 600">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>
+      <span>{{L.tabPrograms}}</span>
+      <span aria-hidden="true" style="width: 4px; height: 4px"></span>
+    </a>
+    <a href="Mobil-Ayarlar.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #1F46A6; font-size: 11.5px; font-weight: 700">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>
+      <span>{{L.tabSettings}}</span>
+      <span aria-hidden="true" style="width: 4px; height: 4px; border-radius: 50%; background: #B5432B"></span>
+    </a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      lang: 'tr', master: true, before: 15, atTime: true, theme: 'auto',
+      on: { Imsak: false, Fajr: true, Sunrise: false, Dhuhr: true, Asr: true, Maghrib: true, Isha: true }
+    };
+  }
+  renderVals() {
+    const T = {
+      tr: {
+        title: 'Ayarlar', lang: 'DİL', notif: 'BİLDİRİMLER', master: 'Namaz vakti bildirimleri', before: 'Vakitten önce hatırlat',
+        off: 'Kapalı', min: 'dk', atTime: 'Vakit girince bildir', which: 'Hangi vakitler', look: 'GÖRÜNÜM', theme: 'Tema',
+        auto: 'Otomatik', light: 'Açık', dark: 'Koyu', autoHint: 'Güneş doğunca açık, Akşam vaktinde koyu tema.',
+        mosque: 'CAMİ', source: 'Vakitler: Diyanet İşleri Başkanlığı', installTitle: 'Uygulamayı ana ekrana ekleyin',
+        installText: 'iPhone’da bildirimler yalnızca uygulama ana ekrandayken çalışır. Safari’de Paylaş’a dokunup “Ana Ekrana Ekle”yi seçin.',
+        menu: 'Ana menü', tabHome: 'Ana ekran', tabEvents: 'Faaliyetler', tabPrograms: 'Programlar', tabSettings: 'Ayarlar',
+        names: { Imsak: 'İmsak', Fajr: 'Sabah', Sunrise: 'Güneş', Dhuhr: 'Öğle', Asr: 'İkindi', Maghrib: 'Akşam', Isha: 'Yatsı' }
+      },
+      nl: {
+        title: 'Instellingen', lang: 'TAAL', notif: 'MELDINGEN', master: 'Meldingen voor gebedstijden', before: 'Herinner me vooraf',
+        off: 'Uit', min: 'min', atTime: 'Melding bij begin gebedstijd', which: 'Voor welke gebeden', look: 'WEERGAVE', theme: 'Thema',
+        auto: 'Automatisch', light: 'Licht', dark: 'Donker', autoHint: 'Licht vanaf zonsopgang, donker vanaf maghrib.',
+        mosque: 'MOSKEE', source: 'Gebedstijden: Diyanet', installTitle: 'Zet de app op je beginscherm',
+        installText: 'Op de iPhone werken meldingen alleen als de app op het beginscherm staat. Tik in Safari op Deel en kies “Zet op beginscherm”.',
+        menu: 'Hoofdmenu', tabHome: 'Home', tabEvents: 'Activiteiten', tabPrograms: 'Programma’s', tabSettings: 'Instellingen',
+        names: { Imsak: 'Imsak', Fajr: 'Fadjr', Sunrise: 'Zonsopgang', Dhuhr: 'Dhoehr', Asr: 'Asr', Maghrib: 'Maghrib', Isha: 'Isja' }
+      },
+      en: {
+        title: 'Settings', lang: 'LANGUAGE', notif: 'NOTIFICATIONS', master: 'Prayer time notifications', before: 'Remind me before',
+        off: 'Off', min: 'min', atTime: 'Notify when the prayer time begins', which: 'Which prayers', look: 'APPEARANCE', theme: 'Theme',
+        auto: 'Automatic', light: 'Light', dark: 'Dark', autoHint: 'Light from sunrise, dark from maghrib.',
+        mosque: 'MOSQUE', source: 'Prayer times: Diyanet', installTitle: 'Add the app to your home screen',
+        installText: 'On iPhone, notifications only work when the app is on your home screen. In Safari, tap Share and choose “Add to Home Screen”.',
+        menu: 'Main menu', tabHome: 'Home', tabEvents: 'Activities', tabPrograms: 'Programs', tabSettings: 'Settings',
+        names: { Imsak: 'Imsak', Fajr: 'Fajr', Sunrise: 'Sunrise', Dhuhr: 'Dhuhr', Asr: 'Asr', Maghrib: 'Maghrib', Isha: 'Isha' }
+      }
+    };
+    const st = this.state;
+    const L = T[st.lang];
+    const ink = '#14295A', paper = '#FFFDF8', line = '#E3D8C4', cobalt = '#1F46A6';
+    const langs = [['tr', 'Türkçe'], ['nl', 'Nederlands'], ['en', 'English']].map(([k, label]) => {
+      const on = st.lang === k;
+      return { label, pressed: on ? 'true' : 'false', bg: on ? paper : 'transparent', fg: ink,
+        shadow: on ? '0 1px 2px rgba(20,41,90,0.18)' : 'none', pick: () => this.setState({ lang: k }) };
+    });
+    const mins = [0, 5, 10, 15, 30].map((m) => {
+      const on = st.before === m;
+      return { label: m === 0 ? L.off : m + ' ' + L.min, pressed: on ? 'true' : 'false',
+        bg: on ? ink : paper, fg: on ? '#F6F1E7' : ink, border: on ? ink : line, pick: () => this.setState({ before: m }) };
+    });
+    const keys = ['Imsak', 'Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+    const prayers = keys.map((k) => {
+      const on = !!st.on[k];
+      return { label: L.names[k], on, pressed: on ? 'true' : 'false',
+        bg: on ? 'rgba(31,70,166,0.09)' : paper, fg: on ? cobalt : '#4E5B76', border: on ? 'rgba(31,70,166,0.45)' : line,
+        pick: () => this.setState((s) => ({ on: { ...s.on, [k]: !s.on[k] } })) };
+    });
+    const themes = [['auto', L.auto], ['light', L.light], ['dark', L.dark]].map(([k, label]) => {
+      const on = st.theme === k;
+      return { label, pressed: on ? 'true' : 'false', bg: on ? ink : paper, fg: on ? '#F6F1E7' : ink, border: on ? ink : line,
+        pick: () => this.setState({ theme: k }) };
+    });
+    return {
+      L, langs, mins, prayers, themes,
+      masterAria: st.master ? 'true' : 'false', masterTrack: st.master ? '#0B6E6A' : '#C9BFAE', masterKnob: st.master ? '23px' : '3px',
+      toggleMaster: () => this.setState((s) => ({ master: !s.master })),
+      atAria: st.atTime ? 'true' : 'false', atTrack: st.atTime ? '#0B6E6A' : '#C9BFAE', atKnob: st.atTime ? '23px' : '3px',
+      toggleAt: () => this.setState((s) => ({ atTime: !s.atTime })),
+      dim: st.master ? '1' : '0.45'
+    };
+  }
+}
+</script>
+</body>
+</html>

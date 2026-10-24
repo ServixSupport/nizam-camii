@@ -1,0 +1,8 @@
+# Vercel'e yüklenmeyecekler (CLAUDE.md kural 7).
+# index.html, api/ ve package.json burada ASLA olmamalı: TV ekranı onlarla çalışır.
+*.md
+/ontwerp
+/tests
+/_eski-temmuz
+/no phone prohibited.png
+/.claude

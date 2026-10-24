@@ -1,0 +1,15 @@
+# bağımlılıklar ve test çıktıları
+node_modules/
+tests/test-results/
+tests/playwright-report/
+tests/.cache/
+
+# sırlar asla depoya girmez (CLAUDE.md kural 3)
+.env
+.env.*
+.vercel/
+
+# eski ve yerel dosyalar
+_eski-temmuz/
+no phone prohibited.png
+.claude/settings.local.json

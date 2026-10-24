@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Ana ekran – mobil</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..800;1,6..96,400..700&amp;family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Noto+Kufi+Arabic:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}
+@keyframes nzRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes nzHalo{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:.2;transform:scale(1.35)}}
+.nz-halo{transform-box:fill-box;transform-origin:center;animation:nzHalo 3.2s ease-in-out infinite}
+@media (prefers-reduced-motion: reduce){.nz-halo{animation:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; box-sizing: border-box; background: {{t.ground}}; color: {{t.ink}}; font-family: 'Hanken Grotesk', 'Segoe UI', system-ui, sans-serif">
+
+  <svg aria-hidden="true" width="390" height="300" viewBox="0 0 390 300" style="position: absolute; left: 0; top: 0; opacity: {{t.patternOp}}">
+    <defs>
+      <pattern id="nzStarMain" width="48" height="48" patternUnits="userSpaceOnUse">
+        <g fill="none" stroke="{{t.gold}}" stroke-width="1">
+          <rect x="14" y="14" width="20" height="20"></rect>
+          <rect x="14" y="14" width="20" height="20" transform="rotate(45 24 24)"></rect>
+          <path d="M0 24h10M38 24h10M24 0v10M24 38v10"></path>
+        </g>
+      </pattern>
+      <linearGradient id="nzFadeMain" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#fff" stop-opacity="1"></stop>
+        <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
+      </linearGradient>
+      <mask id="nzMaskMain"><rect width="390" height="300" fill="url(#nzFadeMain)"></rect></mask>
+    </defs>
+    <rect width="390" height="300" fill="url(#nzStarMain)" mask="url(#nzMaskMain)"></rect>
+  </svg>
+
+  <div style="position: relative; display: flex; flex-direction: column; padding: 14px 18px 0">
+
+    <header style="display: flex; align-items: center; gap: 12px; height: 44px">
+      <img src="/_blob/1a2a267a69fa9a1be6ef7de516c1d69d" alt="Nizam-ı Alem Süleymaniye Camii logosu" style="width: 40px; height: 40px; object-fit: contain">
+      <div style="display: flex; flex-direction: column; gap: 1px; min-width: 0">
+        <span style="font-weight: 700; font-size: 15px; letter-spacing: 0.01em">Nizam-ı Alem Süleymaniye</span>
+        <span style="font-size: 12.5px; color: {{t.soft}}">Camii · Amsterdam</span>
+      </div>
+    </header>
+
+    <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px">
+      <span style="flex: 1; height: 1px; background: {{t.goldLine}}"></span>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 2px">
+        <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.18em">CUMARTESİ · 24 EKİM 2026</span>
+        <span style="font-family: 'Bodoni Moda', Georgia, serif; font-style: italic; font-size: 15px; color: {{t.soft}}">13 Jumada al-Awwal 1448</span>
+      </div>
+      <span style="flex: 1; height: 1px; background: {{t.goldLine}}"></span>
+    </div>
+
+    <div style="position: relative; width: 264px; height: 316px; margin: 4px auto 0">
+      <svg aria-hidden="true" width="264" height="316" viewBox="0 0 300 360" style="position: absolute; left: 0; top: 0; overflow: visible">
+        <defs>
+          <linearGradient id="nzSkyMain" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="{{t.sky1}}"></stop>
+            <stop offset="1" stop-color="{{t.sky2}}"></stop>
+          </linearGradient>
+        </defs>
+        <path d="M16 348 V200 A190 190 0 0 1 150 18.4 A190 190 0 0 1 284 200 V348 Z" fill="url(#nzSkyMain)"></path>
+        <path d="M26 348 V202 A180 180 0 0 1 150 28.9 A180 180 0 0 1 274 202 V348" fill="none" stroke="{{t.goldLine}}" stroke-width="1"></path>
+        <path d="M16 348 V200 A190 190 0 0 1 150 18.4 A190 190 0 0 1 284 200 V348" pathLength="1000" fill="none" stroke="{{t.goldLine}}" stroke-width="2" stroke-dasharray="3 9" stroke-linecap="round"></path>
+        <path d="M16 348 V200 A190 190 0 0 1 150 18.4 A190 190 0 0 1 284 200 V348" pathLength="1000" fill="none" stroke="{{t.gold}}" stroke-width="3" stroke-dasharray="748 1000" stroke-linecap="round"></path>
+        <g transform="translate(150 70)" fill="none" stroke="{{t.gold}}" stroke-width="1.2">
+          <rect x="-9" y="-9" width="18" height="18"></rect>
+          <rect x="-9" y="-9" width="18" height="18" transform="rotate(45)"></rect>
+        </g>
+        <g fill="{{t.gold}}" stroke="{{t.sky1}}" stroke-width="2">
+          <circle cx="16" cy="348" r="5"></circle>
+          <circle cx="16" cy="303.4" r="5"></circle>
+          <circle cx="16" cy="246.4" r="5"></circle>
+          <circle cx="160.3" cy="22" r="5"></circle>
+          <circle cx="263.4" cy="114" r="5"></circle>
+        </g>
+        <circle cx="284" cy="257.8" r="9" fill="{{t.sky2}}" stroke="{{t.coral}}" stroke-width="2.5"></circle>
+        <circle cx="284" cy="257.8" r="3.5" fill="{{t.coral}}"></circle>
+        <circle cx="284" cy="348" r="5" fill="{{t.sky2}}" stroke="{{t.goldLine}}" stroke-width="2"></circle>
+        <circle class="nz-halo" cx="277.9" cy="152.1" r="20" fill="{{t.sun}}"></circle>
+        <circle cx="277.9" cy="152.1" r="11" fill="{{t.sun}}" stroke="{{t.sky1}}" stroke-width="2.5"></circle>
+      </svg>
+
+      <div style="position: absolute; left: 0; right: 0; top: 136px; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center">
+        <span style="font-size: 11.5px; font-weight: 700; letter-spacing: 0.16em; color: {{t.coral}}">AKŞAM'A KALAN</span>
+        <span style="font-family: 'Bodoni Moda', Georgia, serif; font-weight: 500; font-size: 54px; line-height: 1.04; font-variant-numeric: lining-nums tabular-nums; letter-spacing: -0.01em">{{countdown}}</span>
+        <span style="display: flex; align-items: baseline; gap: 8px; margin-top: 2px">
+          <span style="font-weight: 600; font-size: 16px">Akşam</span>
+          <span style="font-family: 'Bodoni Moda', Georgia, serif; font-size: 18px; font-variant-numeric: lining-nums">18:34</span>
+        </span>
+        <span lang="ar" dir="rtl" style="font-family: 'Noto Kufi Arabic', serif; font-size: 13px; color: {{t.soft}}">المغرب</span>
+      </div>
+    </div>
+
+    <ul aria-label="Bugünün namaz vakitleri" style="list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column">
+      <sc-for list="{{rows}}" as="row" hint-placeholder-count="7">
+        <li style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 10px; border-radius: 12px; background: {{row.bg}}; box-shadow: {{row.shadow}}; animation: nzRise .5s {{row.delay}} both">
+          <span aria-hidden="true" style="width: 14px; display: flex; justify-content: center">
+            <sc-if value="{{row.isNext}}" hint-placeholder-val="{{false}}">
+              <svg width="12" height="12" viewBox="0 0 16 16"><g fill="{{t.coral}}"><rect x="3" y="3" width="10" height="10"></rect><rect x="3" y="3" width="10" height="10" transform="rotate(45 8 8)"></rect></g></svg>
+            </sc-if>
+            <sc-if value="{{row.isNow}}" hint-placeholder-val="{{false}}">
+              <span style="width: 8px; height: 8px; border-radius: 50%; background: {{t.turq}}"></span>
+            </sc-if>
+          </span>
+          <span style="display: flex; align-items: baseline; gap: 8px; flex: 1; min-width: 0">
+            <span style="font-weight: 600; font-size: 16px; color: {{row.nameColor}}">{{row.name}}</span>
+            <span lang="ar" dir="rtl" style="font-family: 'Noto Kufi Arabic', serif; font-size: 12px; color: {{t.soft}}">{{row.ar}}</span>
+            <sc-if value="{{row.isNow}}" hint-placeholder-val="{{false}}">
+              <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: {{t.turq}}">ŞİMDİ</span>
+            </sc-if>
+          </span>
+          <span style="font-family: 'Bodoni Moda', Georgia, serif; font-size: 21px; font-weight: 500; font-variant-numeric: lining-nums tabular-nums; color: {{row.timeColor}}">{{row.time}}</span>
+          <button type="button" aria-label="{{row.bellLabel}}" aria-pressed="{{row.bellOn}}" onClick="{{row.toggle}}" style="width: 44px; height: 44px; margin-right: -8px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; color: {{row.bellColor}}">
+            <sc-if value="{{row.bellOff}}" hint-placeholder-val="{{false}}">
+              <svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path><path d="M3 3l18 18"></path></svg>
+            </sc-if>
+            <sc-if value="{{row.bellOnFlag}}" hint-placeholder-val="{{true}}">
+              <svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+            </sc-if>
+          </button>
+        </li>
+      </sc-for>
+    </ul>
+  </div>
+
+  <nav aria-label="Ana menü" style="position: absolute; left: 0; right: 0; bottom: 0; height: 76px; box-sizing: border-box; padding: 6px 10px 14px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: {{t.tabBg}}; border-top: 1px solid {{t.line}}">
+    <a href="Main.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: {{t.cobalt}}; font-size: 11.5px; font-weight: 700">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V11.5a7 7 0 0 1 7-8 7 7 0 0 1 7 8V21"></path><path d="M9.5 21v-5a2.5 2.5 0 0 1 5 0v5"></path><path d="M3 21h18"></path></svg>
+      <span>Ana ekran</span>
+      <span aria-hidden="true" style="width: 4px; height: 4px; border-radius: 50%; background: {{t.coral}}"></span>
+    </a>
+    <a href="Mobil-Faaliyetler.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: {{t.soft}}; font-size: 11.5px; font-weight: 600">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path><path d="M12 12.6l1 2 2.2.3-1.6 1.5.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.5 2.2-.3z"></path></svg>
+      <span>Faaliyetler</span>
+      <span aria-hidden="true" style="width: 4px; height: 4px"></span>
+    </a>
+    <a href="Mobil-Programlar.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: {{t.soft}}; font-size: 11.5px; font-weight: 600">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>
+      <span>Programlar</span>
+      <span aria-hidden="true" style="width: 4px; height: 4px"></span>
+    </a>
+    <a href="Mobil-Ayarlar.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: {{t.soft}}; font-size: 11.5px; font-weight: 600">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>
+      <span>Ayarlar</span>
+      <span aria-hidden="true" style="width: 4px; height: 4px"></span>
+    </a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"tema":{"editor":"enum","options":["Gündüz","Gece"],"default":"Gündüz","section":"Görünüm"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { left: 6702, bells: { imsak: false, sabah: true, gunes: false, ogle: true, ikindi: true, aksam: true, yatsi: true } };
+  }
+  componentDidMount() {
+    this.timer = setInterval(() => {
+      this.setState((s) => ({ left: s.left > 0 ? s.left - 1 : 6702 }));
+    }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+  renderVals() {
+    const day = {
+      ground: '#F6F1E7', ink: '#14295A', soft: '#4E5B76', line: '#E3D8C4', gold: '#A8843A', goldLine: 'rgba(168,132,58,0.45)',
+      cobalt: '#1F46A6', turq: '#0B6E6A', coral: '#B5432B', sun: '#E2A43C', sky1: '#FBF7EF', sky2: '#E4EEE9',
+      nextRow: 'rgba(181,67,43,0.08)', tabBg: 'rgba(250,247,240,0.96)', patternOp: '0.16', past: '#5E6984'
+    };
+    const night = {
+      ground: '#0C1834', ink: '#F3EEE3', soft: '#A9B5CF', line: 'rgba(232,194,122,0.16)', gold: '#E8C27A', goldLine: 'rgba(232,194,122,0.4)',
+      cobalt: '#A9C1FA', turq: '#5CC9BF', coral: '#F08B6E', sun: '#E8C27A', sky1: '#1A2E61', sky2: '#0F1F45',
+      nextRow: 'rgba(240,139,110,0.12)', tabBg: 'rgba(12,24,52,0.96)', patternOp: '0.10', past: '#A9B5CF'
+    };
+    const t = (this.props.tema ?? 'Gündüz') === 'Gece' ? night : day;
+    const s = this.state.left;
+    const pad = (n) => String(n).padStart(2, '0');
+    const countdown = Math.floor(s / 3600) + ':' + pad(Math.floor((s % 3600) / 60)) + ':' + pad(s % 60);
+    const base = [
+      { key: 'imsak', name: 'İmsak', ar: 'الإمساك', time: '06:28', st: 'past' },
+      { key: 'sabah', name: 'Sabah', ar: 'الفجر', time: '07:15', st: 'past' },
+      { key: 'gunes', name: 'Güneş', ar: 'الشروق', time: '08:15', st: 'past' },
+      { key: 'ogle', name: 'Öğle', ar: 'الظهر', time: '13:30', st: 'past' },
+      { key: 'ikindi', name: 'İkindi', ar: 'العصر', time: '15:59', st: 'now' },
+      { key: 'aksam', name: 'Akşam', ar: 'المغرب', time: '18:34', st: 'next' },
+      { key: 'yatsi', name: 'Yatsı', ar: 'العشاء', time: '20:09', st: 'future' }
+    ];
+    const rows = base.map((r, i) => {
+      const on = !!this.state.bells[r.key];
+      const isNext = r.st === 'next';
+      const past = r.st === 'past';
+      return {
+        ...r,
+        isNext, isNow: r.st === 'now',
+        nameColor: past ? t.past : (isNext ? t.coral : t.ink),
+        timeColor: past ? t.past : (isNext ? t.coral : t.ink),
+        bellOn: on ? 'true' : 'false', bellOff: !on, bellOnFlag: on,
+        bellColor: on ? t.cobalt : t.soft,
+        bellLabel: r.name + (on ? ' bildirimi açık' : ' bildirimi kapalı'),
+        bg: isNext ? t.nextRow : 'transparent',
+        shadow: isNext ? 'none' : 'inset 0 -1px 0 ' + t.line,
+        delay: (0.05 * i).toFixed(2) + 's',
+        toggle: () => this.setState((st) => ({ bells: { ...st.bells, [r.key]: !st.bells[r.key] } }))
+      };
+    });
+    return { t, countdown, rows };
+  }
+}
+</script>
+</body>
+</html>

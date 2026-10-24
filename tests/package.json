@@ -1,0 +1,14 @@
+{
+  "name": "nizam-camii-testler",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:tv": "playwright test tv",
+    "goruntu-guncelle": "playwright test --update-snapshots",
+    "rapor": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}

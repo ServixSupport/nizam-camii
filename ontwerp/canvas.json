@@ -1,0 +1,33 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-10-24T14:50:00Z"},
+  "title": "Nizam Camii – Mobil ve Tablet Uygulama",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 0, "w": 390, "h": 844, "title": "Mobil · Ana ekran (gündüz)", "is_interactive": true, "radius": 36},
+    "Mobil-Faaliyetler.dc.html": {"x": 470, "y": 0, "w": 390, "h": 844, "title": "Mobil · Faaliyetler", "is_interactive": true, "radius": 36},
+    "Mobil-Programlar.dc.html": {"x": 940, "y": 0, "w": 390, "h": 844, "title": "Mobil · Programlar", "is_interactive": true, "radius": 36},
+    "Mobil-Ayarlar.dc.html": {"x": 1410, "y": 0, "w": 390, "h": 844, "title": "Mobil · Ayarlar (dil seçimi çalışır)", "is_interactive": true, "radius": 36},
+    "Mobil-Gece-NL.dc.html": {"x": 1880, "y": 0, "w": 390, "h": 844, "title": "Mobil · Ana ekran (gece, Nederlands)", "is_interactive": true, "radius": 36},
+    "Mobil-Bildirim.dc.html": {"x": 2350, "y": 0, "w": 390, "h": 844, "title": "Bildirim örneği", "radius": 36},
+    "Tablet-Ana-ekran.dc.html": {"x": 0, "y": 1264, "w": 1180, "h": 820, "title": "Tablet · Ana ekran (yatay)", "is_interactive": true, "radius": 28},
+    "Tablet-Programlar.dc.html": {"x": 1260, "y": 1264, "w": 820, "h": 1180, "title": "Tablet · Programlar (dikey)", "is_interactive": true, "radius": 28}
+  },
+  "order": [
+    "Main.dc.html",
+    "Mobil-Faaliyetler.dc.html",
+    "Mobil-Programlar.dc.html",
+    "Mobil-Ayarlar.dc.html",
+    "Mobil-Gece-NL.dc.html",
+    "Mobil-Bildirim.dc.html",
+    "Tablet-Ana-ekran.dc.html",
+    "Tablet-Programlar.dc.html"
+  ],
+  "notes": {
+    "baslikMobil": {"x": 0, "y": -300, "text": "Mobil", "kind": "title1", "maxW": 2740},
+    "baslikTablet": {"x": 0, "y": 964, "text": "Tablet", "kind": "title1", "maxW": 2080},
+    "notIcerik": {"x": 2200, "y": 1264, "w": 460, "size": "m", "fill": "orange", "text": "Örnek içerik: Faaliyet ve program kayıtları yer tutucudur; gerçek kayıtları cami yönetimi panelden girer.\n\nVakitler 24 Ekim 2026 Amsterdam için hesaplanmış örnektir; uygulamada Diyanet'ten gelir (TV ekranıyla aynı kaynak).\n\nNL ve EN namaz adları öneridir; cemaatten biri kontrol etmeli."}
+  },
+  "designSystems": []
+}

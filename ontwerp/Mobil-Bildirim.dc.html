@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Bildirim örneği</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..800;1,6..96,400..700&amp;family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+@keyframes nzDrop{from{opacity:0;transform:translateY(-14px) scale(.98)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; box-sizing: border-box; background: #0C1834; color: #F3EEE3; font-family: 'Hanken Grotesk', 'Segoe UI', system-ui, sans-serif">
+
+  <svg aria-hidden="true" width="390" height="844" viewBox="0 0 390 844" style="position: absolute; left: 0; top: 0">
+    <defs>
+      <linearGradient id="nzWall" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#0C1834"></stop>
+        <stop offset="1" stop-color="#1A2E61"></stop>
+      </linearGradient>
+    </defs>
+    <rect width="390" height="844" fill="url(#nzWall)"></rect>
+    <path d="M40 844 V560 A260 260 0 0 1 195 330 A260 260 0 0 1 350 560 V844" fill="none" stroke="rgba(232,194,122,0.28)" stroke-width="1.5"></path>
+    <path d="M58 844 V566 A242 242 0 0 1 195 352 A242 242 0 0 1 332 566 V844" fill="none" stroke="rgba(232,194,122,0.14)" stroke-width="1"></path>
+    <g transform="translate(195 450)" fill="none" stroke="rgba(232,194,122,0.35)" stroke-width="1.2">
+      <rect x="-16" y="-16" width="32" height="32"></rect>
+      <rect x="-16" y="-16" width="32" height="32" transform="rotate(45)"></rect>
+    </g>
+  </svg>
+
+  <div style="position: relative; display: flex; flex-direction: column; gap: 10px; padding: 120px 12px 0">
+
+    <article style="display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: 24px; background: rgba(243,238,227,0.94); color: #14295A; box-shadow: 0 10px 30px rgba(0,0,0,0.25); animation: nzDrop .55s both">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <img src="/_blob/1a2a267a69fa9a1be6ef7de516c1d69d" alt="" style="width: 26px; height: 26px; border-radius: 7px; object-fit: contain; background: #FFFDF8">
+        <span style="flex: 1; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; color: #4E5B76">NİZAM CAMİİ</span>
+        <span style="font-size: 13px; color: #4E5B76">şimdi</span>
+      </div>
+      <span style="font-weight: 700; font-size: 16px">Akşam vakti girdi · 18:34</span>
+      <span style="font-size: 14.5px; line-height: 1.4; color: #2E3B58">Camiye geliyorsanız telefonunuzu sessize almayı unutmayın.</span>
+    </article>
+
+    <article style="display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: 24px; background: rgba(243,238,227,0.9); color: #14295A; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: nzDrop .55s .12s both">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <img src="/_blob/1a2a267a69fa9a1be6ef7de516c1d69d" alt="" style="width: 26px; height: 26px; border-radius: 7px; object-fit: contain; background: #FFFDF8">
+        <span style="flex: 1; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; color: #4E5B76">NİZAM CAMİİ</span>
+        <span style="font-size: 13px; color: #4E5B76">15 dk önce</span>
+      </div>
+      <span style="font-weight: 700; font-size: 16px">Akşam namazına 15 dakika</span>
+      <span style="font-size: 14.5px; line-height: 1.4; color: #2E3B58">Akşam vakti 18:34’te giriyor.</span>
+    </article>
+
+    <article lang="nl" style="display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: 24px; background: rgba(243,238,227,0.86); color: #14295A; box-shadow: 0 10px 30px rgba(0,0,0,0.18); animation: nzDrop .55s .24s both">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <img src="/_blob/1a2a267a69fa9a1be6ef7de516c1d69d" alt="" style="width: 26px; height: 26px; border-radius: 7px; object-fit: contain; background: #FFFDF8">
+        <span style="flex: 1; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; color: #4E5B76">NIZAM MOSKEE</span>
+        <span style="font-size: 13px; color: #4E5B76">gisteren</span>
+      </div>
+      <span style="font-weight: 700; font-size: 16px">Nog 10 minuten tot Isja</span>
+      <span style="font-size: 14.5px; line-height: 1.4; color: #2E3B58">Isja begint om 20:09.</span>
+    </article>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

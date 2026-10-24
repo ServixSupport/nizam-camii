@@ -1,0 +1,13 @@
+{
+  "available": true,
+  "date": "30.10.2026",
+  "title": "TESTPREEK — VOORBEELDTITEL",
+  "paragraphs": [
+    { "type": "lead", "text": "Beste broeders en zusters," },
+    { "type": "p", "text": "Dit is een testtekst voor het scherm. Deze alinea staat alleen in de test en komt niet van diyanet.nl. Hij is lang genoeg om meerdere regels te vullen, zodat de opmaak van de hutbe-pagina zichtbaar wordt." },
+    { "type": "quote", "text": "“Dit is een voorbeeld van een citaatalinea in de test.”" },
+    { "type": "p", "text": "Tweede testalinea. Ook deze tekst is alleen bedoeld om te controleren dat titel, datum en alinea's op de juiste plaats verschijnen." },
+    { "type": "p", "text": "Derde testalinea, zodat de tekst langer is dan het scherm en het automatisch scrollen kan beginnen." },
+    { "type": "p", "text": "Vierde testalinea. Einde van de testtekst." }
+  ]
+}

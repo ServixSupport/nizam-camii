@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Programlar – mobil</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..800;1,6..96,400..700&amp;family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Noto+Kufi+Arabic:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}
+@keyframes nzRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; box-sizing: border-box; background: #F6F1E7; color: #14295A; font-family: 'Hanken Grotesk', 'Segoe UI', system-ui, sans-serif">
+
+  <div style="position: absolute; left: 0; right: 0; top: 0; bottom: 76px; overflow-y: auto; padding: 22px 18px 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px">
+
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h1 style="margin: 0; font-family: 'Bodoni Moda', Georgia, serif; font-weight: 600; font-size: 36px; line-height: 1.05; letter-spacing: -0.01em">Programlar</h1>
+      <p style="margin: 0; font-size: 14.5px; color: #4E5B76">Her hafta düzenli dersler ve sohbetler</p>
+    </div>
+
+    <div role="group" aria-label="Gün seç" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px">
+      <sc-for list="{{days}}" as="d" hint-placeholder-count="7">
+        <button type="button" aria-pressed="{{d.pressed}}" aria-label="{{d.full}}" onClick="{{d.pick}}" style="height: 60px; border-radius: 16px; border: 1px solid {{d.border}}; background: {{d.bg}}; color: {{d.fg}}; font-family: inherit; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; padding: 0">
+          <span style="font-size: 13px; font-weight: 700">{{d.short}}</span>
+          <span aria-hidden="true" style="width: 5px; height: 5px; border-radius: 50%; background: {{d.dot}}"></span>
+        </button>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; align-items: baseline; justify-content: space-between">
+      <h2 style="margin: 0; font-family: 'Bodoni Moda', Georgia, serif; font-weight: 600; font-size: 24px">{{dayName}}</h2>
+      <span style="font-size: 13.5px; color: #4E5B76">{{countLabel}}</span>
+    </div>
+
+    <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column">
+      <sc-for list="{{items}}" as="p" hint-placeholder-count="3">
+        <li style="display: grid; grid-template-columns: 58px 22px minmax(0, 1fr); align-items: stretch; animation: nzRise .45s {{p.delay}} both">
+          <div style="display: flex; flex-direction: column; align-items: flex-end; padding-top: 14px; padding-right: 4px">
+            <span style="font-family: 'Bodoni Moda', Georgia, serif; font-weight: 600; font-size: 20px; line-height: 1; font-variant-numeric: lining-nums tabular-nums">{{p.start}}</span>
+            <span style="font-size: 12px; color: #4E5B76; margin-top: 4px">{{p.end}}</span>
+          </div>
+          <div aria-hidden="true" style="position: relative; display: flex; justify-content: center">
+            <span style="position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(168,132,58,0.45)"></span>
+            <svg width="12" height="12" viewBox="0 0 16 16" style="position: relative; margin-top: 18px"><g fill="{{p.color}}"><rect x="3" y="3" width="10" height="10"></rect><rect x="3" y="3" width="10" height="10" transform="rotate(45 8 8)"></rect></g></svg>
+          </div>
+          <div style="padding: 6px 0 12px">
+            <div style="display: flex; flex-direction: column; gap: 6px; padding: 14px 14px; border-radius: 18px; background: #FFFDF8; border: 1px solid #E3D8C4">
+              <span style="font-weight: 700; font-size: 16px; line-height: 1.25">{{p.title}}</span>
+              <span style="font-size: 13.5px; color: #4E5B76">{{p.place}}</span>
+              <span style="align-self: flex-start; display: flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; background: {{p.tint}}; color: {{p.color}}; font-size: 12px; font-weight: 700">{{p.group}}</span>
+            </div>
+          </div>
+        </li>
+      </sc-for>
+    </ol>
+  </div>
+
+  <nav aria-label="Ana menü" style="position: absolute; left: 0; right: 0; bottom: 0; height: 76px; box-sizing: border-box; padding: 6px 10px 14px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: rgba(250,247,240,0.96); border-top: 1px solid #E3D8C4">
+    <a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #4E5B76; font-size: 11.5px; font-weight: 600">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V11.5a7 7 0 0 1 7-8 7 7 0 0 1 7 8V21"></path><path d="M9.5 21v-5a2.5 2.5 0 0 1 5 0v5"></path><path d="M3 21h18"></path></svg>
+      <span>Ana ekran</span>
+      <span aria-hidden="true" style="width: 4px; height: 4px"></span>
+    </a>
+    <a href="Mobil-Faaliyetler.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #4E5B76; font-size: 11.5px; font-weight: 600">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path><path d="M12 12.6l1 2 2.2.3-1.6 1.5.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.5 2.2-.3z"></path></svg>
+      <span>Faaliyetler</span>
+      <span aria-hidden="true" style="width: 4px; height: 4px"></span>
+    </a>
+    <a href="Mobil-Programlar.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #1F46A6; font-size: 11.5px; font-weight: 700">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>
+      <span>Programlar</span>
+      <span aria-hidden="true" style="width: 4px; height: 4px; border-radius: 50%; background: #B5432B"></span>
+    </a>
+    <a href="Mobil-Ayarlar.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #4E5B76; font-size: 11.5px; font-weight: 600">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>
+      <span>Ayarlar</span>
+      <span aria-hidden="true" style="width: 4px; height: 4px"></span>
+    </a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { day: 5 };
+  }
+  renderVals() {
+    const groups = {
+      'Çocuklar': { color: '#8A6420', tint: 'rgba(138,100,32,0.10)' },
+      'Gençlik': { color: '#0B6E6A', tint: 'rgba(11,110,106,0.10)' },
+      'Hanımlar': { color: '#B5432B', tint: 'rgba(181,67,43,0.09)' },
+      'Erkekler': { color: '#1F46A6', tint: 'rgba(31,70,166,0.09)' },
+      'Herkes': { color: '#14295A', tint: 'rgba(20,41,90,0.08)' }
+    };
+    const kurs = { start: '17:00', end: '19:00', title: 'Kur’an kursu', place: 'Sınıflar · 7–14 yaş', group: 'Çocuklar' };
+    const week = [
+      [kurs, { start: 'Yatsı', end: 'sonrası', title: 'Tefsir dersi', place: 'Ana salon', group: 'Erkekler' }],
+      [{ start: '10:30', end: '12:00', title: 'Hanımlar Kur’an dersi', place: 'Kadınlar bölümü', group: 'Hanımlar' }, kurs],
+      [kurs, { start: '19:30', end: '21:00', title: 'Gençlik sohbeti', place: 'Gençlik odası · 15–25 yaş', group: 'Gençlik' }],
+      [kurs, { start: 'Yatsı', end: 'sonrası', title: 'Hadis dersi', place: 'Ana salon', group: 'Erkekler' }],
+      [{ start: 'Öğle', end: 'vaktinde', title: 'Cuma namazı ve hutbe', place: 'Ana salon · Hutbe özeti Nederlands', group: 'Herkes' }],
+      [{ start: '10:00', end: '13:00', title: 'Hafta sonu Kur’an kursu', place: 'Sınıflar · 7–14 yaş', group: 'Çocuklar' },
+       { start: '14:00', end: '15:30', title: 'İlmihal dersi', place: 'Kadınlar bölümü', group: 'Hanımlar' },
+       { start: '19:30', end: '21:00', title: 'Gençlik sohbeti', place: 'Gençlik odası · 15–25 yaş', group: 'Gençlik' }],
+      [{ start: '10:00', end: '13:00', title: 'Hafta sonu Kur’an kursu', place: 'Sınıflar · 7–14 yaş', group: 'Çocuklar' },
+       { start: '14:00', end: '16:00', title: 'Hafızlık hazırlık', place: 'Sınıf 3', group: 'Çocuklar' }]
+    ];
+    const shorts = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+    const fulls = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+    const today = 5;
+    const sel = this.state.day;
+    const days = shorts.map((s, i) => {
+      const on = i === sel;
+      return {
+        short: s, full: fulls[i] + (i === today ? ' (bugün)' : ''), pressed: on ? 'true' : 'false',
+        bg: on ? '#14295A' : '#FFFDF8', fg: on ? '#F6F1E7' : '#14295A', border: on ? '#14295A' : '#E3D8C4',
+        dot: i === today ? (on ? '#E8C27A' : '#B5432B') : 'transparent',
+        pick: () => this.setState({ day: i })
+      };
+    });
+    const items = week[sel].map((p, i) => ({ ...p, ...groups[p.group], delay: (0.06 * i).toFixed(2) + 's' }));
+    return {
+      days, items,
+      dayName: fulls[sel] + (sel === today ? ' · bugün' : ''),
+      countLabel: items.length + ' program'
+    };
+  }
+}
+</script>
+</body>
+</html>
