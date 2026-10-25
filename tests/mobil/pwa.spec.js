@@ -14,9 +14,13 @@ test.describe('manifest ve ikonlar', () => {
     expect(href).toBe('/mobil/manifest-nl.webmanifest');                      // ilk dil Hollandaca
     const m = await (await request.get(href)).json();
     expect(m).toMatchObject({ id: '/mobil/', name: 'SÜLEYMANİYE MOSKEE', short_name: 'SÜLEYMANİYE MOSKEE', start_url: '/mobil/', scope: '/mobil/', display: 'standalone' });
+    // Android, yüklü uygulamanın alt sistem çubuğunu manifest renginden boyuyor (ikonlar beyaz): lacivert.
+    // Sayfanın üst çubuğu yine <meta name="theme-color"> ile (gündüz krem).
+    const RENK = { theme_color: '#14295A', background_color: '#14295A' };
+    expect(m).toMatchObject(RENK);
     for (const [d, ad] of [['tr', 'SÜLEYMANİYE CAMİİ'], ['en', 'SÜLEYMANİYE MOSQUE']]) {
       const md = await (await request.get(`/mobil/manifest-${d}.webmanifest`)).json();
-      expect(md).toMatchObject({ id: '/mobil/', name: ad, short_name: ad, lang: d });   // aynı uygulama (id), dile göre ad
+      expect(md).toMatchObject({ id: '/mobil/', name: ad, short_name: ad, lang: d, ...RENK });   // aynı uygulama (id), dile göre ad
       expect(md.icons).toEqual(m.icons);
     }
     expect(m.icons.map((i) => `${i.sizes} ${i.purpose}`)).toEqual(['192x192 any', '512x512 any', '512x512 maskable']);
