@@ -48,7 +48,7 @@
 2. **Diyanet API'si:** limit uç nokta başına 5 istek. TV ve uygulama vakitleri yalnızca `/api/vakit` üzerinden alır.
    - Parametresiz, tam bu URL ile çağır: CDN cache anahtarı aynı kalsın.
    - Diyanet'e asla tarayıcıdan veya ek parametreyle gidilmez. `api/vakit.js` gerekmedikçe değişmez.
-3. **Sırlar** sadece Vercel ortam değişkenlerinde: `DIYANET_EMAIL`, `DIYANET_PASSWORD`, `DIYANET_CITY_ID`, `ADMIN_ANAHTAR`, `GITHUB_TOKEN`, `CRON_SECRET`, `VAPID_PRIVATE_KEY`.
+3. **Sırlar** sadece Vercel ortam değişkenlerinde: `DIYANET_EMAIL`, `DIYANET_PASSWORD`, `DIYANET_CITY_ID`, `ADMIN_ANAHTAR`, `BLOB_READ_WRITE_TOKEN` (Blob store bağlanınca otomatik), `CRON_SECRET`, `VAPID_PRIVATE_KEY`.
    - Depo public: hiçbir sır, `.env` dosyası veya kişisel veri commit edilmez.
    - Kullanıcıdan şifreyi sohbete yapıştırmasını isteme; Vercel'e kendisi girsin.
 4. Masaüstündeki `Diyanet namaz vakitleri api.pdf` kişisel veri içerir. Asla bu klasöre veya depoya girmez.

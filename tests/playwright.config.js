@@ -47,7 +47,7 @@ export default defineConfig({
 
     // Tek link: TV mi, mobil mi? (her test kendi cihazını kurar)
     { name: 'yonlendirme', testMatch: 'yonlendirme/**/*.spec.js' },
-    // Saf mantık (zaman.js): tarayıcısız
-    { name: 'mantik', testMatch: 'mantik/**/*.spec.js' },
+    // Saf mantık (zaman.js, icerik.js, dogrula.js) ve sunucu fonksiyonları: tarayıcısız
+    { name: 'mantik', testMatch: ['mantik/**/*.spec.js', 'sunucu/**/*.spec.js'] },
   ],
 });

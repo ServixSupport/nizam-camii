@@ -276,30 +276,34 @@ Veri dosyası şöyle görünür (örnek):
   - Form: başlık/açıklama (TR|NL|EN), grup, günler (7 anahtar), saat ("sabit saat" veya "vakte bağlı": vakit + "vaktinde" / "X dk sonra"), süre, yer, hoca (isteğe bağlı), geçerlilik tarihleri, aktif.
   - Altta yardımcı satır: "Sonraki: Salı 27 Ekim ≈ 20:39".
 
-### Kaydetme (S2, varsayılan: veritabanı yok, veri GitHub deposunda)
+### Kaydetme (S2 = Vercel Blob, kullanıcının kararı 25-10-2026)
 
-- **Okuma:** `api/admin/veri.js` güncel `veri/icerik.json`'ı ve `sha`'sını GitHub API'sinden okur. Böylece yayını beklemeden son hali görülür.
-- **Yazma:** `api/admin/kaydet.js` şu sırayla çalışır:
+**Neden Blob:** GitHub'da her kayıt yeni deploy olur. Her deploy `/api/vakit` cache'ini siler ve yeni bir Diyanet isteği harcar (ölçüldü, §10 S2).
+
+- **Depo:** Vercel'de **public** bir Blob store (`nizam-icerik`), `nizam-camii` projesine bağlı.
+  - Vercel `BLOB_READ_WRITE_TOKEN` (veya OIDC ile `BLOB_STORE_ID`) ekler; `@vercel/blob` bunları kendisi okur.
+- **İçerik:** tek blob `icerik.json`, §4'teki yapıda. `allowOverwrite: true`, `addRandomSuffix: false`.
+- **Uygulama okuma:** `GET /api/icerik`.
+  - Fonksiyon `get('icerik.json', { useCache: false })` ile en son hali okur.
+  - Sadece yayındaki ve geçmemiş kayıtları döndürür.
+  - `Cache-Control: s-maxage=120, stale-while-revalidate=86400`: kayıt en geç ~2 dk sonra görünür.
+  - Uygulama içeriği en fazla 2 dakikada bir ister; son hali cihazda saklar.
+- **Yönetim okuma:** `GET /api/admin/veri`: taslaklar dahil tam içerik + `etag`, `no-store`. İsteğe bağlı anahtar → `yetkili: true/false`.
+- **Yazma:** `PUT /api/admin/kaydet`, şu sırayla:
   1. Anahtarı kontrol eder.
-  2. İçeriği doğrular.
-  3. GitHub Contents API ile (`PUT …/contents/veri/icerik.json`, `sha` ile) commit eder.
-  - Commit mesajı örneği: "admin: faaliyetler güncellendi (24.10.2026 18:05)".
-- **Yayın:** Vercel commit'i görür ve kendiliğinden yayınlar (~30–60 sn).
-  - Panelde şu mesaj çıkar: "Kaydedildi. Yaklaşık 1 dakika içinde uygulamada görünür."
-  - Yeni yayın CDN'deki eski `veri/icerik.json`'ı geçersiz kılar.
-- **Çakışma:** `sha` farklıysa "Başka biri değiştirdi, sayfayı yenileyin" gösterilir. Veri kaybolmaz.
+  2. İçeriği doğrular (`veri/dogrula.js`).
+  3. `put(..., { ifMatch: etag })` ile yazar.
+  4. Silinen veya değişen resimleri `del()` ile siler.
+- **Çakışma:** etag farklıysa (`BlobPreconditionFailedError`) 409 döner. Panelde "Başka biri değiştirdi, sayfayı yenileyin" çıkar; veri kaybolmaz.
 - **Resim:**
-  - Tarayıcı resmi JPEG'e çevirir: en fazla 1600 px, ~400 KB, EXIF yok (konum bilgisi gitmesin).
-  - `api/admin/resim.js` resmi `veri/resimler/<id>.jpg` olarak commit eder.
-  - Faaliyet silinince resmi de silinir.
-- **Ortam değişkenleri:**
-  - `GITHUB_TOKEN`: fine-grained token; sadece bu depo, izin "Contents: Read and write".
-  - `GITHUB_REPO=ServixSupport/nizam-camii`, `GITHUB_BRANCH=main`.
-- **Not:** her kayıt bir Vercel deploy'u demek. Hobby planında günde 100 deploy sınırı var; bu iş için fazlasıyla yeter.
-
-**Alternatif (S2): Vercel Blob.** Kayıt anında görünür ve GitHub token gerekmez. Ama Vercel'de bir depo eklenir; kullanıcı
-"ayrı veritabanı olmasın" dedi, bu yüzden varsayılan GitHub. Blob seçilirse CDN cache süresine dikkat
-(`cacheControlMaxAge` küçük olsun).
+  - Tarayıcı resmi JPEG'e çevirir: en fazla 1600 px, ~400 KB, EXIF yok.
+  - `POST /api/admin/resim` resmi `resimler/<id>-<rastgele>.jpg` olarak yükler.
+  - İçerikte sadece bu store'un adresleri kabul edilir.
+- **Hobby limitleri (aylık):** 10.000 basit, 2.000 gelişmiş işlem, 1 GB.
+  - Aşılırsa Blob 30 gün kapanır. Bu yüzden okuma CDN'de cache'lenir.
+  - Beklenen kullanım ayda birkaç bin basit işlemdir. Vercel limite yaklaşınca e-posta atar.
+- **Ortam değişkenleri:** `ADMIN_ANAHTAR` (kullanıcı ekler) ve Blob değişkenleri (store bağlanınca otomatik).
+- `veri/icerik.json` (statik) artık kullanılmaz. `veri/dogrula.js` kalır: API, panel ve testler kullanır.
 
 ## 6. Uygulama ekranları (davranış)
 
@@ -417,7 +421,7 @@ Veri dosyası şöyle görünür (örnek):
   - Claude Code `git push` yapar (bilgisayarda GitHub girişi gerekir; gerekirse kurulumu adım adım anlat).
   - Ya da kullanıcı eskisi gibi GitHub sitesinden dosya yükler.
   - **Cevap (24-10-2026):** Claude push yapar. Önce ayrı dal + Vercel Preview, onaydan sonra `main`.
-- **S2 (Faz B):** İçerik nerede dursun?
+- **S2 (Faz B):** İçerik nerede dursun? **Cevap (25-10-2026): Vercel Blob** (§5).
   - GitHub deposunda JSON (veritabanı yok, kayıttan ~1 dk sonra görünür; varsayılan).
   - Ya da Vercel Blob (anında görünür).
   - **Ölçüldü (24-10-2026):** her deploy `/api/vakit`'in CDN cache'ini siler.
@@ -425,8 +429,8 @@ Veri dosyası şöyle görünür (örnek):
     - Yani GitHub seçeneğinde her kayıt = yeni deploy = yeni Diyanet isteği (limit 5).
     - Hata cevabı da 24 saat cache'lenir; TV o zaman localStorage'daki veriyle devam eder.
     - Bunu S2'yi sorarken kullanıcıya açıkça söyle.
-- **S3 (Faz B):** `/admin` koruması: gizli anahtarlı link (varsayılan) mı, tamamen açık mı? Tamamen açığın riskini söyle.
-- **S4:** Gruplar listesi (Herkes/Erkekler/Hanımlar/Gençlik/Çocuklar) uygun mu?
+- **S3 (Faz B):** `/admin` koruması: gizli anahtarlı link (varsayılan) mı, tamamen açık mı? Tamamen açığın riskini söyle. **Cevap (25-10-2026): gizli anahtarlı link.**
+- **S4:** Gruplar listesi (Herkes/Erkekler/Hanımlar/Gençlik/Çocuklar) uygun mu? **Cevap (25-10-2026): evet, bu beşi.**
 - **S5 (Faz A):** Hollandaca ve İngilizce namaz isimleri.
   - Türkçe isimler mi kalsın (İmsak, Sabah …)?
   - Çeviri mi (Ochtend, Middag … / Morning, Noon …)?
