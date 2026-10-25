@@ -96,7 +96,7 @@ export const METIN = {
 const EK = {
   tr: {
     gruplar: { herkes: 'Herkes', erkekler: 'Erkekler', hanimlar: 'Hanımlar', genclik: 'Gençlik', cocuklar: 'Çocuklar' },
-    tumu: 'Tümü', suz: 'Gruba göre süz',
+    tumu: 'Tümü', tumGruplar: 'Tüm gruplar', suz: 'Gruba göre süz',
     oneCikan: 'ÖNE ÇIKAN', tumGun: 'Tüm gün',
     takvimeEkle: 'Takvime ekle', paylas: 'Paylaş', linkKopyalandi: 'Link kopyalandı', dahaFazla: 'Daha fazla bilgi',
     kategoriBos: 'Bu grupta yaklaşan faaliyet yok.', geri: 'Faaliyetler', bulunamadi: 'Bu faaliyet artık yok.',
@@ -109,7 +109,7 @@ const EK = {
   },
   nl: {
     gruplar: { herkes: 'Iedereen', erkekler: 'Mannen', hanimlar: 'Vrouwen', genclik: 'Jongeren', cocuklar: 'Kinderen' },
-    tumu: 'Alles', suz: 'Filter op groep',
+    tumu: 'Alles', tumGruplar: 'Alle groepen', suz: 'Filter op groep',
     oneCikan: 'UITGELICHT', tumGun: 'Hele dag',
     takvimeEkle: 'Zet in agenda', paylas: 'Delen', linkKopyalandi: 'Link gekopieerd', dahaFazla: 'Meer informatie',
     kategoriBos: 'Geen komende activiteiten in deze groep.', geri: 'Activiteiten', bulunamadi: 'Deze activiteit bestaat niet meer.',
@@ -122,7 +122,7 @@ const EK = {
   },
   en: {
     gruplar: { herkes: 'Everyone', erkekler: 'Men', hanimlar: 'Women', genclik: 'Youth', cocuklar: 'Children' },
-    tumu: 'All', suz: 'Filter by group',
+    tumu: 'All', tumGruplar: 'All groups', suz: 'Filter by group',
     oneCikan: 'FEATURED', tumGun: 'All day',
     takvimeEkle: 'Add to calendar', paylas: 'Share', linkKopyalandi: 'Link copied', dahaFazla: 'More information',
     kategoriBos: 'No upcoming activities in this group.', geri: 'Activities', bulunamadi: 'This activity no longer exists.',

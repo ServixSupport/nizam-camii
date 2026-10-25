@@ -224,17 +224,20 @@ main {
 .grup-etiket { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--g); }
 .grup-etiket .elmas { width: 8px; height: 8px; }
 
-.cipler { display: flex; gap: 8px; overflow-x: auto; margin: 0 -18px; padding: 0 18px 2px; scrollbar-width: none; }
-.cipler::-webkit-scrollbar { display: none; }
-.cipler.sar { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; gap: 6px; }
-.cip { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 16px; border-radius: 999px;
   border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer; }
-.cip[aria-pressed="true"] { background: var(--ink); color: var(--ground); border-color: var(--ink); }
-.cip.renkli { padding: 0 13px; font-size: 13px; font-weight: 700; }
-.cip.renkli .elmas { color: var(--g, var(--gold)); width: 8px; height: 8px; }
-.cip.renkli[aria-pressed="true"] { background: var(--g, var(--ink)); border-color: transparent; color: var(--card); }
-.cip.renkli[aria-pressed="true"] .elmas { color: currentColor; }
-:root[data-tema="gece"] .cip.renkli[aria-pressed="true"] { color: #0C1834; }
+
+.suz-kap { display: flex; }
+.suz { position: relative; display: inline-flex; align-items: center; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+.suz:focus-within { outline: 3px solid var(--cobalt); outline-offset: 2px; }
+.suz select { appearance: none; -webkit-appearance: none; min-height: 44px; padding: 0 42px 0 40px; border: 0; border-radius: 999px; background: transparent; color: inherit;
+  font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; outline: none; }
+.suz select option { color: #14295A; background: #FFFDF8; }
+.suz-ikon, .suz-ok { position: absolute; width: 18px; height: 18px; pointer-events: none; }
+.suz-ikon { left: 14px; color: var(--soft); }
+.suz-ok { right: 14px; }
+.suz.aktif { background: var(--g); border-color: transparent; color: var(--card); }
+.suz.aktif .suz-ikon { color: inherit; }
+:root[data-tema="gece"] .suz.aktif { color: #0C1834; }
 
 .f-icerik { display: flex; flex-direction: column; gap: 16px; }
 .one-cikan { position: relative; display: flex; gap: 16px; padding: 16px; border-radius: 22px; background: var(--navy); color: #F6F1E7;
@@ -414,7 +417,6 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 
   .sayfa { padding: 40px 48px 48px; max-width: 760px; gap: 26px; }
   .sayfa h1 { font-size: 40px; }
-  .cipler { margin: 0; padding: 0 0 2px; flex-wrap: wrap; overflow: visible; }
 
   /* Programlar: haftalık tablo (Tablet-Programlar.dc.html) */
   .programlar { max-width: 1060px; gap: 16px; padding: 26px 26px 24px 24px; }

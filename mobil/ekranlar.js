@@ -91,12 +91,16 @@ export function ekranlar(c) {
   const grupStil = (g) => ({ '--g': `var(--g-${g})`, '--gt': `var(--gt-${g})` });
   const grupEtiketi = (g) => h('span', { class: 'grup-etiket', style: grupStil(g) }, yildiz('elmas'), c.L().gruplar[g]);
 
-  function cipler(kap, secili, sec, renkli) {
+  /** Grup süzgeci: tek açılır seçim düğmesi (telefonda telefonun kendi listesi açılır). */
+  function grupSecici(secili, sec, kimlik) {
     const L = c.L();
-    doldur(kap, ...['tumu', ...GRUP_SIRA].map((g) => h('button', {
-      type: 'button', class: 'cip' + (renkli ? ' renkli' : ''), 'aria-pressed': String(secili === g), style: g === 'tumu' ? null : grupStil(g),
-      onclick: () => sec(g),
-    }, renkli ? yildiz('elmas') : null, g === 'tumu' ? L.tumu : L.gruplar[g])));
+    const aktif = secili !== 'tumu';
+    return h('div', { class: 'suz' + (aktif ? ' aktif' : ''), style: aktif ? grupStil(secili) : null },
+      h('svg:svg', { class: 'suz-ikon', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' },
+        h('svg:path', { d: 'M4 6h16M7 12h10M10 18h4' })),
+      h('select', { id: kimlik, 'aria-label': L.suz, onchange: (e) => sec(e.target.value) },
+        ['tumu', ...GRUP_SIRA].map((g) => h('option', { value: g, selected: g === secili, metin: g === 'tumu' ? L.tumGruplar : L.gruplar[g] }))),
+      ikon(['M6 9l6 6 6-6'], 'suz-ok'));
   }
 
   function takvimeEkle(f) {
@@ -125,7 +129,7 @@ export function ekranlar(c) {
     const kap = document.getElementById('f-icerik');
     const ciplerKap = document.getElementById('f-cipler');
     ciplerKap.hidden = tumu.length === 0;
-    cipler(ciplerKap, durum.fGrup, (g) => { durum.fGrup = g; faaliyetleriCiz(); }, false);
+    doldur(ciplerKap, grupSecici(durum.fGrup, (g) => { durum.fGrup = g; faaliyetleriCiz(); }, 'f-grup'));
 
     if (!tumu.length) {
       doldur(kap, bosKart(L.evEmpty, L.evEmptySub));
@@ -234,9 +238,11 @@ export function ekranlar(c) {
     const gunler = haftaGunleri(bugun);
     if (!durum.pGun || !gunler.some((g) => g.ymd === durum.pGun)) durum.pGun = bugun;
     const secili = gunler.find((g) => g.ymd === durum.pGun);
-    const ogeler = gununProgramlari(programlar, secili.ymd, secili.hg, c.olaylar(secili.ymd));
+    const ogeler = gununProgramlari(programlar, secili.ymd, secili.hg, c.olaylar(secili.ymd))
+      .filter(({ p }) => durum.pGrup === 'tumu' || p.grup === durum.pGrup);
     const tp = tarihParca(secili.ymd, L.locale);
     doldur(kap,
+      h('div', { class: 'suz-kap' }, grupSecici(durum.pGrup, (g) => { durum.pGrup = g; programlariCiz(); }, 'p-grup')),
       h('div', { class: 'gun-secici', role: 'group', 'aria-label': L.gunSec }, gunler.map((g) => {
         const t = tarihParca(g.ymd, L.locale);
         return h('button', {
@@ -342,8 +348,7 @@ export function ekranlar(c) {
     for (const v of vakitler) govde.append(h('span', { class: 'ht-vakit-ad', style: { top: `${ust(v.dk) - 7}px` }, metin: v.ad }));
 
     const secili = bloklar.find((b) => b.kimlik === durum.pSecili);
-    const ciplerKap = h('div', { class: 'cipler sar', role: 'group', 'aria-label': L.suz });
-    cipler(ciplerKap, durum.pGrup, (g) => { durum.pGrup = g; programlariCiz(); }, true);
+    const ciplerKap = grupSecici(durum.pGrup, (g) => { durum.pGrup = g; programlariCiz(); }, 'p-grup');
 
     doldur(kap,
       h('div', { class: 'ht-ust' }, ciplerKap,

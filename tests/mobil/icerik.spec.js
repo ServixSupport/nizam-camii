@@ -22,11 +22,13 @@ test.describe('faaliyetler', () => {
 
   test('gruba göre süzme', async ({ page }) => {
     await ac(page, { adres: '/mobil/#faaliyetler' });
-    await page.getByRole('button', { name: 'Gençlik', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Gençlik', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    const secim = page.getByRole('combobox', { name: 'Gruba göre süz' });
+    await expect(secim.locator('option')).toHaveText(['Tüm gruplar', 'Herkes', 'Erkekler', 'Hanımlar', 'Gençlik', 'Çocuklar']);
+    await secim.selectOption('genclik');
+    await expect(page.locator('.suz')).toHaveClass(/aktif/);
     await expect(page.locator('.one-cikan')).toHaveCount(0);
     await expect(page.locator('.f-oge .f-baslik')).toHaveText(['Gençlik Buluşması']);
-    await page.getByRole('button', { name: 'Erkekler', exact: true }).click();
+    await page.getByRole('combobox', { name: 'Gruba göre süz' }).selectOption('erkekler');
     await expect(page.locator('.f-oge')).toHaveCount(0);
     await expect(page.locator('#f-icerik')).toContainText('Bu grupta yaklaşan faaliyet yok.');
   });
@@ -101,6 +103,13 @@ test.describe('programlar', () => {
     await page.getByRole('button', { name: 'Cuma 30 Ekim' }).click();
     await expect(page.locator('.zc-bas')).toHaveText(['≈ 12:29']);
     await expect(page.locator('.zc-bit')).toHaveText(['Öğle vaktinde']);
+
+    await page.getByRole('button', { name: /Çarşamba 28 Ekim/ }).click();
+    await page.locator('#p-grup').selectOption('genclik');                      // telefonda da grup süzgeci
+    await expect(page.locator('.zc-baslik')).toHaveText(['Gençlik sohbeti']);
+    await expect(page.locator('.gun-baslik')).toContainText('1 program');
+    await page.locator('#p-grup').selectOption('tumu');
+    await expect(page.locator('.zc-baslik')).toHaveCount(2);
   });
 
   test('içerik yoksa boş ekran', async ({ page }) => {
@@ -121,7 +130,7 @@ test.describe('programlar', () => {
     await expect(page.locator('.secili-kart .sk-baslik')).toHaveText('Cuma namazı ve hutbe');
     await expect(page.locator('.secili-kart .sk-meta')).toContainText('Öğle vaktinde (≈ 12:29)');
 
-    await page.getByRole('button', { name: 'Hanımlar', exact: true }).click();
+    await page.locator('#p-grup').selectOption('hanimlar');
     await expect(page.locator('.ht-blok', { hasText: 'İlmihal' })).toHaveCSS('opacity', '1');
     await expect(page.locator('.ht-blok', { hasText: 'Hadis dersi' })).toHaveCSS('opacity', '0.22');
 
