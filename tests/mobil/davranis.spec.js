@@ -1,8 +1,8 @@
 // Mobil uygulama (/mobil/) — Faz A davranış testleri (telefon, 390×844).
 // Test günü Çarşamba 28-10-2026 (TV testleriyle aynı veri).
-import { test, expect } from '@playwright/test';
+import { test, expect, devices } from '@playwright/test';
 import { mobilAc, uygulamaVakitleri } from '../yardimci/mobil.js';
-import { tvAc, ileri, saatGit, vakitleriOku, VAKIT } from '../yardimci/tv.js';
+import { tvAc, ileri, saatGit, vakitleriOku, VAKIT, mockla } from '../yardimci/tv.js';
 
 const an = (saat, gun = '2026-10-28', ofset = '+01:00') => `${gun}T${saat}${ofset}`;
 const DIYANET_28 = { Imsak: '05:34', Fajr: '06:21', Sunrise: '07:21', Dhuhr: '12:29', Asr: '14:54', Maghrib: '17:27', Isha: '19:02' };
@@ -256,6 +256,57 @@ test('ana ekran kaydırmasız sığar ve kaymaz; Yatsı alt menünün üstünde 
   }
 });
 
+// Gerçek Android'de (yüklü uygulama, 25-10-2026) belge içerikten ~55 px uzun ölçülüyordu (100dvh sistem çubuğunu
+// da sayıyordu): kemer boşuna küçülüyor, sayfa yine kayıyordu, yenileyince eski kaydırma yeri geri geliyordu.
+test('belge içerikten uzun ölçülse de ana ekran kaymaz, kemer boşuna küçülmez; yenileyince de', async ({ page }) => {
+  await page.setViewportSize({ width: 412, height: 860 });
+  await page.addInitScript(() => document.addEventListener('DOMContentLoaded', () => {
+    const s = document.createElement('style');
+    s.textContent = 'body { min-height: calc(100vh + 56px) !important; }';   // Android'deki uzun ölçü
+    document.head.append(s);
+  }));
+  await mobilAc(page, { zaman: an('16:00:00.500') });
+  const kontrol = async (tur) => {
+    await page.clock.runFor(100);
+    await expect(page.locator('html'), tur).toHaveClass(/kaydirma-yok/);
+    expect((await page.locator('.kemer').boundingBox()).height, `${tur}: kemer tam boy`).toBeCloseTo(316, 0);
+    await page.mouse.wheel(0, 400);
+    await page.evaluate(() => window.scrollTo(0, 300));
+    await expect.poll(() => page.evaluate(() => window.scrollY), `${tur}: kaymaz`).toBe(0);
+  };
+  await kontrol('ilk açılış');
+  // eski davranış: kaydırılmış sayfa yenilenince aynı yere dönüyordu
+  await page.evaluate(() => { document.documentElement.classList.remove('kaydirma-yok'); window.scrollTo(0, 56); });
+  await page.reload();
+  await expect(page.locator('.vakitler li:not([hidden])')).toHaveCount(7);
+  await page.evaluate(() => document.fonts.ready);
+  await kontrol('yenileyince');
+});
+
+test("Android: sistem çubuğunun arkası lacivert, sayfa yine zemin rengiyle kaplı; iPhone'da değişmez", async ({ browser }) => {
+  for (const [cihaz, android] of [['Pixel 7', true], ['iPhone 13', false]]) {
+    const context = await browser.newContext({ ...devices[cihaz] });
+    const page = await context.newPage();
+    await mockla(page);
+    await page.goto('/mobil/');
+    await expect(page.locator('.vakitler li:not([hidden])')).toHaveCount(7);
+    const r = await page.evaluate(() => ({
+      sinif: document.documentElement.classList.contains('android'),
+      kok: getComputedStyle(document.documentElement).backgroundColor,
+      govde: getComputedStyle(document.body).backgroundColor,
+      lacivert: getComputedStyle(document.documentElement).getPropertyValue('--navy').trim(),
+      kaplar: document.body.getBoundingClientRect().height >= window.innerHeight,
+    }));
+    expect(r.sinif, cihaz).toBe(android);
+    expect(r.kok !== r.govde, `${cihaz}: html zemini farklı`).toBe(android);
+    if (android) {
+      const hex = '#' + r.kok.match(/\d+/g).slice(0, 3).map((n) => (+n).toString(16).padStart(2, '0')).join('');
+      expect(hex.toUpperCase(), cihaz).toBe(r.lacivert.toUpperCase());
+    }
+    expect(r.kaplar, `${cihaz}: sayfa zemini ekranı kaplar`).toBe(true);
+    await context.close();
+  }
+});
 
 test('diğer sekmeler kaydırılabilir kalır', async ({ page }) => {
   await mobilAc(page, { zaman: an('16:00:00.500'), adres: '/mobil/#ayarlar' });

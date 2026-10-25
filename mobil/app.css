@@ -52,9 +52,13 @@
 
 /* ---------- temel ---------- */
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; background: var(--ground); }
+html { -webkit-text-size-adjust: 100%; height: 100%; background: var(--ground); }
+/* Android: alt sistem çubuğu sayfanın (html) zemin rengini alıyor; ikonları beyaz.
+   Zemin lacivert olunca ikonlar görünür. Sayfa body ile kaplı, lacivert sadece çubuğun arkasında. */
+html.android { background: var(--navy); }
 body {
-  margin: 0; min-height: 100dvh; background: var(--ground); color: var(--ink);
+  /* 100dvh değil: Android'de sistem çubuğunu da sayıp sayfayı ~55 px uzatıyordu (ana ekran kayıyordu) */
+  margin: 0; min-height: 100%; background: var(--ground); color: var(--ink);
   font-family: 'Hanken Grotesk', 'Segoe UI', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent;
   overflow-x: hidden;

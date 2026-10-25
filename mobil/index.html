@@ -19,6 +19,7 @@
 /* İlk boyamadan önce dil ve tema (ekran yanıp sönmesin). Ayrıntılı mantık app.js'te. */
 (function () {
   try {
+    if (/Android/i.test(navigator.userAgent)) document.documentElement.classList.add('android');
     var d = localStorage.getItem('nzm.dil');
     if (d === 'tr' || d === 'nl' || d === 'en') {
       /* uygulama adı dile göre: SÜLEYMANİYE CAMİİ / MOSKEE / MOSQUE (ana ekran adı da) */

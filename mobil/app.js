@@ -497,17 +497,31 @@ kurulumKartiCiz();
 // ---------------- Ana ekran kaydırmasız sığsın (telefon) ----------------
 // Kullanıcının isteği (25-10-2026): ana ekran kaymasın, Yatsı da ekranda olsun.
 // Taşma varsa sadece kemer küçülür (--k, en az %50); tablette bu yapılmaz.
+// Ölçü: ana ekranın kendi yüksekliği (main) ile görünen alan. scrollHeight kullanılmaz: gerçek Android'de
+// belge içerikten uzun ölçülebiliyor (sistem çubuğu); o zaman kemer boşuna küçülüp sayfa yine kayıyordu.
 function anaSigdir() {
   const kemer = $('.kemer');
   const kok = document.documentElement;
-  kemer.style.setProperty('--k', '1');
-  kok.classList.remove('kaydirma-yok');
-  if (tabletMi.matches || aktifSekme().sekme !== 'ana') return;
-  const fazla = kok.scrollHeight - window.innerHeight;
-  if (fazla > 0) kemer.style.setProperty('--k', Math.max(0.5, (316 - fazla - 2) / 316).toFixed(3));
+  if (tabletMi.matches || aktifSekme().sekme !== 'ana') {
+    kemer.style.setProperty('--k', '1');
+    kok.classList.remove('kaydirma-yok');
+    return;
+  }
+  const ekran = Math.min(window.innerHeight, kok.clientHeight);
+  const k = parseFloat(kemer.style.getPropertyValue('--k')) || 1;
+  const kemersiz = $('main').offsetHeight - 316 * k;              // kemer dışındaki her şey
+  const yeniK = Math.min(1, Math.max(0.5, (ekran - kemersiz - 2) / 316));
+  kemer.style.setProperty('--k', yeniK.toFixed(3));
   // sığıyorsa ana ekran hiç kaymasın (gerçek telefonlarda sistem çubuklarından gelen birkaç piksel dahil)
-  if (kok.scrollHeight - window.innerHeight <= 12) { kok.classList.add('kaydirma-yok'); window.scrollTo(0, 0); }
+  const sigiyor = kemersiz + 316 * yeniK <= ekran + 12;
+  kok.classList.toggle('kaydirma-yok', sigiyor);
+  if (sigiyor && window.scrollY) window.scrollTo(0, 0);
 }
+// yenileyince tarayıcı eski kaydırma yerini geri getirmesin (sekme değişince zaten en üste gidilir)
+try { history.scrollRestoration = 'manual'; } catch { /* eski tarayıcı */ }
+window.addEventListener('scroll', () => {
+  if (window.scrollY && document.documentElement.classList.contains('kaydirma-yok')) window.scrollTo(0, 0);
+}, { passive: true });
 window.addEventListener('resize', anaSigdir);
 if (window.visualViewport) window.visualViewport.addEventListener('resize', anaSigdir);
 window.addEventListener('load', () => setTimeout(anaSigdir, 300));
