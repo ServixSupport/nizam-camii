@@ -347,6 +347,8 @@ main {
   padding: 10px 10px 10px 16px; border-radius: 16px; background: var(--navy); color: #F6F1E7; font-weight: 700; font-size: 14.5px; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
 @media (min-width: 768px) { .surum-cubugu { left: auto; right: 24px; bottom: 24px; width: 420px; } }
 
+/* ana ekran sığdığında hiç kaymasın (app.js: anaSigdir) */
+html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavior: none; }
 /* kısa telefon ekranı: vakit satırları biraz alçak (ana ekran kaydırmasız sığsın) */
 @media (max-width: 767px) and (max-height: 700px) { .vakit { height: 40px; } }
 

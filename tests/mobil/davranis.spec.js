@@ -236,7 +236,7 @@ test.describe('sekmeler', () => {
   });
 });
 
-test('ana ekran kaydırmasız sığar; Yatsı alt menünün üstünde (farklı telefonlar)', async ({ page }) => {
+test('ana ekran kaydırmasız sığar ve kaymaz; Yatsı alt menünün üstünde (farklı telefonlar)', async ({ page }) => {
   for (const [w, h] of [[390, 844], [412, 915], [360, 740], [375, 667], [360, 640]]) {
     await page.setViewportSize({ width: w, height: h });
     await mobilAc(page, { zaman: an('16:00:00.500') });
@@ -249,5 +249,18 @@ test('ana ekran kaydırmasız sığar; Yatsı alt menünün üstünde (farklı t
     expect(yatsi.y + yatsi.height, `${w}×${h}`).toBeLessThanOrEqual(menu.y + 1);
     const kemer = await page.locator('.kemer').boundingBox();
     expect(kemer.height, `${w}×${h} kemer`).toBeGreaterThanOrEqual(316 * 0.5 - 1);
+    // kaydırma denemesi: ana ekran yerinden oynamaz
+    await page.mouse.wheel(0, 400);
+    await page.evaluate(() => window.scrollTo(0, 400));
+    expect(await page.evaluate(() => window.scrollY), `${w}×${h} kaydırma`).toBe(0);
   }
+});
+
+
+test('diğer sekmeler kaydırılabilir kalır', async ({ page }) => {
+  await mobilAc(page, { zaman: an('16:00:00.500'), adres: '/mobil/#ayarlar' });
+  await page.setViewportSize({ width: 360, height: 640 });
+  await page.evaluate(() => window.scrollTo(0, 300));
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  expect(await page.evaluate(() => document.documentElement.classList.contains('kaydirma-yok'))).toBe(false);
 });

@@ -499,14 +499,18 @@ kurulumKartiCiz();
 // Taşma varsa sadece kemer küçülür (--k, en az %50); tablette bu yapılmaz.
 function anaSigdir() {
   const kemer = $('.kemer');
+  const kok = document.documentElement;
   kemer.style.setProperty('--k', '1');
+  kok.classList.remove('kaydirma-yok');
   if (tabletMi.matches || aktifSekme().sekme !== 'ana') return;
-  const fazla = document.documentElement.scrollHeight - window.innerHeight;
-  if (fazla <= 0) return;
-  const k = Math.max(0.5, (316 - fazla - 2) / 316);
-  kemer.style.setProperty('--k', k.toFixed(3));
+  const fazla = kok.scrollHeight - window.innerHeight;
+  if (fazla > 0) kemer.style.setProperty('--k', Math.max(0.5, (316 - fazla - 2) / 316).toFixed(3));
+  // sığıyorsa ana ekran hiç kaymasın (gerçek telefonlarda sistem çubuklarından gelen birkaç piksel dahil)
+  if (kok.scrollHeight - window.innerHeight <= 12) { kok.classList.add('kaydirma-yok'); window.scrollTo(0, 0); }
 }
 window.addEventListener('resize', anaSigdir);
+if (window.visualViewport) window.visualViewport.addEventListener('resize', anaSigdir);
+window.addEventListener('load', () => setTimeout(anaSigdir, 300));
 window.addEventListener('hashchange', anaSigdir);
 tabletMi.addEventListener('change', anaSigdir);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(anaSigdir);
