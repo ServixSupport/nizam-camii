@@ -437,7 +437,7 @@ Veri dosyası şöyle görünür (örnek):
   - Çeviri mi (Ochtend, Middag … / Morning, Noon …)?
   - Yoksa Arapça-Latin mi (Fadjr, Dhoehr …)?
   - Tasarımda Arapça-Latin örnek kullanıldı. Cemaatten birine kontrol ettirsin.
-  - **Cevap (24-10-2026):** Arapça-Latin. NL: Imsak, Fadjr, Zonsopgang, Dhoehr, Asr, Maghrib, Isja. EN: Imsak, Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha.
+  - **Cevap (24-10-2026):** Arapça-Latin. NL: Imsak, Fadjr, Zonsopgang, Dhoehr, Asr, Maghrib, Isha (kullanıcı 25-10-2026: "Isja değil Isha"). EN: Imsak, Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha.
   - Ayrıca: uygulama ilk açılışta herkes için Hollandaca başlar (Ayarlar'dan değişir).
 - **S6 (Faz D):** Abonelik deposu (Upstash Redis veya Vercel Blob) ve dakikalık tetikleyici (cron-job.org veya QStash).
 - **Ayrıca:** depo public. Vercel Hobby private depoyla da çalışır; private yapmayı önerebilirsin. Kararı kullanıcı verir.

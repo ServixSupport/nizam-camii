@@ -13,7 +13,7 @@ test.describe('ana ekran', () => {
     await mobilAc(page, { zaman: an('16:00:00.500') });
     await expect(page.locator('html')).toHaveAttribute('lang', 'nl');
     expect(await uygulamaVakitleri(page)).toEqual(DIYANET_28);
-    await expect(page.locator('.vakitler .v-ad')).toHaveText(['Imsak', 'Fadjr', 'Zonsopgang', 'Dhoehr', 'Asr', 'Maghrib', 'Isja']);
+    await expect(page.locator('.vakitler .v-ad')).toHaveText(['Imsak', 'Fadjr', 'Zonsopgang', 'Dhoehr', 'Asr', 'Maghrib', 'Isha']);
     await expect(page.locator('.miladi')).toHaveText('WOENSDAG · 28 OKTOBER 2026');
     await expect(page.locator('.hicri')).toHaveText('17 Jumada al-Awwal 1448');
     await expect(page.locator('.menu-oge span')).toHaveText(['Home', 'Activiteiten', 'Programma’s', 'Instellingen']);

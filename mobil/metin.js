@@ -49,7 +49,7 @@ export const METIN = {
     vakitler: 'Gebedstijden van vandaag',
     siradakiVakit: 'Volgend gebed',
     simdi: 'NU',
-    names: { Imsak: 'Imsak', Fajr: 'Fadjr', Sunrise: 'Zonsopgang', Dhuhr: 'Dhoehr', Asr: 'Asr', Maghrib: 'Maghrib', Isha: 'Isja' },
+    names: { Imsak: 'Imsak', Fajr: 'Fadjr', Sunrise: 'Zonsopgang', Dhuhr: 'Dhoehr', Asr: 'Asr', Maghrib: 'Maghrib', Isha: 'Isha' },
     kalan: (k) => 'NOG TOT ' + METIN.nl.names[k].toUpperCase(),
     amsterdamSaati: (s) => `Tijden in Amsterdamse tijd · nu ${s}`,
     yukleniyor: 'Gebedstijden laden…',
@@ -117,7 +117,7 @@ const EK = {
     gunSec: 'Kies een dag', bugun: 'vandaag', programSay: (n) => `${n} ${n === 1 ? 'programma' : 'programma’s'}`, gunBos: 'Geen programma op deze dag.',
     buHafta: 'Deze week', oncekiHafta: 'Vorige week', sonrakiHafta: 'Volgende week', namazVakitleri: 'Gebedstijden',
     tablo: 'Weekrooster', secili: 'Gekozen programma', hoca: 'Docent',
-    vakitAdi: { Fajr: 'Fadjr', Dhuhr: 'Dhoehr', Asr: 'Asr', Maghrib: 'Maghrib', Isha: 'Isja' },
+    vakitAdi: { Fajr: 'Fadjr', Dhuhr: 'Dhoehr', Asr: 'Asr', Maghrib: 'Maghrib', Isha: 'Isha' },
     vakitte: (v) => `Bij ${v}`, sonrasi: (v) => `Na ${v}`, sonrasiKisa: 'na', vaktindeKisa: 'bij',
   },
   en: {
