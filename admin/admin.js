@@ -428,7 +428,8 @@ function onizle() {
           t.oneCikan ? h('span', { class: 'on-etiket', metin: 'ÖNE ÇIKAN' }) : null,
           h('span', { class: 'satir-baslik', metin: baslik }),
           h('span', { class: 'satir-meta', metin: [`${tarihYazi(ymd)} · ${zaman}`, t.yer].filter(Boolean).join(' · ') }),
-          h('span', { class: 'grup-adi', metin: GRUP_AD[t.grup] }))),
+          h('span', { class: 'grup-adi', metin: GRUP_AD[t.grup] })),
+        t.oneCikan && t.resim ? h('img', { class: 'on-kucuk', src: t.resim, alt: '' }) : null),
       t.resim ? h('img', { class: 'on-resim', src: t.resim, alt: '' }) : null,
       (t.aciklama[d] || t.aciklama.tr) ? h('p', { class: 'on-aciklama', metin: t.aciklama[d] || t.aciklama.tr }) : null);
   } else {

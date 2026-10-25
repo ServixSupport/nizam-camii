@@ -11,9 +11,14 @@ test.describe('manifest ve ikonlar', () => {
   test('manifest geçerli; ikonlar doğru boyutta', async ({ page, request }) => {
     await mobilAc(page, { zaman: ZAMAN });
     const href = await page.locator('link[rel="manifest"]').getAttribute('href');
-    expect(href).toBe('/mobil/manifest.webmanifest');
+    expect(href).toBe('/mobil/manifest-nl.webmanifest');                      // ilk dil Hollandaca
     const m = await (await request.get(href)).json();
-    expect(m).toMatchObject({ name: 'Nizam-ı Alem Süleymaniye Camii', short_name: 'Nizam Camii', start_url: '/mobil/', scope: '/mobil/', display: 'standalone' });
+    expect(m).toMatchObject({ id: '/mobil/', name: 'SÜLEYMANİYE MOSKEE', short_name: 'SÜLEYMANİYE MOSKEE', start_url: '/mobil/', scope: '/mobil/', display: 'standalone' });
+    for (const [d, ad] of [['tr', 'SÜLEYMANİYE CAMİİ'], ['en', 'SÜLEYMANİYE MOSQUE']]) {
+      const md = await (await request.get(`/mobil/manifest-${d}.webmanifest`)).json();
+      expect(md).toMatchObject({ id: '/mobil/', name: ad, short_name: ad, lang: d });   // aynı uygulama (id), dile göre ad
+      expect(md.icons).toEqual(m.icons);
+    }
     expect(m.icons.map((i) => `${i.sizes} ${i.purpose}`)).toEqual(['192x192 any', '512x512 any', '512x512 maskable']);
     for (const i of m.icons) {
       const r = await request.get(i.src);
@@ -22,6 +27,19 @@ test.describe('manifest ve ikonlar', () => {
     }
     const apple = await page.locator('link[rel="apple-touch-icon"]').getAttribute('href');
     expect(pngBoyut(await (await request.get(apple)).body())).toEqual([180, 180]);
+  });
+
+  test('uygulama adı dile göre: SÜLEYMANİYE MOSKEE / CAMİİ / MOSQUE (başlık, manifest, iPhone adı)', async ({ page }) => {
+    const ad = async () => [await page.title(), await page.locator('link[rel="manifest"]').getAttribute('href'),
+      await page.locator('meta[name="apple-mobile-web-app-title"]').getAttribute('content')];
+    await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar' });
+    expect(await ad()).toEqual(['SÜLEYMANİYE MOSKEE', '/mobil/manifest-nl.webmanifest', 'SÜLEYMANİYE MOSKEE']);
+    await page.getByRole('button', { name: 'Türkçe' }).click();
+    expect(await ad()).toEqual(['SÜLEYMANİYE CAMİİ', '/mobil/manifest-tr.webmanifest', 'SÜLEYMANİYE CAMİİ']);
+    await page.reload();                                                       // kayıtlı dil: ilk boyamadan önce
+    expect(await ad()).toEqual(['SÜLEYMANİYE CAMİİ', '/mobil/manifest-tr.webmanifest', 'SÜLEYMANİYE CAMİİ']);
+    await page.getByRole('button', { name: 'English' }).click();
+    expect((await ad())[0]).toBe('SÜLEYMANİYE MOSQUE');
   });
 
   test('service worker sürümü uygulama dosyalarıyla güncel (değilse: node araclar/sw-surum.mjs)', () => {

@@ -1,0 +1,34 @@
+{
+  "id": "/mobil/",
+  "name": "SÜLEYMANİYE CAMİİ",
+  "short_name": "SÜLEYMANİYE CAMİİ",
+  "description": "Nizam-ı Alem Süleymaniye Camii · namaz vakitleri, faaliyetler ve programlar",
+  "start_url": "/mobil/",
+  "scope": "/mobil/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F6F1E7",
+  "theme_color": "#F6F1E7",
+  "lang": "tr",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/mobil/ikon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/mobil/ikon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/mobil/ikon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

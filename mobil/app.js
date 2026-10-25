@@ -170,6 +170,9 @@ function olaylariKur(zorla) {
 function metinleriYaz() {
   const t = L();
   document.documentElement.lang = durum.dil;
+  document.title = t.appAd;
+  $('link[rel="manifest"]').setAttribute('href', `/mobil/manifest-${durum.dil}.webmanifest`);
+  $('meta[name="apple-mobile-web-app-title"]').setAttribute('content', t.appAd);
   for (const el of $$('[data-t]')) el.textContent = t[el.dataset.t];
   for (const el of $$('[data-t-aria]')) el.setAttribute('aria-label', t[el.dataset.tAria]);
   for (const el of $$('[data-t-alt]')) el.setAttribute('alt', t[el.dataset.tAlt]);

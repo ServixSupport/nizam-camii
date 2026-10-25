@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#F6F1E7">
 <meta name="color-scheme" content="light dark">
-<title>Nizam Camii</title>
+<title>SÜLEYMANİYE MOSKEE</title>
 <link rel="icon" href="/mobil/logo.png">
-<link rel="manifest" href="/mobil/manifest.webmanifest">
+<link rel="manifest" href="/mobil/manifest-nl.webmanifest">
 <link rel="apple-touch-icon" href="/mobil/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Nizam Camii">
+<meta name="apple-mobile-web-app-title" content="SÜLEYMANİYE MOSKEE">
 <link rel="preload" href="/mobil/fonts/hanken-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/mobil/fonts/bodoni-moda-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/mobil/app.css">
@@ -19,7 +19,15 @@
 /* İlk boyamadan önce dil ve tema (ekran yanıp sönmesin). Ayrıntılı mantık app.js'te. */
 (function () {
   try {
-    var d = localStorage.getItem('nzm.dil'); if (d === 'tr' || d === 'nl' || d === 'en') document.documentElement.lang = d;
+    var d = localStorage.getItem('nzm.dil');
+    if (d === 'tr' || d === 'nl' || d === 'en') {
+      /* uygulama adı dile göre: SÜLEYMANİYE CAMİİ / MOSKEE / MOSQUE (ana ekran adı da) */
+      var ad = { tr: 'SÜLEYMANİYE CAMİİ', nl: 'SÜLEYMANİYE MOSKEE', en: 'SÜLEYMANİYE MOSQUE' }[d];
+      document.documentElement.lang = d;
+      document.title = ad;
+      document.querySelector('link[rel="manifest"]').setAttribute('href', '/mobil/manifest-' + d + '.webmanifest');
+      document.querySelector('meta[name="apple-mobile-web-app-title"]').setAttribute('content', ad);
+    }
     var t = localStorage.getItem('nzm.tema');
     if (t !== 'gunduz' && t !== 'gece') {
       var h = +new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Amsterdam', hour: '2-digit', hourCycle: 'h23' }).format(new Date());

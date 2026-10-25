@@ -86,6 +86,10 @@ export async function mockla(page, o = {}) {
   await page.route((u) => !yerel.has(u.hostname) && /^https?:$/.test(u.protocol), async (route) => {
     const u = new URL(route.request().url());
     if (u.hostname === 'fonts.googleapis.com' || u.hostname === 'fonts.gstatic.com') return fontServis(route);
+    // faaliyet resimleri (Vercel Blob): testte hep aynı dikey afiş
+    if (u.hostname.endsWith('.public.blob.vercel-storage.com')) {
+      return route.fulfill({ status: 200, contentType: 'image/jpeg', body: fs.readFileSync(path.join(FIX, 'poster-dikey.jpg')) });
+    }
     kayit.dis.push(u.href);
     if (u.hostname === 'api.aladhan.com' && aladhan !== 'hata') {
       const m = u.pathname.match(/\/v1\/timings\/(\d{2}-\d{2}-\d{4})/);

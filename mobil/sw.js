@@ -4,7 +4,7 @@
 // - Yeni sürüm kendiliğinden devreye girmez: sayfa "Yeni sürüm hazır" gösterir, kullanıcı dokununca geçilir.
 // SURUM: uygulama dosyalarının özeti. Dosya değişince `cd tests && node araclar/sw-surum.mjs` ile güncellenir
 // (test, unutulursa kırmızı olur).
-const SURUM = 'ac01b74c09';
+const SURUM = 'cf2d430a67';
 const KABUK = `nzm-kabuk-${SURUM}`;
 const VERI = 'nzm-veri';
 const RESIM = 'nzm-resim';
@@ -12,7 +12,7 @@ const RESIM = 'nzm-resim';
 const DOSYALAR = [
   '/mobil/',
   '/mobil/app.css', '/mobil/app.js', '/mobil/zaman.js', '/mobil/metin.js', '/mobil/ekranlar.js', '/mobil/icerik.js',
-  '/mobil/logo.png', '/mobil/manifest.webmanifest', '/mobil/ikon-192.png', '/mobil/ikon-512.png',
+  '/mobil/logo.png', '/mobil/manifest-nl.webmanifest', '/mobil/manifest-tr.webmanifest', '/mobil/manifest-en.webmanifest', '/mobil/ikon-192.png', '/mobil/ikon-512.png',
   '/mobil/fonts/hanken-grotesk-latin.woff2', '/mobil/fonts/hanken-grotesk-latin-ext.woff2',
   '/mobil/fonts/bodoni-moda-latin.woff2', '/mobil/fonts/bodoni-moda-latin-ext.woff2',
   '/mobil/fonts/bodoni-moda-italik-latin.woff2', '/mobil/fonts/bodoni-moda-italik-latin-ext.woff2',

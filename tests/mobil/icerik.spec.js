@@ -141,3 +141,45 @@ test.describe('programlar', () => {
     await expect(page.locator('#k-faaliyet')).toHaveAttribute('href', '#faaliyet/f-kahvalti');
   });
 });
+
+test.describe('resimli faaliyet', () => {
+  const RESIM = 'https://test0store.public.blob.vercel-storage.com/preview/resimler/poster.jpg';
+  const resimli = () => { const ic = tasarimIcerik(); ic.faaliyetler[0].resim = RESIM; return ic; };
+  const oran = async (loc) => { const k = await loc.boundingBox(); return k.width / k.height; };
+
+  test('öne çıkan + resim: telefonda resim metnin altında, kesilmeden', async ({ page }) => {
+    await mobilAc(page, { zaman: ZAMAN, icerik: resimli(), depo: { 'nzm.dil': 'nl' }, adres: '/mobil/#faaliyetler' });
+    const img = page.locator('.one-cikan .oc-resim img');
+    await expect(img).toHaveAttribute('src', RESIM);
+    await expect.poll(() => img.evaluate((e) => e.complete && e.naturalWidth)).toBe(600);
+    const metin = await page.locator('.one-cikan .oc-metin').boundingBox();
+    const r = await img.boundingBox();
+    expect(r.y).toBeGreaterThan(metin.y + metin.height - 1);                  // altta
+    expect(await oran(img)).toBeCloseTo(600 / 850, 2);                        // kesilmedi
+  });
+
+  test('öne çıkan + resim: tablette tarih | metin | resim yan yana', async ({ page }) => {
+    await page.setViewportSize({ width: 820, height: 1180 });
+    await mobilAc(page, { zaman: ZAMAN, icerik: resimli(), depo: { 'nzm.dil': 'nl' }, adres: '/mobil/#faaliyetler' });
+    const img = page.locator('.one-cikan .oc-resim img');
+    await expect.poll(() => img.evaluate((e) => e.complete && e.naturalWidth)).toBe(600);
+    const tarih = await page.locator('.one-cikan .tarih-kemer').boundingBox();
+    const metin = await page.locator('.one-cikan .oc-metin').boundingBox();
+    const r = await img.boundingBox();
+    expect(metin.x).toBeGreaterThan(tarih.x + tarih.width - 1);
+    expect(r.x).toBeGreaterThan(metin.x + 100);                                // sağda
+    expect(r.y).toBeLessThan(metin.y + metin.height);                          // aynı satırda
+    expect(await oran(img)).toBeCloseTo(600 / 850, 2);
+  });
+
+  test('detay: dikey afiş bütün görünür (kesilmez, ekrandan taşmaz)', async ({ page }) => {
+    for (const [w, hgt] of [[390, 844], [1180, 820]]) {
+      await page.setViewportSize({ width: w, height: hgt });
+      await mobilAc(page, { zaman: ZAMAN, icerik: resimli(), adres: '/mobil/#faaliyet/f-kahvalti' });
+      const img = page.locator('.d-resim');
+      await expect.poll(() => img.evaluate((e) => e.complete && e.naturalWidth)).toBe(600);
+      expect(await oran(img), `${w}×${hgt}`).toBeCloseTo(600 / 850, 2);
+      expect((await img.boundingBox()).height).toBeLessThanOrEqual(hgt * 0.78 + 1);
+    }
+  });
+});

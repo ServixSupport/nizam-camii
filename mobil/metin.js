@@ -139,18 +139,21 @@ for (const d of Object.keys(EK)) Object.assign(METIN[d], EK[d]);
 // ---------------- Faz C: yükleme ve yeni sürüm ----------------
 const PWA = {
   tr: {
+    appAd: 'SÜLEYMANİYE CAMİİ',
     installTitle: 'Uygulamayı ana ekrana ekleyin', installBtn: 'Yükle',
     installText: 'Ana ekrandan tam ekran açılır ve internet olmadan da çalışır.',
     installIos: 'Ana ekrandan tam ekran açılır ve internet olmadan da çalışır. Safari’de Paylaş simgesine dokunup “Ana Ekrana Ekle”yi seçin.',
     newVersion: 'Yeni sürüm hazır', refresh: 'Yenile',
   },
   nl: {
+    appAd: 'SÜLEYMANİYE MOSKEE',
     installTitle: 'Zet de app op je beginscherm', installBtn: 'Installeren',
     installText: 'Vanaf je beginscherm opent de app schermvullend en werkt hij ook zonder internet.',
     installIos: 'Vanaf je beginscherm opent de app schermvullend en werkt hij ook zonder internet. Tik in Safari op Deel en kies “Zet op beginscherm”.',
     newVersion: 'Nieuwe versie klaar', refresh: 'Vernieuwen',
   },
   en: {
+    appAd: 'SÜLEYMANİYE MOSQUE',
     installTitle: 'Add the app to your home screen', installBtn: 'Install',
     installText: 'From your home screen the app opens full screen and also works offline.',
     installIos: 'From your home screen the app opens full screen and also works offline. In Safari, tap Share and choose “Add to Home Screen”.',

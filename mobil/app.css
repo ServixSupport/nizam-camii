@@ -245,7 +245,15 @@ main {
 .tarih-kemer.buyuk .tk-gun { font-family: 'Bodoni Moda', Georgia, serif; font-weight: 600; font-size: 34px; line-height: 1; font-variant-numeric: lining-nums; }
 .tarih-kemer.buyuk .tk-ay { font-size: 11px; font-weight: 700; letter-spacing: .14em; margin-top: 3px; }
 .tarih-kemer.buyuk .tk-hg { font-size: 11px; color: #4E5B76; margin-top: 1px; }
-.oc-metin { position: relative; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.oc-metin { position: relative; display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1 1 auto; }
+.one-cikan.met-resim .oc-desen { display: none; }
+.oc-resim { position: relative; flex: 0 1 auto; display: flex; align-items: center; justify-content: flex-end; max-width: 42%; }
+.oc-resim img { display: block; width: auto; height: auto; max-width: 100%; max-height: 190px; object-fit: contain; border-radius: 14px; box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+@media (max-width: 559px) {
+  .one-cikan.met-resim { flex-wrap: wrap; }
+  .one-cikan.met-resim .oc-resim { order: 3; flex-basis: 100%; max-width: none; justify-content: center; margin-top: 2px; }
+  .one-cikan.met-resim .oc-resim img { max-height: 340px; }
+}
 .oc-etiket { align-self: flex-start; font-size: 11px; font-weight: 700; letter-spacing: .12em; color: #E8C27A; }
 .one-cikan h2 { margin: 0; font-family: 'Bodoni Moda', Georgia, serif; font-weight: 600; font-size: 23px; line-height: 1.15; }
 .oc-meta { font-size: 14px; color: #D4DBEA; }
@@ -272,7 +280,7 @@ main {
   font-size: 14.5px; font-weight: 700; color: var(--cobalt); }
 .geri svg { width: 20px; height: 20px; }
 .d-icerik { display: flex; flex-direction: column; gap: 12px; }
-.d-resim { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 22px; border: 1px solid var(--line); background: var(--card); }
+.d-resim { display: block; width: auto; height: auto; max-width: 100%; max-height: 78vh; margin: 0 auto; object-fit: contain; border-radius: 22px; border: 1px solid var(--line); background: var(--card); }
 .d-baslik { margin: 0; font-family: 'Bodoni Moda', Georgia, serif; font-weight: 600; font-size: 32px; line-height: 1.1; }
 .d-bilgi { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 15px; }
 .d-bilgi li { display: flex; align-items: flex-start; gap: 10px; }
