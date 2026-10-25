@@ -196,7 +196,7 @@ function metinleriYaz() {
 function dilSec(k) {
   if (!METIN[k]) return;
   durum.dil = k; yaz(DEPO.dil, k);
-  metinleriYaz(); ciz(); ekranlariCiz();
+  metinleriYaz(); ciz(); ekranlariCiz(); kurulumKartiCiz();
 }
 function temaSec(k) {
   durum.tema = k; yaz(DEPO.tema, k);
@@ -444,3 +444,49 @@ document.addEventListener('visibilitychange', () => {
 });
 window.addEventListener('online', () => { yenile(); icerikGetir(true); });
 setInterval(() => { if (document.visibilityState === 'visible') icerikGetir(); }, 10 * 60 * 1000);
+
+// ---------------- Faz C: yükleme (PWA) ve yeni sürüm ----------------
+let _kurulumOlayi = null;
+let _surumGecisi = false;
+const kuruluMu = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const iosMu = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+
+function kurulumKartiCiz() {
+  const kart = $('#kurulum');
+  const t = L();
+  const goster = !kuruluMu() && (!!_kurulumOlayi || iosMu());
+  kart.hidden = !goster;
+  if (!goster) return;
+  $('#kurulum-metin').textContent = _kurulumOlayi ? t.installText : t.installIos;
+  $('#kurulum-dugme').hidden = !_kurulumOlayi;
+}
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); _kurulumOlayi = e; kurulumKartiCiz(); });
+window.addEventListener('appinstalled', () => { _kurulumOlayi = null; kurulumKartiCiz(); });
+$('#kurulum-dugme').addEventListener('click', async () => {
+  if (!_kurulumOlayi) return;
+  _kurulumOlayi.prompt();
+  try { await _kurulumOlayi.userChoice; } catch { /* */ }
+  _kurulumOlayi = null; kurulumKartiCiz();
+});
+kurulumKartiCiz();
+
+// Service worker sadece /mobil/ kapsamında; TV sayfası ("/") etkilenmez.
+// Yeni sürüm kullanım sırasında kendiliğinden devreye girmez: çubuk çıkar, kullanıcı "Yenile"ye dokunur.
+(async () => {
+  try {
+    if (!('serviceWorker' in navigator)) return;
+    const kayit = await navigator.serviceWorker.register('/mobil/sw.js', { scope: '/mobil/' });
+    const cubuk = () => {
+      if (!kayit.waiting || !navigator.serviceWorker.controller) return;
+      $('#surum-cubugu').hidden = false;
+      $('#surum-dugme').onclick = () => { _surumGecisi = true; kayit.waiting.postMessage('SURUM_GEC'); };
+    };
+    cubuk();
+    kayit.addEventListener('updatefound', () => {
+      const yeni = kayit.installing;
+      if (yeni) yeni.addEventListener('statechange', () => { if (yeni.state === 'installed') cubuk(); });
+    });
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (_surumGecisi) location.reload(); });
+    setInterval(() => { if (document.visibilityState === 'visible') kayit.update().catch(() => {}); }, 60 * 60 * 1000);
+  } catch { /* service worker yoksa uygulama yine çalışır */ }
+})();

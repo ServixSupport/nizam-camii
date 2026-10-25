@@ -7,6 +7,11 @@
 <meta name="color-scheme" content="light dark">
 <title>Nizam Camii</title>
 <link rel="icon" href="/mobil/logo.png">
+<link rel="manifest" href="/mobil/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/mobil/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Nizam Camii">
 <link rel="preload" href="/mobil/fonts/hanken-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/mobil/fonts/bodoni-moda-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/mobil/app.css">
@@ -183,6 +188,16 @@
           <span class="ayar-not" data-t="source"></span>
         </span>
       </div>
+      <section class="kurulum" id="kurulum" data-t-aria="installTitle" hidden>
+        <span class="kurulum-ikon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 7.5v6M9 10.5h6"/></svg>
+        </span>
+        <span class="kurulum-yazi">
+          <span class="kurulum-baslik" data-t="installTitle"></span>
+          <span class="kurulum-metin" id="kurulum-metin"></span>
+          <button type="button" class="dugme altin" id="kurulum-dugme" hidden data-t="installBtn"></button>
+        </span>
+      </section>
       <a class="ayar-kart tv-link" href="/?ekran=tv">
         <span class="tv-ikon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
@@ -196,5 +211,9 @@
     </section>
   </section>
 </main>
+<div class="surum-cubugu" id="surum-cubugu" role="status" hidden>
+  <span data-t="newVersion"></span>
+  <button type="button" class="dugme altin" id="surum-dugme" data-t="refresh"></button>
+</div>
 </body>
 </html>

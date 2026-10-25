@@ -324,6 +324,18 @@ main {
 .bildirim.acik { opacity: 1; transform: translate(-50%, 0); }
 @media (prefers-reduced-motion: reduce) { .ilk .one-cikan, .ilk .f-oge, .ilk .zaman-cizelgesi li, .ilk .ht-blok, .bos { animation: none; } }
 
+/* ================= Faz C: yükleme kartı ve yeni sürüm çubuğu ================= */
+.kurulum { position: relative; display: flex; gap: 14px; padding: 16px; border-radius: 20px; background: var(--navy); border: 1px solid var(--navyLine); color: #F6F1E7; overflow: hidden; }
+.kurulum-ikon { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 12px; background: rgba(232,194,122,.16); display: flex; align-items: center; justify-content: center; color: #E8C27A; }
+.kurulum-ikon svg { width: 22px; height: 22px; }
+.kurulum-yazi { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.kurulum-baslik { font-weight: 700; font-size: 15px; }
+.kurulum-metin { font-size: 13px; line-height: 1.4; color: #D4DBEA; }
+.kurulum .dugme { align-self: flex-start; margin-top: 8px; }
+.surum-cubugu { position: fixed; left: 12px; right: 12px; bottom: calc(86px + env(safe-area-inset-bottom)); z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 10px 10px 16px; border-radius: 16px; background: var(--navy); color: #F6F1E7; font-weight: 700; font-size: 14.5px; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+@media (min-width: 768px) { .surum-cubugu { left: auto; right: 24px; bottom: 24px; width: 420px; } }
+
 /* ================= TABLET (≥ 768 px): solda menü ================= */
 @media (min-width: 768px) {
   .menu {

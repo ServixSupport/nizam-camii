@@ -220,7 +220,7 @@ test.describe('sekmeler', () => {
 
   test('dokunma hedefleri en az 44×44 px', async ({ page }) => {
     await mobilAc(page, { zaman: an('16:00:00.500'), adres: '/mobil/#ayarlar' });
-    for (const el of await page.locator('.menu-oge, #s-ayarlar button, a.tv-link').all()) {
+    for (const el of await page.locator('.menu-oge, #s-ayarlar button:visible, a.tv-link').all()) {
       const k = await el.boundingBox();
       expect(k.width, await el.textContent()).toBeGreaterThanOrEqual(44);
       expect(k.height, await el.textContent()).toBeGreaterThanOrEqual(44);

@@ -41,6 +41,11 @@ npm run rapor                   # son çalıştırmanın HTML raporu
 - `mobil/icerik.spec.js`: uygulamada faaliyetler, detay, programlar (telefon ve tablet), tablet kartları.
 - Örnek içerik: `fixtures/tasarim-icerik.js` (tasarımdaki uydurma örnekler).
 
+## Faz C testleri
+
+- `mobil/pwa.spec.js`: manifest ve ikonlar, service worker sürümü, internetsiz açılış, TV'nin SW dışında kalması, "yeni sürüm" çubuğu, yükleme kartı (iPhone/Android).
+- `araclar/sw-surum.mjs`: SW sürümünü uygulama dosyalarından hesaplar. `araclar/ikonlar.mjs`: ikonları logodan üretir.
+
 ## Yayındaki bir adresi test etmek
 
 ```bash

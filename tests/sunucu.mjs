@@ -16,8 +16,16 @@ const TUR = {
   '.woff2': 'font/woff2', '.ico': 'image/x-icon', '.txt': 'text/plain; charset=utf-8',
 };
 
+// Sadece testte: /__test/sw-ek?v=… service worker'ın sonuna bir yorum ekler ("yeni sürüm" denemesi).
+let swEk = '';
+
 http.createServer((req, res) => {
   const yol = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+  if (yol === '/__test/sw-ek') {
+    const v = new URL(req.url, 'http://x').searchParams.get('v') || '';
+    swEk = v ? `\n// test sürümü: ${v.replace(/[^\w-]/g, '')}\n` : '';
+    res.writeHead(204); return res.end();
+  }
   if (yol.startsWith('/api/')) {
     res.writeHead(404, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify({ hata: 'testte mock yok: ' + yol }));
@@ -26,7 +34,8 @@ http.createServer((req, res) => {
   if (!dosya.startsWith(KOK)) { res.writeHead(403); return res.end(); }
   try {
     if (fs.statSync(dosya).isDirectory()) dosya = path.join(dosya, 'index.html');
-    const govde = fs.readFileSync(dosya);
+    let govde = fs.readFileSync(dosya);
+    if (yol === '/mobil/sw.js' && swEk) govde = Buffer.concat([govde, Buffer.from(swEk)]);
     res.writeHead(200, {
       'Content-Type': TUR[path.extname(dosya).toLowerCase()] || 'application/octet-stream',
       'Cache-Control': 'no-store',
