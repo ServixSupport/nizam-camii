@@ -1,17 +1,18 @@
 // Nizam Camii — service worker (Faz C). Kapsam: /mobil/ (TV sayfası "/" buraya hiç girmez).
 // - Uygulama dosyaları önce cache'ten (internetsiz açılır).
 // - /api/vakit ve /api/icerik önce ağdan, olmazsa cache'ten.
+// - Faz D: sunucudan gelen bildirimi gösterir; dokununca uygulama açılır.
 // - Yeni sürüm kendiliğinden devreye girmez: sayfa "Yeni sürüm hazır" gösterir, kullanıcı dokununca geçilir.
 // SURUM: uygulama dosyalarının özeti. Dosya değişince `cd tests && node araclar/sw-surum.mjs` ile güncellenir
 // (test, unutulursa kırmızı olur).
-const SURUM = '9791718ddb';
+const SURUM = 'c24f4ae53e';
 const KABUK = `nzm-kabuk-${SURUM}`;
 const VERI = 'nzm-veri';
 const RESIM = 'nzm-resim';
 
 const DOSYALAR = [
   '/mobil/',
-  '/mobil/app.css', '/mobil/app.js', '/mobil/zaman.js', '/mobil/metin.js', '/mobil/ekranlar.js', '/mobil/icerik.js',
+  '/mobil/app.css', '/mobil/app.js', '/mobil/zaman.js', '/mobil/metin.js', '/mobil/ekranlar.js', '/mobil/icerik.js', '/mobil/bildirim.js',
   '/mobil/logo.png', '/mobil/manifest-nl.webmanifest', '/mobil/manifest-tr.webmanifest', '/mobil/manifest-en.webmanifest', '/mobil/ikon-192.png', '/mobil/ikon-512.png',
   '/mobil/fonts/hanken-grotesk-latin.woff2', '/mobil/fonts/hanken-grotesk-latin-ext.woff2',
   '/mobil/fonts/bodoni-moda-latin.woff2', '/mobil/fonts/bodoni-moda-latin-ext.woff2',
@@ -77,4 +78,32 @@ self.addEventListener('fetch', (e) => {
       return (await cache.match(anahtar)) || fetch(req);
     })());
   }
+});
+
+// ---------------- Faz D: bildirimler ----------------
+// İçerik sunucuda hazırlanır (api/_lib/bildirim.js): { baslik, govde, etiket, dil, adres }.
+// Aynı vaktin bildirimleri aynı etiketi taşır: "15 dk kala"nın yerini "vakit girdi" alır (yine ses çıkar).
+self.addEventListener('push', (e) => {
+  let v = {};
+  try { v = e.data ? e.data.json() : {}; } catch { v = {}; }
+  const ayar = {
+    body: v.govde || '',
+    icon: '/mobil/ikon-192.png',
+    badge: '/mobil/rozet-96.png',
+    lang: v.dil || 'nl',
+    data: { adres: typeof v.adres === 'string' && v.adres.startsWith('/mobil/') ? v.adres : '/mobil/' },
+  };
+  if (v.etiket) { ayar.tag = String(v.etiket); ayar.renotify = true; }
+  e.waitUntil(self.registration.showNotification(v.baslik || 'SÜLEYMANİYE CAMİİ', ayar));
+});
+
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const adres = (e.notification.data && e.notification.data.adres) || '/mobil/';
+  e.waitUntil((async () => {
+    const pencereler = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    const acik = pencereler.find((c) => new URL(c.url).pathname.startsWith('/mobil/'));
+    if (acik) return acik.focus();
+    return self.clients.openWindow(adres);
+  })());
 });

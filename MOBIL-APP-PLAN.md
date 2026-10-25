@@ -414,7 +414,7 @@ Veri dosyası şöyle görünür (örnek):
   - *Bitti sayılır:* ekle/değiştir/sil/taslak testleri (GitHub API mock'lanır).
   - Anahtarsız kaydetme reddediliyor. Panel ve uygulamanın ekran görüntüleri var.
 - **Faz C — PWA** (§7).
-- **Faz D — Bildirimler** (§8). S6 cevaplanmadan başlama.
+- **Faz D — Bildirimler** (§8). S6 cevaplandı (25-10-2026, Upstash). Dal: `faz-d`.
 
 ## 10. Açık sorular (ilgili fazdan önce kullanıcıya sor)
 
@@ -440,6 +440,11 @@ Veri dosyası şöyle görünür (örnek):
   - **Cevap (24-10-2026):** Arapça-Latin. NL: Imsak, Fadjr, Zonsopgang, Dhoehr, Asr, Maghrib, Isha (kullanıcı 25-10-2026: "Isja değil Isha"). EN: Imsak, Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha.
   - Ayrıca: uygulama ilk açılışta herkes için Hollandaca başlar (Ayarlar'dan değişir).
 - **S6 (Faz D):** Abonelik deposu (Upstash Redis veya Vercel Blob) ve dakikalık tetikleyici (cron-job.org veya QStash).
+  - **Cevap (25-10-2026):** Upstash: Redis (abonelikler) + QStash (zamanlama). İkisi de Vercel Marketplace'ten, ücretsiz katman.
+  - Dakikalık tetikleyici yok: günlük Vercel cron (`/api/bildirim/planla`) bugün + yarının bütün anlarını (7 vakit × giriş + 5/10/15/30 dk önce = günde 35) QStash'e zamanlar. Abonelik kaydında da (henüz zamanlanmadıysa) zamanlanır.
+  - QStash her anda `/api/bildirim/gonder`'i çağırır (`Authorization: Bearer <CRON_SECRET>`, `Upstash-Forward-Authorization` ile). Redis işareti: aynı an iki kez gitmez; 10 dk'dan geç gelen gönderilmez.
+  - VAPID: sadece `VAPID_PRIVATE_KEY`; açık anahtar sunucuda ondan hesaplanır. Kullanıcı `cd tests; node araclar/vapid.mjs` ile üretir (anahtar sadece panoya gider).
+  - Ortam değişkenleri eksikse (`/api/bildirim/anahtar` → `aktif: false` + eksiklerin adı) uygulama bildirim bölümünü ve zilleri hiç göstermez.
 - **Ayrıca:** depo public. Vercel Hobby private depoyla da çalışır; private yapmayı önerebilirsin. Kararı kullanıcı verir.
 
 ## 11. Testler (Faz 0 testlerine ek)

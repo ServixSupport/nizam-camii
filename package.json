@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@vercel/blob": "2.8.1",
-    "unpdf": "^0.12.2"
+    "unpdf": "^0.12.2",
+    "web-push": "3.6.7"
   }
 }

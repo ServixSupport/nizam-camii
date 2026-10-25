@@ -7,6 +7,7 @@ import {
 } from './zaman.js';
 import { METIN, DILLER, VARSAYILAN_DIL, ARAPCA } from './metin.js';
 import { ekranlar } from './ekranlar.js';
+import { bildirimler } from './bildirim.js';
 
 // TV'nin anahtarları (vakitler, nizam-tema, nizam-sayac) kullanılmaz; hepsi "nzm." ile başlar.
 const DEPO = { dil: 'nzm.dil', tema: 'nzm.tema', vakit: 'nzm.vakit', aladhan: 'nzm.aladhan', icerik: 'nzm.icerik' };
@@ -125,6 +126,9 @@ function bildir(metin) {
   _bildirimZamani = setTimeout(() => el.classList.remove('acik'), 2500);
 }
 
+// Faz D: bildirim ayarları ve ana ekrandaki ziller (sunucu hazır değilse hiç görünmez)
+const bld = bildirimler({ L, dil: () => durum.dil, bildir, kuruluMu: () => kuruluMu(), iosMu: () => iosMu() });
+
 const ekran = ekranlar({
   L, dil: () => durum.dil, icerik: () => durum.icerik, simdi: () => Date.now(),
   tablet: () => tabletMi.matches, olaylar, olaylarYaklasik, bildir,
@@ -194,12 +198,14 @@ function metinleriYaz() {
     return b;
   }));
   _tarihImza = ''; _satirImza = '';
+  bld.ciz();
 }
 
 function dilSec(k) {
   if (!METIN[k]) return;
   durum.dil = k; yaz(DEPO.dil, k);
   metinleriYaz(); ciz(); ekranlariCiz(); kurulumKartiCiz();
+  bld.dilDegisti();
 }
 function temaSec(k) {
   durum.tema = k; yaz(DEPO.tema, k);
@@ -334,9 +340,12 @@ function satirlariCiz(satirlar) {
       li.className = 'vakit'; li.dataset.key = key; li.style.animationDelay = `${(0.05 * i).toFixed(2)}s`;
       li.innerHTML = '<span class="v-ikon" aria-hidden="true"></span>'
         + '<span class="v-metin"><span class="v-ad"></span><span class="v-simdi" hidden></span><span class="v-ar" lang="ar" dir="rtl"></span></span>'
-        + '<span class="v-saat"></span>';
+        + '<span class="v-saat"></span>'
+        + '<button type="button" class="v-zil" hidden></button>';
+      li.querySelector('.v-zil').addEventListener('click', () => bld.zil(key));
       return li;
     }));
+    bld.ciz();
     ul.classList.add('ilk');
     setTimeout(() => ul.classList.remove('ilk'), 1200);
   }
@@ -472,6 +481,7 @@ $('#kurulum-dugme').addEventListener('click', async () => {
   _kurulumOlayi = null; kurulumKartiCiz();
 });
 kurulumKartiCiz();
+bld.hazirla();
 
 // Service worker sadece /mobil/ kapsamında; TV sayfası ("/") etkilenmez.
 // Yeni sürüm kullanım sırasında kendiliğinden devreye girmez: çubuk çıkar, kullanıcı "Yenile"ye dokunur.

@@ -161,3 +161,41 @@ const PWA = {
   },
 };
 for (const d of Object.keys(PWA)) Object.assign(METIN[d], PWA[d]);
+
+// ---------------- Faz D: bildirimler (tasarım: ontwerp/Mobil-Ayarlar.dc.html) ----------------
+const BILDIRIM = {
+  tr: {
+    notif: 'BİLDİRİMLER', notifMaster: 'Namaz vakti bildirimleri', notifBefore: 'Vakitten önce hatırlat',
+    notifOff: 'Kapalı', notifMin: 'dk', notifAtTime: 'Vakit girince bildir', notifWhich: 'Hangi vakitler',
+    notifPrivacy: 'Bildirim için sadece bu cihazın bildirim adresini ve buradaki seçimlerinizi saklarız. İsim, hesap veya IP adresi saklanmaz. Bildirimleri kapatınca adres silinir.',
+    notifIos: 'iPhone’da bildirimler yalnızca uygulama ana ekrandayken çalışır. Safari’de Paylaş’a dokunup “Ana Ekrana Ekle”yi seçin, sonra uygulamayı ana ekrandan açın.',
+    notifUnsupported: 'Bu tarayıcı bildirimleri desteklemiyor.',
+    notifDenied: 'Bildirimlere izin verilmedi. Telefonun ayarlarından bu uygulamaya bildirim izni verebilirsiniz.',
+    notifError: 'Bildirim ayarı kaydedilemedi. İnternet bağlantısını kontrol edip tekrar deneyin.',
+    notifOnToast: 'Bildirimler açık', notifOffToast: 'Bildirimler kapalı',
+    zilAcik: (ad) => `${ad} bildirimi açık`, zilKapali: (ad) => `${ad} bildirimi kapalı`,
+  },
+  nl: {
+    notif: 'MELDINGEN', notifMaster: 'Meldingen voor gebedstijden', notifBefore: 'Herinner me vooraf',
+    notifOff: 'Uit', notifMin: 'min', notifAtTime: 'Melding bij begin gebedstijd', notifWhich: 'Voor welke gebeden',
+    notifPrivacy: 'Voor meldingen bewaren we alleen het meldingsadres van dit toestel en je keuzes hierboven. Geen naam, account of IP-adres. Zet je meldingen uit, dan wissen we het adres.',
+    notifIos: 'Op de iPhone werken meldingen alleen als de app op het beginscherm staat. Tik in Safari op Deel, kies “Zet op beginscherm” en open de app daarna vanaf je beginscherm.',
+    notifUnsupported: 'Deze browser ondersteunt geen meldingen.',
+    notifDenied: 'Meldingen zijn niet toegestaan. Je kunt ze aanzetten in de instellingen van je telefoon.',
+    notifError: 'De meldingsinstelling kon niet worden bewaard. Controleer je internetverbinding en probeer het opnieuw.',
+    notifOnToast: 'Meldingen staan aan', notifOffToast: 'Meldingen staan uit',
+    zilAcik: (ad) => `Melding voor ${ad} aan`, zilKapali: (ad) => `Melding voor ${ad} uit`,
+  },
+  en: {
+    notif: 'NOTIFICATIONS', notifMaster: 'Prayer time notifications', notifBefore: 'Remind me before',
+    notifOff: 'Off', notifMin: 'min', notifAtTime: 'Notify when the prayer time begins', notifWhich: 'Which prayers',
+    notifPrivacy: 'For notifications we only store this device’s notification address and your choices above. No name, account or IP address. Turn notifications off and the address is deleted.',
+    notifIos: 'On iPhone, notifications only work when the app is on your home screen. In Safari, tap Share, choose “Add to Home Screen”, then open the app from your home screen.',
+    notifUnsupported: 'This browser does not support notifications.',
+    notifDenied: 'Notifications are not allowed. You can turn them on in your phone’s settings.',
+    notifError: 'The notification setting could not be saved. Check your internet connection and try again.',
+    notifOnToast: 'Notifications on', notifOffToast: 'Notifications off',
+    zilAcik: (ad) => `${ad} notification on`, zilKapali: (ad) => `${ad} notification off`,
+  },
+};
+for (const d of Object.keys(BILDIRIM)) Object.assign(METIN[d], BILDIRIM[d]);

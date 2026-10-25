@@ -166,7 +166,7 @@ main {
 .v-ikon svg { width: 12px; height: 12px; }
 .v-nokta { width: 8px; height: 8px; border-radius: 50%; background: var(--turq); }
 .v-metin { display: flex; align-items: baseline; gap: 8px; flex: 1; min-width: 0; }
-.v-ad { font-weight: 600; font-size: 16px; white-space: nowrap; }
+.v-ad { font-weight: 600; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .v-ar { order: 2; font-size: 12px; color: var(--soft); }
 .v-simdi { order: 3; font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--turq); }
 .v-saat { font-family: 'Bodoni Moda', Georgia, serif; font-size: 21px; font-weight: 500; font-variant-numeric: lining-nums tabular-nums; }
@@ -490,10 +490,16 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
   .kemer-ic { top: 183px; }
   .sayac { font-size: 68px; }
   .kartlar { margin-top: auto; }
+  /* iki sütunlu vakit kartları dar: ziller varken her şey sığsın (Faz D) */
+  .zilli .vakit { gap: 8px; padding: 0 12px; }
+  .zilli .v-ad { font-size: 16px; }
+  .zilli .v-saat { font-size: 23px; }
+  .zilli .v-zil { width: 34px; margin: 0 -6px 0 -2px; }
+  .zilli .sekme-ana { grid-template-columns: 360px minmax(0, 1fr); gap: 32px; }
 }
 /* tasarımdaki ölçü (1180 × 820) */
 @media (min-width: 1160px) and (orientation: landscape) {
-  .sekme-ana { grid-template-columns: 460px minmax(0, 1fr); gap: 44px; }
+  .sekme-ana, .zilli .sekme-ana { grid-template-columns: 460px minmax(0, 1fr); gap: 44px; }
   .kemer { width: 420px; height: 504px; }
   .kemer-ic { top: 214px; }
   .sayac { font-size: 80px; }
@@ -503,3 +509,34 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
   .sekme-ana { margin: 0 auto; }
   .sayfa { margin: 0 auto; }
 }
+
+/* ================= Faz D: bildirimler (ontwerp/Mobil-Ayarlar.dc.html) ================= */
+.v-zil { flex: 0 0 auto; width: 44px; height: 44px; margin: 0 -8px 0 -4px; padding: 0; border: 0; border-radius: 12px; background: transparent;
+  color: var(--soft); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.v-zil[aria-pressed="true"] { color: var(--cobalt); }
+.v-zil svg { width: 19px; height: 19px; }
+.b-kart { display: flex; flex-direction: column; border-radius: 20px; background: var(--card); border: 1px solid var(--line); }
+.b-satir { display: flex; align-items: center; gap: 12px; padding: 14px 16px; box-shadow: inset 0 -1px 0 var(--line); }
+.b-satir.dikey { flex-direction: column; align-items: stretch; gap: 10px; }
+.b-secenekler > .b-satir:last-child { box-shadow: none; padding-bottom: 16px; }
+.b-secenekler.soluk { opacity: .45; }
+.b-ana-ad { flex: 1; font-weight: 700; font-size: 15.5px; }
+.b-ad { flex: 1; font-weight: 600; font-size: 14.5px; }
+.b-mesaj { margin: 0; padding: 12px 16px; font-size: 13.5px; line-height: 1.45; color: var(--coral); box-shadow: inset 0 -1px 0 var(--line); }
+.anahtar { position: relative; flex: 0 0 auto; width: 52px; height: 44px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.anahtar::before { content: ""; position: absolute; left: 0; right: 0; top: 6px; height: 32px; border-radius: 999px; background: var(--anahtarKapali, #C9BFAE); transition: background .18s; }
+.anahtar span { position: absolute; top: 9px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(20,41,90,.3); transition: left .18s; }
+.anahtar[aria-checked="true"]::before { background: var(--turq); }
+.anahtar[aria-checked="true"] span { left: 23px; }
+.anahtar[aria-busy="true"] { opacity: .6; }
+:root[data-tema="gece"] { --anahtarKapali: #3A4A73; }
+.b-once { display: flex; gap: 6px; }
+.b-once button { flex: 1; min-width: 0; height: 44px; padding: 0; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  font-size: 14px; font-weight: 700; cursor: pointer; }
+.b-once button[aria-pressed="true"] { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+.b-vakitler { display: flex; flex-wrap: wrap; gap: 6px; }
+.b-vakitler button { height: 44px; min-width: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--soft);
+  font-size: 13.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.b-vakitler button[aria-pressed="true"] { background: var(--railActive); color: var(--cobalt); border-color: var(--cobalt); }
+.b-vakitler svg { width: 13px; height: 13px; }
+.b-gizlilik { margin: 0 4px; line-height: 1.45; }
