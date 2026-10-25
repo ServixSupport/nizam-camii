@@ -2,7 +2,7 @@
 // Test günü Çarşamba 28-10-2026 (TV testleriyle aynı veri).
 import { test, expect, devices } from '@playwright/test';
 import { mobilAc, uygulamaVakitleri } from '../yardimci/mobil.js';
-import { tvAc, ileri, saatGit, vakitleriOku, VAKIT, mockla } from '../yardimci/tv.js';
+import { tvAc, ileri, saatGit, vakitleriOku, VAKIT, HUTBE, mockla } from '../yardimci/tv.js';
 
 const an = (saat, gun = '2026-10-28', ofset = '+01:00') => `${gun}T${saat}${ofset}`;
 const DIYANET_28 = { Imsak: '05:34', Fajr: '06:21', Sunrise: '07:21', Dhuhr: '12:29', Asr: '14:54', Maghrib: '17:27', Isha: '19:02' };
@@ -314,4 +314,42 @@ test('diğer sekmeler kaydırılabilir kalır', async ({ page }) => {
   await page.evaluate(() => window.scrollTo(0, 300));
   expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
   expect(await page.evaluate(() => document.documentElement.classList.contains('kaydirma-yok'))).toBe(false);
+});
+
+// Cuma hutbesi sadece TV ekranında (kullanıcı sorusu, 25-10-2026). Uygulama /api/hutbe'yi hiç istemez.
+test("cuma hutbesi sadece TV'de: uygulama hutbe istemez, hiçbir sekmede göstermez", async ({ page }) => {
+  const CUMA_HUTBE = '2026-10-30T12:45:00.500+01:00';                 // Öğle 12:29 → TV'de hutbe 12:39–13:09
+  const k = await mobilAc(page, { zaman: CUMA_HUTBE, hutbe: HUTBE });
+  for (const sekme of ['#faaliyetler', '#programlar', '#ayarlar', '']) {
+    await page.evaluate((h) => { location.hash = h; }, sekme);
+    await page.clock.runFor(60 * 1000);
+    await expect(page.locator('body')).not.toContainText(HUTBE.title);
+  }
+  await page.clock.runFor(20 * 60 * 1000);
+  expect(k.api.filter((u) => u.pathname.startsWith('/api/hutbe'))).toEqual([]);
+});
+
+test('aynı anda TV ekranı hutbeyi gösterir; telefon "/" açınca uygulamaya gider, hutbe görmez', async ({ browser }) => {
+  const CUMA_HUTBE = '2026-10-30T12:45:00.500+01:00';
+  const tv = await browser.newContext({ viewport: { width: 1920, height: 1080 }, hasTouch: false, isMobile: false });
+  const tvSayfa = await tv.newPage();
+  await tvAc(tvSayfa, { zaman: CUMA_HUTBE, hutbe: HUTBE });
+  await ileri(tvSayfa, 2000);
+  await expect(tvSayfa.locator('#hutbe')).toBeVisible();
+  await tv.close();
+  const tel = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true,
+    userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1' });
+  const telSayfa = await tel.newPage();
+  await mobilAc(telSayfa, { zaman: CUMA_HUTBE, hutbe: HUTBE, adres: '/' });
+  await expect(telSayfa).toHaveURL(/\/mobil\/$/);
+  await telSayfa.clock.runFor(5 * 60 * 1000);
+  await expect(telSayfa.locator('body')).not.toContainText(HUTBE.title);
+  await expect(telSayfa.locator('#hutbe')).toHaveCount(0);
+  await tel.close();
+});
+
+test('"TV ekranını aç" kartı uygulamaya dönüş adresini bu cihazdaki adresle yazar', async ({ page }) => {
+  await mobilAc(page, { zaman: an('16:00:00.500'), adres: '/mobil/#ayarlar' });
+  const adres = new URL(page.url()).host;
+  await expect(page.locator('.tv-link .ayar-not')).toHaveText(`Voor een tablet of scherm aan de muur. Terug naar de app: ${adres}/?ekran=mobil`);
 });

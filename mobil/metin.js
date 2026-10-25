@@ -38,7 +38,7 @@ export const METIN = {
     title: 'Ayarlar', lang: 'DİL', look: 'GÖRÜNÜM', theme: 'Tema',
     auto: 'Otomatik', light: 'Açık', dark: 'Koyu', autoHint: 'Güneş doğunca açık, Akşam vaktinde koyu tema.',
     mosque: 'CAMİ', source: 'Vakitler: Diyanet İşleri Başkanlığı', harita: 'Haritada aç',
-    tvTitle: 'Bu cihazda TV ekranını aç', tvText: 'Duvardaki tablet veya ekran için. Uygulamaya dönmek için: nizam-camii.vercel.app/?ekran=mobil',
+    tvTitle: 'Bu cihazda TV ekranını aç', tvText: (adres) => `Duvardaki tablet veya ekran için. Uygulamaya dönmek için: ${adres}/?ekran=mobil`,
   },
   nl: {
     locale: 'nl-NL',
@@ -63,7 +63,7 @@ export const METIN = {
     title: 'Instellingen', lang: 'TAAL', look: 'WEERGAVE', theme: 'Thema',
     auto: 'Automatisch', light: 'Licht', dark: 'Donker', autoHint: 'Licht vanaf zonsopgang, donker vanaf maghrib.',
     mosque: 'MOSKEE', source: 'Gebedstijden: Diyanet', harita: 'Openen in kaart',
-    tvTitle: 'Tv-scherm openen op dit apparaat', tvText: 'Voor een tablet of scherm aan de muur. Terug naar de app: nizam-camii.vercel.app/?ekran=mobil',
+    tvTitle: 'Tv-scherm openen op dit apparaat', tvText: (adres) => `Voor een tablet of scherm aan de muur. Terug naar de app: ${adres}/?ekran=mobil`,
   },
   en: {
     locale: 'en-GB',
@@ -88,7 +88,7 @@ export const METIN = {
     title: 'Settings', lang: 'LANGUAGE', look: 'APPEARANCE', theme: 'Theme',
     auto: 'Automatic', light: 'Light', dark: 'Dark', autoHint: 'Light from sunrise, dark from maghrib.',
     mosque: 'MOSQUE', source: 'Prayer times: Diyanet', harita: 'Open in maps',
-    tvTitle: 'Open the TV screen on this device', tvText: 'For a tablet or screen on the wall. Back to the app: nizam-camii.vercel.app/?ekran=mobil',
+    tvTitle: 'Open the TV screen on this device', tvText: (adres) => `For a tablet or screen on the wall. Back to the app: ${adres}/?ekran=mobil`,
   },
 };
 

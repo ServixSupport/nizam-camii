@@ -177,7 +177,8 @@ function metinleriYaz() {
   document.title = t.appAd;
   $('link[rel="manifest"]').setAttribute('href', `/mobil/manifest-${durum.dil}.webmanifest`);
   $('meta[name="apple-mobile-web-app-title"]').setAttribute('content', t.appAd);
-  for (const el of $$('[data-t]')) el.textContent = t[el.dataset.t];
+  // metin işlev olabilir: o anki adres (nizam-camii.vercel.app veya kendi alan adı) yazılır
+  for (const el of $$('[data-t]')) { const v = t[el.dataset.t]; el.textContent = typeof v === 'function' ? v(location.host) : v; }
   for (const el of $$('[data-t-aria]')) el.setAttribute('aria-label', t[el.dataset.tAria]);
   for (const el of $$('[data-t-alt]')) el.setAttribute('alt', t[el.dataset.tAlt]);
 
