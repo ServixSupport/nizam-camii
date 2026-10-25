@@ -10,7 +10,7 @@ export function anahtarIsleyici(ortam = () => bildirimOrtami()) {
     }
     const o = ortam();
     res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300');
-    return res.status(200).json({ aktif: o.aktif, publicKey: o.aktif ? o.vapid.publicKey : null, eksik: o.eksik });
+    return res.status(200).json({ aktif: o.aktif, publicKey: o.aktif ? o.vapid.publicKey : null, eksik: o.eksik, ...(o.aktif ? {} : { bulunan: o.bulunan || [] }) });
   };
 }
 

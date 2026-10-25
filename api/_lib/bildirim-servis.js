@@ -9,10 +9,28 @@ import { gunAnlari } from './bildirim.js';
 
 const GUN_SN = 24 * 60 * 60;
 
+/**
+ * Marketplace değişkeni: önce tam adıyla, yoksa önekli hâli (Vercel bağlarken önek eklenebilir,
+ * ör. NIZAM_KV_REST_API_URL). `cift` aynı önekle birlikte gelen ikinci değişkendir (token).
+ * @param {boolean} [ciftSart=true]  çift de bulunmalı mı (QStash'te adres isteğe bağlı)
+ * @returns {[string, string]} [değer, çiftin değeri]
+ */
+export function onekliBul(env, ad, cift, ciftSart = true) {
+  if (env[ad]) return [env[ad], env[cift] || ''];
+  for (const k of Object.keys(env).sort()) {
+    if (k.endsWith('_' + ad) && env[k]) {
+      const onek = k.slice(0, -ad.length);
+      if (!ciftSart || env[onek + cift]) return [env[k], env[onek + cift] || ''];
+    }
+  }
+  return ['', ''];
+}
+
 /** Upstash Redis (REST). Anahtarlar ortama göre ayrı: production ile önizleme karışmaz. */
 export function redisDepo(env = process.env, f = (...a) => fetch(...a)) {
-  const url = (env.UPSTASH_REDIS_REST_URL || env.KV_REST_API_URL || '').replace(/\/$/, '');
-  const token = env.UPSTASH_REDIS_REST_TOKEN || env.KV_REST_API_TOKEN || '';
+  let [url, token] = onekliBul(env, 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN');
+  if (!url || !token) [url, token] = onekliBul(env, 'KV_REST_API_URL', 'KV_REST_API_TOKEN');
+  url = (url || '').replace(/\/$/, '');
   const p = `nzm:${env.VERCEL_ENV || 'development'}:`;
   const ABONE = p + 'aboneler';
   async function komut(...args) {
@@ -44,8 +62,8 @@ export function redisDepo(env = process.env, f = (...a) => fetch(...a)) {
 
 /** Upstash QStash: mesajları belli bir anda hedefe POST eder (Upstash-Not-Before, saniye). */
 export function qstashKuyruk(env = process.env, f = (...a) => fetch(...a)) {
-  const token = env.QSTASH_TOKEN || '';
-  const kok = (env.QSTASH_URL || 'https://qstash.upstash.io').replace(/\/$/, '');
+  const [token, adres] = onekliBul(env, 'QSTASH_TOKEN', 'QSTASH_URL', false);
+  const kok = (adres || 'https://qstash.upstash.io').replace(/\/$/, '');
   return {
     tanimli: !!token,
     /** @param {Array<{hedef:string, govde:object, zaman:number, yetki:string}>} mesajlar */
@@ -131,6 +149,8 @@ export function bildirimOrtami(env = process.env) {
     !cronSecret && 'CRON_SECRET', !kok && 'VERCEL_URL'].filter(Boolean);
   return {
     vapid, depo, kuyruk, cronSecret, kok, eksik,
+    // kurulum yardımı: Upstash'e ait görünen değişkenlerin sadece ADLARI (değerleri asla)
+    bulunan: eksik.length ? Object.keys(env).filter((k) => env[k] && /UPSTASH|QSTASH|KV_|REDIS/i.test(k)).sort() : [],
     aktif: eksik.length === 0,
     push: vapid ? webPush(vapid) : null,
     // Vakitler SADECE /api/vakit'ten, parametresiz (CLAUDE.md kural 2). Diyanet'e buradan gidilmez.

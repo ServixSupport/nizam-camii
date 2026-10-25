@@ -268,6 +268,15 @@ test.describe('ortam ve dış servisler', () => {
     expect(bildirimOrtami({ ...tam, VERCEL_ENV: 'preview' }).kok).toBe('https://nizam-camii-git-main-x.vercel.app');
     expect(bildirimOrtami({ ...tam, CRON_SECRET: 'kisa' }).eksik).toEqual(['CRON_SECRET']);
     expect(bildirimOrtami({ ...tam, VAPID_PRIVATE_KEY: 'bozuk' }).eksik).toEqual(['VAPID_PRIVATE_KEY']);
+    // Vercel bağlarken önek ekleyebilir: NIZAM_KV_REST_API_URL, NIZAM_QSTASH_TOKEN …
+    const onekli = { ...tam, KV_REST_API_URL: undefined, KV_REST_API_TOKEN: undefined, QSTASH_TOKEN: undefined,
+      NIZAM_KV_REST_API_URL: 'https://onekli.upstash.io', NIZAM_KV_REST_API_TOKEN: 't2', QS_QSTASH_TOKEN: 'q2' };
+    expect(bildirimOrtami(onekli).aktif).toBe(true);
+    // eksikken: ilgili değişkenlerin sadece ADLARI (kurulum yardımı), değerleri asla
+    const yarim = bildirimOrtami({ ...tam, QSTASH_TOKEN: undefined, KV_REST_API_TOKEN: undefined, REDIS_URL: 'rediss://gizli@x' });
+    expect(yarim.eksik).toEqual(['Upstash Redis', 'QSTASH_TOKEN']);
+    expect(yarim.bulunan).toEqual(['KV_REST_API_URL', 'REDIS_URL']);
+    expect(JSON.stringify(yarim.bulunan)).not.toContain('gizli');
   });
 
   test('/api/bildirim/anahtar: açık anahtar gizli anahtardan; değer asla gösterilmez', async () => {
