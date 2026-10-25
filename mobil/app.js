@@ -130,12 +130,12 @@ const ekran = ekranlar({
   tablet: () => tabletMi.matches, olaylar, olaylarYaklasik, bildir,
 });
 
-function ekranlariCiz() {
+function ekranlariCiz(ilk = false) {
   const { sekme, id } = aktifSekme();
   if (tabletMi.matches) ekran.kartlariCiz();
-  if (sekme === 'faaliyetler') ekran.faaliyetleriCiz();
+  if (sekme === 'faaliyetler') ekran.faaliyetleriCiz(ilk);
   if (sekme === 'faaliyet') ekran.detayCiz(id);
-  if (sekme === 'programlar') ekran.programlariCiz();
+  if (sekme === 'programlar') ekran.programlariCiz(ilk);
 }
 
 let _yenileniyor = null;
@@ -225,7 +225,7 @@ function sekmeGoster() {
   for (const a of $$('.menu-oge')) {
     if (a.dataset.sekme === menu) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   }
-  ekranlariCiz();
+  ekranlariCiz(true);
   window.scrollTo(0, 0);
 }
 

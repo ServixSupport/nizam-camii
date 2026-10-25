@@ -45,6 +45,11 @@ export default defineConfig({
     { name: 'tablet-1180', testMatch: 'mobil/goruntu.spec.js',
       use: { viewport: { width: 1180, height: 820 }, hasTouch: true, isMobile: true } },
 
+    // /admin paneli: bilgisayarda; ekran görüntüleri telefonda da
+    { name: 'admin', testMatch: 'admin/**/*.spec.js', use: { viewport: { width: 1280, height: 900 } } },
+    { name: 'admin-telefon', testMatch: 'admin/goruntu.spec.js',
+      use: { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true } },
+
     // Tek link: TV mi, mobil mi? (her test kendi cihazını kurar)
     { name: 'yonlendirme', testMatch: 'yonlendirme/**/*.spec.js' },
     // Saf mantık (zaman.js, icerik.js, dogrula.js) ve sunucu fonksiyonları: tarayıcısız

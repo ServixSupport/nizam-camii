@@ -118,7 +118,8 @@ export function ekranlar(c) {
   }
 
   // ---------- Faaliyetler ----------
-  function faaliyetleriCiz() {
+  function faaliyetleriCiz(ilk = false) {
+    document.getElementById('f-icerik').classList.toggle('ilk', ilk);
     const L = c.L(), dil = c.dil();
     const tumu = gorunurFaaliyetler(c.icerik().faaliyetler, c.simdi());
     const kap = document.getElementById('f-icerik');
@@ -212,7 +213,8 @@ export function ekranlar(c) {
   }
 
   // ---------- Programlar ----------
-  function programlariCiz() {
+  function programlariCiz(ilk = false) {
+    document.getElementById('p-icerik').classList.toggle('ilk', ilk);
     const L = c.L();
     const programlar = c.icerik().programlar || [];
     const kap = document.getElementById('p-icerik');
@@ -293,7 +295,10 @@ export function ekranlar(c) {
       .filter((v) => v.dk >= BAS * 60 && v.dk <= BIT * 60);
 
     if (!durum.pSecili || !bloklar.some((b) => b.kimlik === durum.pSecili)) {
-      const sonraki = bloklar.filter((b) => b.ymd >= bugun).sort((a, b) => a.ymd.localeCompare(b.ymd) || a.z.bas - b.z.bas)[0];
+      const p0 = amsParcalar(simdi);
+      const simdiDk = p0.h * 60 + p0.mi;
+      const sonraki = bloklar.filter((b) => b.ymd > bugun || (b.ymd === bugun && b.z.bit > simdiDk))
+        .sort((a, b) => a.ymd.localeCompare(b.ymd) || a.z.bas - b.z.bas)[0];
       durum.pSecili = (sonraki || bloklar[0] || {}).kimlik || null;
     }
     const bugunSutun = gunler.findIndex((g) => g.ymd === bugun);

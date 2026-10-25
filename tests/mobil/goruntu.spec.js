@@ -2,6 +2,7 @@
 // Her ekranda yatay kaydırma olmamalı.
 import { test, expect } from '@playwright/test';
 import { mobilAc, yatayTasma } from '../yardimci/mobil.js';
+import { tasarimIcerik } from '../fixtures/tasarim-icerik.js';
 
 const GUN = '2026-10-28';      // Çarşamba
 const DURUMLAR = [
@@ -13,11 +14,17 @@ const DURUMLAR = [
   { ad: '06-programlar-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#programlar' },
   { ad: '07-ayarlar-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#ayarlar' },
   { ad: '08-ayarlar-gece-nl', zaman: `${GUN}T21:30:00.500+01:00`, dil: 'nl', hash: '#ayarlar' },
+  // Faz B: içerikli ekranlar (tasarımdaki örnek içerik)
+  { ad: '09-faaliyetler-icerikli-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#faaliyetler', icerik: true },
+  { ad: '10-faaliyet-detay-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', hash: '#faaliyet/f-kahvalti', icerik: true },
+  { ad: '11-programlar-icerikli-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#programlar', icerik: true },
+  { ad: '12-ana-icerikli-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', icerik: true },
+  { ad: '13-programlar-gece-nl', zaman: `${GUN}T21:30:00.500+01:00`, dil: 'nl', hash: '#programlar', icerik: true },
 ];
 
 for (const d of DURUMLAR) {
   test(d.ad, async ({ page }) => {
-    await mobilAc(page, { zaman: d.zaman, adres: '/mobil/' + (d.hash || ''), depo: { 'nzm.dil': d.dil } });
+    await mobilAc(page, { zaman: d.zaman, adres: '/mobil/' + (d.hash || ''), depo: { 'nzm.dil': d.dil }, icerik: d.icerik ? tasarimIcerik() : undefined });
     await page.clock.runFor(50);
     expect(await yatayTasma(page), 'yatay kaydırma olmamalı').toBe(false);
     await expect(page).toHaveScreenshot(`${d.ad}.png`, { fullPage: true });

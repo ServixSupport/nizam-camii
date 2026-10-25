@@ -17,9 +17,14 @@
 | `index.html` | TV ekranı; tek dosya (HTML/CSS/JS, logo ve Oswald fontu base64). |
 | `api/vakit.js` | Diyanet Awqat Salah istemcisi. Aylık vakitleri çeker; CDN'de 1 gün cache'lenir (`s-maxage=86400`). |
 | `api/hutbe.js` | Cuma hutbesi PDF'i (diyanet.nl) → metin. `unpdf` kullanır. |
-| `package.json` | `"type": "module"`, tek bağımlılık `unpdf`. |
+| `package.json` | `"type": "module"`; bağımlılıklar `unpdf`, `@vercel/blob`. |
 | `mobil/` | Telefon/tablet uygulaması (Faz A). `zaman.js` saf vakit mantığı (Amsterdam saati), `metin.js` TR/NL/EN, `app.js`, `app.css`, `fonts/` (OFL). |
-| `veri/icerik.json` | Faaliyetler + programlar (Faz B'de `/admin`'den yazılır; şimdilik boş). |
+| `api/icerik.js` | Uygulama için içerik (yayındaki faaliyetler, aktif programlar); Vercel Blob'dan, CDN'de 2 dk. |
+| `api/admin/` | `veri.js` (okuma + etag), `kaydet.js` (anahtar + doğrulama + etag ile yazma), `resim.js` (JPEG yükleme). |
+| `api/_lib/` | Blob deposu (`depo.js`, ortam başına klasör) ve anahtar kontrolü. `_` ile başladığı için fonksiyon olmaz. |
+| `admin/` | `/admin` yönetim paneli (Türkçe). |
+| `veri/dogrula.js` | İçerik doğrulama: API, panel ve testler aynı dosyayı kullanır. |
+| `vercel.json` | Sadece header: `/admin` için `X-Robots-Tag: noindex`. |
 
 **Klasör = git deposu (24-10-2026'dan beri).** GitHub `main` ile eşitlendi.
 - Temmuz'dan kalan eski dosyalar `_eski-temmuz/` içinde; git'e ve Vercel'e girmez.

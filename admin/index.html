@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F6F1E7">
+<title>Yönetim · Nizam Camii</title>
+<link rel="icon" href="/mobil/logo.png">
+<link rel="stylesheet" href="/admin/admin.css">
+<script type="module" src="/admin/admin.js"></script>
+</head>
+<body>
+<header class="ust">
+  <img src="/mobil/logo.png" alt="" width="40" height="40">
+  <div class="ust-yazi">
+    <span class="ust-ad">Nizam-ı Alem Süleymaniye Camii</span>
+    <span class="ust-alt">Yönetim paneli</span>
+  </div>
+  <span class="yetki" id="yetki" role="status">…</span>
+</header>
+
+<div class="uyari" id="uyari" role="alert" hidden></div>
+
+<nav class="sekmeler" aria-label="Bölümler">
+  <a href="#faaliyetler" data-sekme="faaliyetler">Faaliyetler</a>
+  <a href="#programlar" data-sekme="programlar">Programlar</a>
+</nav>
+
+<main id="icerik">
+  <p class="yukleniyor" id="yukleniyor">Yükleniyor…</p>
+  <section id="s-faaliyetler" data-sekme="faaliyetler" hidden></section>
+  <section id="s-programlar" data-sekme="programlar" hidden></section>
+  <section id="s-form" data-sekme="form" hidden></section>
+</main>
+
+<footer class="alt">
+  <p>Kaydedilen değişiklikler birkaç dakika içinde uygulamada görünür. Metinleri, özellikle dini içerikleri, yayından önce hocaya kontrol ettirin.</p>
+  <button type="button" class="baglanti" id="yetki-kaldir" hidden>Bu cihazın yetkisini kaldır</button>
+</footer>
+<div class="bildirim" id="bildirim" role="status" aria-live="polite"></div>
+</body>
+</html>

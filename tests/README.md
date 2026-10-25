@@ -33,6 +33,14 @@ npm run rapor                   # son çalıştırmanın HTML raporu
 - `mobil/davranis.spec.js`: uygulama (390×844). TV ile aynı an aynı vakitler, başka saat dilimi, dil/tema, sekmeler.
 - `mobil/goruntu.spec.js`: referans görüntüler 390×844, 820×1180, 1180×820; yatay kaydırma kontrolü.
 
+## Faz B testleri
+
+- `sunucu/api.spec.js`: `/api/icerik` ve `/api/admin/*` fonksiyonları, bellekte çalışan sahte Blob deposuyla (gerçek Blob'a dokunulmaz).
+- `mantik/icerik.spec.js`: `veri/dogrula.js`, görünürlük, dil sırası, vakte bağlı program saatleri, `.ics`.
+- `admin/`: panel (ekle / değiştir / taslak / kopyala / sil, resim, hata, çakışma, anahtar). `/api/admin/*` gerçek fonksiyonlara gider.
+- `mobil/icerik.spec.js`: uygulamada faaliyetler, detay, programlar (telefon ve tablet), tablet kartları.
+- Örnek içerik: `fixtures/tasarim-icerik.js` (tasarımdaki uydurma örnekler).
+
 ## Yayındaki bir adresi test etmek
 
 ```bash

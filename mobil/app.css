@@ -235,7 +235,7 @@ main {
 
 .f-icerik { display: flex; flex-direction: column; gap: 16px; }
 .one-cikan { position: relative; display: flex; gap: 16px; padding: 16px; border-radius: 22px; background: var(--navy); color: #F6F1E7;
-  border: 1px solid var(--navyLine); overflow: hidden; animation: nzRise .5s both; }
+  border: 1px solid var(--navyLine); overflow: hidden; }
 .oc-desen { position: absolute; right: -50px; top: -60px; width: 220px; height: 220px; opacity: .14; pointer-events: none; }
 .tarih-kemer { position: relative; flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; }
 .tarih-kemer svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
@@ -255,7 +255,8 @@ main {
 .f-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .ay-baslik { display: flex; align-items: center; gap: 10px; margin-top: 4px; font-size: 11.5px; font-weight: 700; letter-spacing: .16em; }
 .ay-baslik .cizgi { flex: 1; height: 1px; background: var(--goldLine); }
-.f-oge { animation: nzRise .5s both; }
+.ilk .one-cikan { animation: nzRise .5s backwards; }
+.ilk .f-oge { animation: nzRise .5s backwards; }
 .f-oge a { display: flex; align-items: center; gap: 14px; padding: 12px; min-height: 76px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); }
 .tarih-kemer.kucuk { width: 48px; height: 60px; padding-top: 19px; }
 .tarih-kemer.kucuk path { fill: none; stroke: var(--g); stroke-width: 1.5; }
@@ -294,7 +295,8 @@ main {
 .gun-baslik h2 { margin: 0; font-family: 'Bodoni Moda', Georgia, serif; font-weight: 600; font-size: 24px; }
 .gun-baslik span { font-size: 13.5px; color: var(--soft); }
 .zaman-cizelgesi { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-.zaman-cizelgesi li { display: grid; grid-template-columns: 64px 22px minmax(0, 1fr); animation: nzRise .45s both; }
+.zaman-cizelgesi li { display: grid; grid-template-columns: 64px 22px minmax(0, 1fr); }
+.ilk .zaman-cizelgesi li { animation: nzRise .45s backwards; }
 .zc-saat { display: flex; flex-direction: column; align-items: flex-end; padding: 14px 4px 0 0; text-align: right; }
 .zc-bas { font-family: 'Bodoni Moda', Georgia, serif; font-weight: 600; font-size: 20px; line-height: 1; font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; }
 .zc-bit { font-size: 12px; color: var(--soft); margin-top: 4px; line-height: 1.25; }
@@ -320,7 +322,7 @@ main {
   padding: 10px 16px; border-radius: 12px; background: var(--ink); color: var(--ground); font-size: 14px; font-weight: 600;
   transition: opacity .2s, transform .2s; pointer-events: none; }
 .bildirim.acik { opacity: 1; transform: translate(-50%, 0); }
-@media (prefers-reduced-motion: reduce) { .one-cikan, .f-oge, .zaman-cizelgesi li, .ht-blok, .bos { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .ilk .one-cikan, .ilk .f-oge, .ilk .zaman-cizelgesi li, .ilk .ht-blok, .bos { animation: none; } }
 
 /* ================= TABLET (≥ 768 px): solda menü ================= */
 @media (min-width: 768px) {
@@ -421,7 +423,8 @@ main {
   .ht-vakit-ad { position: absolute; left: 0; width: 42px; text-align: right; font-size: 10.5px; font-weight: 700; color: var(--vakit-yazi); background: var(--card); }
   .ht-blok { position: absolute; width: calc(14.2857% - 6px); margin-left: 3px; padding: 5px 6px 5px 7px; border: 0; border-left: 3px solid var(--g);
     border-radius: 12px 12px 4px 4px; background: var(--gt); color: var(--ink); font: inherit; text-align: left; display: flex; flex-direction: column; gap: 2px;
-    overflow: hidden; cursor: pointer; transition: opacity .2s, background .2s; animation: nzRise .4s both; }
+    overflow: hidden; cursor: pointer; transition: opacity .2s, background .2s; }
+  .ilk .ht-blok { animation: nzRise .4s backwards; }
   .ht-blok.secili { background: var(--g); color: var(--card); box-shadow: 0 6px 16px rgba(20,41,90,.22); }
   :root[data-tema="gece"] .ht-blok.secili { color: #0C1834; }
   .htb-saat { font-size: 10.5px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--soft); }
