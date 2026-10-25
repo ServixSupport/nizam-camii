@@ -2,7 +2,7 @@
 
 **Durum:** plan, henüz yapılmadı. Hazırlanma tarihi 24-10-2026; tasarım kullanıcı tarafından onaylandı ("design super").
 **Faz 0:** bitti, kullanıcı onayladı, 24-10-2026'da `main`'e alındı (commit `fe4b5db`).
-**Faz A:** 24-10-2026'da yapıldı, `faz-a` dalında; kullanıcı onayı bekleniyor.
+**Faz A:** bitti; kullanıcı telefonda ve TV'de denedi ("werkt"), 25-10-2026'da `main`'e alındı (commit `a9fb88a`). Sıradaki: Faz B, önce S2/S3/S4.
 - Kararlar: S5 = Arapça-Latin isimler; ilk dil herkes için Hollandaca; Vercel Preview koruması kapatılacak (deneme linkleri girişsiz).
 Önce `CLAUDE.md`'yi oku. Oradaki kesin kurallar burada da geçerli. Faz faz çalış (§9).
 

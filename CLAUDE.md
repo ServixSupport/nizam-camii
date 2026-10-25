@@ -71,6 +71,10 @@
   - Normal testler için cuma olmayan bir gün seç; yoksa hutbe çıkar.
 - **TV temel testleri (Faz 0):** `tests/tv/`, referans görüntüler `tests/tv/__goruntuler__/`.
   - Her fazda yeşil kalmalı. TV referanslarını sadece kullanıcı açıkça onaylarsa güncelle.
+- **Yayındaki adresi test etmek:** `TEST_ADRES=<Preview linki>` ile sadece **Preview** linklerine.
+  - Canlı siteye (`nizam-camii.vercel.app`) toplu test koşma.
+  - 25-10-2026'da ~150 test Vercel'in bot korumasını tetikledi: bu bağlantıya bir süre `403 Security Checkpoint` döndü.
+  - Canlıda sadece birkaç `curl` ve tek bir tarayıcı kontrolü yap.
 - **TV test modları korunur:** `?test=ayet|hadis|dua|hazirlik|ezan|hutbe` ve `?theme=dark|light|auto|green`.
 - **Ekran boyutları:**
   - TV: 1920×1080, 1366×768, 960×540

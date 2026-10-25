@@ -33,6 +33,16 @@ npm run rapor                   # son çalıştırmanın HTML raporu
 - `mobil/davranis.spec.js`: uygulama (390×844). TV ile aynı an aynı vakitler, başka saat dilimi, dil/tema, sekmeler.
 - `mobil/goruntu.spec.js`: referans görüntüler 390×844, 820×1180, 1180×820; yatay kaydırma kontrolü.
 
+## Yayındaki bir adresi test etmek
+
+```bash
+TEST_ADRES=https://nizam-camii-xxxx.vercel.app npx playwright test --project=yonlendirme --project=mobil-390
+```
+
+- Sadece **Preview** linkleri için. API'ler yine mock'lanır, Diyanet'e istek gitmez.
+- **Canlı siteye toplu test koşma.** Vercel'in bot koruması bu bağlantıyı bir süre engeller
+  (`403 Vercel Security Checkpoint`, 25-10-2026'da yaşandı).
+
 ## Nasıl çalışıyor
 
 - `sunucu.mjs` depo kökünü sunar; `/api/*` sunulmaz, testler mock'lar (`yardimci/tv.js`).
