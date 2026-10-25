@@ -1,6 +1,8 @@
 # Mobil uygulama (telefon + tablet) ve `/admin` yönetim paneli
 
-**Durum:** plan, henüz yapılmadı. Hazırlanma tarihi 24-10-2026; tasarım kullanıcı tarafından onaylandı ("design super").
+**Durum (25-10-2026):** Faz 0, A, B ve C canlıda (Faz C + /api/vakit hafızası 25-10-2026 22:30, main `ace2676`). Faz D (bildirimler) `faz-d` dalında, önizlemede test ediliyor; Upstash/CRON_SECRET/VAPID Vercel'de kurulu.
+
+Hazırlanma tarihi 24-10-2026; tasarım kullanıcı tarafından onaylandı ("design super").
 **Faz 0:** bitti, kullanıcı onayladı, 24-10-2026'da `main`'e alındı (commit `fe4b5db`).
 **Faz A:** bitti; kullanıcı telefonda ve TV'de denedi ("werkt"), 25-10-2026'da `main`'e alındı (commit `a9fb88a`). 
 **Faz B:** 25-10-2026'da yapıldı, `faz-b` dalında; Vercel'de Blob store + `ADMIN_ANAHTAR` ve kullanıcı onayı bekleniyor.
@@ -413,7 +415,7 @@ Veri dosyası şöyle görünür (örnek):
 - **Faz B — `/admin` + kaydetme + uygulamada gerçek veri.**
   - *Bitti sayılır:* ekle/değiştir/sil/taslak testleri (GitHub API mock'lanır).
   - Anahtarsız kaydetme reddediliyor. Panel ve uygulamanın ekran görüntüleri var.
-- **Faz C — PWA** (§7).
+- **Faz C — PWA** (§7). Canlıda 25-10-2026 22:30.
 - **Faz D — Bildirimler** (§8). S6 cevaplandı (25-10-2026, Upstash). Dal: `faz-d`.
 
 ## 10. Açık sorular (ilgili fazdan önce kullanıcıya sor)
