@@ -81,8 +81,8 @@ button { font: inherit; color: inherit; }
 /* ---------- menü: telefonda altta ---------- */
 .menu {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
-  height: calc(76px + env(safe-area-inset-bottom));
-  padding: 6px calc(10px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left));
+  height: calc(58px + env(safe-area-inset-bottom));
+  padding: 6px calc(10px + env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left));
   display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
   background: var(--tabBg); border-top: 1px solid var(--line);
 }
@@ -93,12 +93,15 @@ button { font: inherit; color: inherit; }
 }
 .menu-oge svg { width: 24px; height: 24px; flex: 0 0 auto; }
 .menu-oge span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.menu-oge i { width: 4px; height: 4px; border-radius: 50%; }
+.menu-oge i { display: none; }
+.menu-oge { gap: 3px; }
+/* Android/iPhone sistem çubuğunun arkası lacivert: beyaz sistem ikonları görünsün */
+.menu::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: env(safe-area-inset-bottom); background: var(--navy); }
 .menu-oge[aria-current="page"] { color: var(--cobalt); font-weight: 700; }
 .menu-oge[aria-current="page"] i { background: var(--coral); }
 
 main {
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) calc(76px + env(safe-area-inset-bottom)) env(safe-area-inset-left);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) calc(58px + env(safe-area-inset-bottom)) env(safe-area-inset-left);
 }
 
 /* ---------- ana ekran (telefon) ---------- */
@@ -141,11 +144,11 @@ main {
 .hicri { font-family: 'Bodoni Moda', Georgia, serif; font-style: italic; font-size: 15px; color: var(--soft); }
 .ams-not { margin: 6px 0 0; font-size: 12px; color: var(--soft); text-align: center; }
 
-.kemer { position: relative; width: 264px; height: 316px; margin: 4px auto 0; }
+.kemer { position: relative; width: calc(264px * var(--k, 1)); height: calc(316px * var(--k, 1)); margin: 4px auto 0; }
 .kemer-svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; }
-.kemer-ic { position: absolute; left: 0; right: 0; top: 136px; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
+.kemer-ic { position: absolute; left: 0; right: 0; top: calc(136px * var(--k, 1)); display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
 .kalan-etiket { font-size: 11.5px; font-weight: 700; letter-spacing: .16em; color: var(--coral); }
-.sayac { font-family: 'Bodoni Moda', Georgia, serif; font-weight: 500; font-size: 54px; line-height: 1.04; font-variant-numeric: lining-nums tabular-nums; letter-spacing: -.01em; }
+.sayac { font-family: 'Bodoni Moda', Georgia, serif; font-weight: 500; font-size: calc(54px * var(--k, 1)); line-height: 1.04; font-variant-numeric: lining-nums tabular-nums; letter-spacing: -.01em; }
 .sira { display: flex; align-items: baseline; gap: 8px; margin-top: 2px; }
 .sira-ad { font-weight: 600; font-size: 16px; }
 .sira-saat { font-family: 'Bodoni Moda', Georgia, serif; font-size: 18px; font-variant-numeric: lining-nums; }
@@ -326,7 +329,7 @@ main {
 .kf-baslik { font-family: 'Bodoni Moda', Georgia, serif; font-weight: 600; font-size: 24px; line-height: 1.15; }
 .kf-meta { font-size: 14px; color: #D4DBEA; }
 
-.bildirim { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); z-index: 30; transform: translate(-50%, 20px); opacity: 0;
+.bildirim { position: fixed; left: 50%; bottom: calc(74px + env(safe-area-inset-bottom)); z-index: 30; transform: translate(-50%, 20px); opacity: 0;
   padding: 10px 16px; border-radius: 12px; background: var(--ink); color: var(--ground); font-size: 14px; font-weight: 600;
   transition: opacity .2s, transform .2s; pointer-events: none; }
 .bildirim.acik { opacity: 1; transform: translate(-50%, 0); }
@@ -340,9 +343,12 @@ main {
 .kurulum-baslik { font-weight: 700; font-size: 15px; }
 .kurulum-metin { font-size: 13px; line-height: 1.4; color: #D4DBEA; }
 .kurulum .dugme { align-self: flex-start; margin-top: 8px; }
-.surum-cubugu { position: fixed; left: 12px; right: 12px; bottom: calc(86px + env(safe-area-inset-bottom)); z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+.surum-cubugu { position: fixed; left: 12px; right: 12px; bottom: calc(68px + env(safe-area-inset-bottom)); z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 10px 10px 10px 16px; border-radius: 16px; background: var(--navy); color: #F6F1E7; font-weight: 700; font-size: 14.5px; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
 @media (min-width: 768px) { .surum-cubugu { left: auto; right: 24px; bottom: 24px; width: 420px; } }
+
+/* kısa telefon ekranı: vakit satırları biraz alçak (ana ekran kaydırmasız sığsın) */
+@media (max-width: 767px) and (max-height: 700px) { .vakit { height: 40px; } }
 
 /* ================= TABLET (≥ 768 px): solda menü ================= */
 @media (min-width: 768px) {
@@ -356,6 +362,7 @@ main {
   .menu-oge { flex: 0 0 auto; width: 84px; height: 72px; border-radius: 18px; gap: 5px; font-size: 12.5px; }
   .menu-oge svg { width: 26px; height: 26px; }
   .menu-oge i { display: none; }
+  .menu::after { display: none; }
   .menu-oge[aria-current="page"] { background: var(--railActive); }
   main { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) calc(104px + env(safe-area-inset-left)); }
 

@@ -235,3 +235,19 @@ test.describe('sekmeler', () => {
     }
   });
 });
+
+test('ana ekran kaydırmasız sığar; Yatsı alt menünün üstünde (farklı telefonlar)', async ({ page }) => {
+  for (const [w, h] of [[390, 844], [412, 915], [360, 740], [375, 667], [360, 640]]) {
+    await page.setViewportSize({ width: w, height: h });
+    await mobilAc(page, { zaman: an('16:00:00.500') });
+    await page.evaluate(() => document.fonts.ready);
+    await page.clock.runFor(100);
+    const [yukseklik, ekran] = await page.evaluate(() => [document.documentElement.scrollHeight, window.innerHeight]);
+    expect(yukseklik, `${w}×${h}`).toBeLessThanOrEqual(ekran);
+    const yatsi = await page.locator('li[data-key="Isha"]').boundingBox();
+    const menu = await page.locator('.menu').boundingBox();
+    expect(yatsi.y + yatsi.height, `${w}×${h}`).toBeLessThanOrEqual(menu.y + 1);
+    const kemer = await page.locator('.kemer').boundingBox();
+    expect(kemer.height, `${w}×${h} kemer`).toBeGreaterThanOrEqual(316 * 0.5 - 1);
+  }
+});

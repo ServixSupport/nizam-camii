@@ -493,3 +493,23 @@ kurulumKartiCiz();
     setInterval(() => { if (document.visibilityState === 'visible') kayit.update().catch(() => {}); }, 60 * 60 * 1000);
   } catch { /* service worker yoksa uygulama yine çalışır */ }
 })();
+
+// ---------------- Ana ekran kaydırmasız sığsın (telefon) ----------------
+// Kullanıcının isteği (25-10-2026): ana ekran kaymasın, Yatsı da ekranda olsun.
+// Taşma varsa sadece kemer küçülür (--k, en az %50); tablette bu yapılmaz.
+function anaSigdir() {
+  const kemer = $('.kemer');
+  kemer.style.setProperty('--k', '1');
+  if (tabletMi.matches || aktifSekme().sekme !== 'ana') return;
+  const fazla = document.documentElement.scrollHeight - window.innerHeight;
+  if (fazla <= 0) return;
+  const k = Math.max(0.5, (316 - fazla - 2) / 316);
+  kemer.style.setProperty('--k', k.toFixed(3));
+}
+window.addEventListener('resize', anaSigdir);
+window.addEventListener('hashchange', anaSigdir);
+tabletMi.addEventListener('change', anaSigdir);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(anaSigdir);
+new MutationObserver(() => anaSigdir()).observe($('.vakitler'), { childList: true });
+new MutationObserver(() => anaSigdir()).observe($('.ams-not'), { attributes: true, attributeFilter: ['hidden'] });
+anaSigdir();
