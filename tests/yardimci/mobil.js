@@ -19,7 +19,7 @@ export async function mobilAc(page, o) {
       sessionStorage.setItem('__test_depo', '1');
     }, o.depo);
   }
-  const kayit = await mockla(page, o);
+  const kayit = await mockla(page, { icerikSaati: T, ...o });
   await page.clock.install({ time: T - PAY_MS - 1000 });
   await page.clock.pauseAt(T - PAY_MS);
   await page.goto(o.adres || '/mobil/');

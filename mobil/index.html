@@ -108,41 +108,47 @@
       <div class="kartlar">
         <a class="kart kart-bugun" href="#programlar">
           <span class="kart-etiket" data-t="bugunCamide"></span>
-          <span class="kart-bos" data-t="bugunBos"></span>
+          <span class="kart-liste" id="k-bugun"></span>
         </a>
-        <a class="kart kart-faaliyet" href="#faaliyetler">
+        <a class="kart kart-faaliyet" href="#faaliyetler" id="k-faaliyet">
           <svg class="kart-yildiz" aria-hidden="true" viewBox="0 0 48 48"><g fill="none" stroke="#E8C27A" stroke-width="0.6"><rect x="14" y="14" width="20" height="20"/><rect x="14" y="14" width="20" height="20" transform="rotate(45 24 24)"/></g></svg>
           <span class="kart-etiket" data-t="siradakiFaaliyet"></span>
-          <span class="kart-bos" data-t="faaliyetBos"></span>
+          <span class="kart-ic" id="k-faaliyet-ic"></span>
         </a>
       </div>
     </div>
   </section>
 
-  <!-- ===== FAALİYETLER (Faz B'de gerçek veri) ===== -->
+  <!-- ===== FAALİYETLER ===== -->
   <section class="sekme sayfa" id="s-faaliyetler" data-sekme="faaliyetler" hidden>
     <div class="sayfa-bas">
       <h1 data-t="evTitle"></h1>
       <p data-t="evSub"></p>
     </div>
-    <div class="bos">
-      <svg aria-hidden="true" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.6"><rect x="14" y="14" width="20" height="20"/><rect x="14" y="14" width="20" height="20" transform="rotate(45 24 24)"/></g></svg>
-      <p class="bos-baslik" data-t="evEmpty"></p>
-      <p class="bos-alt" data-t="evEmptySub"></p>
-    </div>
+    <div class="cipler" role="group" data-t-aria="suz" id="f-cipler"></div>
+    <div class="f-icerik" id="f-icerik"></div>
   </section>
 
-  <!-- ===== PROGRAMLAR (Faz B'de gerçek veri) ===== -->
-  <section class="sekme sayfa" id="s-programlar" data-sekme="programlar" hidden>
-    <div class="sayfa-bas">
-      <h1 data-t="prTitle"></h1>
-      <p data-t="prSub"></p>
-    </div>
-    <div class="bos">
-      <svg aria-hidden="true" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.6"><rect x="14" y="14" width="20" height="20"/><rect x="14" y="14" width="20" height="20" transform="rotate(45 24 24)"/></g></svg>
-      <p class="bos-baslik" data-t="prEmpty"></p>
-      <p class="bos-alt" data-t="prEmptySub"></p>
-    </div>
+  <!-- ===== FAALİYET DETAYI (#faaliyet/<id>) ===== -->
+  <section class="sekme sayfa detay" id="s-detay" data-sekme="faaliyet" hidden>
+    <a class="geri" href="#faaliyetler">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      <span data-t="geri"></span>
+    </a>
+    <div class="d-icerik" id="d-icerik"></div>
+  </section>
+
+  <!-- ===== PROGRAMLAR ===== -->
+  <section class="sekme sayfa programlar" id="s-programlar" data-sekme="programlar" hidden>
+    <header class="pr-bas">
+      <div class="sayfa-bas">
+        <h1 data-t="prTitle"></h1>
+        <p class="pr-alt-tel" data-t="prSub"></p>
+        <p class="pr-alt-tab" data-t="prSubTablet"></p>
+      </div>
+      <div class="hafta-nav" id="hafta-nav"></div>
+    </header>
+    <div class="p-icerik" id="p-icerik"></div>
   </section>
 
   <!-- ===== AYARLAR ===== -->

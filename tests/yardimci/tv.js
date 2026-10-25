@@ -102,6 +102,15 @@ export async function mockla(page, o = {}) {
     kayit.api.push(new URL(route.request().url()));
     return hutbe === 'hata' ? route.abort() : json(route, hutbe);
   });
+  // /api/icerik: gerçek fonksiyon (api/icerik.js) + sahte depo; o.icerikSaati = fonksiyonun "şimdi"si
+  await page.route((u) => u.pathname === '/api/icerik', async (route) => {
+    kayit.api.push(new URL(route.request().url()));
+    if (o.icerik === 'hata') return route.abort();
+    const { icerikIsleyici } = await import('../../api/icerik.js');
+    const { sahteDepo, cagir } = await import('./sahte-depo.js');
+    const r = await cagir(icerikIsleyici(sahteDepo(o.icerik || null), () => o.icerikSaati || Date.now()));
+    return route.fulfill({ status: r.durum, contentType: 'application/json; charset=utf-8', headers: { 'cache-control': r.basliklar['cache-control'] }, body: JSON.stringify(r.govde) });
+  });
   return kayit;
 }
 

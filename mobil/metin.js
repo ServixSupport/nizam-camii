@@ -91,3 +91,47 @@ export const METIN = {
     tvTitle: 'Open the TV screen on this device', tvText: 'For a tablet or screen on the wall. Back to the app: nizam-camii.vercel.app/?ekran=mobil',
   },
 };
+
+// ---------------- Faz B: faaliyetler, programlar, gruplar ----------------
+const EK = {
+  tr: {
+    gruplar: { herkes: 'Herkes', erkekler: 'Erkekler', hanimlar: 'Hanımlar', genclik: 'Gençlik', cocuklar: 'Çocuklar' },
+    tumu: 'Tümü', suz: 'Gruba göre süz',
+    oneCikan: 'ÖNE ÇIKAN', tumGun: 'Tüm gün',
+    takvimeEkle: 'Takvime ekle', paylas: 'Paylaş', linkKopyalandi: 'Link kopyalandı', dahaFazla: 'Daha fazla bilgi',
+    kategoriBos: 'Bu grupta yaklaşan faaliyet yok.', geri: 'Faaliyetler', bulunamadi: 'Bu faaliyet artık yok.',
+    prSubTablet: 'Haftalık ders ve sohbet takvimi',
+    gunSec: 'Gün seç', bugun: 'bugün', programSay: (n) => `${n} program`, gunBos: 'Bu gün program yok.',
+    buHafta: 'Bu hafta', oncekiHafta: 'Önceki hafta', sonrakiHafta: 'Sonraki hafta', namazVakitleri: 'Namaz vakitleri',
+    tablo: 'Haftalık program tablosu', secili: 'Seçili program', hoca: 'Hoca',
+    vakitAdi: { Fajr: 'Sabah', Dhuhr: 'Öğle', Asr: 'İkindi', Maghrib: 'Akşam', Isha: 'Yatsı' },
+    vakitte: (v) => `${v} vaktinde`, sonrasi: (v) => `${v} sonrası`, sonrasiKisa: 'sonrası', vaktindeKisa: 'vaktinde',
+  },
+  nl: {
+    gruplar: { herkes: 'Iedereen', erkekler: 'Mannen', hanimlar: 'Vrouwen', genclik: 'Jongeren', cocuklar: 'Kinderen' },
+    tumu: 'Alles', suz: 'Filter op groep',
+    oneCikan: 'UITGELICHT', tumGun: 'Hele dag',
+    takvimeEkle: 'Zet in agenda', paylas: 'Delen', linkKopyalandi: 'Link gekopieerd', dahaFazla: 'Meer informatie',
+    kategoriBos: 'Geen komende activiteiten in deze groep.', geri: 'Activiteiten', bulunamadi: 'Deze activiteit bestaat niet meer.',
+    prSubTablet: 'Wekelijks rooster van lessen en bijeenkomsten',
+    gunSec: 'Kies een dag', bugun: 'vandaag', programSay: (n) => `${n} ${n === 1 ? 'programma' : 'programma’s'}`, gunBos: 'Geen programma op deze dag.',
+    buHafta: 'Deze week', oncekiHafta: 'Vorige week', sonrakiHafta: 'Volgende week', namazVakitleri: 'Gebedstijden',
+    tablo: 'Weekrooster', secili: 'Gekozen programma', hoca: 'Docent',
+    vakitAdi: { Fajr: 'Fadjr', Dhuhr: 'Dhoehr', Asr: 'Asr', Maghrib: 'Maghrib', Isha: 'Isja' },
+    vakitte: (v) => `Bij ${v}`, sonrasi: (v) => `Na ${v}`, sonrasiKisa: 'na', vaktindeKisa: 'bij',
+  },
+  en: {
+    gruplar: { herkes: 'Everyone', erkekler: 'Men', hanimlar: 'Women', genclik: 'Youth', cocuklar: 'Children' },
+    tumu: 'All', suz: 'Filter by group',
+    oneCikan: 'FEATURED', tumGun: 'All day',
+    takvimeEkle: 'Add to calendar', paylas: 'Share', linkKopyalandi: 'Link copied', dahaFazla: 'More information',
+    kategoriBos: 'No upcoming activities in this group.', geri: 'Activities', bulunamadi: 'This activity no longer exists.',
+    prSubTablet: 'Weekly schedule of lessons and gatherings',
+    gunSec: 'Choose a day', bugun: 'today', programSay: (n) => `${n} ${n === 1 ? 'program' : 'programs'}`, gunBos: 'No programs on this day.',
+    buHafta: 'This week', oncekiHafta: 'Previous week', sonrakiHafta: 'Next week', namazVakitleri: 'Prayer times',
+    tablo: 'Weekly schedule', secili: 'Selected program', hoca: 'Teacher',
+    vakitAdi: { Fajr: 'Fajr', Dhuhr: 'Dhuhr', Asr: 'Asr', Maghrib: 'Maghrib', Isha: 'Isha' },
+    vakitte: (v) => `At ${v}`, sonrasi: (v) => `After ${v}`, sonrasiKisa: 'after', vaktindeKisa: 'at',
+  },
+};
+for (const d of Object.keys(EK)) Object.assign(METIN[d], EK[d]);

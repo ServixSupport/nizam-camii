@@ -6,10 +6,13 @@ import {
   gunOlaylari, anDurumu, geriSayim, hicriYazi, AMS,
 } from './zaman.js';
 import { METIN, DILLER, VARSAYILAN_DIL, ARAPCA } from './metin.js';
+import { ekranlar } from './ekranlar.js';
 
 // TV'nin anahtarları (vakitler, nizam-tema, nizam-sayac) kullanılmaz; hepsi "nzm." ile başlar.
 const DEPO = { dil: 'nzm.dil', tema: 'nzm.tema', vakit: 'nzm.vakit', aladhan: 'nzm.aladhan', icerik: 'nzm.icerik' };
 const SEKMELER = ['ana', 'faaliyetler', 'programlar', 'ayarlar'];
+const BOS_ICERIK = { guncelleme: null, faaliyetler: [], programlar: [] };
+const ICERIK_ARALIK = 2 * 60 * 1000;      // içerik en fazla 2 dakikada bir istenir (CDN de 2 dk tutar)
 const SVGNS = 'http://www.w3.org/2000/svg';
 
 const $ = (s, k = document) => k.querySelector(s);
@@ -30,6 +33,8 @@ const durum = {
   sonGetirme: 0,
   gun: null,               // ekrandaki Amsterdam günü
   olay: { dun: [], bugun: [], yarin: [] },
+  icerik: BOS_ICERIK,
+  icerikAlindi: 0,
 };
 const L = () => METIN[durum.dil];
 
@@ -47,6 +52,8 @@ function gunVerisi(ymd) {
 (function depodanYukle() {
   const v = jsonOku(DEPO.vakit);
   if (v && Array.isArray(v.days)) diyanetYukle(v.days);
+  const ic = jsonOku(DEPO.icerik);
+  if (ic && ic.icerik && Array.isArray(ic.icerik.faaliyetler)) { durum.icerik = ic.icerik; durum.icerikAlindi = ic.alindi || 0; }
   const a = jsonOku(DEPO.aladhan);
   if (a && typeof a === 'object') for (const [k, d] of Object.entries(a)) durum.aladhan.set(k, d);
 })();
@@ -82,11 +89,53 @@ async function eksikleriTamamla(gunler) {
   }
 }
 
-async function icerikGetir() {
+async function icerikGetir(zorla) {
+  if (!zorla && Date.now() - durum.icerikAlindi < ICERIK_ARALIK) return;
   try {
-    const r = await fetch('/veri/icerik.json', { cache: 'no-cache' });
-    if (r.ok) yaz(DEPO.icerik, JSON.stringify(await r.json()));
-  } catch { /* Faz B'de kullanılacak */ }
+    const r = await fetch('/api/icerik', { cache: 'no-cache' });
+    if (!r.ok) return;
+    const j = await r.json();
+    if (!j || !Array.isArray(j.faaliyetler) || !Array.isArray(j.programlar)) return;
+    durum.icerik = j; durum.icerikAlindi = Date.now();
+    yaz(DEPO.icerik, JSON.stringify({ alindi: durum.icerikAlindi, icerik: j }));
+    ekranlariCiz();
+  } catch { /* internet yok: kayıtlı içerikle devam */ }
+}
+
+// Programlar için vakitler: o günün verisi; tabloda veri olmayan günde en yakın günün vakitleri (yaklaşık)
+const olaylar = (ymd) => gunOlaylari(gunVerisi(ymd), ymd);
+function olaylarYaklasik(ymd) {
+  const tam = olaylar(ymd);
+  if (tam.length) return tam;
+  let en = null, fark = Infinity;
+  for (const k of durum.diyanet.keys()) {
+    const [g, a, y] = k.split('.');
+    const f = Math.abs(Date.UTC(+y, +a - 1, +g) - Date.UTC(...ymd.split('-').map((x, i) => (i === 1 ? +x - 1 : +x))));
+    if (f < fark) { fark = f; en = k; }
+  }
+  return en ? gunOlaylari(diyanetGunu(durum.diyanet.get(en)), ymd) : [];
+}
+
+let _bildirimZamani = 0;
+function bildir(metin) {
+  let el = $('.bildirim');
+  if (!el) { el = document.createElement('div'); el.className = 'bildirim'; el.setAttribute('role', 'status'); document.body.append(el); }
+  el.textContent = metin; el.classList.add('acik');
+  clearTimeout(_bildirimZamani);
+  _bildirimZamani = setTimeout(() => el.classList.remove('acik'), 2500);
+}
+
+const ekran = ekranlar({
+  L, dil: () => durum.dil, icerik: () => durum.icerik, simdi: () => Date.now(),
+  tablet: () => tabletMi.matches, olaylar, olaylarYaklasik, bildir,
+});
+
+function ekranlariCiz() {
+  const { sekme, id } = aktifSekme();
+  if (tabletMi.matches) ekran.kartlariCiz();
+  if (sekme === 'faaliyetler') ekran.faaliyetleriCiz();
+  if (sekme === 'faaliyet') ekran.detayCiz(id);
+  if (sekme === 'programlar') ekran.programlariCiz();
 }
 
 let _yenileniyor = null;
@@ -99,6 +148,7 @@ function yenile() {
     durum.sonGetirme = Date.now();
     olaylariKur(true);
     ciz();
+    ekranlariCiz();
   })().finally(() => { _yenileniyor = null; });
   return _yenileniyor;
 }
@@ -146,7 +196,7 @@ function metinleriYaz() {
 function dilSec(k) {
   if (!METIN[k]) return;
   durum.dil = k; yaz(DEPO.dil, k);
-  metinleriYaz(); ciz();
+  metinleriYaz(); ciz(); ekranlariCiz();
 }
 function temaSec(k) {
   durum.tema = k; yaz(DEPO.tema, k);
@@ -162,13 +212,20 @@ function temaUygula(gunduz) {
 }
 
 // ---------------- sekmeler ----------------
-function sekmeGoster() {
-  const ad = location.hash.replace('#', '');
+function aktifSekme() {
+  const ad = decodeURIComponent(location.hash.replace('#', ''));
+  const m = ad.match(/^faaliyet\/(f-[a-z0-9]{4,12})$/);
+  if (m) return { sekme: 'faaliyet', id: m[1], menu: 'faaliyetler' };
   const sekme = SEKMELER.includes(ad) ? ad : 'ana';
+  return { sekme, id: null, menu: sekme };
+}
+function sekmeGoster() {
+  const { sekme, menu } = aktifSekme();
   for (const s of $$('main > .sekme')) s.hidden = s.dataset.sekme !== sekme;
   for (const a of $$('.menu-oge')) {
-    if (a.dataset.sekme === sekme) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    if (a.dataset.sekme === menu) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   }
+  ekranlariCiz();
   window.scrollTo(0, 0);
 }
 
@@ -215,7 +272,7 @@ function kemerKur() {
   K.uzunluk = K.yol.getTotalLength();
   _kemerImza = '';
 }
-tabletMi.addEventListener('change', () => { kemerKur(); ciz(); });
+tabletMi.addEventListener('change', () => { kemerKur(); ciz(); ekranlariCiz(); });
 
 function nokta(oran) {
   const p = K.yol.getPointAtLength(Math.min(1, Math.max(0, oran)) * K.uzunluk);
@@ -359,9 +416,12 @@ function ciz() {
   }
 }
 
+let _dakika = -1;
 function tik() {
   const onceki = durum.gun;
   ciz();
+  const dk = Math.floor(Date.now() / 60000);
+  if (dk !== _dakika) { if (_dakika >= 0) ekranlariCiz(); _dakika = dk; }
   if (onceki && durum.gun !== onceki) yenile();             // gün değişti
   setTimeout(tik, 1000 - (Date.now() % 1000) + 5);           // saniye başında
 }
@@ -375,11 +435,12 @@ tik();
 yenile().then(() => {
   if (!durum.veriVar) { durum.hata = true; ciz(); }
 });
-icerikGetir();
+icerikGetir(true);
 
 setInterval(() => { if (document.visibilityState === 'visible') yenile(); }, 60 * 60 * 1000);   // saatte bir (TV gibi)
 setInterval(() => { if (!durum.veriVar) yenile().then(() => { durum.hata = !durum.veriVar; ciz(); }); }, 30 * 1000);
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') { ciz(); if (Date.now() - durum.sonGetirme > 30 * 60 * 1000) yenile(); }
+  if (document.visibilityState === 'visible') { ciz(); icerikGetir(); if (Date.now() - durum.sonGetirme > 30 * 60 * 1000) yenile(); }
 });
-window.addEventListener('online', () => yenile());
+window.addEventListener('online', () => { yenile(); icerikGetir(true); });
+setInterval(() => { if (document.visibilityState === 'visible') icerikGetir(); }, 10 * 60 * 1000);
