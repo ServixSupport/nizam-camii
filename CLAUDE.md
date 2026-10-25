@@ -53,6 +53,10 @@
 2. **Diyanet API'si:** limit uç nokta başına 5 istek. TV ve uygulama vakitleri yalnızca `/api/vakit` üzerinden alır.
    - Parametresiz, tam bu URL ile çağır: CDN cache anahtarı aynı kalsın.
    - Diyanet'e asla tarayıcıdan veya ek parametreyle gidilmez. `api/vakit.js` gerekmedikçe değişmez.
+   - 25-10-2026'dan beri asıl mod hafızalı (kullanıcı onayıyla).
+     - Neden: deploy'lar sınırı aşmıştı.
+     - Son iyi 32 günlük liste Blob'da (`ortak/vakit.json`). Tazeyse (< 20 saat) Diyanet'e gidilmez; Diyanet en fazla 4 saatte bir denenir.
+     - Önizleme Diyanet'e hiç gitmez. Testler: `tests/sunucu/vakit.spec.js`.
 3. **Sırlar** sadece Vercel ortam değişkenlerinde: `DIYANET_EMAIL`, `DIYANET_PASSWORD`, `DIYANET_CITY_ID`, `ADMIN_ANAHTAR`, `BLOB_READ_WRITE_TOKEN` (Blob store bağlanınca otomatik), `CRON_SECRET`, `VAPID_PRIVATE_KEY`.
    - Depo public: hiçbir sır, `.env` dosyası veya kişisel veri commit edilmez.
    - Kullanıcıdan şifreyi sohbete yapıştırmasını isteme; Vercel'e kendisi girsin.

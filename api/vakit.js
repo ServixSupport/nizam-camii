@@ -71,19 +71,22 @@ const DAILY_PATHS = [
   (id) => "/api/PrayerTimes/Daily/" + id,
 ];
 
-let _goodPath = null;   // çalıştığı bilinen yol (sıcak lambda içinde saklanır)
+// çalıştığı bilinen yol, liste başına ayrı (sıcak lambda içinde saklanır).
+// (25-10-2026: eskiden tek değişkendi; aylık yol bir kez düşünce sonraki "aylık" istekler de günlük yolu kullanıyordu.)
+const _goodPaths = new Map();
 
 async function tryPaths(makers, id) {
-  if (_goodPath) {
-    try { return { data: await api(_goodPath), path: _goodPath }; }
-    catch (e) { _goodPath = null; }                     // artık çalışmıyorsa yeniden ara
+  const good = _goodPaths.get(makers);
+  if (good) {
+    try { return { data: await api(good), path: good }; }
+    catch (e) { _goodPaths.delete(makers); }            // artık çalışmıyorsa yeniden ara
   }
   let last = "";
   for (const make of makers) {
     const p = make(id);
     try {
       const data = await api(p);
-      if (data) { _goodPath = p; return { data, path: p }; }
+      if (data) { _goodPaths.set(makers, p); return { data, path: p }; }
     } catch (e) {
       last = String(e.message || e);
       if (!/HTTP 404/.test(last)) throw e;              // 404 değilse (401/429 vb.) hemen bildir
@@ -92,9 +95,133 @@ async function tryPaths(makers, id) {
   throw new Error("uygun endpoint bulunamadı — son hata: " + last);
 }
 
+// Diyanet alan adları -> bizim ekranın beklediği sade format
+// NOT: Diyanet'te "fajr" = İMSAK, "sunrise" = GÜNEŞ. Sabah namazı vaktini
+// ekran kendisi hesaplıyor (Güneş - 60 dk).
+function sadeGunler(data) {
+  const list = Array.isArray(data) ? data : [data];
+  const pick = (o, ...names) => {
+    for (const n of names) {
+      for (const k of Object.keys(o || {})) {
+        if (k.toLowerCase() === n.toLowerCase() && o[k]) return o[k];
+      }
+    }
+    return "";
+  };
+  return list.map((x) => ({
+    date:      pick(x, "gregorianDateShort", "miladiTarihKisa", "date"),
+    hijri:     pick(x, "hijriDateShort", "hicriTarihKisa"),
+    hijriLong: pick(x, "hijriDateLong", "hicriTarihUzun"),
+    imsak:     pick(x, "fajr", "imsak"),
+    gunes:     pick(x, "sunrise", "gunes"),
+    ogle:      pick(x, "dhuhr", "ogle"),
+    ikindi:    pick(x, "asr", "ikindi"),
+    aksam:     pick(x, "maghrib", "aksam"),
+    yatsi:     pick(x, "isha", "yatsi"),
+  })).filter((d) => d.date && d.ogle);
+}
+
+const gercekDiyanet = {
+  async aylik(id) { const f = await tryPaths(MONTHLY_PATHS, id); return { path: f.path, days: sadeGunler(f.data) }; },
+  async gunluk(id) { const f = await tryPaths(DAILY_PATHS, id); return { path: f.path, days: sadeGunler(f.data) }; },
+};
+
+// ---- asıl mod: hafızalı (25-10-2026) ----
+// Diyanet'te uç nokta başına günlük istek sınırı var (5). Her Vercel deploy'u CDN cache'ini sildiği için
+// eskiden her deploy yeni bir Diyanet isteği demekti; 25-10-2026'da sınır aşıldı ve sadece 1 günlük liste geldi.
+// Şimdi son iyi 32 günlük liste Blob'da saklanır:
+//   - kayıt tazeyse (< 20 saat) Diyanet'e hiç gidilmez;
+//   - Diyanet en fazla 4 saatte bir denenir (deploy sayısından bağımsız);
+//   - Diyanet olmazsa bugünü kapsayan kayıtlı liste verilir;
+//   - önizleme ve yerel ortam Diyanet'e asla gitmez (kayıt veya canlı /api/vakit).
+const SAAT = 3600e3;
+export const TAZE_MS = 20 * SAAT;
+export const DENEME_MS = 4 * SAAT;
+const iso = (dmy) => dmy.split(".").reverse().join("-");             // GG.AA.YYYY -> YYYY-AA-GG
+
+export function vakitAnaMod({ depo, diyanet, saat = () => Date.now(), uretim, canliAdres, bugun }) {
+  return async function anaMod(cityId) {
+    const simdi = saat();
+    const gun = bugun(simdi);                                         // 'YYYY-MM-DD' (Amsterdam)
+    const ileri = (days) => (days || []).filter((d) => iso(d.date) >= gun).length;
+    const yanit = (kayit, saniye) => ({
+      saniye,
+      govde: {
+        available: true, source: "diyanet", cityId,
+        path: String(kayit.path || "").replace("{id}", cityId),
+        count: kayit.days.length, days: kayit.days, alindi: new Date(kayit.alindi).toISOString(),
+      },
+    });
+    const k = (await depo.oku()) || {};
+
+    if (!uretim) {
+      if (k.aylik && ileri(k.aylik.days) >= 1) return yanit(k.aylik, 3600);
+      try {
+        const r = await fetch(canliAdres);
+        const j = await r.json();
+        if (j && j.available) return { govde: j, saniye: 3600 };
+      } catch { /* aşağıda */ }
+      return { govde: { available: false, reason: "önizleme: kayıtlı vakit yok" }, saniye: 300 };
+    }
+
+    if (k.aylik && ileri(k.aylik.days) >= 7 && simdi - k.aylik.alindi < TAZE_MS) return yanit(k.aylik, 6 * 3600);
+
+    const denenebilir = !k.sonDeneme || simdi - k.sonDeneme >= DENEME_MS;
+    if (denenebilir) {
+      k.sonDeneme = simdi;
+      try {
+        const a = await diyanet.aylik(cityId);
+        if (a.days.length >= 7) {
+          k.aylik = { alindi: simdi, path: a.path.replace(cityId, "{id}"), days: a.days };
+          await depo.yaz(k);
+          return yanit(k.aylik, 6 * 3600);
+        }
+      } catch (e) { console.error("Diyanet aylık liste alınamadı:", e && e.message); }
+    }
+    if (k.aylik && ileri(k.aylik.days) >= 1) {
+      if (denenebilir) await depo.yaz(k);
+      return yanit(k.aylik, 3600);
+    }
+    if (k.gunluk && k.gunluk.days.some((d) => iso(d.date) === gun)) {
+      if (denenebilir) await depo.yaz(k);
+      return yanit(k.gunluk, 1800);
+    }
+    try {
+      const g = await diyanet.gunluk(cityId);
+      if (!g.days.length) throw new Error("alan adları tanınmadı — /api/vakit?tani=1 ile kontrol et");
+      k.gunluk = { alindi: simdi, path: g.path.replace(cityId, "{id}"), days: g.days };
+      await depo.yaz(k);
+      return yanit(k.gunluk, 1800);
+    } catch (e) {
+      if (denenebilir) await depo.yaz(k);
+      return { govde: { available: false, reason: String((e && e.message) || e) }, saniye: 600 };
+    }
+  };
+}
+
+const amsBugun = (ms) => {
+  const p = {};
+  for (const x of new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Amsterdam", year: "numeric", month: "2-digit", day: "2-digit" })
+    .formatToParts(new Date(ms))) p[x.type] = x.value;
+  return `${p.year}-${p.month}-${p.day}`;
+};
+
+let _anaMod = null;
+async function anaModGetir() {
+  if (_anaMod) return _anaMod;
+  const { gercekVakitDepo } = await import("./_lib/vakit-depo.js");
+  _anaMod = vakitAnaMod({
+    depo: gercekVakitDepo, diyanet: gercekDiyanet, bugun: amsBugun,
+    uretim: process.env.VERCEL_ENV === "production",
+    canliAdres: "https://nizam-camii.vercel.app/api/vakit",
+  });
+  return _anaMod;
+}
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   // vakitler sabittir: 24 saat taze, 14 gün boyunca eski veriyi servis ederken arkada tazele
+  // (asıl modda süre aşağıda kayda göre ayarlanır)
   res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate=1209600");
 
   const q = req.query || {};
@@ -132,50 +259,13 @@ export default async function handler(req, res) {
       return res.status(200).json({ cityId, denemeler: out });
     }
 
-    // ---- asıl mod: aylık namaz vakitleri (olmazsa günlük) ----
-    let found;
-    try { found = await tryPaths(MONTHLY_PATHS, cityId); }
-    catch (e) { found = await tryPaths(DAILY_PATHS, cityId); }
-
-    const list = Array.isArray(found.data) ? found.data : [found.data];
-    if (!list.length) throw new Error("veri boş geldi");
-
-    // Diyanet alan adları -> bizim ekranın beklediği sade format
-    // NOT: Diyanet'te "fajr" = İMSAK, "sunrise" = GÜNEŞ. Sabah namazı vaktini
-    // ekran kendisi hesaplıyor (Güneş - 60 dk).
-    const pick = (o, ...names) => {
-      for (const n of names) {
-        for (const k of Object.keys(o)) {
-          if (k.toLowerCase() === n.toLowerCase() && o[k]) return o[k];
-        }
-      }
-      return "";
-    };
-    const days = list.map((x) => ({
-      date:      pick(x, "gregorianDateShort", "miladiTarihKisa", "date"),
-      hijri:     pick(x, "hijriDateShort", "hicriTarihKisa"),
-      hijriLong: pick(x, "hijriDateLong", "hicriTarihUzun"),
-      imsak:     pick(x, "fajr", "imsak"),
-      gunes:     pick(x, "sunrise", "gunes"),
-      ogle:      pick(x, "dhuhr", "ogle"),
-      ikindi:    pick(x, "asr", "ikindi"),
-      aksam:     pick(x, "maghrib", "aksam"),
-      yatsi:     pick(x, "isha", "yatsi"),
-    })).filter((d) => d.date && d.ogle);
-
-    if (!days.length)
-      throw new Error("alan adları tanınmadı — /api/vakit?tani=1 ile kontrol et");
-
-    return res.status(200).json({
-      available: true,
-      source: "diyanet",
-      cityId,
-      path: found.path,
-      count: days.length,
-      days,
-    });
+    // ---- asıl mod: aylık namaz vakitleri, hafızalı (yukarıdaki açıklama) ----
+    const { govde, saniye } = await (await anaModGetir())(cityId);
+    res.setHeader("Cache-Control", `s-maxage=${saniye}, stale-while-revalidate=${govde.available ? 1209600 : 600}`);
+    return res.status(200).json(govde);
   } catch (err) {
-    // hata olursa ekran otomatik olarak yedek kaynağa (Aladhan) düşer
+    // hata olursa ekran otomatik olarak yedek kaynağa (Aladhan) düşer; hata kısa süre cache'lenir
+    res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate=600");
     return res.status(200).json({ available: false, reason: String(err.message || err) });
   }
 }
