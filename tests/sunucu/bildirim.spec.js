@@ -199,8 +199,21 @@ test.describe('/api/bildirim/planla (günlük cron)', () => {
 
   test('QStash hata verirse 500 ve işaret kalkar (sonraki çağrı yeniden dener)', async () => {
     const o = sahteOrtam({ kuyrukHata: true });
-    expect((await cagir(planlaIsleyici(() => o, () => SIMDI), { headers: cronYetki() })).durum).toBe(500);
+    const r = await cagir(planlaIsleyici(() => o, () => SIMDI), { headers: cronYetki() });
+    expect(r.durum).toBe(500);
+    expect(r.govde.hatalar).toEqual(['2026-10-28: qstash kapalı', '2026-10-29: qstash kapalı']);
     expect(o._.redis.kv.size).toBe(0);
+  });
+
+  test('yarının vakti yoksa bugünkü plan yine yapılır; yarın sonra tekrar denenir', async () => {
+    const tekGun = { ...VAKIT, days: VAKIT.days.filter((d) => d.date === '28.10.2026'), count: 1 };
+    const o = sahteOrtam({ vakit: tekGun });
+    const r = await cagir(planlaIsleyici(() => o, () => SIMDI), { headers: cronYetki() });
+    expect(r.durum).toBe(500);
+    expect(r.govde).toEqual({ planlanan: 19, gunler: ['2026-10-28'], hatalar: ['2026-10-29: 2026-10-29 için vakit yok'] });
+    expect([...o._.redis.kv.keys()]).toEqual(['nzm:preview:plan:2026-10-28']);
+    o.vakitGetir = async () => VAKIT;
+    expect((await cagir(planlaIsleyici(() => o, () => SIMDI), { headers: cronYetki() })).govde).toEqual({ planlanan: 35, gunler: ['2026-10-29'] });
   });
 });
 

@@ -173,14 +173,17 @@ export function bearerEsit(req, gizli) {
 
 /**
  * Bugün ve yarın için bütün bildirim anlarını QStash'e zamanlar. Her gün en fazla bir kez
- * (Redis işareti); başarısız olursa işaret silinir, sonraki çağrı yeniden dener.
+ * (Redis işareti); bir gün başarısız olursa o günün işareti silinir, sonraki çağrı yeniden dener.
+ * Günler birbirinden bağımsız: yarının verisi yoksa bugünkü plan yine yapılır.
  * Günde 35 an (7 vakit × giriş + 4 "önce") → QStash ücretsiz sınırının (1000/gün) çok altında.
+ * @returns {{planlanan:number, gunler:string[], hatalar?:string[]}}
  */
 export async function planYap(o, simdi) {
   const bugun = amsGun(simdi);
   let veri = null;
   let planlanan = 0;
   const gunler = [];
+  const hatalar = [];
   for (const ymd of [bugun, gunEkle(bugun, 1)]) {
     const isaret = `plan:${ymd}`;
     if (!(await o.depo.isaretle(isaret, 3 * GUN_SN))) continue;
@@ -195,10 +198,10 @@ export async function planYap(o, simdi) {
       gunler.push(ymd);
     } catch (e) {
       await o.depo.isaretSil(isaret).catch(() => {});
-      throw e;
+      hatalar.push(`${ymd}: ${(e && e.message) || e}`);
     }
   }
-  return { planlanan, gunler };
+  return { planlanan, gunler, ...(hatalar.length ? { hatalar } : {}) };
 }
 
 /** Sınırlı eşzamanlılıkla iş (push servislerine aynı anda en fazla `n` istek). */

@@ -35,8 +35,9 @@ export function aboneIsleyici(ortam = () => bildirimOrtami(), saat = () => Date.
       if (!eski) await o.push.gonder(d.abone.abonelik, onayYuku(d.abone.dil)).catch(() => {});
       // Bugün ve yarın henüz zamanlanmadıysa şimdi zamanla (günlük cron'u beklemeden).
       let plan;
-      try { plan = await planYap(o, saat()); } catch (e) { console.error('bildirim planı:', e && e.message); plan = null; }
-      return cevap(res, 200, { tamam: true, planlanan: plan ? plan.planlanan : 0, ...(plan ? {} : { planHatasi: true }) });
+      try { plan = await planYap(o, saat()); } catch (e) { plan = { planlanan: 0, hatalar: [(e && e.message) || 'hata'] }; }
+      if (plan.hatalar) console.error('bildirim planı:', plan.hatalar.join('; '));
+      return cevap(res, 200, { tamam: true, planlanan: plan.planlanan, ...(plan.hatalar ? { planHatasi: true } : {}) });
     } catch (e) {
       console.error('abonelik:', e && e.message);
       return cevap(res, 503, { hata: 'şu an kaydedilemedi' });

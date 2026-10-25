@@ -10,7 +10,9 @@ export function planlaIsleyici(ortam = () => bildirimOrtami(), saat = () => Date
     if (!bearerEsit(req, o.cronSecret)) return cevap(res, 401, { hata: 'yetki yok' });
     if (!o.aktif) return cevap(res, 503, { hata: 'bildirimler henüz kurulmadı', eksik: o.eksik });
     try {
-      return cevap(res, 200, await planYap(o, saat()));
+      const plan = await planYap(o, saat());
+      if (plan.hatalar) console.error('bildirim planı:', plan.hatalar.join('; '));
+      return cevap(res, plan.hatalar ? 500 : 200, plan);   // 500: Vercel cron kaydında hata görünsün
     } catch (e) {
       console.error('bildirim planı:', e && e.message);
       return cevap(res, 500, { hata: 'planlanamadı' });
