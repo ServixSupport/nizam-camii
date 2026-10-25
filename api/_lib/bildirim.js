@@ -144,3 +144,14 @@ export function bildirimYuku(abone, an) {
   const { baslik, govde } = bildirimMetni(abone.dil, an);
   return JSON.stringify({ baslik, govde, etiket: `${an.tarih}-${an.vakit}`, dil: abone.dil, adres: '/mobil/' });
 }
+
+/** Bildirimler ilk açıldığında hemen giden onay: zincir (anahtar → push servisi → telefon) çalışıyor mu, kullanıcı hemen görür. */
+const ONAY = {
+  tr: { baslik: 'Bildirimler açık', govde: 'Seçtiğiniz namaz vakitlerinde bildirim alacaksınız.' },
+  nl: { baslik: 'Meldingen staan aan', govde: 'Je krijgt een melding bij de gebedstijden die je hebt gekozen.' },
+  en: { baslik: 'Notifications are on', govde: 'You will get a notification for the prayer times you chose.' },
+};
+export function onayYuku(dil) {
+  const m = ONAY[dil] || ONAY.nl;
+  return JSON.stringify({ ...m, etiket: 'bildirim-acik', dil, adres: '/mobil/' });
+}

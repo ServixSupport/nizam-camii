@@ -119,7 +119,10 @@ test.describe('/api/bildirim/abone', () => {
     const { abonelik } = testAboneligi();
     const r = await cagir(isle, { method: 'POST', body: aboneGovdesi(abonelik) });
     expect(r.durum).toBe(200);
+    expect(r.govde).toEqual({ tamam: true, planlanan: 54 });
     expect(r.basliklar['cache-control']).toBe('no-store');
+    // ilk kayıtta hemen onay bildirimi, abonenin dilinde
+    expect(o._.gonderilen).toEqual([{ abonelik, yuk: { baslik: 'Meldingen staan aan', govde: 'Je krijgt een melding bij de gebedstijden die je hebt gekozen.', etiket: 'bildirim-acik', dil: 'nl', adres: '/mobil/' } }]);
     const kayit = o._.redis.hash.get('nzm:preview:aboneler');
     expect([...kayit.keys()]).toEqual([aboneId(abonelik.endpoint)]);          // anahtar adresin kendisi değil
     expect(JSON.parse(kayit.get(aboneId(abonelik.endpoint)))).toMatchObject({ abonelik, dil: 'nl', once: 15, giris: true });
@@ -131,6 +134,8 @@ test.describe('/api/bildirim/abone', () => {
     // ikinci kayıt / ayar değişikliği: yeniden zamanlanmaz, kayıt güncellenir
     const r2 = await cagir(isle, { method: 'POST', body: aboneGovdesi(abonelik, { dil: 'tr', once: 5 }) });
     expect(r2.durum).toBe(200);
+    expect(r2.govde).toEqual({ tamam: true, planlanan: 0 });
+    expect(o._.gonderilen).toHaveLength(1);                                   // güncellemede onay yok
     expect(o._.kuyrukta).toHaveLength(54);
     expect(JSON.parse(kayit.get(aboneId(abonelik.endpoint)))).toMatchObject({ dil: 'tr', once: 5 });
     expect(o._.vakitIstekleri).toHaveLength(1);                               // /api/vakit bir kez
@@ -164,7 +169,8 @@ test.describe('/api/bildirim/abone', () => {
   test('vakitler alınamazsa abonelik yine kaydedilir; plan işareti kalkar, sonra tekrar denenir', async () => {
     const o = sahteOrtam({ vakit: 'hata' });
     const isle = aboneIsleyici(() => o, () => SIMDI);
-    expect((await cagir(isle, { method: 'POST', body: aboneGovdesi(testAboneligi().abonelik) })).durum).toBe(200);
+    const r = await cagir(isle, { method: 'POST', body: aboneGovdesi(testAboneligi().abonelik) });
+    expect(r.govde).toEqual({ tamam: true, planlanan: 0, planHatasi: true });
     expect(o._.kuyrukta).toHaveLength(0);
     expect(o._.redis.kv.size).toBe(0);
     o.vakitGetir = async () => VAKIT;
@@ -208,6 +214,7 @@ test.describe('/api/bildirim/gonder (QStash çağırır)', () => {
       abonelikler.push(abonelik);
       expect((await cagir(isle, { method: 'POST', body: aboneGovdesi(abonelik, ayar) })).durum).toBe(200);
     }
+    o._.gonderilen.length = 0;                 // kayıttaki onay bildirimleri sayılmasın
     return { o, abonelikler };
   }
   const gonder = (o, an, saat, headers = cronYetki()) => cagir(gonderIsleyici(() => o, () => saat), { method: 'POST', headers, body: an });
