@@ -1,6 +1,6 @@
 // Panel için tam içerik (taslaklar dahil) + etag. Okumak için anahtar gerekmez; "yetkili" bilgisi döner.
 import { gercekDepo } from '../_lib/depo.js';
-import { yetkiliMi, anahtarTanimli, cevap } from '../_lib/anahtar.js';
+import { yetkiliMi, anahtarTanimli, anahtarDurumu, cevap } from '../_lib/anahtar.js';
 import { BOS_ICERIK } from '../../veri/dogrula.js';
 
 export function veriIsleyici(depo) {
@@ -13,6 +13,7 @@ export function veriIsleyici(depo) {
         etag: (o && o.etag) || null,
         yetkili: yetkiliMi(req),
         anahtarTanimli: anahtarTanimli(),
+        anahtarDurumu: anahtarDurumu(),
       });
     } catch (e) {
       console.error('admin veri okunamadı:', e && e.message);

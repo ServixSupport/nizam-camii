@@ -3,6 +3,13 @@ import crypto from 'node:crypto';
 
 export const anahtarTanimli = () => (process.env.ADMIN_ANAHTAR || '').length >= 32;
 
+/** Sunucudaki anahtarın durumu (değeri asla değil): 'yok' | 'kisa' | 'tamam'. Panel doğru açıklamayı göstersin diye. */
+export function anahtarDurumu() {
+  const a = process.env.ADMIN_ANAHTAR || '';
+  if (!a) return 'yok';
+  return a.length < 32 ? 'kisa' : 'tamam';
+}
+
 /** İstek doğru anahtarı taşıyor mu? (Authorization: Bearer …, sabit süreli karşılaştırma) */
 export function yetkiliMi(req) {
   if (!anahtarTanimli()) return false;

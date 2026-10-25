@@ -52,7 +52,7 @@ async function yukle() {
   const r = await fetch('/api/admin/veri', { headers: yetkiBasligi(), cache: 'no-store' });
   const j = await r.json().catch(() => null);
   if (!r.ok || !j) throw new Error((j && j.hata) || 'İçerik okunamadı.');
-  Object.assign(S, { icerik: j.icerik, etag: j.etag, yetkili: j.yetkili, anahtarTanimli: j.anahtarTanimli });
+  Object.assign(S, { icerik: j.icerik, etag: j.etag, yetkili: j.yetkili, anahtarTanimli: j.anahtarTanimli, anahtarDurumu: j.anahtarDurumu });
 }
 async function vakitYukle() {
   try {
@@ -152,7 +152,8 @@ function yetkiYaz() {
   el.className = 'yetki ' + (S.yetkili ? 'var' : 'yok');
   el.textContent = S.yetkili ? 'Bu cihaz yetkili' : 'Bu cihaz yetkili değil';
   $('#yetki-kaldir').hidden = !anahtar();
-  if (!S.anahtarTanimli) uyar('Sunucuda ADMIN_ANAHTAR tanımlı değil: şimdilik kimse kaydedemez. (Vercel → Settings → Environment Variables)');
+  if (S.anahtarDurumu === 'kisa') uyar('Sunucudaki ADMIN_ANAHTAR çok kısa (en az 32 karakter olmalı): şimdilik kimse kaydedemez. Vercel’de yeni ve uzun bir anahtar girin.');
+  else if (!S.anahtarTanimli) uyar('Sunucuda ADMIN_ANAHTAR tanımlı değil: şimdilik kimse kaydedemez. (Vercel → Settings → Environment Variables)');
   else if (!S.yetkili) uyar('Bu cihaz yetkili değil: sayfayı görebilirsiniz ama kaydedemezsiniz. Yönetici linkini (…/admin#anahtar=…) bu cihazda bir kez açın.');
 }
 

@@ -38,7 +38,12 @@ test.describe('/api/admin/veri', () => {
   test('taslaklar dahil tam içerik + etag; anahtara göre "yetkili"', async () => {
     const depo = sahteDepo(ornekIcerik());
     const anahtarsiz = await cagir(veriIsleyici(depo));
-    expect(anahtarsiz.govde).toMatchObject({ etag: '"e1"', yetkili: false, anahtarTanimli: true });
+    expect(anahtarsiz.govde).toMatchObject({ etag: '"e1"', yetkili: false, anahtarTanimli: true, anahtarDurumu: 'tamam' });
+    process.env.ADMIN_ANAHTAR = 'kisa';
+    expect((await cagir(veriIsleyici(depo))).govde).toMatchObject({ anahtarTanimli: false, anahtarDurumu: 'kisa' });
+    delete process.env.ADMIN_ANAHTAR;
+    expect((await cagir(veriIsleyici(depo))).govde.anahtarDurumu).toBe('yok');
+    process.env.ADMIN_ANAHTAR = TEST_ANAHTAR;
     expect(anahtarsiz.govde.icerik.faaliyetler).toHaveLength(4);
     expect(anahtarsiz.basliklar['cache-control']).toBe('no-store');
     expect((await cagir(veriIsleyici(depo), { headers: yetki() })).govde.yetkili).toBe(true);
