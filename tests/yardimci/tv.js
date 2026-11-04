@@ -126,6 +126,7 @@ export async function mockla(page, o = {}) {
  * @param {string} [o.adres='/']
  * @param {Record<string,string>} [o.depo]  sayfa açılmadan localStorage'a yazılır (sadece ilk yükleme)
  * @param {boolean} [o.bekle=true]  vakitlerin yüklenmesini bekle
+ * @param {'tr'|'nl'|'oto'} [o.dil='tr']  TV dili; 'oto' = gerçek davranış (5 dk'da bir Türkçe ↔ Hollandaca)
  */
 export async function tvAc(page, o) {
   const T = new Date(o.zaman).getTime();
@@ -152,7 +153,9 @@ export async function tvAc(page, o) {
 
   await page.clock.install({ time: T - PAY_MS - 1000 });
   await page.clock.pauseAt(T - PAY_MS);           // sayfa açılmadan durdur: zamanlayıcılar hep aynı sırada
-  await page.goto(o.adres || '/');
+  let adres = o.adres || '/';
+  if (o.dil !== 'oto') adres += (adres.includes('?') ? '&' : '?') + 'dil=' + (o.dil || 'tr');   // testler varsayılan Türkçe
+  await page.goto(adres);
   if (o.bekle !== false) await expect(page.locator('#loading')).toBeHidden();
   await page.evaluate(() => document.fonts.ready);
   await page.clock.runFor(PAY_MS);                // tam istenen ana kadar akıt

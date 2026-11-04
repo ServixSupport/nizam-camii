@@ -506,3 +506,58 @@ test('1920×1080 sahne ölçeklenmeden gösterilir', async ({ page }) => {
   await tvAc(page, { zaman: an('10:05:00.500') });
   expect(await page.locator('#stage').evaluate((e) => e.style.transform)).toBe('translate(-50%, -50%) scale(1)');
 });
+
+// Türkçe ↔ Hollandaca ve Arapça harfler (kullanıcı isteği, 04-11-2026)
+test.describe('dil: Türkçe ↔ Hollandaca, Arapça adlar', () => {
+  const AR = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
+  const adlar = (page) => page.locator('.box .tr').allTextContents();
+
+  test('Arapça adlar Arapça harflerle (lang="ar", sağdan sola)', async ({ page }) => {
+    await tvAc(page, { zaman: an('10:02:00.500') });
+    for (const [k, ar] of Object.entries(AR)) {
+      const el = page.locator(`#box-${k} .ar`);
+      await expect(el).toHaveText(ar);
+      await expect(el).toHaveAttribute('lang', 'ar');
+      await expect(el).toHaveAttribute('dir', 'rtl');
+    }
+    await expect(page.locator('.sun-ar')).toHaveText(['الإمساك', 'الشروق']);
+  });
+
+  test('5 dakikada bir: :00–:04 Türkçe, :05–:09 Hollandaca; sadece yazılar değişir', async ({ page }) => {
+    await tvAc(page, { zaman: an('10:04:58.500'), dil: 'oto' });
+    expect(await adlar(page)).toEqual(['Sabah', 'Öğle', 'İkindi', 'Akşam', 'Yatsı']);
+    await expect(page.locator('#date-miladi')).toHaveText('28 Ekim 2026 Çarşamba');
+    await expect(page.locator('#cd-label')).toHaveText("Öğle'ye kalan süre");
+    const kutu = await page.locator('#box-Dhuhr').boundingBox();
+
+    await ileri(page, 1700);                                           // 10:05:00,2: yazılar sönüyor
+    expect(await page.evaluate(() => document.body.classList.contains('dil-gecis'))).toBe(true);
+    await ileri(page, 800);                                            // yeni dilde
+    expect(await page.evaluate(() => document.body.classList.contains('dil-gecis'))).toBe(false);
+    expect(await adlar(page)).toEqual(['Fadjr', 'Dhoehr', 'Asr', 'Maghrib', 'Isha']);
+    await expect(page.locator('.sun-tr')).toHaveText(['Imsak', 'Zonsopgang']);
+    await expect(page.locator('#date-miladi')).toHaveText('Woensdag 28 oktober 2026');
+    await expect(page.locator('#cd-label')).toHaveText('Nog tot Dhoehr');
+    await expect(page.locator('#box-Dhuhr .ar')).toHaveText('الظهر');            // Arapça hep aynı
+    expect(await page.locator('#box-Dhuhr').boundingBox()).toEqual(kutu);       // kayma yok
+    await expect(page.locator('.swap-area')).not.toHaveClass(/show-/);
+
+    await saatGit(page, an('10:10:01.500'));
+    await ileri(page, 1000);
+    expect(await adlar(page)).toEqual(['Sabah', 'Öğle', 'İkindi', 'Akşam', 'Yatsı']);
+    await expect(page.locator('#date-miladi')).toHaveText('28 Ekim 2026 Çarşamba');
+  });
+
+  test('vakit girince sayaç kutusundaki ad da o anki dilde', async ({ page }) => {
+    await tvAc(page, { zaman: an('12:29:10.500'), dil: 'nl' });
+    await expect(page.locator('#cd-label')).toHaveText('Dhoehr');
+    await expect(page.locator('#cd-banner')).toHaveText('EZAN VAKTİ');
+  });
+
+  test('?dil=tr ve ?dil=nl dili sabitler (kaydedilmez)', async ({ page }) => {
+    await tvAc(page, { zaman: an('10:07:00.500'), dil: 'tr' });
+    await ileri(page, 6 * 60 * 1000);
+    expect(await adlar(page)).toEqual(['Sabah', 'Öğle', 'İkindi', 'Akşam', 'Yatsı']);
+    expect(await page.evaluate(() => Object.keys(localStorage).filter((k) => /dil/.test(k)))).toEqual([]);
+  });
+});

@@ -29,12 +29,15 @@ const DURUMLAR = [
   { ad: '16-krem-hazirlik', zaman: `${GUN}T12:28:30.500+01:00`, adres: '/?theme=krem' },
   { ad: '17-krem-ezan', zaman: `${GUN}T12:29:10.500+01:00`, adres: '/?theme=krem' },
   { ad: '18-krem-hutbe', zaman: `${CUMA}T12:40:00.500+01:00`, adres: '/?theme=krem', hutbe: HUTBE },
+  // Hollandaca (5 dk'da bir Türkçe ile değişir)
+  { ad: '19-krem-hollandaca', zaman: `${GUN}T10:05:00.500+01:00`, adres: '/?theme=krem', dil: 'nl' },
+  { ad: '20-koyu-hollandaca-gece', zaman: `${GUN}T21:05:00.500+01:00`, adres: '/?theme=dark', dil: 'nl', kucuk: true },
 ];
 
 for (const d of DURUMLAR) {
   test(d.ad, async ({ page }, info) => {
     test.skip(info.project.name !== 'tv-1920' && !d.kucuk, 'sadece 1920×1080');
-    await tvAc(page, { zaman: d.zaman, adres: d.adres, hutbe: d.hutbe });
+    await tvAc(page, { zaman: d.zaman, adres: d.adres, hutbe: d.hutbe, dil: d.dil });
     if (d.ayarlar) await page.locator('#gear').click();
     await page.clock.runFor(50);   // requestAnimationFrame ile yapılan son değişiklikler
     await expect(page).toHaveScreenshot(`${d.ad}.png`);
