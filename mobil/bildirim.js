@@ -60,8 +60,14 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu }) {
     : iosMu() && !kuruluMu() ? 'ios' : 'yok');
   const yaz = (parca) => { ayar = { ...ayar, ...parca }; sakla(ayar); };
 
+  // service worker hazır değilse sonsuza kadar beklemesin (10 sn sonra hata mesajı)
+  function hazirKayit() {
+    return Promise.race([navigator.serviceWorker.ready,
+      new Promise((_, ret) => setTimeout(() => ret(new Error('service worker hazır değil')), 10000))]);
+  }
+
   async function abonelik(olustur) {
-    const reg = await navigator.serviceWorker.ready;
+    const reg = await hazirKayit();
     let sub = await reg.pushManager.getSubscription();
     const anahtar = b64(sunucu.publicKey);
     // sunucunun anahtarı değiştiyse eski abonelik işe yaramaz
@@ -125,7 +131,7 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu }) {
     mesaj = '';
     ciz();
     try {
-      const reg = await navigator.serviceWorker.ready;
+      const reg = await hazirKayit();
       const sub = await reg.pushManager.getSubscription();
       if (sub) {
         const j = sub.toJSON();
@@ -139,6 +145,32 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu }) {
     mesgul = false;
     ciz();
     bildir(L().notifOffToast);
+  }
+
+  /** Deneme bildirimi: 1 dk sonra gerçek yoldan (QStash) bir bildirim. */
+  let denemeMesgul = false;
+  async function deneme() {
+    if (denemeMesgul || !ayar.aan) return;
+    denemeMesgul = true;
+    ciz();
+    const t = L();
+    try {
+      const sub = await abonelik(false);
+      if (!sub) throw new Error('abonelik yok');
+      const j = sub.toJSON();
+      const r = await fetch('/api/bildirim/deneme', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ endpoint: j.endpoint, auth: j.keys && j.keys.auth }),
+      });
+      if (r.status === 429) bildir(t.notifTestWait);
+      else if (r.ok) bildir(t.notifTestSent);
+      else throw new Error('HTTP ' + r.status);
+    } catch {
+      bildir(t.notifError);
+    } finally {
+      denemeMesgul = false;
+      ciz();
+    }
   }
 
   function ayarla(parca) {
@@ -194,6 +226,7 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu }) {
     kuruldu = true;
     $('#b-ana').addEventListener('click', () => (ayar.aan ? kapat() : ac()));
     $('#b-giris').addEventListener('click', () => ayarla({ giris: !ayar.giris }));
+    $('#b-deneme').addEventListener('click', deneme);
     $('#b-once').replaceChildren(...ONCE.map((n) => {
       const b = document.createElement('button');
       b.type = 'button'; b.dataset.once = String(n);
@@ -233,8 +266,12 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu }) {
       b.setAttribute('aria-pressed', String(on));
     }
     const m = $('#b-mesaj');
-    m.hidden = !mesaj;
-    m.textContent = mesaj ? t[mesaj] : '';
+    const yazi = mesgul ? t.notifBusy : mesaj ? t[mesaj] : '';
+    m.hidden = !yazi;
+    m.classList.toggle('bilgi', mesgul);
+    m.textContent = yazi;
+    $('#b-deneme-satir').hidden = !ayar.aan;
+    $('#b-deneme').disabled = denemeMesgul;
   }
 
   function zilleriCiz() {

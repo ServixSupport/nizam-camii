@@ -2,7 +2,7 @@
 // O anı isteyen abonelere Web Push gönderir. Aynı an iki kez gönderilmez (Redis işareti);
 // geç gelen çağrı (10 dk'dan fazla) gönderilmez. 404/410 veren abonelikler hemen silinir.
 import { bildirimOrtami, bearerEsit, sirayla } from '../_lib/bildirim-servis.js';
-import { anGecerli, istiyorMu, bildirimYuku, PENCERE } from '../_lib/bildirim.js';
+import { anGecerli, istiyorMu, bildirimYuku, denemeGecerli, denemeYuku, PENCERE } from '../_lib/bildirim.js';
 import { govde, cevap } from '../_lib/anahtar.js';
 
 export function gonderIsleyici(ortam = () => bildirimOrtami(), saat = () => Date.now()) {
@@ -15,6 +15,7 @@ export function gonderIsleyici(ortam = () => bildirimOrtami(), saat = () => Date
     if (!bearerEsit(req, o.cronSecret)) return cevap(res, 401, { hata: 'yetki yok' });
     if (!o.aktif) return cevap(res, 503, { hata: 'bildirimler henüz kurulmadı' });
     const an = govde(req);
+    if (denemeGecerli(an)) return deneme(o, an, saat(), res);
     if (!anGecerli(an)) return cevap(res, 400, { hata: 'geçersiz an' });
     const simdi = saat();
     // 200: QStash tekrar denemesin
@@ -47,6 +48,22 @@ export function gonderIsleyici(ortam = () => bildirimOrtami(), saat = () => Date
       return cevap(res, 500, { hata: 'gönderilemedi' });
     }
   };
+}
+
+/** Deneme bildirimi: sadece isteyen aboneye. */
+async function deneme(o, an, simdi, res) {
+  if (simdi < an.an - PENCERE.once || simdi > an.an + PENCERE.sonra) return cevap(res, 200, { atlandi: 'zaman' });
+  try {
+    if (!(await o.depo.isaretle(`gonderildi:${an.id}`, 24 * 60 * 60))) return cevap(res, 200, { atlandi: 'tekrar' });
+    const abone = await o.depo.aboneOku(an.abone);
+    if (!abone) return cevap(res, 200, { gonderilen: 0, silinen: 0, hata: 0 });
+    const r = await o.push.gonder(abone.abonelik, denemeYuku(abone.dil));
+    if (!r.tamam && (r.durum === 404 || r.durum === 410)) await o.depo.aboneSil(an.abone).catch(() => {});
+    return cevap(res, 200, { gonderilen: r.tamam ? 1 : 0, silinen: !r.tamam && (r.durum === 404 || r.durum === 410) ? 1 : 0, hata: !r.tamam && r.durum !== 404 && r.durum !== 410 ? 1 : 0 });
+  } catch (e) {
+    console.error('deneme bildirimi:', e && e.message);
+    return cevap(res, 500, { hata: 'gönderilemedi' });
+  }
 }
 
 export default gonderIsleyici();

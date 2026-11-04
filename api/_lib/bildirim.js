@@ -155,3 +155,19 @@ export function onayYuku(dil) {
   const m = ONAY[dil] || ONAY.nl;
   return JSON.stringify({ ...m, etiket: 'bildirim-acik', dil, adres: '/mobil/' });
 }
+
+/** Deneme bildirimi (Ayarlar'daki düğme): gerçek bildirimlerle aynı yoldan, QStash ile 1 dk sonra. */
+export const DENEME_GECIKME = 60 * 1000;
+export function denemeGecerli(a) {
+  return !!a && typeof a === 'object' && a.tur === 'deneme' && /^[0-9a-f]{32}$/.test(a.abone)
+    && Number.isFinite(a.an) && a.id === `deneme_${a.abone}_${a.an}`;
+}
+const DENEME = {
+  tr: { baslik: 'Deneme bildirimi', govde: 'Bildirimler çalışıyor. Namaz vakitlerinde böyle bir bildirim alacaksınız.' },
+  nl: { baslik: 'Testmelding', govde: 'Meldingen werken. Bij de gebedstijden krijg je zo’n melding.' },
+  en: { baslik: 'Test notification', govde: 'Notifications work. You will get a notification like this at prayer times.' },
+};
+export function denemeYuku(dil) {
+  const m = DENEME[dil] || DENEME.nl;
+  return JSON.stringify({ ...m, etiket: 'deneme', dil, adres: '/mobil/' });
+}

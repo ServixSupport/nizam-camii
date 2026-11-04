@@ -2,6 +2,7 @@
 // Tarayıcının push servisi (FCM) testte yok: Notification ve PushManager taklit edilir.
 import { anahtarIsleyici } from '../../api/bildirim/anahtar.js';
 import { aboneIsleyici } from '../../api/bildirim/abone.js';
+import { denemeIsleyici } from '../../api/bildirim/deneme.js';
 import { cagir } from './sahte-depo.js';
 import { sahteOrtam, testAboneligi } from './sahte-bildirim.js';
 
@@ -28,6 +29,7 @@ export async function bildirimKur(page, o) {
   };
   await page.route((u) => u.pathname === '/api/bildirim/anahtar', (r) => isle(r, anahtarIsleyici(() => ortam)));
   await page.route((u) => u.pathname === '/api/bildirim/abone', (r) => isle(r, aboneIsleyici(() => ortam, () => T)));
+  await page.route((u) => u.pathname === '/api/bildirim/deneme', (r) => isle(r, denemeIsleyici(() => ortam, () => T)));
 
   const { abonelik } = testAboneligi('tarayici');
   await page.addInitScript(({ izin, izinCevabi, destek, keys, endpoint, onceden }) => {

@@ -597,3 +597,8 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 .renk-ornek i:nth-child(1) { background: var(--o1); clip-path: polygon(0 0, 100% 0, 0 100%); }
 .renk-ornek i:nth-child(2) { background: var(--o2); clip-path: polygon(100% 0, 100% 100%, 0 100%); }
 .renk-ornek i:nth-child(3) { inset: 11px; border-radius: 50%; background: var(--o3); }
+
+/* deneme bildirimi düğmesi ve "ayarlanıyor" yazısı */
+.b-deneme { width: 100%; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+.b-deneme:disabled { opacity: .6; }
+.b-mesaj.bilgi { color: var(--soft); }

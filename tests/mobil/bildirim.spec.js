@@ -147,3 +147,21 @@ test('ziller varken vakit satırlarında yazılar üst üste binmez, kısalmaz (
     }
   }
 });
+
+test('deneme bildirimi düğmesi: sadece bildirimler açıkken; 1 dk sonra QStash ile; çok sık basılamaz', async ({ page }) => {
+  const b = await bildirimKur(page, { zaman: ZAMAN });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar' });
+  const dugme = page.getByRole('button', { name: 'Testmelding sturen' });
+  await expect(dugme).toBeHidden();
+  await ana(page).click();
+  await expect(ana(page)).toHaveAttribute('aria-checked', 'true');
+  await expect(dugme).toBeVisible();
+  b.ortam._.kuyrukta.length = 0;
+  await dugme.click();
+  await expect(page.locator('.bildirim')).toHaveText('Binnen een minuut komt er een testmelding');
+  expect(b.ortam._.kuyrukta).toHaveLength(1);
+  expect(b.ortam._.kuyrukta[0].govde.tur).toBe('deneme');
+  await dugme.click();
+  await expect(page.locator('.bildirim')).toHaveText('Net verstuurd; probeer het over een paar minuten opnieuw');
+  expect(b.ortam._.kuyrukta).toHaveLength(1);
+});

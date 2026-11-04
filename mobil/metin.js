@@ -173,6 +173,8 @@ const BILDIRIM = {
     notifDenied: 'Bildirimlere izin verilmedi. Telefonun ayarlarından bu uygulamaya bildirim izni verebilirsiniz.',
     notifError: 'Bildirim ayarı kaydedilemedi. İnternet bağlantısını kontrol edip tekrar deneyin.',
     notifOnToast: 'Bildirimler açık', notifOffToast: 'Bildirimler kapalı',
+    notifBusy: 'Bildirimler ayarlanıyor…', notifTest: 'Deneme bildirimi gönder',
+    notifTestSent: 'Bir dakika içinde deneme bildirimi gelecek', notifTestWait: 'Az önce gönderildi; birkaç dakika sonra tekrar deneyin',
     zilAcik: (ad) => `${ad} bildirimi açık`, zilKapali: (ad) => `${ad} bildirimi kapalı`,
   },
   nl: {
@@ -184,6 +186,8 @@ const BILDIRIM = {
     notifDenied: 'Meldingen zijn niet toegestaan. Je kunt ze aanzetten in de instellingen van je telefoon.',
     notifError: 'De meldingsinstelling kon niet worden bewaard. Controleer je internetverbinding en probeer het opnieuw.',
     notifOnToast: 'Meldingen staan aan', notifOffToast: 'Meldingen staan uit',
+    notifBusy: 'Meldingen worden ingesteld…', notifTest: 'Testmelding sturen',
+    notifTestSent: 'Binnen een minuut komt er een testmelding', notifTestWait: 'Net verstuurd; probeer het over een paar minuten opnieuw',
     zilAcik: (ad) => `Melding voor ${ad} aan`, zilKapali: (ad) => `Melding voor ${ad} uit`,
   },
   en: {
@@ -195,6 +199,8 @@ const BILDIRIM = {
     notifDenied: 'Notifications are not allowed. You can turn them on in your phone’s settings.',
     notifError: 'The notification setting could not be saved. Check your internet connection and try again.',
     notifOnToast: 'Notifications on', notifOffToast: 'Notifications off',
+    notifBusy: 'Setting up notifications…', notifTest: 'Send test notification',
+    notifTestSent: 'A test notification will arrive within a minute', notifTestWait: 'Just sent; try again in a few minutes',
     zilAcik: (ad) => `${ad} notification on`, zilKapali: (ad) => `${ad} notification off`,
   },
 };
