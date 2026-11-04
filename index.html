@@ -363,7 +363,7 @@ body.light .prep-card.ezan{box-shadow:0 0 40px var(--ezan-glow)}
 .settings.hidden{display:none}
 .set-card{width:min(141vh,94vw);background:#0f1b35;color:#eef3fb;border:2px solid rgba(140,175,230,.28);border-radius:2.4vh;
   padding:3.4vh 3vw 3vh;box-shadow:0 3vh 8vh rgba(0,0,0,.5)}
-.set-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:3vh}
+.set-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:2.2vh}
 .set-title{font-family:'Oswald',sans-serif;font-weight:600;font-size:5vh;letter-spacing:1px;line-height:1.1}
 .set-sub{font-size:2.1vh;color:#9fb1d0;margin-top:.4vh}
 .set-close{font:600 2.4vh 'Inter',system-ui,sans-serif;color:#eef3fb;background:rgba(255,255,255,.08);
@@ -388,7 +388,7 @@ body.light .prep-card.ezan{box-shadow:0 0 40px var(--ezan-glow)}
 .set-name{font-weight:700;font-size:2.7vh;padding:0 .3vw;line-height:1.2}
 .set-foot{margin-top:2.6vh;font-size:1.9vh;color:#8fa3c8}
 .set-sec{font-size:2vh;font-weight:700;letter-spacing:.3vh;text-transform:uppercase;color:#9fb1d0;margin:0 0 1.4vh}
-.set-row{display:flex;align-items:center;justify-content:space-between;gap:2vw;margin-top:3vh;padding:1.6vh 1.6vw;
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:2vw;margin-top:1.8vh;padding:1.3vh 1.6vw;
   background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.1);border-radius:1.6vh}
 .set-row-title{font-weight:700;font-size:2.6vh}
 .set-row-desc{font-size:1.85vh;color:#9fb1d0;margin-top:.5vh;line-height:1.35}
@@ -657,6 +657,13 @@ body.krem .hutbe-foot{color:#4E5B76;border-top-color:rgba(168,132,58,.3)}
       </div>
       <div class="set-row">
         <div>
+          <div class="set-row-title">Türkçe ↔ Hollandaca</div>
+          <div class="set-row-desc">Namaz adları ve tarih 5 dakikada bir Hollandaca (Arapça harflerle) gösterilir</div>
+        </div>
+        <button type="button" class="set-toggle" id="set-dil" role="switch" aria-checked="true"><span class="sw"></span><span class="sw-txt">Açık</span></button>
+      </div>
+      <div class="set-row">
+        <div>
           <div class="set-row-title">Cuma hutbesi</div>
           <div class="set-row-desc">Cuma günü Öğle vaktinden kaç dakika sonra başlasın ve ekranda kaç dakika kalsın</div>
         </div>
@@ -708,7 +715,11 @@ const LATIN_AD = { Imsak:'İmsâk', Fajr:'Fajr', Sunrise:'Shuruq', Dhuhr:'Dhuhr'
 const ARAPCA_AD = { Imsak:'الإمساك', Fajr:'الفجر', Sunrise:'الشروق', Dhuhr:'الظهر', Asr:'العصر', Maghrib:'المغرب', Isha:'العشاء' };
 // adresten sabitlenebilir (kaydedilmez): ?dil=tr | nl
 const DIL_SABIT = (function(){ const q = new URLSearchParams(location.search).get('dil'); return (q === 'tr' || q === 'nl') ? q : null; })();
-const dilFor = (now) => DIL_SABIT || (Math.floor(now.getMinutes() / DIL_SURE_DK) % 2 === 1 ? 'nl' : 'tr');
+// ayarlardan kapatılabilir (varsayılan açık); bu TV'de "nizam-dil" olarak saklanır
+const DIL_KEY = 'nizam-dil';
+let dilAcik = (function(){ try{ return localStorage.getItem(DIL_KEY) !== 'off'; }catch(e){ return true; } })();
+const dilFor = (now) => DIL_SABIT || (!dilAcik ? 'tr' : (Math.floor(now.getMinutes() / DIL_SURE_DK) % 2 === 1 ? 'nl' : 'tr'));
+function setDilAcik(on){ dilAcik = !!on; try{ localStorage.setItem(DIL_KEY, dilAcik ? 'on' : 'off'); }catch(e){} dilKontrol(new Date()); }
 let dil = dilFor(new Date()), _dilGecis = 0;
 const evAd = (ev) => (dil === 'nl' ? NL_AD[ev.key] : ev.tr);
 function tarihYaz(now){
@@ -1350,6 +1361,7 @@ setInterval(()=>{ const _n=new Date(); try{ updateHutbe(_n); }catch(e){} try{ fe
   const ov=document.getElementById('settings'), gear=document.getElementById('gear');
   const opts=[].slice.call(ov.querySelectorAll('.set-opt')), closeBtn=document.getElementById('set-close');
   const prepBtn=document.getElementById('set-prep');
+  const dilBtn=document.getElementById('set-dil');
   const hb={ gecikmeEksi: document.getElementById('hutbe-gecikme-eksi'), gecikmeArti: document.getElementById('hutbe-gecikme-arti'),
              sureEksi: document.getElementById('hutbe-sure-eksi'), sureArti: document.getElementById('hutbe-sure-arti') };
   const BACK=[27,8,10009,461];            // Esc, Backspace, Samsung ve LG kumandasındaki "Geri"
@@ -1358,6 +1370,8 @@ setInterval(()=>{ const _n=new Date(); try{ updateHutbe(_n); }catch(e){} try{ fe
   function mark(){
     prepBtn.setAttribute('aria-checked', prepOn?'true':'false');
     prepBtn.querySelector('.sw-txt').textContent = prepOn ? 'Açık' : 'Kapalı';
+    dilBtn.setAttribute('aria-checked', dilAcik?'true':'false');
+    dilBtn.querySelector('.sw-txt').textContent = dilAcik ? 'Açık' : 'Kapalı';
     opts.forEach(function(b){
       const on=b.getAttribute('data-mode')===themeMode;
       b.classList.toggle('sel', on); b.setAttribute('aria-pressed', on?'true':'false');
@@ -1380,6 +1394,7 @@ setInterval(()=>{ const _n=new Date(); try{ updateHutbe(_n); }catch(e){} try{ fe
   gear.addEventListener('focus', function(){ clearTimeout(gearIdle); gearIdle=setTimeout(function(){ if(!isOpen()) gear.blur(); }, 10000); });
   closeBtn.addEventListener('click', close);
   prepBtn.addEventListener('click', function(){ setPrepOn(!prepOn); mark(); bump(); });
+  dilBtn.addEventListener('click', function(){ setDilAcik(!dilAcik); mark(); bump(); });
   [['gecikmeEksi','gecikme',-5],['gecikmeArti','gecikme',5],['sureEksi','sure',-5],['sureArti','sure',5]].forEach(function(x){
     hb[x[0]].addEventListener('click', function(){ setHutbeAyar(x[1], x[2]); mark(); bump(); });
   });
@@ -1392,7 +1407,7 @@ setInterval(()=>{ const _n=new Date(); try{ updateHutbe(_n); }catch(e){} try{ fe
     if(isOpen()){
       bump();
       if(BACK.indexOf(k)>=0){ e.preventDefault(); close(); return; }
-      const list=opts.concat([prepBtn, hb.gecikmeEksi, hb.gecikmeArti, hb.sureEksi, hb.sureArti, closeBtn]).filter(function(b){ return !b.disabled; });
+      const list=opts.concat([prepBtn, dilBtn, hb.gecikmeEksi, hb.gecikmeArti, hb.sureEksi, hb.sureArti, closeBtn]).filter(function(b){ return !b.disabled; });
       const i=list.indexOf(document.activeElement);
       if(k===39||k===40){ e.preventDefault(); list[(i+1+list.length)%list.length].focus(); }
       else if(k===37||k===38){ e.preventDefault(); list[(i-1+list.length)%list.length].focus(); }

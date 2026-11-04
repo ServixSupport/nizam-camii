@@ -481,6 +481,8 @@ test.describe('ayarlar penceresi', () => {
     await page.keyboard.press('ArrowRight');
     await expect(page.locator('#set-prep')).toBeFocused();
     await page.keyboard.press('ArrowRight');
+    await expect(page.locator('#set-dil')).toBeFocused();
+    await page.keyboard.press('ArrowRight');
     await expect(page.locator('#hutbe-gecikme-eksi')).toBeFocused();
     await page.keyboard.press('Enter');                                   // kumandayla da değişir
     await expect(page.locator('#hutbe-gecikme')).toHaveText('Öğle + 5 dk');
@@ -592,4 +594,50 @@ test('Hollandaca uzun adlar kutulara sığar, Arapça adla üst üste binmez (19
     });
     expect(sorunlar, `${w}×${h}`).toEqual([]);
   }
+});
+
+test.describe('ayar: Türkçe ↔ Hollandaca', () => {
+  const adlar = (page) => page.locator('.box .tr').allTextContents();
+
+  test('varsayılan açık; kapatınca hep Türkçe (hemen döner), saklanır; tekrar açılır', async ({ page }) => {
+    await tvAc(page, { zaman: an('10:07:00.500'), dil: 'oto' });            // Hollandaca dönem
+    expect(await adlar(page)).toEqual(['Ochtend', 'Middag', 'Namiddag', 'Avond', 'Nacht']);
+    await page.locator('#gear').click();
+    const anahtar = page.locator('#set-dil');
+    await expect(anahtar).toHaveAttribute('aria-checked', 'true');
+    await expect(anahtar).toHaveText('Açık');
+    await anahtar.click();
+    await expect(anahtar).toHaveAttribute('aria-checked', 'false');
+    await expect(anahtar).toHaveText('Kapalı');
+    expect(await page.evaluate(() => localStorage.getItem('nizam-dil'))).toBe('off');
+    await ileri(page, 1000);
+    expect(await adlar(page)).toEqual(['Sabah', 'Öğle', 'İkindi', 'Akşam', 'Yatsı']);
+    await expect(page.locator('.box .ar').first()).toHaveText('Fajr');
+    await page.locator('#set-close').click();
+    await saatGit(page, an('10:17:00.500'));                                // yine Hollandaca dönem: kapalı kalır
+    expect(await adlar(page)).toEqual(['Sabah', 'Öğle', 'İkindi', 'Akşam', 'Yatsı']);
+
+    await page.locator('#gear').click();
+    await anahtar.click();                                                  // tekrar aç
+    await ileri(page, 1000);
+    expect(await adlar(page)).toEqual(['Ochtend', 'Middag', 'Namiddag', 'Avond', 'Nacht']);
+    expect(await page.evaluate(() => localStorage.getItem('nizam-dil'))).toBe('on');
+  });
+
+  test('kayıtlı "kapalı" ayar açılışta uygulanır', async ({ page }) => {
+    await tvAc(page, { zaman: an('10:07:00.500'), dil: 'oto', depo: { 'nizam-dil': 'off' } });
+    expect(await adlar(page)).toEqual(['Sabah', 'Öğle', 'İkindi', 'Akşam', 'Yatsı']);
+    await expect(page.locator('#date-miladi')).toHaveText('28 Ekim 2026 Çarşamba');
+  });
+
+  test('ayarlar penceresi 1080 ve 540 yüksekliğe sığar', async ({ page }) => {
+    for (const [w, h] of [[1920, 1080], [960, 540]]) {
+      await page.setViewportSize({ width: w, height: h });
+      await tvAc(page, { zaman: an('10:02:00.500') });
+      await page.locator('#gear').click();
+      const k = await page.locator('.set-card').boundingBox();
+      expect(k.y, `${w}×${h} üst`).toBeGreaterThanOrEqual(0);
+      expect(k.y + k.height, `${w}×${h} alt`).toBeLessThanOrEqual(h);
+    }
+  });
 });

@@ -39,7 +39,7 @@
 - Kullanıcı onaylayınca `main`'e alınır ve canlıya çıkar. `main`'e doğrudan push yok.
 - `gh` bu bilgisayarda `ServixSupport` hesabıyla giriş yapmış durumda.
 
-**TV'nin localStorage anahtarları:** `vakitler`, `nizam-tema` (`dark|light|krem`, varsayılan krem; eski `green` ve `auto` = krem), `nizam-sayac`, `nizam-hutbe` (`{gecikme, sure}` dk; varsayılan 10 ve 30).
+**TV'nin localStorage anahtarları:** `vakitler`, `nizam-tema` (`dark|light|krem`, varsayılan krem; eski `green` ve `auto` = krem), `nizam-sayac`, `nizam-hutbe` (`{gecikme, sure}` dk; varsayılan 10 ve 30), `nizam-dil` (`on|off`, Türkçe ↔ Hollandaca; varsayılan açık).
 - Uygulama aynı origin'de çalışır. Bu anahtarları okumaz ve üzerine yazmaz; kendi anahtarlarına önek koyar.
 
 ## Kullanıcı hakkında
