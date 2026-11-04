@@ -1,6 +1,6 @@
 # Mobil uygulama (telefon + tablet) ve `/admin` yönetim paneli
 
-**Durum (25-10-2026):** Faz 0, A, B ve C canlıda (Faz C + /api/vakit hafızası 25-10-2026 22:30, main `ace2676`). Faz D (bildirimler) `faz-d` dalında, önizlemede test ediliyor; Upstash/CRON_SECRET/VAPID Vercel'de kurulu.
+**Durum (04-11-2026):** Faz 0, A, B, C ve D canlıda. Faz D (bildirimler) + renk temaları 04-11-2026'da canlıya alındı (main `9c244fc`); canlıda gerçek Chrome ile onay ve deneme bildirimi (QStash yolu) doğrulandı.
 
 Hazırlanma tarihi 24-10-2026; tasarım kullanıcı tarafından onaylandı ("design super").
 **Faz 0:** bitti, kullanıcı onayladı, 24-10-2026'da `main`'e alındı (commit `fe4b5db`).

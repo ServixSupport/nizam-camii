@@ -25,8 +25,9 @@
 | `admin/` | `/admin` yönetim paneli (Türkçe). |
 | `mobil/sw.js`, `manifest.webmanifest`, `ikon-*.png` | PWA (Faz C). Uygulama dosyası değişince: `cd tests && node araclar/sw-surum.mjs` (yoksa telefonlar eski sürümde kalır; test yakalar). |
 | `veri/dogrula.js` | İçerik doğrulama: API, panel ve testler aynı dosyayı kullanır. |
-| `api/bildirim/` | Faz D bildirimleri: `anahtar.js` (hazır mı + açık VAPID anahtarı), `abone.js` (kaydet/sil), `planla.js` (günlük cron), `gonder.js` (QStash çağırır). Mantık `api/_lib/bildirim.js`, servisler `api/_lib/bildirim-servis.js`. |
+| `api/bildirim/` | Faz D bildirimleri: `anahtar.js` (hazır mı + açık VAPID anahtarı), `abone.js` (kaydet/sil), `planla.js` (günlük cron), `gonder.js` (QStash çağırır), `deneme.js` (Ayarlar'daki "Deneme bildirimi": 1 dk sonra aynı yoldan). Mantık `api/_lib/bildirim.js`, servisler `api/_lib/bildirim-servis.js`. |
 | `mobil/bildirim.js` | Uygulamada bildirim ayarları ve ana ekrandaki ziller. İzin sadece dokununca istenir. |
+| Renk temaları | `app.css` `data-renk` (yesil, turkuaz, bordo; varsayılan lacivert), her biri gündüz/gece. Seçim `nzm.renk`. Kontrast testi `tests/mobil/davranis.spec.js`. |
 | `vercel.json` | Header'lar (`/admin` noindex, `sw.js` no-cache) ve günlük cron (`/api/bildirim/planla`, Hobby: günde bir). |
 
 **Klasör = git deposu (24-10-2026'dan beri).** GitHub `main` ile eşitlendi.
