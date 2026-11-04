@@ -534,10 +534,10 @@ test.describe('dil: Türkçe ↔ Hollandaca, Arapça adlar', () => {
     expect(await page.evaluate(() => document.body.classList.contains('dil-gecis'))).toBe(true);
     await ileri(page, 800);                                            // yeni dilde
     expect(await page.evaluate(() => document.body.classList.contains('dil-gecis'))).toBe(false);
-    expect(await adlar(page)).toEqual(['Fadjr', 'Dhoehr', 'Asr', 'Maghrib', 'Isha']);
+    expect(await adlar(page)).toEqual(['Ochtend', 'Middag', 'Namiddag', 'Avond', 'Nacht']);
     await expect(page.locator('.sun-tr')).toHaveText(['Imsak', 'Zonsopgang']);
     await expect(page.locator('#date-miladi')).toHaveText('Woensdag 28 oktober 2026');
-    await expect(page.locator('#cd-label')).toHaveText('Nog tot Dhoehr');
+    await expect(page.locator('#cd-label')).toHaveText('Nog tot Middag');
     await expect(page.locator('#box-Dhuhr .ar')).toHaveText('الظهر');            // Arapça hep aynı
     expect(await page.locator('#box-Dhuhr').boundingBox()).toEqual(kutu);       // kayma yok
     await expect(page.locator('.swap-area')).not.toHaveClass(/show-/);
@@ -550,7 +550,7 @@ test.describe('dil: Türkçe ↔ Hollandaca, Arapça adlar', () => {
 
   test('vakit girince sayaç kutusundaki ad da o anki dilde', async ({ page }) => {
     await tvAc(page, { zaman: an('12:29:10.500'), dil: 'nl' });
-    await expect(page.locator('#cd-label')).toHaveText('Dhoehr');
+    await expect(page.locator('#cd-label')).toHaveText('Middag');
     await expect(page.locator('#cd-banner')).toHaveText('EZAN VAKTİ');
   });
 
@@ -560,4 +560,31 @@ test.describe('dil: Türkçe ↔ Hollandaca, Arapça adlar', () => {
     expect(await adlar(page)).toEqual(['Sabah', 'Öğle', 'İkindi', 'Akşam', 'Yatsı']);
     expect(await page.evaluate(() => Object.keys(localStorage).filter((k) => /dil/.test(k)))).toEqual([]);
   });
+});
+
+test('Hollandaca uzun adlar kutulara sığar, Arapça adla üst üste binmez (1920 ve 960 genişlik)', async ({ page }) => {
+  for (const [w, h] of [[1920, 1080], [960, 540]]) {
+    await page.setViewportSize({ width: w, height: h });
+    await tvAc(page, { zaman: an('13:07:00.500'), dil: 'nl' });               // sayaç: "Nog tot Namiddag"
+    const sorunlar = await page.evaluate(() => {
+      const s = [];
+      for (const kutu of document.querySelectorAll('.grid .box')) {
+        const k = kutu.getBoundingClientRect();
+        const tr = kutu.querySelector('.tr, .cd-label').getBoundingClientRect();
+        const ar = kutu.querySelector('.ar');
+        if (tr.right > k.right - 4) s.push(kutu.id + ': ad kutudan taşıyor');
+        if (ar && tr.right > ar.getBoundingClientRect().left - 6) s.push(kutu.id + ': ad Arapçaya değiyor');
+      }
+      // üstteki Güneş/İmsak panelleri: yazı küçültülmeden sahnenin içinde ("Zonsopgang")
+      const sahne = document.getElementById('stage').getBoundingClientRect();
+      const olcek = sahne.width / 1920;
+      for (const p of document.querySelectorAll('.sun-panel')) {
+        const zaman = p.querySelector('.time').getBoundingClientRect();
+        if (zaman.right > sahne.right - 40 * olcek) s.push(p.id + ': saat kenara taşıyor');
+        if (parseFloat(getComputedStyle(p.querySelector('.sun-tr')).fontSize) !== 42) s.push(p.id + ': ad küçültülmüş');
+      }
+      return s;
+    });
+    expect(sorunlar, `${w}×${h}`).toEqual([]);
+  }
 });
