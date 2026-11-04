@@ -386,15 +386,18 @@ test.describe('cuma hutbesi', () => {
 });
 
 test.describe('tema', () => {
-  test('otomatik (varsayılan): Güneş − 1 sn açık, Akşam − 1 sn koyu', async ({ page }) => {
+  test('varsayılan krem; gün içinde tema kendiliğinden değişmez (otomatik mod kaldırıldı)', async ({ page }) => {
     await tvAc(page, { zaman: an('07:20:58.500') });
-    expect(await bodyTema(page)).toBe('dark');
-    await ileri(page, 1000);
-    expect(await bodyTema(page)).toBe('light');
-    await saatGit(page, an('17:26:58.500'));
-    expect(await bodyTema(page)).toBe('light');
-    await ileri(page, 1000);
-    expect(await bodyTema(page)).toBe('dark');
+    expect(await bodyTema(page)).toBe('krem');
+    await ileri(page, 1000);                                           // Güneş
+    expect(await bodyTema(page)).toBe('krem');
+    await saatGit(page, an('17:27:00.500'));                           // Akşam
+    expect(await bodyTema(page)).toBe('krem');
+  });
+
+  test('eskiden "gündüz açık · akşam koyu" seçilmiş TV krem temayla açılır', async ({ page }) => {
+    await tvAc(page, { zaman: an('21:05:00.500'), depo: { 'nizam-tema': 'auto' } });
+    expect(await bodyTema(page)).toBe('krem');
   });
 
   for (const [adres, saat, beklenen] of [
@@ -402,8 +405,8 @@ test.describe('tema', () => {
     ['/?theme=light', '21:05:00.500', 'light'],
     ['/?theme=krem', '10:05:00.500', 'krem'],
     ['/?theme=green', '10:05:00.500', 'krem'],          // yeşil tema kaldırıldı (04-11-2026): eski adres krem açar
-    ['/?theme=auto', '21:05:00.500', 'dark'],
-    ['/?theme=bilinmeyen', '10:05:00.500', 'light'],
+    ['/?theme=auto', '21:05:00.500', 'krem'],
+    ['/?theme=bilinmeyen', '10:05:00.500', 'krem'],
   ]) {
     test(`${adres} → ${beklenen} (kaydedilmez)`, async ({ page }) => {
       await tvAc(page, { zaman: an(saat), adres });
@@ -431,13 +434,19 @@ test.describe('ayarlar penceresi', () => {
     await expect(page.locator('#settings')).toBeHidden();
     await page.locator('#gear').click();
     await expect(page.locator('#settings')).toBeVisible();
-    await expect(page.locator('.set-opt[data-mode="auto"]')).toHaveClass(/\bsel\b/);
-    await expect(page.locator('.set-opt[data-mode="auto"]')).toBeFocused();
+    // üç tema, açıklama yazısı yok, her birinde gerçek görüntü
+    await expect(page.locator('.set-opt .set-name')).toHaveText(['Koyu', 'Açık', 'Krem']);
+    await expect(page.locator('.set-desc, .set-opt[data-mode="auto"]')).toHaveCount(0);
+    for (const m of ['dark', 'light', 'krem']) {
+      expect(await page.locator(`.set-opt[data-mode="${m}"] .set-prev`).evaluate((e) => getComputedStyle(e).backgroundImage)).toMatch(/^url\("data:image\/jpeg;base64,/);
+    }
+    await expect(page.locator('.set-opt[data-mode="krem"]')).toHaveClass(/\bsel\b/);
+    await expect(page.locator('.set-opt[data-mode="krem"]')).toBeFocused();
 
-    await page.locator('.set-opt[data-mode="krem"]').click();
-    expect(await bodyTema(page)).toBe('krem');
-    await expect(page.locator('.set-opt[data-mode="krem"]')).toHaveAttribute('aria-pressed', 'true');
-    expect(await page.evaluate(() => localStorage.getItem('nizam-tema'))).toBe('krem');
+    await page.locator('.set-opt[data-mode="dark"]').click();
+    expect(await bodyTema(page)).toBe('dark');
+    await expect(page.locator('.set-opt[data-mode="dark"]')).toHaveAttribute('aria-pressed', 'true');
+    expect(await page.evaluate(() => localStorage.getItem('nizam-tema'))).toBe('dark');
 
     await page.locator('#set-close').click();
     await expect(page.locator('#settings')).toBeHidden();
@@ -445,7 +454,7 @@ test.describe('ayarlar penceresi', () => {
     await page.reload();
     await expect(page.locator('#loading')).toBeHidden();
     await ileri(page, 1000);
-    expect(await bodyTema(page)).toBe('krem');
+    expect(await bodyTema(page)).toBe('dark');
   });
 
   test('sayaç anahtarı kapatılır ve saklanır', async ({ page }) => {
@@ -465,9 +474,10 @@ test.describe('ayarlar penceresi', () => {
     await expect(page.locator('#gear')).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(page.locator('#settings')).toBeVisible();
-    await expect(page.locator('.set-opt[data-mode="auto"]')).toBeFocused();
-    await page.keyboard.press('ArrowRight');
     await expect(page.locator('.set-opt[data-mode="krem"]')).toBeFocused();
+    await page.keyboard.press('ArrowLeft');
+    await expect(page.locator('.set-opt[data-mode="light"]')).toBeFocused();
+    await page.keyboard.press('ArrowRight');
     await page.keyboard.press('ArrowRight');
     await expect(page.locator('#set-prep')).toBeFocused();
     await page.keyboard.press('ArrowRight');
