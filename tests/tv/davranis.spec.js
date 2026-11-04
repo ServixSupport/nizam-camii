@@ -512,8 +512,13 @@ test.describe('dil: Türkçe ↔ Hollandaca, Arapça adlar', () => {
   const AR = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
   const adlar = (page) => page.locator('.box .tr').allTextContents();
 
-  test('Arapça adlar Arapça harflerle (lang="ar", sağdan sola)', async ({ page }) => {
+  test('Türkçe dönemde Latin harfli Arapça adlar (eskisi gibi), Hollandaca dönemde Arapça harfler', async ({ page }) => {
     await tvAc(page, { zaman: an('10:02:00.500') });
+    await expect(page.locator('.box .ar')).toHaveText(['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']);
+    await expect(page.locator('.sun-ar')).toHaveText(['İmsâk', 'Shuruq']);
+    expect(await page.locator('.box .ar[lang]').count()).toBe(0);
+    await page.goto('about:blank');
+    await tvAc(page, { zaman: an('10:07:00.500'), dil: 'nl' });
     for (const [k, ar] of Object.entries(AR)) {
       const el = page.locator(`#box-${k} .ar`);
       await expect(el).toHaveText(ar);
@@ -538,7 +543,7 @@ test.describe('dil: Türkçe ↔ Hollandaca, Arapça adlar', () => {
     await expect(page.locator('.sun-tr')).toHaveText(['Imsak', 'Zonsopgang']);
     await expect(page.locator('#date-miladi')).toHaveText('Woensdag 28 oktober 2026');
     await expect(page.locator('#cd-label')).toHaveText('Nog tot Middag');
-    await expect(page.locator('#box-Dhuhr .ar')).toHaveText('الظهر');            // Arapça hep aynı
+    await expect(page.locator('#box-Dhuhr .ar')).toHaveText('الظهر');            // Hollandaca dönemde Arapça harfler
     expect(await page.locator('#box-Dhuhr').boundingBox()).toEqual(kutu);       // kayma yok
     await expect(page.locator('.swap-area')).not.toHaveClass(/show-/);
 

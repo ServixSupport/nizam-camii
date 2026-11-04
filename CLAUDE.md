@@ -52,7 +52,7 @@
 ## Kesin kurallar
 
 1. **TV ekranının davranışı değişmez.** `index.html`'e izinli tek ek, en üste konacak küçük yönlendirme betiği (plan §1).
-   - İstisna, kullanıcının açık isteğiyle (04-11-2026): yeşil tema kaldırıldı, yerine **krem tema** (uygulamanın renkleri; düzen ve yazı tipleri aynı). Ayarlara **cuma hutbesi** zamanı eklendi (Öğle + dk, süre). "Gündüz açık · Akşam koyu" (otomatik) kaldırıldı; varsayılan tema krem. Ayarlarda tema açıklamaları yok, önizleme TV'nin gerçek görüntüsü (`tests/araclar/tema-onizleme.mjs`). Namaz adları, tarih ve sayaç yazısı 5 dk'da bir Türkçe ↔ Hollandaca değişir (sadece yazı söner/yanar); Arapça adlar Arapça harflerle. Başka TV değişikliği yine sadece kullanıcı açıkça isterse.
+   - İstisna, kullanıcının açık isteğiyle (04-11-2026): yeşil tema kaldırıldı, yerine **krem tema** (uygulamanın renkleri; düzen ve yazı tipleri aynı). Ayarlara **cuma hutbesi** zamanı eklendi (Öğle + dk, süre). "Gündüz açık · Akşam koyu" (otomatik) kaldırıldı; varsayılan tema krem. Ayarlarda tema açıklamaları yok, önizleme TV'nin gerçek görüntüsü (`tests/araclar/tema-onizleme.mjs`). Namaz adları, tarih ve sayaç yazısı 5 dk'da bir değişir (sadece yazı söner/yanar): Türkçe + Latin harfli Arapça ad (eskisi gibi, FAJR …) ↔ Hollandaca (Ochtend, Middag, Namiddag, Avond, Nacht) + Arapça harfler (الفجر …). Başka TV değişikliği yine sadece kullanıcı açıkça isterse.
    - Önce mevcut davranışın testlerini yaz (Faz 0), sonra değiştir.
    - Yönlendirme bir TV'yi **asla** mobil sürüme göndermemeli. Şüphede TV.
 2. **Diyanet API'si:** limit uç nokta başına 5 istek. TV ve uygulama vakitleri yalnızca `/api/vakit` üzerinden alır.
