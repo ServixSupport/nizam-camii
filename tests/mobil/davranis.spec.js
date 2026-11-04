@@ -353,3 +353,53 @@ test('"TV ekranını aç" kartı uygulamaya dönüş adresini bu cihazdaki adres
   const adres = new URL(page.url()).host;
   await expect(page.locator('.tv-link .ayar-not')).toHaveText(`Voor een tablet of scherm aan de muur. Terug naar de app: ${adres}/?ekran=mobil`);
 });
+
+// ---------------- Renk temaları (kullanıcı isteği, 04-11-2026: Yeşil, Turkuaz, Bordo + Lacivert) ----------------
+test.describe('renk temaları', () => {
+  test('Ayarlar → Renk: seçilir, saklanır, ilk boyamadan önce uygulanır; üst çubuk zemin rengini alır', async ({ page }) => {
+    await mobilAc(page, { zaman: an('16:00:00.500'), adres: '/mobil/#ayarlar', depo: { 'nzm.tema': 'gunduz' } });
+    const dugmeler = page.locator('#renk-secim button');
+    await expect(dugmeler).toHaveText(['Blauw', 'Groen', 'Turkoois', 'Bordeaux']);
+    await expect(page.locator('#renk-secim [aria-pressed="true"]')).toHaveText('Blauw');
+    expect(await page.evaluate(() => document.documentElement.dataset.renk)).toBeUndefined();
+    const ustCubuk = () => page.locator('meta[name="theme-color"]').getAttribute('content');
+    expect(await ustCubuk()).toBe('#F6F1E7');
+    await page.getByRole('button', { name: 'Groen' }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-renk', 'yesil');
+    expect(await ustCubuk()).toBe('#F2F3EA');
+    expect(await page.evaluate(() => localStorage.getItem('nzm.renk'))).toBe('yesil');
+    // yenileyince: daha ilk boyamada (head betiği) yeşil
+    await page.reload();
+    expect(await page.evaluate(() => document.documentElement.dataset.renk)).toBe('yesil');
+    await expect(page.locator('#renk-secim [aria-pressed="true"]')).toHaveText('Groen');
+    await page.getByRole('button', { name: 'Donker' }).click();
+    expect(await ustCubuk()).toBe('#132A14');
+    await page.getByRole('button', { name: 'Blauw' }).click();
+    expect(await page.evaluate(() => document.documentElement.hasAttribute('data-renk'))).toBe(false);
+    expect(await ustCubuk()).toBe('#0C1834');
+  });
+
+  test('her renk, gündüz ve gece: yazılar okunaklı (WCAG kontrastı)', async ({ page }) => {
+    await mobilAc(page, { zaman: an('16:00:00.500') });
+    const sonuc = await page.evaluate(() => {
+      const rgb = (c) => { const x = document.createElement('div'); x.style.color = c; document.body.append(x); const v = getComputedStyle(x).color; x.remove(); return v.match(/[\d.]+/g).map(Number); };
+      const lum = ([r, g, b]) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+      const kon = (a, b) => { const [x, y] = [lum(rgb(a)), lum(rgb(b))].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+      const kok = document.documentElement;
+      const sorunlar = [];
+      for (const renk of ['lacivert', 'yesil', 'turkuaz', 'bordo']) for (const tema of ['gunduz', 'gece']) {
+        if (renk === 'lacivert') kok.removeAttribute('data-renk'); else kok.dataset.renk = renk;
+        kok.dataset.tema = tema;
+        const v = (n) => getComputedStyle(kok).getPropertyValue(n).trim();
+        // [yazı, zemin, en az]: ana yazı 7, küçük yazılar 4.5 (lacivert kartların üstündeki sabit renkler dahil)
+        for (const [a, b, enAz] of [['--ink', '--ground', 7], ['--soft', '--ground', 4.5], ['--soft', '--card', 4.5], ['--cobalt', '--ground', 4.5],
+          ['--coral', '--ground', 4.5], ['--turq', '--ground', 4.5], ['--past', '--ground', 4.5], ['#F6F1E7', '--navy', 7], ['#D4DBEA', '--navy', 4.5], ['#E8C27A', '--navy', 4.5]]) {
+          const k = kon(a.startsWith('--') ? v(a) : a, v(b));
+          if (k < enAz) sorunlar.push(`${renk}-${tema}: ${a} / ${b} = ${k.toFixed(2)} (< ${enAz})`);
+        }
+      }
+      return sorunlar;
+    });
+    expect(sonuc).toEqual([]);
+  });
+});

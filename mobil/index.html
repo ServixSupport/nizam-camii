@@ -29,6 +29,8 @@
       document.querySelector('link[rel="manifest"]').setAttribute('href', '/mobil/manifest-' + d + '.webmanifest');
       document.querySelector('meta[name="apple-mobile-web-app-title"]').setAttribute('content', ad);
     }
+    var r = localStorage.getItem('nzm.renk');
+    if (r === 'yesil' || r === 'turkuaz' || r === 'bordo') document.documentElement.setAttribute('data-renk', r);
     var t = localStorage.getItem('nzm.tema');
     if (t !== 'gunduz' && t !== 'gece') {
       var h = +new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Amsterdam', hour: '2-digit', hourCycle: 'h23' }).format(new Date());
@@ -206,6 +208,8 @@
         <span class="ayar-ad" data-t="theme"></span>
         <div class="secenekler" role="group" data-t-aria="theme" id="tema-secim"></div>
         <span class="ayar-not" data-t="autoHint"></span>
+        <span class="ayar-ad" data-t="color"></span>
+        <div class="renkler" role="group" data-t-aria="color" id="renk-secim"></div>
       </div>
     </section>
 

@@ -27,6 +27,10 @@ const DURUMLAR = [
   { ad: '16-ana-ziller-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', bildirim: true },
   { ad: '17-ayarlar-bildirim-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#ayarlar', bildirim: true },
   { ad: '18-ayarlar-bildirim-gece-en', zaman: `${GUN}T21:30:00.500+01:00`, dil: 'en', hash: '#ayarlar', bildirim: true },
+  // renk temaları (Yeşil, Turkuaz, Bordo)
+  { ad: '19-ana-yesil-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', renk: 'yesil' },
+  { ad: '20-faaliyetler-turkuaz-gece-nl', zaman: `${GUN}T21:30:00.500+01:00`, dil: 'nl', hash: '#faaliyetler', icerik: true, renk: 'turkuaz' },
+  { ad: '21-ayarlar-bordo-en', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'en', hash: '#ayarlar', renk: 'bordo' },
 ];
 const BILDIRIM_ACIK = JSON.stringify({ aan: true, once: 15, giris: true, vakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'], endpoint: '', esitleme: 0 });
 
@@ -39,7 +43,7 @@ function icerikHazirla(d) {
 for (const d of DURUMLAR) {
   test(d.ad, async ({ page }) => {
     if (d.bildirim) await bildirimKur(page, { zaman: d.zaman, onceden: true });
-    const depo = { 'nzm.dil': d.dil, ...(d.bildirim ? { 'nzm.bildirim': BILDIRIM_ACIK } : {}) };
+    const depo = { 'nzm.dil': d.dil, ...(d.renk ? { 'nzm.renk': d.renk } : {}), ...(d.bildirim ? { 'nzm.bildirim': BILDIRIM_ACIK } : {}) };
     await mobilAc(page, { zaman: d.zaman, adres: '/mobil/' + (d.hash || ''), depo, icerik: d.icerik ? icerikHazirla(d) : undefined });
     if (d.bildirim) await expect(page.locator('.v-zil[aria-pressed="true"]')).toHaveCount(5);
     await page.clock.runFor(50);
