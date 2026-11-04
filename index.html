@@ -205,11 +205,11 @@ header{position:relative;height:118px;flex:0 0 auto}
 
 /* ===================== GÜNDÜZ (beyaz) / GECE (koyu) TEMA =====================
    Beyaz tema = namazvakti platformundaki "light" tema (src/lib/themes.ts).
-   Yeşil tema = platformdaki "green" tema. Tema sağ üstteki ayarlar ekranından seçilir; geçişler 1 sn. */
+   Krem tema = mobil uygulamanın renkleri (yeşil temanın yerine, 04-11-2026). Tema sağ üstteki ayarlar ekranından seçilir; geçişler 1 sn. */
 .bglayer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:0;pointer-events:none}
 #bglight{background:radial-gradient(120% 80% at 50% 0%, #ffffff 0%, #f7f9fc 38%, #eef2f8 70%, #e7ecf3 100%)}
-#bggreen{background:radial-gradient(120% 80% at 50% 0%, #31682c 0%, #285129 38%, #1e401f 70%, #143014 100%)}
-body.light #bglight,body.green #bggreen{opacity:1}
+#bgkrem{background:radial-gradient(120% 80% at 50% 0%, #FBF7EF 0%, #F6F1E7 45%, #F1EADC 78%, #EDE4D3 100%)}
+body.light #bglight,body.krem #bgkrem{opacity:1}
 body.fade .bglayer{transition:opacity 1s linear}
 
 /* tema geçişi sırasında renkler 1 sn yumuşak geçer (flash'lar normalde anında) */
@@ -255,25 +255,6 @@ body.light .brand{position:relative}
 body.light .brand::before{left:50%;width:1560px;margin-left:-780px;top:-40px;bottom:-44px}
 body.light .prep-card{box-shadow:0 10px 26px rgba(30,50,80,.07)}
 
-/* ---- YEŞİL tema (namazvakti platformu "green": yeşil, altın, kırmızı vurgu) ---- */
-body.green{
-  --bg-1:#1e401f; --bg-2:#285129; --bg-3:#143014;
-  --panel:rgba(255,255,255,0.045); --panel-brd:rgba(235,210,140,0.22);
-  --label:#cfdcc4; --label-ar:#a8c6a2; --white:#ffffff;
-  --cyan:#ffb4a8; --flash:#ffd23f; --gold:#ffc23d; --gold-2:#ff9d2e;
-}
-body.green .dates .d{color:#e3ecd9}
-body.green .clock{text-shadow:0 6px 40px rgba(0,0,0,.30)}
-body.green .clockwrap::before{background:radial-gradient(closest-side, rgba(255,255,255,.10), transparent 72%)}
-body.green .box.next{border-color:rgba(255,145,130,.95);box-shadow:0 0 0 3px rgba(240,71,58,.55) inset,0 0 42px rgba(240,71,58,.34)}
-body.green .box.next .tr{color:#ffd0c9}
-body.green .countdown{background:rgba(240,71,58,0.08);border-color:rgba(255,122,107,0.35)}
-body.green .cd-label{color:#ffd0c9}
-body.green .cd-timer{text-shadow:0 0 26px rgba(240,71,58,.35)}
-body.green .countdown.ezan{background:rgba(255,210,63,0.10);border-color:rgba(255,210,63,.6);box-shadow:0 0 40px rgba(255,200,50,.3)}
-body.green .countdown.ezan .cd-label{color:#ffe39a}
-body.green .loading{background:rgba(20,48,20,.55)}
-body.green .feat-tr{color:#e4eedc}
 
 /* ===================== ALT FOOTER: CAMİ SİLÜETİ ===================== */
 /* ÇERÇEVE: dört kenarda tek sıra geometrik desen, içe doğru solar */
@@ -300,7 +281,6 @@ body.fade .pat-edge::before{transition:background-color 1s linear}
 :root{--silhouette:#16335f; --sil-op:.5; --pat:url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogICAgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHN0eWxlPSJpc29sYXRpb246aXNvbGF0ZSIgdmlld0JveD0iMCAwIDIwMCAyMDAiIHdpZHRoPSIxMDBweCIgaGVpZ2h0PSIxMDBweCI+CiAgICA8ZGVmcz4KICAgICAgICA8Y2xpcFBhdGggaWQ9Il9jbGlwUGF0aF9YanR1N1pxbEdpeDlndmZqS2lmR3l5ZjVTeG9RVzZoaiI+CiAgICAgICAgICAgIDxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIi8+CiAgICAgICAgPC9jbGlwUGF0aD4KICAgIDwvZGVmcz4KICAgIDxnIGNsaXAtcGF0aD0idXJsKCNfY2xpcFBhdGhfWGp0dTdacWxHaXg5Z3ZmaktpZkd5eWY1U3hvUVc2aGopIiBzdHJva2U9IiMxNjMzNWYiPgogICAgICAgIDxsaW5lIHgxPSIxMDAiIHkxPSIxNDMiIHgyPSIxMDAiIHkyPSIyMDAiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIwLjc1IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgPGxpbmUgeDE9IjEwMCIgeTE9IjAiIHgyPSIxMDAiIHkyPSI1NyIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjAuNzUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgPGxpbmUgeDE9IjU3IiB5MT0iMTAwIiB4Mj0iMCIgeTI9IjEwMCIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgIDxsaW5lIHgxPSIxNDMiIHkxPSIxMDAiIHgyPSIyMDAiIHkyPSIxMDAiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjMiLz4KICAgICAgICA8cGF0aCBzdHJva2U9IiMxNjMzNWYiIGQ9IiBNIDE1Ny41MDIgMjAwIEwgNDIuNjc2IDIwMCBMIDMwLjE0NCAxODcuNTI0IEwgMjkuOTk3IDE2OS44NTYgTCAxMi40NzUgMTY5Ljg1NiBMIDAgMTU3LjMyNCBMIDEyLjQ3NSAxNjkuODU2IEwgMzAuMTQ0IDE2OS44NTYgTCAzMC4xNDQgMTg3LjUyNCBMIDQyLjY3NiAyMDAgTCAzMC4xNDQgMTg3LjUyNCBMIDMwLjE0NCAxNjkuODU2IEwgMTIuNDc1IDE2OS44NTYgTCAwLjAxNyAxNTcuMzI0IEwgMC4wMTcgNDIuNjE5IEwgMTIuNDc1IDMwLjE0NCBMIDI5Ljk5NyAzMC4xNDQgTCAyOS45OTcgMTIuNDc1IEwgNDIuNjc2IDAgTCAxNTcuNTAyIDAgTCAxNjkuODU1IDEyLjQ3NSBMIDE2OS44NTUgMzAuMTk0IEwgMTg3LjUyNSAzMC4xOTQgTCAyMDAgNDIuNjE5IEwgMjAwIDE1Ny4zMjQgTCAxODcuNTIzIDE2OS44NTYgTCAxNjkuODU1IDE2OS44NTYgTCAxNjkuODU1IDE4Ny41MjQgTCAxNTcuNTAyIDIwMCBMIDQyLjY3NiAyMDAgTCA5OC4xNjUgMjAwIEwgMTU3LjUwMiAyMDAgWiAiIGZpbGwtcnVsZT0iZXZlbm9kZCIgZmlsbD0ibm9uZSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiIHN0cm9rZS1taXRlcmxpbWl0PSI0Ii8+CiAgICAgICAgPGc+CiAgICAgICAgICAgIDxsaW5lIHgxPSI2OSIgeTE9Ijg3LjE1OSIgeDI9IjY5IiB5Mj0iNjkiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjMiLz4KICAgICAgICAgICAgPGxpbmUgeDE9Ijg3LjE1OSIgeTE9IjY5IiB4Mj0iNjkiIHkyPSI2OSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iNTYuMTU5IiB5MT0iMTAwIiB4Mj0iNjkiIHkyPSI4Ny4xNTkiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjMiLz4KICAgICAgICAgICAgPGxpbmUgeDE9Ijg3LjE1OSIgeTE9IjY5IiB4Mj0iMTAwIiB5Mj0iNTYuMTU5IiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgICAgIDxsaW5lIHgxPSIxMzEuMTU5IiB5MT0iODcuMTU5IiB4Mj0iMTMxLjE1OSIgeTI9IjY5IiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgICAgIDxsaW5lIHgxPSIxMTMiIHkxPSI2OSIgeDI9IjEzMS4xNTkiIHkyPSI2OSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iMTQ0IiB5MT0iMTAwIiB4Mj0iMTMxLjE1OSIgeTI9Ijg3LjE1OSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iMTEzIiB5MT0iNjkiIHgyPSIxMDAuMTU5IiB5Mj0iNTYuMTU5IiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgICAgIDxsaW5lIHgxPSI2OSIgeTE9IjExMi44NDEiIHgyPSI2OSIgeTI9IjEzMSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iODcuMTU5IiB5MT0iMTMxIiB4Mj0iNjkiIHkyPSIxMzEiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjMiLz4KICAgICAgICAgICAgPGxpbmUgeDE9IjU2LjE1OSIgeTE9IjEwMCIgeDI9IjY5IiB5Mj0iMTEyLjg0MSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iODcuMTU5IiB5MT0iMTMxIiB4Mj0iMTAwIiB5Mj0iMTQzLjg0MSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iMTMxLjE1OSIgeTE9IjExMi44NDEiIHgyPSIxMzEuMTU5IiB5Mj0iMTMxIiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgICAgIDxsaW5lIHgxPSIxMTMiIHkxPSIxMzEiIHgyPSIxMzEuMTU5IiB5Mj0iMTMxIiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIzIi8+CiAgICAgICAgICAgIDxsaW5lIHgxPSIxNDQiIHkxPSIxMDAiIHgyPSIxMzEuMTU5IiB5Mj0iMTEyLjg0MSIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMyIvPgogICAgICAgICAgICA8bGluZSB4MT0iMTEzIiB5MT0iMTMxIiB4Mj0iMTAwLjE1OSIgeTI9IjE0My44NDEiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjMiLz4KICAgICAgICA8L2c+CiAgICAgICAgPHBhdGggc3Ryb2tlPSIjMTYzMzVmIiBkPSIgTSAxMDAgMC4wMDcgTCA2Ni41MTYgMzMuNDkyIEwgMC4wMTEgOTkuOTk5IEwgMTAwIDE5OS45OTMgTCAxOTkuOTg3IDk5Ljk5OSBMIDEwMCAwLjAwNyBaICIgZmlsbC1ydWxlPSJldmVub2RkIiBmaWxsPSJub25lIiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtZGFzaGFycmF5PSIwLDAiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjQiLz4KICAgIDwvZz4KPC9zdmc+Cg==')}
 :root{--pat-color:#16335f; --accent:#ffd98a; --prep-track:rgba(255,255,255,.12); --ezan-bg:rgba(255,210,63,.10); --ezan-brd:rgba(255,210,63,.6); --ezan-glow:rgba(255,200,50,.3)}
 body.light{--pat-color:#b9c6da; --accent:#0e57b0; --prep-track:rgba(14,87,176,.12); --ezan-bg:rgba(224,138,0,.12); --ezan-brd:rgba(224,138,0,.55); --ezan-glow:rgba(224,138,0,.2)}
-body.green{--pat-color:#3d7a37}
 
 /* ===================== CUMA HUTBESİ OVERLAY (koyu tema; gündüz beyaz kuralları aşağıda) ===================== */
 .hutbe{position:fixed;inset:0;z-index:50;display:flex;
@@ -334,10 +314,6 @@ body.light .hutbe-title{color:#0e57b0;text-shadow:0 3px 20px rgba(0,0,0,.06)}
 body.light .hutbe-body .lead{color:#152537}
 body.light .hutbe-body .quote{border-left-color:#0e57b0;color:#33507a}
 body.light .hutbe-foot{color:#5c6b7c;border-top-color:rgba(0,0,0,.1)}
-/* hutbe — yeşil tema */
-body.green .hutbe{background:radial-gradient(120% 95% at 50% 0%, #31682c 0%, #285129 42%, #1e401f 74%, #143014 100%);color:#eef4e8}
-body.green .hutbe-body .quote{color:#d9e9cf}
-body.green .hutbe-foot{color:#cfdcc4}
 
 /* ===================== NAMAZ ÖNCESİ HAZIRLIK (vakte 60 sn kala) ===================== */
 .prepare{display:flex}
@@ -402,8 +378,8 @@ body.light .prep-card.ezan{box-shadow:0 0 40px var(--ezan-glow)}
 .prev-dark i{background:rgba(92,200,255,.10);border:2px solid rgba(92,200,255,.5)}
 .prev-light{background:radial-gradient(120% 90% at 50% 0%,#ffffff,#eef2f8 70%,#e7ecf3);color:#152537}
 .prev-light i{background:#ffffff;border:2px solid rgba(12,132,180,.55)}
-.prev-green{background:radial-gradient(120% 90% at 50% 0%,#31682c,#1e401f 70%,#143014);color:#fff}
-.prev-green i{background:rgba(240,71,58,.12);border:2px solid rgba(255,122,107,.6)}
+.prev-krem{background:radial-gradient(120% 90% at 50% 0%,#FBF7EF,#F6F1E7 70%,#EDE4D3);color:#14295A}
+.prev-krem i{background:rgba(180,35,24,.08);border:2px solid rgba(180,35,24,.6)}
 .prev-auto{background:linear-gradient(90deg,#f4f7fb 0,#f4f7fb 50%,#0a2150 50%,#0a2150 100%)}
 .prev-auto b{top:36%;font-size:4.2vh}
 .prev-auto .pa-day{right:50%;color:#152537}
@@ -425,11 +401,78 @@ body.light .prep-card.ezan{box-shadow:0 0 40px var(--ezan-glow)}
 .set-toggle .sw-txt{min-width:7vh;text-align:left}
 .set-toggle:hover{border-color:#5cc8ff}
 .set-toggle:focus{outline:none;border-color:#5cc8ff;box-shadow:0 0 0 .6vh #5cc8ff,0 0 3vh rgba(92,200,255,.45)}
+/* cuma hutbesi zamanı: − değer + (kumandayla da) */
+.set-adimlar{display:flex;flex-direction:column;gap:1.2vh;flex:0 0 auto}
+.set-adim{display:flex;align-items:center;gap:1.2vh}
+.set-adim-ad{min-width:12vh;font-weight:600;font-size:2.2vh;color:#9fb1d0}
+.set-btn{width:6vh;height:6vh;border-radius:50%;font:700 3.2vh 'Inter',system-ui,sans-serif;line-height:1;color:#eef3fb;
+  background:transparent;border:3px solid rgba(255,255,255,.18);cursor:pointer;padding:0}
+.set-btn:hover{border-color:#5cc8ff}
+.set-btn:focus{outline:none;border-color:#5cc8ff;box-shadow:0 0 0 .6vh #5cc8ff,0 0 3vh rgba(92,200,255,.45)}
+.set-btn:disabled{opacity:.35;cursor:default}
+.set-deger{min-width:17vh;text-align:center;font:700 2.6vh 'Inter',system-ui,sans-serif}
+
+/* ---- KREM tema (yeşil temanın yerine, kullanıcı isteği 04-11-2026): mobil uygulamanın renkleri ----
+   Düzen, 6 kutu ve yazı tipleri aynı; sadece renkler ve desen. Body'de "light krem" birlikte bulunur:
+   beyaz temanın kuralları geçerli, aşağıdakiler onları ezer. */
+body.krem{
+  --panel:#FBF6EC; --panel-brd:#E3D8C4;
+  --label:#1F46A6; --label-ar:#9A7630; --white:#14295A;
+  --cyan:#B42318; --flash:#B7791F; --gold:#E2A43C; --gold-2:#C98A1E;
+  --pat:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='%23000' stroke-width='1.1'%3E%3Crect x='14' y='14' width='20' height='20'/%3E%3Crect x='14' y='14' width='20' height='20' transform='rotate(45 24 24)'/%3E%3Cpath d='M0 24h10M38 24h10M24 0v10M24 38v10'/%3E%3C/g%3E%3C/svg%3E");
+  --pat-color:#C9B07A; --accent:#14295A;
+  --prep-track:rgba(168,132,58,.18);
+  --ezan-bg:rgba(226,164,60,.12); --ezan-brd:rgba(183,121,31,.55); --ezan-glow:rgba(226,164,60,.22);
+}
+body.krem .pat-edge::before{opacity:.55}
+body.krem .dates .d{color:#14295A}
+body.krem .dates .h{color:#8A6A2A}
+body.krem .brand .name{color:#14295A;text-shadow:none}
+body.krem .brand .name b{color:#B42318}
+body.krem .brand::before{background:radial-gradient(closest-side, rgba(246,241,231,.97) 0%, rgba(246,241,231,.94) 62%, rgba(246,241,231,0) 100%)}
+body.krem .rule{background:linear-gradient(90deg,transparent,rgba(168,132,58,.25) 30%,#A8843A 50%,rgba(168,132,58,.25) 70%,transparent)}
+body.krem .clock{color:#14295A;text-shadow:0 6px 40px rgba(20,41,90,.08)}
+body.krem .clockwrap::before{background:radial-gradient(closest-side, rgba(226,164,60,.12), transparent 72%)}
+body.krem .sun-ico{filter:drop-shadow(0 0 22px rgba(226,164,60,.30))}
+body.krem .sun-ar{font-size:28px;color:#9A7630}
+body.krem .box,body.krem .prep-card{box-shadow:0 10px 26px rgba(20,41,90,.07)}
+body.krem .box .ar{font-size:46px;color:#9A7630}
+/* sıradaki vakit ve sayaç: kırmızı, belirgin */
+body.krem .box.next{border-color:#B42318;box-shadow:0 0 0 4px rgba(180,35,24,.40) inset,0 0 48px rgba(180,35,24,.26)}
+body.krem .box.next .tr{color:#B42318}
+body.krem .flash.box{border-color:rgba(183,121,31,.6);box-shadow:0 0 38px rgba(226,164,60,.28)}
+body.krem .countdown{background:rgba(180,35,24,.08);border-color:rgba(180,35,24,.45);box-shadow:0 10px 26px rgba(180,35,24,.08)}
+body.krem .cd-label{color:#B42318}
+body.krem .cd-timer{color:#B42318;text-shadow:none}
+body.krem .countdown.ezan{background:rgba(226,164,60,.12);border-color:rgba(183,121,31,.55);box-shadow:0 0 40px rgba(226,164,60,.2)}
+body.krem .countdown.ezan .cd-label{color:#8A5A12}
+body.krem .cd-banner{text-shadow:0 0 30px rgba(226,164,60,.3)}
+body.krem .loading{background:rgba(246,241,231,.7)}
+/* âyet / hadîs / dua: sayaç kutusu gibi (açık kırmızı zemin) */
+body.krem .feat-card{background:rgba(180,35,24,.07);border-color:rgba(180,35,24,.42);box-shadow:0 10px 26px rgba(180,35,24,.06)}
+body.krem .feat-tag,body.krem .feat-src{color:#B42318}
+body.krem .feat-ar{color:#14295A}
+body.krem .feat-tr{color:#2B3A5B}
+/* namaz öncesi sayaç */
+body.krem .prep-sec{color:#14295A}
+body.krem .prep-unit{color:#A8843A}
+/* ayarlar dişlisi */
+body.krem .gear{color:#A8843A}
+body.krem .gear:hover,body.krem .gear:focus{background:rgba(168,132,58,.14)}
+/* cuma hutbesi */
+body.krem .hutbe{background:radial-gradient(120% 95% at 50% 0%, #FBF7EF 0%, #F6F1E7 42%, #F1EADC 74%, #EDE4D3 100%);color:#14295A}
+body.krem .hutbe-head{border-bottom-color:rgba(168,132,58,.4)}
+body.krem .hutbe-mosque{color:#14295A}
+body.krem .hutbe-kicker{color:#B42318}
+body.krem .hutbe-title{color:#14295A;text-shadow:none}
+body.krem .hutbe-body .lead{color:#14295A}
+body.krem .hutbe-body .quote{border-left-color:#B42318;color:#4E5B76}
+body.krem .hutbe-foot{color:#4E5B76;border-top-color:rgba(168,132,58,.3)}
 </style>
 </head>
 <body>
 <div id="bglight" class="bglayer" aria-hidden="true"></div>
-<div id="bggreen" class="bglayer" aria-hidden="true"></div>
+<div id="bgkrem" class="bglayer" aria-hidden="true"></div>
 <div id="stage">
   <div class="pat-edge pat-top" aria-hidden="true"></div>
   <div class="pat-edge pat-right" aria-hidden="true"></div>
@@ -602,7 +645,7 @@ body.light .prep-card.ezan{box-shadow:0 0 40px var(--ezan-glow)}
         <button type="button" class="set-opt" data-mode="dark"><span class="set-prev prev-dark"><b>12:00</b><i></i></span><span class="set-name">Koyu</span><span class="set-desc">Lacivert, gece ve gündüz</span></button>
         <button type="button" class="set-opt" data-mode="light"><span class="set-prev prev-light"><b>12:00</b><i></i></span><span class="set-name">Açık</span><span class="set-desc">Beyaz, gece ve gündüz</span></button>
         <button type="button" class="set-opt" data-mode="auto"><span class="set-prev prev-auto"><b class="pa-day">12:00</b><b class="pa-night">22:00</b></span><span class="set-name">Gündüz açık · Akşam koyu</span><span class="set-desc">Güneş doğunca beyaz, Akşam vaktinde lacivert</span></button>
-        <button type="button" class="set-opt" data-mode="green"><span class="set-prev prev-green"><b>12:00</b><i></i></span><span class="set-name">Yeşil</span><span class="set-desc">Yeşil ve altın</span></button>
+        <button type="button" class="set-opt" data-mode="krem"><span class="set-prev prev-krem"><b>12:00</b><i></i></span><span class="set-name">Krem</span><span class="set-desc">Krem, lacivert ve altın; vurgu kırmızı</span></button>
       </div>
       <div class="set-row">
         <div>
@@ -610,6 +653,22 @@ body.light .prep-card.ezan{box-shadow:0 0 40px var(--ezan-glow)}
           <div class="set-row-desc">Vakte 1 dakika kala telefon uyarısı ve 60 saniye sayaç; ezan vaktinde aynı ekranda EZAN VAKTİ</div>
         </div>
         <button type="button" class="set-toggle" id="set-prep" role="switch" aria-checked="true"><span class="sw"></span><span class="sw-txt">Açık</span></button>
+      </div>
+      <div class="set-row">
+        <div>
+          <div class="set-row-title">Cuma hutbesi</div>
+          <div class="set-row-desc">Cuma günü Öğle vaktinden kaç dakika sonra başlasın ve ekranda kaç dakika kalsın</div>
+        </div>
+        <div class="set-adimlar">
+          <div class="set-adim"><span class="set-adim-ad">Başlangıç</span>
+            <button type="button" class="set-btn" id="hutbe-gecikme-eksi" aria-label="Başlangıç 5 dakika erken">−</button>
+            <span class="set-deger" id="hutbe-gecikme">Öğle + 10 dk</span>
+            <button type="button" class="set-btn" id="hutbe-gecikme-arti" aria-label="Başlangıç 5 dakika geç">+</button></div>
+          <div class="set-adim"><span class="set-adim-ad">Süre</span>
+            <button type="button" class="set-btn" id="hutbe-sure-eksi" aria-label="Süre 5 dakika kısa">−</button>
+            <span class="set-deger" id="hutbe-sure">30 dk</span>
+            <button type="button" class="set-btn" id="hutbe-sure-arti" aria-label="Süre 5 dakika uzun">+</button></div>
+        </div>
       </div>
       <div class="set-foot">Seçimler bu ekranda saklanır. Kumandada ok tuşlarıyla gezin, OK ile seçin, Geri ile kapatın.</div>
     </div>
@@ -842,17 +901,18 @@ function tick(){
   requestAnimationFrame(()=>setTimeout(tick,250));
 }
 
-/* ---- TEMA: koyu / açık / gündüz açık-akşam koyu (otomatik) / yeşil ----
+/* ---- TEMA: koyu / açık / gündüz açık-akşam koyu (otomatik) / krem ----
    Sağ üstteki ayarlar ekranından seçilir ve bu TV'nin tarayıcısında saklanır.
-   Adresten de seçilebilir (kaydedilmez): ?theme=dark | light | auto | green
+   Adresten de seçilebilir (kaydedilmez): ?theme=dark | light | auto | krem  (eski 'green' = krem)
    Otomatikte geçiş Güneş ve Akşam vaktinden 1 sn önce başlar, vakit girdiğinde tamamlanır. */
-const THEME_MODES=['dark','light','auto','green'];
+const THEME_MODES=['dark','light','auto','krem'];
+const temaAdi=function(v){ return v==='green' ? 'krem' : v; };   // yeşil tema kaldırıldı (04-11-2026): eski kayıtlar krem olur
 const THEME_KEY='nizam-tema';
 let _theme=null, _themeReady=false;
 let themeMode=(function(){
-  const q=new URLSearchParams(location.search).get('theme');
+  const q=temaAdi(new URLSearchParams(location.search).get('theme'));
   if(THEME_MODES.indexOf(q)>=0) return q;
-  try{ const s=localStorage.getItem(THEME_KEY); if(THEME_MODES.indexOf(s)>=0) return s; }catch(e){}
+  try{ const s=temaAdi(localStorage.getItem(THEME_KEY)); if(THEME_MODES.indexOf(s)>=0) return s; }catch(e){}
   return 'auto';
 })();
 function setThemeMode(m){
@@ -881,8 +941,8 @@ function applyTheme(th){
   if(th===_theme) return;
   const first=!_themeReady; _theme=th; _themeReady=true;
   const set=function(){
-    document.body.classList.toggle('light', th==='light');
-    document.body.classList.toggle('green', th==='green');
+    document.body.classList.toggle('light', th==='light' || th==='krem');   // krem = beyaz temanın düzeni + kendi renkleri
+    document.body.classList.toggle('krem', th==='krem');
   };
   if(first){ set(); return; }
   document.body.classList.add('fade');
@@ -898,8 +958,24 @@ setInterval(()=>{ if(dataReady) loadTimes(); }, 60*60*1000);
 
 /* ===================== CUMA HUTBESİ ===================== */
 const TEST_HUTBE = new URLSearchParams(location.search).get('test')==='hutbe';
-const HUTBE_DELAY_MIN = 10;   // Öğle'den sonra başlama gecikmesi (dk)
-const HUTBE_SHOW_MIN  = 30;   // ekranda kalma süresi (dk)
+// Öğle'den kaç dk sonra başlar, kaç dk kalır: ayarlar ekranından değişir, bu TV'de saklanır ("nizam-hutbe")
+const HUTBE_KEY = 'nizam-hutbe';
+const HUTBE_VARSAYILAN = { gecikme: 10, sure: 30 };
+const HUTBE_SINIR = { gecikme: [0, 60], sure: [5, 90] };   // 5 dk adımlarla
+let hutbeAyar = (function(){
+  try{
+    const j = JSON.parse(localStorage.getItem(HUTBE_KEY) || 'null');
+    if(j && isFinite(j.gecikme) && isFinite(j.sure)) return {
+      gecikme: Math.min(HUTBE_SINIR.gecikme[1], Math.max(HUTBE_SINIR.gecikme[0], Math.round(j.gecikme))),
+      sure: Math.min(HUTBE_SINIR.sure[1], Math.max(HUTBE_SINIR.sure[0], Math.round(j.sure))) };
+  }catch(e){}
+  return { gecikme: HUTBE_VARSAYILAN.gecikme, sure: HUTBE_VARSAYILAN.sure };
+})();
+function setHutbeAyar(ad, fark){
+  const [en, enCok] = HUTBE_SINIR[ad];
+  hutbeAyar[ad] = Math.min(enCok, Math.max(en, hutbeAyar[ad] + fark));
+  try{ localStorage.setItem(HUTBE_KEY, JSON.stringify(hutbeAyar)); }catch(e){}
+}
 let hutbeData=null, hutbeFetching=false, hutbeVisible=false, hutbeRAF=0;
 
 async function fetchHutbe(){
@@ -924,8 +1000,8 @@ function hutbeShouldShow(now){
   if(TEST_HUTBE) return true;
   if(now.getDay()!==5) return false;             // 5 = Cuma
   const dh=todayDhuhr(now); if(!dh) return false;
-  const start=dh.getTime()+HUTBE_DELAY_MIN*60000;
-  const end=start+HUTBE_SHOW_MIN*60000;
+  const start=dh.getTime()+hutbeAyar.gecikme*60000;
+  const end=start+hutbeAyar.sure*60000;
   const t=now.getTime();
   return t>=start && t<end;
 }
@@ -1244,6 +1320,8 @@ setInterval(()=>{ const _n=new Date(); try{ updateHutbe(_n); }catch(e){} try{ fe
   const ov=document.getElementById('settings'), gear=document.getElementById('gear');
   const opts=[].slice.call(ov.querySelectorAll('.set-opt')), closeBtn=document.getElementById('set-close');
   const prepBtn=document.getElementById('set-prep');
+  const hb={ gecikmeEksi: document.getElementById('hutbe-gecikme-eksi'), gecikmeArti: document.getElementById('hutbe-gecikme-arti'),
+             sureEksi: document.getElementById('hutbe-sure-eksi'), sureArti: document.getElementById('hutbe-sure-arti') };
   const BACK=[27,8,10009,461];            // Esc, Backspace, Samsung ve LG kumandasındaki "Geri"
   let idle=0, gearIdle=0;
   function isOpen(){ return !ov.classList.contains('hidden'); }
@@ -1254,6 +1332,10 @@ setInterval(()=>{ const _n=new Date(); try{ updateHutbe(_n); }catch(e){} try{ fe
       const on=b.getAttribute('data-mode')===themeMode;
       b.classList.toggle('sel', on); b.setAttribute('aria-pressed', on?'true':'false');
     });
+    document.getElementById('hutbe-gecikme').textContent = hutbeAyar.gecikme ? 'Öğle + '+hutbeAyar.gecikme+' dk' : 'Öğle vaktinde';
+    document.getElementById('hutbe-sure').textContent = hutbeAyar.sure+' dk';
+    hb.gecikmeEksi.disabled = hutbeAyar.gecikme<=HUTBE_SINIR.gecikme[0]; hb.gecikmeArti.disabled = hutbeAyar.gecikme>=HUTBE_SINIR.gecikme[1];
+    hb.sureEksi.disabled = hutbeAyar.sure<=HUTBE_SINIR.sure[0]; hb.sureArti.disabled = hutbeAyar.sure>=HUTBE_SINIR.sure[1];
   }
   function bump(){ clearTimeout(idle); idle=setTimeout(close, 60000); }
   function open(){
@@ -1268,6 +1350,9 @@ setInterval(()=>{ const _n=new Date(); try{ updateHutbe(_n); }catch(e){} try{ fe
   gear.addEventListener('focus', function(){ clearTimeout(gearIdle); gearIdle=setTimeout(function(){ if(!isOpen()) gear.blur(); }, 10000); });
   closeBtn.addEventListener('click', close);
   prepBtn.addEventListener('click', function(){ setPrepOn(!prepOn); mark(); bump(); });
+  [['gecikmeEksi','gecikme',-5],['gecikmeArti','gecikme',5],['sureEksi','sure',-5],['sureArti','sure',5]].forEach(function(x){
+    hb[x[0]].addEventListener('click', function(){ setHutbeAyar(x[1], x[2]); mark(); bump(); });
+  });
   opts.forEach(function(b){
     b.addEventListener('click', function(){ setThemeMode(b.getAttribute('data-mode')); mark(); bump(); });
   });
@@ -1277,7 +1362,8 @@ setInterval(()=>{ const _n=new Date(); try{ updateHutbe(_n); }catch(e){} try{ fe
     if(isOpen()){
       bump();
       if(BACK.indexOf(k)>=0){ e.preventDefault(); close(); return; }
-      const list=opts.concat([prepBtn, closeBtn]); const i=list.indexOf(document.activeElement);
+      const list=opts.concat([prepBtn, hb.gecikmeEksi, hb.gecikmeArti, hb.sureEksi, hb.sureArti, closeBtn]).filter(function(b){ return !b.disabled; });
+      const i=list.indexOf(document.activeElement);
       if(k===39||k===40){ e.preventDefault(); list[(i+1+list.length)%list.length].focus(); }
       else if(k===37||k===38){ e.preventDefault(); list[(i-1+list.length)%list.length].focus(); }
       return;

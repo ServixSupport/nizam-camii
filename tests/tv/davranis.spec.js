@@ -16,7 +16,7 @@ const swap = (page) => page.locator('.swap-area');
 const bodyTema = async (page) => {
   await page.clock.runFor(50);
   return page.evaluate(() =>
-    document.body.classList.contains('light') ? 'light' : document.body.classList.contains('green') ? 'green' : 'dark');
+    document.body.classList.contains('krem') ? 'krem' : document.body.classList.contains('light') ? 'light' : 'dark');
 };
 
 test.describe('vakitler ve tarih', () => {
@@ -317,6 +317,47 @@ test.describe('cuma hutbesi', () => {
     await expect(page.locator('#hutbe')).toBeHidden();
   });
 
+  test('ayarlardan: başlangıç ve süre değiştirilir, saklanır ve uygulanır', async ({ page }) => {
+    await tvAc(page, { zaman: an('12:37:00.500', CUMA), hutbe: HUTBE });
+    await page.locator('#gear').click();
+    await expect(page.locator('#hutbe-gecikme')).toHaveText('Öğle + 10 dk');
+    await expect(page.locator('#hutbe-sure')).toHaveText('30 dk');
+    await page.locator('#hutbe-gecikme-arti').click();
+    await page.locator('#hutbe-gecikme-arti').click();
+    await page.locator('#hutbe-sure-eksi').click();
+    await page.locator('#hutbe-sure-eksi').click();
+    await expect(page.locator('#hutbe-gecikme')).toHaveText('Öğle + 20 dk');
+    await expect(page.locator('#hutbe-sure')).toHaveText('20 dk');
+    expect(JSON.parse(await page.evaluate(() => localStorage.getItem('nizam-hutbe')))).toEqual({ gecikme: 20, sure: 20 });
+    await page.locator('#set-close').click();
+    await saatGit(page, an('12:40:00.500', CUMA));
+    await expect(page.locator('#hutbe')).toBeHidden();                 // 12:40: varsayılanda açıktı, artık Öğle + 20'den önce
+    await saatGit(page, an('12:49:00.500', CUMA));
+    await expect(page.locator('#hutbe')).toBeVisible();                // 12:49 = 12:29 + 20
+    await saatGit(page, an('13:08:59.500', CUMA));
+    await expect(page.locator('#hutbe')).toBeVisible();
+    await ileri(page, 1000);
+    await expect(page.locator('#hutbe')).toBeHidden();                 // 12:49 + 20 dk
+  });
+
+  test('ayar sınırları: Öğle vaktinde başlayabilir; süre en az 5, en çok 90 dk', async ({ page }) => {
+    await tvAc(page, { zaman: an('10:05:00.500'), depo: { 'nizam-hutbe': JSON.stringify({ gecikme: 5, sure: 10 }) } });
+    await page.locator('#gear').click();
+    await page.locator('#hutbe-gecikme-eksi').click();
+    await expect(page.locator('#hutbe-gecikme')).toHaveText('Öğle vaktinde');
+    await expect(page.locator('#hutbe-gecikme-eksi')).toBeDisabled();
+    await page.locator('#hutbe-sure-eksi').click();
+    await expect(page.locator('#hutbe-sure')).toHaveText('5 dk');
+    await expect(page.locator('#hutbe-sure-eksi')).toBeDisabled();
+  });
+
+  test('bozuk kayıt: varsayılan (Öğle + 10, 30 dk)', async ({ page }) => {
+    await tvAc(page, { zaman: an('10:05:00.500'), depo: { 'nizam-hutbe': 'bozuk' } });
+    await page.locator('#gear').click();
+    await expect(page.locator('#hutbe-gecikme')).toHaveText('Öğle + 10 dk');
+    await expect(page.locator('#hutbe-sure')).toHaveText('30 dk');
+  });
+
   test('cuma değilse açılmaz', async ({ page }) => {
     await tvAc(page, { zaman: an('12:45:00.500', '2026-10-29'), hutbe: HUTBE });
     await ileri(page, 2000);
@@ -359,7 +400,8 @@ test.describe('tema', () => {
   for (const [adres, saat, beklenen] of [
     ['/?theme=dark', '10:05:00.500', 'dark'],
     ['/?theme=light', '21:05:00.500', 'light'],
-    ['/?theme=green', '10:05:00.500', 'green'],
+    ['/?theme=krem', '10:05:00.500', 'krem'],
+    ['/?theme=green', '10:05:00.500', 'krem'],          // yeşil tema kaldırıldı (04-11-2026): eski adres krem açar
     ['/?theme=auto', '21:05:00.500', 'dark'],
     ['/?theme=bilinmeyen', '10:05:00.500', 'light'],
   ]) {
@@ -371,8 +413,15 @@ test.describe('tema', () => {
   }
 
   test('kayıtlı tema (localStorage "nizam-tema") uygulanır', async ({ page }) => {
+    await tvAc(page, { zaman: an('10:05:00.500'), depo: { 'nizam-tema': 'krem' } });
+    expect(await bodyTema(page)).toBe('krem');
+  });
+
+  test('eskiden yeşil seçilmiş TV krem temayla açılır', async ({ page }) => {
     await tvAc(page, { zaman: an('10:05:00.500'), depo: { 'nizam-tema': 'green' } });
-    expect(await bodyTema(page)).toBe('green');
+    expect(await bodyTema(page)).toBe('krem');
+    await page.locator('#gear').click();
+    await expect(page.locator('.set-opt[data-mode="krem"]')).toHaveClass(/\bsel\b/);
   });
 });
 
@@ -385,10 +434,10 @@ test.describe('ayarlar penceresi', () => {
     await expect(page.locator('.set-opt[data-mode="auto"]')).toHaveClass(/\bsel\b/);
     await expect(page.locator('.set-opt[data-mode="auto"]')).toBeFocused();
 
-    await page.locator('.set-opt[data-mode="green"]').click();
-    expect(await bodyTema(page)).toBe('green');
-    await expect(page.locator('.set-opt[data-mode="green"]')).toHaveAttribute('aria-pressed', 'true');
-    expect(await page.evaluate(() => localStorage.getItem('nizam-tema'))).toBe('green');
+    await page.locator('.set-opt[data-mode="krem"]').click();
+    expect(await bodyTema(page)).toBe('krem');
+    await expect(page.locator('.set-opt[data-mode="krem"]')).toHaveAttribute('aria-pressed', 'true');
+    expect(await page.evaluate(() => localStorage.getItem('nizam-tema'))).toBe('krem');
 
     await page.locator('#set-close').click();
     await expect(page.locator('#settings')).toBeHidden();
@@ -396,7 +445,7 @@ test.describe('ayarlar penceresi', () => {
     await page.reload();
     await expect(page.locator('#loading')).toBeHidden();
     await ileri(page, 1000);
-    expect(await bodyTema(page)).toBe('green');
+    expect(await bodyTema(page)).toBe('krem');
   });
 
   test('sayaç anahtarı kapatılır ve saklanır', async ({ page }) => {
@@ -418,9 +467,13 @@ test.describe('ayarlar penceresi', () => {
     await expect(page.locator('#settings')).toBeVisible();
     await expect(page.locator('.set-opt[data-mode="auto"]')).toBeFocused();
     await page.keyboard.press('ArrowRight');
-    await expect(page.locator('.set-opt[data-mode="green"]')).toBeFocused();
+    await expect(page.locator('.set-opt[data-mode="krem"]')).toBeFocused();
     await page.keyboard.press('ArrowRight');
     await expect(page.locator('#set-prep')).toBeFocused();
+    await page.keyboard.press('ArrowRight');
+    await expect(page.locator('#hutbe-gecikme-eksi')).toBeFocused();
+    await page.keyboard.press('Enter');                                   // kumandayla da değişir
+    await expect(page.locator('#hutbe-gecikme')).toHaveText('Öğle + 5 dk');
     await page.keyboard.press('Escape');
     await expect(page.locator('#settings')).toBeHidden();
   });

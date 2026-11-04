@@ -22,8 +22,13 @@ const DURUMLAR = [
   { ad: '10-cuma-hutbesi', zaman: `${CUMA}T12:40:00.500+01:00`, hutbe: HUTBE, kucuk: true },
   { ad: '11-tema-koyu-gunduz', zaman: `${GUN}T10:05:00.500+01:00`, adres: '/?theme=dark' },
   { ad: '12-tema-acik-gece', zaman: `${GUN}T21:05:00.500+01:00`, adres: '/?theme=light' },
-  { ad: '13-tema-yesil', zaman: `${GUN}T10:05:00.500+01:00`, adres: '/?theme=green' },
+  { ad: '13-tema-krem', zaman: `${GUN}T10:05:00.500+01:00`, adres: '/?theme=krem' },
   { ad: '14-ayarlar', zaman: `${GUN}T10:05:00.500+01:00`, ayarlar: true },
+  // krem tema (yeşilin yerine, 04-11-2026)
+  { ad: '15-krem-ayet', zaman: `${GUN}T10:05:00.500+01:00`, adres: '/?theme=krem&test=ayet' },
+  { ad: '16-krem-hazirlik', zaman: `${GUN}T12:28:30.500+01:00`, adres: '/?theme=krem' },
+  { ad: '17-krem-ezan', zaman: `${GUN}T12:29:10.500+01:00`, adres: '/?theme=krem' },
+  { ad: '18-krem-hutbe', zaman: `${CUMA}T12:40:00.500+01:00`, adres: '/?theme=krem', hutbe: HUTBE },
 ];
 
 for (const d of DURUMLAR) {

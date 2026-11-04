@@ -39,7 +39,7 @@
 - Kullanıcı onaylayınca `main`'e alınır ve canlıya çıkar. `main`'e doğrudan push yok.
 - `gh` bu bilgisayarda `ServixSupport` hesabıyla giriş yapmış durumda.
 
-**TV'nin localStorage anahtarları:** `vakitler`, `nizam-tema`, `nizam-sayac`.
+**TV'nin localStorage anahtarları:** `vakitler`, `nizam-tema` (`dark|light|auto|krem`; eski `green` = krem), `nizam-sayac`, `nizam-hutbe` (`{gecikme, sure}` dk; varsayılan 10 ve 30).
 - Uygulama aynı origin'de çalışır. Bu anahtarları okumaz ve üzerine yazmaz; kendi anahtarlarına önek koyar.
 
 ## Kullanıcı hakkında
@@ -52,6 +52,7 @@
 ## Kesin kurallar
 
 1. **TV ekranının davranışı değişmez.** `index.html`'e izinli tek ek, en üste konacak küçük yönlendirme betiği (plan §1).
+   - İstisna, kullanıcının açık isteğiyle (04-11-2026): yeşil tema kaldırıldı, yerine **krem tema** (uygulamanın renkleri; düzen ve yazı tipleri aynı). Ayarlara **cuma hutbesi** zamanı eklendi (Öğle + dk, süre). Başka TV değişikliği yine sadece kullanıcı açıkça isterse.
    - Önce mevcut davranışın testlerini yaz (Faz 0), sonra değiştir.
    - Yönlendirme bir TV'yi **asla** mobil sürüme göndermemeli. Şüphede TV.
 2. **Diyanet API'si:** limit uç nokta başına 5 istek. TV ve uygulama vakitleri yalnızca `/api/vakit` üzerinden alır.
@@ -89,7 +90,7 @@
   - Canlı siteye (`nizam-camii.vercel.app`) toplu test koşma.
   - 25-10-2026'da ~150 test Vercel'in bot korumasını tetikledi: bu bağlantıya bir süre `403 Security Checkpoint` döndü.
   - Canlıda sadece birkaç `curl` ve tek bir tarayıcı kontrolü yap.
-- **TV test modları korunur:** `?test=ayet|hadis|dua|hazirlik|ezan|hutbe` ve `?theme=dark|light|auto|green`.
+- **TV test modları korunur:** `?test=ayet|hadis|dua|hazirlik|ezan|hutbe` ve `?theme=dark|light|auto|krem` (`green` → krem).
 - **Ekran boyutları:**
   - TV: 1920×1080, 1366×768, 960×540
   - Mobil: 390×844, 820×1180, 1180×820
