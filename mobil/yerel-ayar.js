@@ -109,6 +109,9 @@ export function yerelAyarlar({ L, cami, platform, planDegisti, bildirimAcik }) {
   function ciz() {
     const t = L();
     $('#widget-ayar').hidden = platform !== 'ios';
+    const gizlilik = $('#gizlilik-link');
+    gizlilik.hidden = false;
+    gizlilik.href = `https://nizam-camii.vercel.app/gizlilik/#${({ tr: 'tr', nl: 'nl', en: 'en' })[document.documentElement.lang] || 'nl'}`;
     $('#sayac-ayar').hidden = !android;
     $('#sessiz-ayar').hidden = !android;
     if (!android) { $('#tam-alarm').hidden = true; return; }

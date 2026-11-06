@@ -98,8 +98,7 @@ button { font: inherit; color: inherit; }
 .menu-oge span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .menu-oge i { display: none; }
 .menu-oge { gap: 3px; }
-/* Android/iPhone sistem çubuğunun arkası lacivert: beyaz sistem ikonları görünsün */
-.menu::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: env(safe-area-inset-bottom); background: var(--navy); }
+/* sistem çubuğunun arkası menünün rengi: açık temada açık, koyu temada koyu (kullanıcı isteği, 06-11-2026; önceden hep lacivert) */
 .menu-oge[aria-current="page"] { color: var(--cobalt); font-weight: 700; }
 .menu-oge[aria-current="page"] i { background: var(--coral); }
 
@@ -543,6 +542,7 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 .b-vakitler button[aria-pressed="true"] { background: var(--railActive); color: var(--cobalt); border-color: var(--cobalt); }
 .b-vakitler svg { width: 13px; height: 13px; }
 .b-not { margin: 0 4px; line-height: 1.45; }
+.gizlilik-link { align-self: flex-start; font-size: 13px; color: var(--cobalt); text-decoration: underline; text-underline-offset: 2px; }
 .b-kart > .b-mesaj:last-child { box-shadow: none; }
 
 /* deneme bildirimi düğmesi ve "ayarlanıyor" yazısı */

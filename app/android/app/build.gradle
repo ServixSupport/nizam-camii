@@ -16,8 +16,21 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // Play Store yükleme anahtarı: depo DIŞINDA (kullanıcının ~/.gradle/gradle.properties dosyasında
+    // CAMI_ANAHTAR_DOSYA / CAMI_ANAHTAR_SIFRE / CAMI_ANAHTAR_AD). Yoksa sürüm imzasız derlenir (CI).
+    signingConfigs {
+        if (project.hasProperty('CAMI_ANAHTAR_DOSYA')) {
+            yukleme {
+                storeFile file(CAMI_ANAHTAR_DOSYA)
+                storePassword CAMI_ANAHTAR_SIFRE
+                keyAlias CAMI_ANAHTAR_AD
+                keyPassword CAMI_ANAHTAR_SIFRE
+            }
+        }
+    }
     buildTypes {
         release {
+            if (project.hasProperty('CAMI_ANAHTAR_DOSYA')) signingConfig signingConfigs.yukleme
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

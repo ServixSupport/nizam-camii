@@ -45,6 +45,8 @@ test('kurulum kartı yok, service worker kurulmaz; vakitler sunucunun tam adresi
   await expect(page.locator('#s-ayarlar h1')).toBeVisible();
   await expect(page.locator('#kurulum')).toBeHidden();
   expect(await page.evaluate(async () => (await navigator.serviceWorker.getRegistrations()).length)).toBe(0);
+  // Apple ve Google: uygulamanın içinde gizlilik bağlantısı
+  await expect(page.getByRole('link', { name: 'Privacy' })).toHaveAttribute('href', 'https://nizam-camii.vercel.app/gizlilik/#nl');
   expect(kayit.api.map((u) => u.href)).toContain('https://nizam-camii.vercel.app/api/vakit');
 });
 
@@ -183,5 +185,5 @@ test('iPhone: sessize alma ve durum çubuğu yok (Apple izin vermez), kilit ekra
 
 test('tarayıcıda (web uygulaması) yeni bölümler hiç görünmez ve telefon eklentisi çağrılmaz', async ({ page }) => {
   await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar' });
-  for (const id of ['#sayac-ayar', '#sessiz-ayar', '#widget-ayar', '#tam-alarm']) await expect(page.locator(id)).toBeHidden();
+  for (const id of ['#sayac-ayar', '#sessiz-ayar', '#widget-ayar', '#tam-alarm', '#gizlilik-link']) await expect(page.locator(id)).toBeHidden();
 });
