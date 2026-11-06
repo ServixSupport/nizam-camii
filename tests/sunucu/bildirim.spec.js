@@ -55,7 +55,10 @@ test.describe('anlar ve metinler', () => {
 
   test('metinler tasarımdaki gibi (ontwerp/Mobil-Bildirim.dc.html), üç dilde', () => {
     const aksam = { tarih: '2026-10-28', vakit: 'Maghrib', tur: 'giris', saat: '18:34' };
-    expect(bildirimMetni('tr', aksam)).toEqual({ baslik: 'Akşam vakti girdi · 18:34', govde: 'Camiye geliyorsanız telefonunuzu sessize almayı unutmayın.' });
+    // vakit girince sadece başlık: "telefonu sessize alın" cümlesi yok (06-11-2026)
+    expect(bildirimMetni('tr', aksam)).toEqual({ baslik: 'Akşam vakti girdi · 18:34', govde: '' });
+    expect(bildirimMetni('nl', aksam)).toEqual({ baslik: 'Maghrib is begonnen · 18:34', govde: '' });
+    expect(bildirimMetni('en', aksam)).toEqual({ baslik: 'Maghrib has begun · 18:34', govde: '' });
     expect(bildirimMetni('tr', { ...aksam, tur: 'once-15' })).toEqual({ baslik: 'Akşam namazına 15 dakika', govde: 'Akşam vakti 18:34’te giriyor.' });
     expect(bildirimMetni('nl', { vakit: 'Isha', tur: 'once-10', saat: '20:09' })).toEqual({ baslik: 'Nog 10 minuten tot Isha', govde: 'Isha begint om 20:09.' });
     expect(bildirimMetni('en', { ...aksam, tur: 'once-5' })).toEqual({ baslik: '5 minutes until Maghrib', govde: 'Maghrib begins at 18:34.' });

@@ -189,11 +189,11 @@ test.describe('ayarlar', () => {
     expect(await tema(page)).toBe('gunduz');
   });
 
-  test('cami kartı ve TV linki', async ({ page }) => {
+  test('cami kartı; TV linki yok (06-11-2026)', async ({ page }) => {
     await mobilAc(page, { zaman: an('16:00:00.500'), adres: '/mobil/#ayarlar' });
     await expect(page.locator('.cami-adres')).toHaveAttribute('href', /google\.com\/maps\/search\/\?api=1&query=Ookmeerweg\+206\+Amsterdam/);
     await expect(page.locator('#s-ayarlar')).toContainText('Gebedstijden: Diyanet');
-    await expect(page.locator('a.tv-link')).toHaveAttribute('href', '/?ekran=tv');
+    await expect(page.locator('#s-ayarlar a[href*="ekran=tv"]')).toHaveCount(0);
   });
 });
 
@@ -220,7 +220,7 @@ test.describe('sekmeler', () => {
 
   test('dokunma hedefleri en az 44×44 px', async ({ page }) => {
     await mobilAc(page, { zaman: an('16:00:00.500'), adres: '/mobil/#ayarlar' });
-    for (const el of await page.locator('.menu-oge, #s-ayarlar button:visible, a.tv-link').all()) {
+    for (const el of await page.locator('.menu-oge, #s-ayarlar button:visible').all()) {
       const k = await el.boundingBox();
       expect(k.width, await el.textContent()).toBeGreaterThanOrEqual(44);
       expect(k.height, await el.textContent()).toBeGreaterThanOrEqual(44);
@@ -346,12 +346,6 @@ test('aynı anda TV ekranı hutbeyi gösterir; telefon "/" açınca uygulamaya g
   await expect(telSayfa.locator('body')).not.toContainText(HUTBE.title);
   await expect(telSayfa.locator('#hutbe')).toHaveCount(0);
   await tel.close();
-});
-
-test('"TV ekranını aç" kartı uygulamaya dönüş adresini bu cihazdaki adresle yazar', async ({ page }) => {
-  await mobilAc(page, { zaman: an('16:00:00.500'), adres: '/mobil/#ayarlar' });
-  const adres = new URL(page.url()).host;
-  await expect(page.locator('.tv-link .ayar-not')).toHaveText(`Voor een tablet of scherm aan de muur. Terug naar de app: ${adres}/?ekran=mobil`);
 });
 
 // ---------------- Renk temaları (kullanıcı isteği, 04-11-2026: Yeşil, Turkuaz, Bordo + Lacivert) ----------------

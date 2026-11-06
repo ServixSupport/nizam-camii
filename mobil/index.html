@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#F6F1E7">
 <meta name="color-scheme" content="light dark">
-<title>SÜLEYMANİYE MOSKEE</title>
+<title>Süleymaniye Moskee</title>
 <link rel="icon" href="/mobil/logo.png">
 <link rel="manifest" href="/mobil/manifest-nl.webmanifest">
 <link rel="apple-touch-icon" href="/mobil/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="SÜLEYMANİYE MOSKEE">
+<meta name="apple-mobile-web-app-title" content="Süleymaniye Moskee">
 <link rel="preload" href="/mobil/fonts/hanken-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/mobil/fonts/bodoni-moda-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/mobil/app.css">
@@ -22,8 +22,8 @@
     if (/Android/i.test(navigator.userAgent)) document.documentElement.classList.add('android');
     var d = localStorage.getItem('nzm.dil');
     if (d === 'tr' || d === 'nl' || d === 'en') {
-      /* uygulama adı dile göre: SÜLEYMANİYE CAMİİ / MOSKEE / MOSQUE (ana ekran adı da) */
-      var ad = { tr: 'SÜLEYMANİYE CAMİİ', nl: 'SÜLEYMANİYE MOSKEE', en: 'SÜLEYMANİYE MOSQUE' }[d];
+      /* uygulama adı dile göre: Süleymaniye Camii / Moskee / Mosque (ana ekran adı da) */
+      var ad = { tr: 'Süleymaniye Camii', nl: 'Süleymaniye Moskee', en: 'Süleymaniye Mosque' }[d];
       document.documentElement.lang = d;
       document.title = ad;
       document.querySelector('link[rel="manifest"]').setAttribute('href', '/mobil/manifest-' + d + '.webmanifest');
@@ -237,19 +237,15 @@
         <span class="kurulum-yazi">
           <span class="kurulum-baslik" data-t="installTitle"></span>
           <span class="kurulum-metin" id="kurulum-metin"></span>
+          <ol class="kurulum-adimlar" id="kurulum-adimlar" hidden>
+            <li><span class="adim-simge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M8 10H6.5A1.5 1.5 0 0 0 5 11.5v8A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5H16"/></svg></span><span class="adim-yazi"><b data-t="iosAdim1"></b><span data-t="iosAdim1Not"></span></span></li>
+            <li><span class="adim-simge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3.5"/><path d="M12 8.5v7M8.5 12h7"/></svg></span><span class="adim-yazi"><b data-t="iosAdim2"></b><span data-t="iosAdim2Not"></span></span></li>
+            <li><span class="adim-simge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="adim-yazi"><b data-t="iosAdim3"></b></span></li>
+            <li><span class="adim-simge uyg" aria-hidden="true"><img src="/mobil/ikon-192.png" alt="" width="34" height="34"></span><span class="adim-yazi"><b data-t="iosAdim4"></b><span data-t="iosAdim4Not"></span></span></li>
+          </ol>
           <button type="button" class="dugme altin" id="kurulum-dugme" hidden data-t="installBtn"></button>
         </span>
       </section>
-      <a class="ayar-kart tv-link" href="/?ekran=tv">
-        <span class="tv-ikon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-        </span>
-        <span class="tv-yazi">
-          <span class="tv-baslik" data-t="tvTitle"></span>
-          <span class="ayar-not" data-t="tvText"></span>
-        </span>
-        <svg class="ok" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-      </a>
     </section>
   </section>
 </main>

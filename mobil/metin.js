@@ -38,7 +38,6 @@ export const METIN = {
     title: 'Ayarlar', lang: 'DİL', look: 'GÖRÜNÜM', theme: 'Tema',
     auto: 'Otomatik', light: 'Açık', dark: 'Koyu', autoHint: 'Güneş doğunca açık, Akşam vaktinde koyu tema.',
     mosque: 'CAMİ', source: 'Vakitler: Diyanet İşleri Başkanlığı', harita: 'Haritada aç',
-    tvTitle: 'Bu cihazda TV ekranını aç', tvText: (adres) => `Duvardaki tablet veya ekran için. Uygulamaya dönmek için: ${adres}/?ekran=mobil`,
   },
   nl: {
     locale: 'nl-NL',
@@ -63,7 +62,6 @@ export const METIN = {
     title: 'Instellingen', lang: 'TAAL', look: 'WEERGAVE', theme: 'Thema',
     auto: 'Automatisch', light: 'Licht', dark: 'Donker', autoHint: 'Licht vanaf zonsopgang, donker vanaf maghrib.',
     mosque: 'MOSKEE', source: 'Gebedstijden: Diyanet', harita: 'Openen in kaart',
-    tvTitle: 'Tv-scherm openen op dit apparaat', tvText: (adres) => `Voor een tablet of scherm aan de muur. Terug naar de app: ${adres}/?ekran=mobil`,
   },
   en: {
     locale: 'en-GB',
@@ -88,7 +86,6 @@ export const METIN = {
     title: 'Settings', lang: 'LANGUAGE', look: 'APPEARANCE', theme: 'Theme',
     auto: 'Automatic', light: 'Light', dark: 'Dark', autoHint: 'Light from sunrise, dark from maghrib.',
     mosque: 'MOSQUE', source: 'Prayer times: Diyanet', harita: 'Open in maps',
-    tvTitle: 'Open the TV screen on this device', tvText: (adres) => `For a tablet or screen on the wall. Back to the app: ${adres}/?ekran=mobil`,
   },
 };
 
@@ -139,24 +136,36 @@ for (const d of Object.keys(EK)) Object.assign(METIN[d], EK[d]);
 // ---------------- Faz C: yükleme ve yeni sürüm ----------------
 const PWA = {
   tr: {
-    appAd: 'SÜLEYMANİYE CAMİİ',
+    appAd: 'Süleymaniye Camii',
     installTitle: 'Uygulamayı ana ekrana ekleyin', installBtn: 'Yükle',
     installText: 'Ana ekrandan tam ekran açılır ve internet olmadan da çalışır.',
-    installIos: 'Ana ekrandan tam ekran açılır ve internet olmadan da çalışır. Safari’de Paylaş simgesine dokunup “Ana Ekrana Ekle”yi seçin.',
+    installIos: 'Ana ekrandan tam ekran açılır ve internet olmadan da çalışır. iPhone’da bir düğme yerine şu adımlarla eklenir:',
+    iosAdim1: 'Paylaş simgesine dokunun', iosAdim1Not: 'Görmüyorsanız önce üç nokta simgesine dokunun.',
+    iosAdim2: '“Ana Ekrana Ekle”yi seçin', iosAdim2Not: 'Listede biraz aşağıda olabilir.',
+    iosAdim3: 'Sağ üstte “Ekle”ye dokunun',
+    iosAdim4: 'Uygulamayı bundan sonra ana ekrandaki bu simgeden açın', iosAdim4Not: 'Bildirimler iPhone’da sadece böyle çalışır.',
     newVersion: 'Yeni sürüm hazır', refresh: 'Yenile',
   },
   nl: {
-    appAd: 'SÜLEYMANİYE MOSKEE',
+    appAd: 'Süleymaniye Moskee',
     installTitle: 'Zet de app op je beginscherm', installBtn: 'Installeren',
     installText: 'Vanaf je beginscherm opent de app schermvullend en werkt hij ook zonder internet.',
-    installIos: 'Vanaf je beginscherm opent de app schermvullend en werkt hij ook zonder internet. Tik in Safari op Deel en kies “Zet op beginscherm”.',
+    installIos: 'Vanaf je beginscherm opent de app schermvullend en werkt hij ook zonder internet. Op de iPhone gaat dat niet met een knop, maar zo:',
+    iosAdim1: 'Tik op Deel', iosAdim1Not: 'Zie je het niet? Tik dan eerst op de drie puntjes.',
+    iosAdim2: 'Kies “Zet op beginscherm”', iosAdim2Not: 'Misschien moet je even naar beneden scrollen.',
+    iosAdim3: 'Tik rechtsboven op “Voeg toe”',
+    iosAdim4: 'Open de app voortaan met dit icoon op je beginscherm', iosAdim4Not: 'Alleen dan werken meldingen op de iPhone.',
     newVersion: 'Nieuwe versie klaar', refresh: 'Vernieuwen',
   },
   en: {
-    appAd: 'SÜLEYMANİYE MOSQUE',
+    appAd: 'Süleymaniye Mosque',
     installTitle: 'Add the app to your home screen', installBtn: 'Install',
     installText: 'From your home screen the app opens full screen and also works offline.',
-    installIos: 'From your home screen the app opens full screen and also works offline. In Safari, tap Share and choose “Add to Home Screen”.',
+    installIos: 'From your home screen the app opens full screen and also works offline. On iPhone there is no button for this; do it like this:',
+    iosAdim1: 'Tap Share', iosAdim1Not: 'Don’t see it? Tap the three dots first.',
+    iosAdim2: 'Choose “Add to Home Screen”', iosAdim2Not: 'You may need to scroll down a little.',
+    iosAdim3: 'Tap “Add” at the top right',
+    iosAdim4: 'From now on, open the app with this icon on your home screen', iosAdim4Not: 'Only then do notifications work on iPhone.',
     newVersion: 'New version ready', refresh: 'Refresh',
   },
 };

@@ -54,7 +54,7 @@ Hazırlanma tarihi 24-10-2026; tasarım kullanıcı tarafından onaylandı ("des
    - Dokunmatik olmayan Android TV kutuları (ör. Mi Box) TV'de kalır.
 6. **Geri kalan her şey** (bilgisayar, bilinmeyen) → TV.
 
-Uygulamanın Ayarlar sekmesinde "Bu cihazda TV ekranını aç" bağlantısı olur: `/?ekran=tv`. Geri dönmek için: `/?ekran=mobil`.
+Uygulamanın Ayarlar sekmesinde "Bu cihazda TV ekranını aç" bağlantısı vardı; kullanıcı isteğiyle kaldırıldı (06-11-2026). Duvar tableti için adres elle açılır: `/?ekran=tv`. Geri dönmek için: `/?ekran=mobil`.
 
 ### Testler (zorunlu)
 

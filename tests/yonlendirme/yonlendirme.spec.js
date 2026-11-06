@@ -95,11 +95,9 @@ test.describe('elle seçim (?ekran=) ve çerez', () => {
     await context.close();
   });
 
-  test('uygulamadaki "TV ekranını aç" linki /?ekran=tv\'ye gider ve TV\'de kalır', async ({ browser }) => {
+  test('tablette /?ekran=tv adresi TV\'yi açar ve TV\'de kalır (uygulamadaki link 06-11-2026\'da kaldırıldı)', async ({ browser }) => {
     const { page, context } = await ac(browser, { ua: UA.androidTablet, dokunmatik: true });
-    await page.goto('/mobil/#ayarlar');
-    await expect(page.locator('a.tv-link')).toHaveAttribute('href', '/?ekran=tv');
-    await page.locator('a.tv-link').click();
+    await page.goto('/?ekran=tv');
     await page.waitForLoadState('load');
     await page.waitForTimeout(300);
     expect(new URL(page.url()).pathname).toBe('/');

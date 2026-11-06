@@ -13,12 +13,12 @@ test.describe('manifest ve ikonlar', () => {
     const href = await page.locator('link[rel="manifest"]').getAttribute('href');
     expect(href).toBe('/mobil/manifest-nl.webmanifest');                      // ilk dil Hollandaca
     const m = await (await request.get(href)).json();
-    expect(m).toMatchObject({ id: '/mobil/', name: 'SÜLEYMANİYE MOSKEE', short_name: 'SÜLEYMANİYE MOSKEE', start_url: '/mobil/', scope: '/mobil/', display: 'standalone' });
+    expect(m).toMatchObject({ id: '/mobil/', name: 'Süleymaniye Moskee', short_name: 'Süleymaniye Moskee', start_url: '/mobil/', scope: '/mobil/', display: 'standalone' });
     // Android, yüklü uygulamanın alt sistem çubuğunu manifest renginden boyuyor (ikonlar beyaz): lacivert.
     // Sayfanın üst çubuğu yine <meta name="theme-color"> ile (gündüz krem).
     const RENK = { theme_color: '#14295A', background_color: '#14295A' };
     expect(m).toMatchObject(RENK);
-    for (const [d, ad] of [['tr', 'SÜLEYMANİYE CAMİİ'], ['en', 'SÜLEYMANİYE MOSQUE']]) {
+    for (const [d, ad] of [['tr', 'Süleymaniye Camii'], ['en', 'Süleymaniye Mosque']]) {
       const md = await (await request.get(`/mobil/manifest-${d}.webmanifest`)).json();
       expect(md).toMatchObject({ id: '/mobil/', name: ad, short_name: ad, lang: d, ...RENK });   // aynı uygulama (id), dile göre ad
       expect(md.icons).toEqual(m.icons);
@@ -33,17 +33,17 @@ test.describe('manifest ve ikonlar', () => {
     expect(pngBoyut(await (await request.get(apple)).body())).toEqual([180, 180]);
   });
 
-  test('uygulama adı dile göre: SÜLEYMANİYE MOSKEE / CAMİİ / MOSQUE (başlık, manifest, iPhone adı)', async ({ page }) => {
+  test('uygulama adı dile göre: Süleymaniye Moskee / Camii / Mosque (başlık, manifest, iPhone adı)', async ({ page }) => {
     const ad = async () => [await page.title(), await page.locator('link[rel="manifest"]').getAttribute('href'),
       await page.locator('meta[name="apple-mobile-web-app-title"]').getAttribute('content')];
     await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar' });
-    expect(await ad()).toEqual(['SÜLEYMANİYE MOSKEE', '/mobil/manifest-nl.webmanifest', 'SÜLEYMANİYE MOSKEE']);
+    expect(await ad()).toEqual(['Süleymaniye Moskee', '/mobil/manifest-nl.webmanifest', 'Süleymaniye Moskee']);
     await page.getByRole('button', { name: 'Türkçe' }).click();
-    expect(await ad()).toEqual(['SÜLEYMANİYE CAMİİ', '/mobil/manifest-tr.webmanifest', 'SÜLEYMANİYE CAMİİ']);
+    expect(await ad()).toEqual(['Süleymaniye Camii', '/mobil/manifest-tr.webmanifest', 'Süleymaniye Camii']);
     await page.reload();                                                       // kayıtlı dil: ilk boyamadan önce
-    expect(await ad()).toEqual(['SÜLEYMANİYE CAMİİ', '/mobil/manifest-tr.webmanifest', 'SÜLEYMANİYE CAMİİ']);
+    expect(await ad()).toEqual(['Süleymaniye Camii', '/mobil/manifest-tr.webmanifest', 'Süleymaniye Camii']);
     await page.getByRole('button', { name: 'English' }).click();
-    expect((await ad())[0]).toBe('SÜLEYMANİYE MOSQUE');
+    expect((await ad())[0]).toBe('Süleymaniye Mosque');
   });
 
   test('service worker sürümü uygulama dosyalarıyla güncel (değilse: node araclar/sw-surum.mjs)', () => {
@@ -104,14 +104,16 @@ test.describe('service worker', () => {
 });
 
 test.describe('yükleme kartı (Ayarlar)', () => {
-  test('iPhone (Safari): Paylaş → "Zet op beginscherm" açıklaması', async ({ browser }) => {
+  test('iPhone: düğme yok, adım adım Deel → "Zet op beginscherm" → "Voeg toe" → simgeden aç', async ({ browser }) => {
     const context = await browser.newContext({ ...devices['iPhone 13'] });
     const page = await context.newPage();
     await mockla(page);
     await page.goto('/mobil/#ayarlar');
     await expect(page.locator('#kurulum')).toBeVisible();
     await expect(page.locator('#kurulum')).toContainText('Zet de app op je beginscherm');
-    await expect(page.locator('#kurulum-metin')).toContainText('Tik in Safari op Deel');
+    await expect(page.locator('#kurulum-metin')).toContainText('Op de iPhone gaat dat niet met een knop');
+    await expect(page.locator('#kurulum-adimlar b')).toHaveText(['Tik op Deel', 'Kies “Zet op beginscherm”', 'Tik rechtsboven op “Voeg toe”', 'Open de app voortaan met dit icoon op je beginscherm']);
+    await expect(page.locator('#kurulum-adimlar img')).toHaveJSProperty('complete', true);
     await expect(page.locator('#kurulum-dugme')).toBeHidden();
     await context.close();
   });
@@ -137,6 +139,7 @@ test.describe('yükleme kartı (Ayarlar)', () => {
       window.dispatchEvent(e);
     });
     await expect(page.locator('#kurulum')).toBeVisible();
+    await expect(page.locator('#kurulum-adimlar')).toBeHidden();               // adımlar sadece iPhone'da
     await page.getByRole('button', { name: 'Installeren' }).click();
     expect(await page.evaluate(() => window.__istem)).toBe(1);
     await expect(page.locator('#kurulum')).toBeHidden();

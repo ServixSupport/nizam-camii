@@ -252,12 +252,6 @@ main {
 .cami-ad { font-weight: 700; font-size: 15px; }
 .cami-adres { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; font-size: 13px; color: var(--cobalt); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
 .cami-adres svg { width: 14px; height: 14px; }
-.tv-link { flex-direction: row; align-items: center; gap: 14px; padding: 14px 16px; }
-.tv-ikon { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--railActive); color: var(--cobalt); }
-.tv-ikon svg { width: 22px; height: 22px; }
-.tv-yazi { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
-.tv-baslik { font-weight: 700; font-size: 15px; }
-.tv-link .ok { width: 18px; height: 18px; color: var(--soft); flex: 0 0 auto; }
 
 
 /* ================= Faz B: faaliyetler, programlar ================= */
@@ -396,6 +390,16 @@ main {
 .kurulum-baslik { font-weight: 700; font-size: 15px; }
 .kurulum-metin { font-size: 13px; line-height: 1.4; color: #D4DBEA; }
 .kurulum .dugme { align-self: flex-start; margin-top: 8px; }
+/* iPhone: adım adım "Ana Ekrana Ekle" (Apple yükleme düğmesine izin vermez) */
+.kurulum-adimlar { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; counter-reset: adim; }
+.kurulum-adimlar li { display: flex; align-items: center; gap: 12px; counter-increment: adim; }
+.adim-simge { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 10px; background: rgba(246,241,231,.1); border: 1px solid rgba(246,241,231,.16); display: flex; align-items: center; justify-content: center; color: #E8C27A; }
+.adim-simge svg { width: 19px; height: 19px; }
+.adim-simge.uyg { background: none; border: 0; }
+.adim-simge.uyg img { width: 34px; height: 34px; border-radius: 8px; display: block; }
+.adim-yazi { display: flex; flex-direction: column; gap: 1px; font-size: 13px; line-height: 1.35; color: #D4DBEA; min-width: 0; }
+.adim-yazi b { font-weight: 700; font-size: 14px; color: #F6F1E7; }
+.adim-yazi b::before { content: counter(adim) ". "; color: #E8C27A; }
 .surum-cubugu { position: fixed; left: 12px; right: 12px; bottom: calc(68px + env(safe-area-inset-bottom)); z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 10px 10px 10px 16px; border-radius: 16px; background: var(--navy); color: #F6F1E7; font-weight: 700; font-size: 14.5px; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
 @media (min-width: 768px) { .surum-cubugu { left: auto; right: 24px; bottom: 24px; width: 420px; } }

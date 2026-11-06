@@ -185,8 +185,7 @@ function metinleriYaz() {
   document.title = t.appAd;
   $('link[rel="manifest"]').setAttribute('href', `/mobil/manifest-${durum.dil}.webmanifest`);
   $('meta[name="apple-mobile-web-app-title"]').setAttribute('content', t.appAd);
-  // metin işlev olabilir: o anki adres (nizam-camii.vercel.app veya kendi alan adı) yazılır
-  for (const el of $$('[data-t]')) { const v = t[el.dataset.t]; el.textContent = typeof v === 'function' ? v(location.host) : v; }
+  for (const el of $$('[data-t]')) el.textContent = t[el.dataset.t];
   for (const el of $$('[data-t-aria]')) el.setAttribute('aria-label', t[el.dataset.tAria]);
   for (const el of $$('[data-t-alt]')) el.setAttribute('alt', t[el.dataset.tAlt]);
 
@@ -506,6 +505,7 @@ function kurulumKartiCiz() {
   if (!goster) return;
   $('#kurulum-metin').textContent = _kurulumOlayi ? t.installText : t.installIos;
   $('#kurulum-dugme').hidden = !_kurulumOlayi;
+  $('#kurulum-adimlar').hidden = !!_kurulumOlayi;          // iPhone: Apple düğmeye izin vermez, adımlar gösterilir
 }
 window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); _kurulumOlayi = e; kurulumKartiCiz(); });
 window.addEventListener('appinstalled', () => { _kurulumOlayi = null; kurulumKartiCiz(); });

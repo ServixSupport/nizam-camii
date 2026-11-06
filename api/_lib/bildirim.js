@@ -108,6 +108,7 @@ export function saatEki(saat) {
 /**
  * Bildirim metni, abonenin dilinde (tasarım: ontwerp/Mobil-Bildirim.dc.html).
  * Dini metin değil; yine de yayından önce hocaya/cami yönetimine gösterilmeli.
+ * Vakit girince sadece başlık (kullanıcı isteği, 06-11-2026: "telefonu sessize alın" cümlesi yok).
  */
 export function bildirimMetni(dil, an) {
   const ad = METIN[dil].names[an.vakit];
@@ -117,23 +118,20 @@ export function bildirimMetni(dil, an) {
   const s = an.saat;
   if (dil === 'tr') {
     if (!n) {
-      return { baslik: gunes ? `Güneş doğdu · ${s}` : `${ad} vakti girdi · ${s}`,
-        govde: namaz ? 'Camiye geliyorsanız telefonunuzu sessize almayı unutmayın.' : '' };
+      return { baslik: gunes ? `Güneş doğdu · ${s}` : `${ad} vakti girdi · ${s}`, govde: '' };
     }
     return { baslik: gunes ? `Güneşin doğmasına ${n} dakika` : namaz ? `${ad} namazına ${n} dakika` : `${ad} vaktine ${n} dakika`,
       govde: gunes ? `Güneş ${saatEki(s)} doğuyor.` : `${ad} vakti ${saatEki(s)} giriyor.` };
   }
   if (dil === 'nl') {
     if (!n) {
-      return { baslik: gunes ? `Zonsopgang · ${s}` : `${ad} is begonnen · ${s}`,
-        govde: namaz ? 'Kom je naar de moskee? Vergeet niet je telefoon op stil te zetten.' : '' };
+      return { baslik: gunes ? `Zonsopgang · ${s}` : `${ad} is begonnen · ${s}`, govde: '' };
     }
     return { baslik: `Nog ${n} minuten tot ${gunes ? 'zonsopgang' : ad}`,
       govde: gunes ? `De zon komt op om ${s}.` : `${ad} begint om ${s}.` };
   }
   if (!n) {
-    return { baslik: gunes ? `Sunrise · ${s}` : `${ad} has begun · ${s}`,
-      govde: namaz ? 'Coming to the mosque? Remember to silence your phone.' : '' };
+    return { baslik: gunes ? `Sunrise · ${s}` : `${ad} has begun · ${s}`, govde: '' };
   }
   return { baslik: `${n} minutes until ${gunes ? 'sunrise' : ad}`,
     govde: gunes ? `The sun rises at ${s}.` : `${ad} begins at ${s}.` };
