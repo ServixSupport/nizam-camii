@@ -50,58 +50,11 @@
   color-scheme: dark;
 }
 
-/* ---------- renk temaları (Ayarlar → Renk). Her biri gündüz ve gece; yukarıdaki "Lacivert" varsayılan. ----------
-   --navy her temada koyu kalır: üstündeki kartların yazısı açık renk (krem/altın). */
-/* Yeşil: TV'deki yeşil tema gibi (yeşil, altın, kırmızı vurgu) */
-:root[data-renk="yesil"], :root[data-renk="yesil"][data-tema="gunduz"] {
-  --ground: #F2F3EA; --ink: #1E401F; --soft: #4F6150; --line: #DADFC9; --cobalt: #2F6B2A; --turq: #1F7A5A; --coral: #C0392B;
-  --sky1: #F8F9F1; --sky2: #E0ECD9; --card: #FFFFF9; --rail: #E9ECDC; --railActive: rgba(47,107,42,.10);
-  --nextRow: rgba(192,57,43,.08); --nextBorder: rgba(192,57,43,.35); --tabBg: rgba(246,247,239,.96); --past: #5E6E5F;
-  --segBg: #E4E7D6; --segOn: #FFFFF9; --segShadow: 0 1px 2px rgba(30,64,31,.18); --navy: #1E401F;
-  --g-herkes: #1E401F; --tablo-cizgi: #E4E8D6; --tablo-sutun: #ECEFE1; --saat-yazi: #66766A;
-}
-:root[data-renk="yesil"][data-tema="gece"] {
-  --ground: #132A14; --ink: #EEF4E8; --soft: #B3C5AC; --line: rgba(232,194,122,.16); --cobalt: #A8D99A; --turq: #6FD3B5; --coral: #FF8A7A;
-  --sky1: #2A562B; --sky2: #1A381B; --card: #1A381B; --rail: #0E200F; --railActive: rgba(168,217,154,.12);
-  --nextRow: rgba(255,138,122,.12); --nextBorder: rgba(255,138,122,.4); --tabBg: rgba(19,42,20,.96); --past: #B3C5AC;
-  --segBg: rgba(179,197,172,.12); --segOn: #2C5A2D; --navy: #285129; --g-herkes: #EEF4E8; --g-erkekler: #A8D99A; --saat-yazi: #B3C5AC;
-}
-/* Turkuaz: İznik çinisi (beyaz zemin, turkuaz ve kobalt, kırmızı vurgu) */
-:root[data-renk="turkuaz"], :root[data-renk="turkuaz"][data-tema="gunduz"] {
-  --ground: #F2F6F6; --ink: #0F3D5C; --soft: #4A6272; --line: #D3E0E2; --gold: #9C7B36; --cobalt: #1D5FA8; --turq: #0E7C7B; --coral: #C0392B;
-  --sky1: #F8FBFB; --sky2: #D9EEEF; --card: #FFFFFF; --rail: #E5EEEF; --railActive: rgba(29,95,168,.09);
-  --nextRow: rgba(192,57,43,.08); --nextBorder: rgba(192,57,43,.35); --tabBg: rgba(247,250,250,.96); --past: #5D7280;
-  --segBg: #DFE9EB; --segOn: #FFFFFF; --segShadow: 0 1px 2px rgba(15,61,92,.18); --navy: #0F3D5C;
-  --g-herkes: #0F3D5C; --tablo-cizgi: #E1EBEC; --tablo-sutun: #EAF1F2; --saat-yazi: #62798A;
-}
-:root[data-renk="turkuaz"][data-tema="gece"] {
-  --ground: #08202E; --ink: #ECF4F5; --soft: #A5BFC9; --line: rgba(126,214,211,.16); --goldLine: rgba(232,194,122,.36); --cobalt: #9CC8F5; --turq: #5ED3CE; --coral: #FF9A7A;
-  --sky1: #134058; --sky2: #0B2A3B; --card: #0F2D3E; --rail: #061823; --railActive: rgba(156,200,245,.12);
-  --nextRow: rgba(255,154,122,.12); --nextBorder: rgba(255,154,122,.4); --tabBg: rgba(8,32,46,.96); --past: #A5BFC9;
-  --segBg: rgba(165,191,201,.12); --segOn: #1A4A63; --navy: #134058; --navyLine: rgba(126,214,211,.28);
-  --g-herkes: #ECF4F5; --saat-yazi: #A5BFC9; --tablo-cizgi: rgba(126,214,211,.10); --tablo-sutun: rgba(126,214,211,.06);
-}
-/* Bordo: logodaki gül (krem zemin, bordo, altın) */
-:root[data-renk="bordo"], :root[data-renk="bordo"][data-tema="gunduz"] {
-  --ground: #F7F0EC; --ink: #5A1A24; --soft: #6E5257; --line: #E6D4CE; --cobalt: #8E2A3A; --turq: #276B5C; --coral: #C2410C;
-  --sky1: #FBF6F3; --sky2: #F1E1DC; --card: #FFFBF9; --rail: #EFE3DE; --railActive: rgba(142,42,58,.09);
-  --nextRow: rgba(194,65,12,.08); --nextBorder: rgba(194,65,12,.35); --tabBg: rgba(250,245,242,.96); --past: #7A6266;
-  --segBg: #ECDDD7; --segOn: #FFFBF9; --segShadow: 0 1px 2px rgba(90,26,36,.18); --navy: #5A1A24;
-  --g-herkes: #5A1A24; --tablo-cizgi: #EEE1DC; --tablo-sutun: #F2E8E4; --saat-yazi: #806A6E;
-}
-:root[data-renk="bordo"][data-tema="gece"] {
-  --ground: #200A0F; --ink: #F6ECEA; --soft: #CDB1B5; --line: rgba(232,194,122,.16); --cobalt: #F2A7B3; --turq: #6CCFB5; --coral: #FF9A7A;
-  --sky1: #4D1722; --sky2: #2E0E14; --card: #2C0F16; --rail: #16070A; --railActive: rgba(242,167,179,.12);
-  --nextRow: rgba(255,154,122,.12); --nextBorder: rgba(255,154,122,.4); --tabBg: rgba(32,10,15,.96); --past: #CDB1B5;
-  --segBg: rgba(205,177,181,.12); --segOn: #5A1A24; --navy: #4D1722; --g-herkes: #F6ECEA; --saat-yazi: #CDB1B5;
-}
-
 /* ---------- temel ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; height: 100%; background: var(--ground); }
-/* Android: alt sistem çubuğu sayfanın (html) zemin rengini alıyor; ikonları beyaz.
-   Zemin lacivert olunca ikonlar görünür. Sayfa body ile kaplı, lacivert sadece çubuğun arkasında. */
-html.android { background: var(--navy); }
+/* Android: alt sistem çubuğu sayfanın (html) zemin rengini alır: açık temada açık, koyu temada koyu
+   (kullanıcı isteği, 06-11-2026; önceden hep lacivertti). Mağaza uygulamasında çubuk ikonları da temaya göre (yerel.js). */
 body {
   /* 100dvh değil: Android'de sistem çubuğunu da sayıp sayfayı ~55 px uzatıyordu (ana ekran kayıyordu) */
   margin: 0; min-height: 100%; background: var(--ground); color: var(--ink);
@@ -589,17 +542,6 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
   font-size: 13.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
 .b-vakitler button[aria-pressed="true"] { background: var(--railActive); color: var(--cobalt); border-color: var(--cobalt); }
 .b-vakitler svg { width: 13px; height: 13px; }
-
-/* ================= Renk temaları: seçim düğmeleri (Ayarlar → Görünüm) ================= */
-.renkler { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
-.renkler button { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 44px; padding: 8px 2px 7px; border-radius: 14px;
-  border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 12.5px; font-weight: 700; cursor: pointer; }
-.renkler button[aria-pressed="true"] { border: 2px solid var(--ink); padding: 7px 1px 6px; }
-.renk-ornek { position: relative; width: 34px; height: 34px; border-radius: 50%; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
-.renk-ornek i { position: absolute; inset: 0; }
-.renk-ornek i:nth-child(1) { background: var(--o1); clip-path: polygon(0 0, 100% 0, 0 100%); }
-.renk-ornek i:nth-child(2) { background: var(--o2); clip-path: polygon(100% 0, 100% 100%, 0 100%); }
-.renk-ornek i:nth-child(3) { inset: 11px; border-radius: 50%; background: var(--o3); }
 
 /* deneme bildirimi düğmesi ve "ayarlanıyor" yazısı */
 .b-deneme { width: 100%; border: 1px solid var(--line); background: var(--card); color: var(--ink); }

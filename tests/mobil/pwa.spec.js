@@ -14,8 +14,8 @@ test.describe('manifest ve ikonlar', () => {
     expect(href).toBe('/mobil/manifest-nl.webmanifest');                      // ilk dil Hollandaca
     const m = await (await request.get(href)).json();
     expect(m).toMatchObject({ id: '/mobil/', name: 'Süleymaniye Moskee', short_name: 'Süleymaniye Moskee', start_url: '/mobil/', scope: '/mobil/', display: 'standalone' });
-    // Android, yüklü uygulamanın alt sistem çubuğunu manifest renginden boyuyor (ikonlar beyaz): lacivert.
-    // Sayfanın üst çubuğu yine <meta name="theme-color"> ile (gündüz krem).
+    // Manifest renkleri: açılış ekranı ve bazı Android'lerde yüklü web uygulamasının alt çubuğu (lacivert).
+    // Sayfanın üst çubuğu <meta name="theme-color"> ile temaya göre; mağaza uygulamasında alt çubuk da temaya göre.
     const RENK = { theme_color: '#14295A', background_color: '#14295A' };
     expect(m).toMatchObject(RENK);
     for (const [d, ad] of [['tr', 'Süleymaniye Camii'], ['en', 'Süleymaniye Mosque']]) {

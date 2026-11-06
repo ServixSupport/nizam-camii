@@ -10,15 +10,8 @@ import { ekranlar } from './ekranlar.js';
 import { bildirimler } from './bildirim.js';
 
 // TV'nin anahtarları (vakitler, nizam-tema, nizam-sayac) kullanılmaz; hepsi "nzm." ile başlar.
-const DEPO = { dil: 'nzm.dil', tema: 'nzm.tema', renk: 'nzm.renk', vakit: 'nzm.vakit', aladhan: 'nzm.aladhan', icerik: 'nzm.icerik' };
+const DEPO = { dil: 'nzm.dil', tema: 'nzm.tema', vakit: 'nzm.vakit', aladhan: 'nzm.aladhan', icerik: 'nzm.icerik' };
 const SEKMELER = ['ana', 'faaliyetler', 'programlar', 'ayarlar'];
-// Renk temaları: [anahtar, örnek renkler (zemin, koyu, vurgu)]. Renklerin kendisi app.css'te (data-renk).
-const RENKLER = [
-  ['lacivert', ['#F6F1E7', '#14295A', '#E8C27A']],
-  ['yesil', ['#F2F3EA', '#1E401F', '#E8C27A']],
-  ['turkuaz', ['#F2F6F6', '#0F3D5C', '#0E7C7B']],
-  ['bordo', ['#F7F0EC', '#5A1A24', '#E8C27A']],
-];
 const BOS_ICERIK = { guncelleme: null, faaliyetler: [], programlar: [] };
 const ICERIK_ARALIK = 2 * 60 * 1000;      // içerik en fazla 2 dakikada bir istenir (CDN de 2 dk tutar)
 const SVGNS = 'http://www.w3.org/2000/svg';
@@ -34,7 +27,6 @@ const pad = (n) => String(n).padStart(2, '0');
 const durum = {
   dil: (() => { const d = oku(DEPO.dil); return METIN[d] ? d : VARSAYILAN_DIL; })(),
   tema: (() => { const t = oku(DEPO.tema); return ['oto', 'gunduz', 'gece'].includes(t) ? t : 'oto'; })(),
-  renk: (() => { const r = oku(DEPO.renk); return RENKLER.some(([k]) => k === r) ? r : 'lacivert'; })(),
   diyanet: new Map(),      // 'GG.AA.YYYY' → gün
   aladhan: new Map(),      // 'YYYY-MM-DD' → gün
   veriVar: false,
@@ -205,19 +197,6 @@ function metinleriYaz() {
     b.addEventListener('click', () => temaSec(k));
     return b;
   }));
-  const renk = $('#renk-secim');
-  renk.replaceChildren(...RENKLER.map(([k, ornek]) => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.setAttribute('aria-pressed', String(k === durum.renk));
-    const o = document.createElement('span');
-    o.className = 'renk-ornek'; o.setAttribute('aria-hidden', 'true');
-    ornek.forEach((c, i) => o.style.setProperty(`--o${i + 1}`, c));
-    o.append(document.createElement('i'), document.createElement('i'), document.createElement('i'));
-    b.append(o, t.renkAd[k]);
-    b.addEventListener('click', () => renkSec(k));
-    return b;
-  }));
   _tarihImza = ''; _satirImza = '';
   bld.ciz();
 }
@@ -228,15 +207,7 @@ function dilSec(k) {
   metinleriYaz(); ciz(); ekranlariCiz(); kurulumKartiCiz();
   bld.dilDegisti();
 }
-function renkSec(k) {
-  durum.renk = k; yaz(DEPO.renk, k);
-  if (k === 'lacivert') document.documentElement.removeAttribute('data-renk');
-  else document.documentElement.dataset.renk = k;
-  durumCubugu();
-  metinleriYaz(); ciz();
-  $('#renk-secim [aria-pressed="true"]')?.focus();
-}
-// telefonun üst çubuğu sayfanın zemin rengini alsın (tema ve renk değişince)
+// telefonun üst çubuğu sayfanın zemin rengini alsın (tema değişince)
 function durumCubugu() {
   const zemin = getComputedStyle(document.documentElement).getPropertyValue('--ground').trim();
   if (zemin) $('meta[name="theme-color"]').setAttribute('content', zemin);

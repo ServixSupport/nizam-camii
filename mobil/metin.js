@@ -212,10 +212,3 @@ const BILDIRIM = {
 };
 for (const d of Object.keys(BILDIRIM)) Object.assign(METIN[d], BILDIRIM[d]);
 
-// ---------------- Renk temaları ----------------
-const RENK = {
-  tr: { color: 'Renk', renkAd: { lacivert: 'Lacivert', yesil: 'Yeşil', turkuaz: 'Turkuaz', bordo: 'Bordo' } },
-  nl: { color: 'Kleur', renkAd: { lacivert: 'Blauw', yesil: 'Groen', turkuaz: 'Turkoois', bordo: 'Bordeaux' } },
-  en: { color: 'Colour', renkAd: { lacivert: 'Navy', yesil: 'Green', turkuaz: 'Turquoise', bordo: 'Burgundy' } },
-};
-for (const d of Object.keys(RENK)) Object.assign(METIN[d], RENK[d]);
