@@ -1,0 +1,76 @@
+# Mağaza uygulaması (app/): her değişiklikte Android ve iOS derlenir.
+# - Android: deneme APK'sı (Actions → bu çalıştırma → Artifacts → android-apk) telefona kurulabilir.
+# - iOS: Mac'te simülatör için derlenir (imzasız) ve açılış ekranının görüntüsü alınır.
+#   App Store'a gönderim Apple hesabı açıldıktan sonra eklenecek (app/README.md).
+# Sır yok: imzalama anahtarları bu dosyada ve depoda değil.
+name: Mağaza uygulaması
+
+on:
+  push:
+    paths: ['app/**', 'mobil/**', '.github/workflows/app.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: actions/setup-java@v4
+        with: { distribution: microsoft, java-version: 21 }
+      - name: Web dosyaları ve Capacitor
+        working-directory: app
+        run: npm ci && node araclar/www.mjs && npx cap sync android
+      - name: Derle ve birim testleri
+        working-directory: app/android
+        run: ./gradlew --no-daemon testDebugUnitTest assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: app/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
+
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Web dosyaları ve Capacitor
+        working-directory: app
+        run: npm ci && node araclar/www.mjs && npx cap sync ios
+      - name: Xcode ve simülatör
+        id: sim
+        run: |
+          xcodebuild -version
+          CIHAZ=$(xcrun simctl list devices available | grep -m1 -oE 'iPhone [0-9]+( Pro)? \([0-9A-F-]+\)' | grep -oE '[0-9A-F-]{36}')
+          echo "cihaz=$CIHAZ" >> "$GITHUB_OUTPUT"
+          xcrun simctl list devices available | grep "$CIHAZ"
+      - name: Derle (simülatör, imzasız)
+        working-directory: app/ios/App
+        run: |
+          set -o pipefail
+          xcodebuild -project App.xcodeproj -scheme App -configuration Debug \
+            -destination "id=${{ steps.sim.outputs.cihaz }}" -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO build | tail -40
+      - name: Simülatörde aç, ekran görüntüsü
+        working-directory: app/ios/App
+        run: |
+          xcrun simctl boot "${{ steps.sim.outputs.cihaz }}" || true
+          xcrun simctl bootstatus "${{ steps.sim.outputs.cihaz }}" -b
+          xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/App.app
+          xcrun simctl launch booted nl.suleymaniyecamii.namaz
+          sleep 25
+          xcrun simctl io booted screenshot ios-ana.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-ekran
+          path: app/ios/App/ios-ana.png
+          retention-days: 14
