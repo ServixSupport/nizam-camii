@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Süleymaniye Camii</string>
+    <string name="title_activity_main">Süleymaniye Camii</string>
+    <string name="kanal_vakit">Namaz vakitleri</string>
+    <string name="kanal_sayac">Geri sayım</string>
+    <string name="kanal_sessiz">Sessize alma</string>
+</resources>

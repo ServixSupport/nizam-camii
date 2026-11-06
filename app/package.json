@@ -1,0 +1,18 @@
+{
+  "name": "nizam-camii-app",
+  "private": true,
+  "type": "module",
+  "description": "Mağaza uygulaması (Play Store, App Store): /mobil/ web uygulaması + yerel özellikler (Capacitor)",
+  "scripts": {
+    "www": "node araclar/www.mjs",
+    "sync": "node araclar/www.mjs && cap sync"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.3",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/ios": "8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.3"
+  }
+}

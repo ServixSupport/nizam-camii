@@ -69,6 +69,7 @@ export function yerelPlan({ gunler, bildirim, sessiz, sayac, dil, t, simdi }) {
     sayacAlt: t.sayacAlt,
     kanallar: { vakit: t.kanalVakit, sayac: t.kanalSayac, sessiz: t.kanalSessiz },
     sessizMod: mod,
+    sessizBasliklar: t.sessizBaslik,                         // telefon izin yoksa sessiz yerine titreşime alır
     vakitler,
     bildirimler,
     sessiz: sessiz.aan ? sessizler : [],

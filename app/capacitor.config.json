@@ -1,0 +1,9 @@
+{
+  "appId": "nl.suleymaniyecamii.namaz",
+  "appName": "Süleymaniye Camii",
+  "webDir": "www",
+  "plugins": {
+    "CapacitorHttp": { "enabled": true },
+    "SystemBars": { "insetsHandling": "css", "initialViewportFitValueHint": "cover" }
+  }
+}

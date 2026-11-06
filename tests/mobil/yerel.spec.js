@@ -17,15 +17,14 @@ async function telefon(page, { platform = 'android', izin = {}, izinCevabi = 'gr
       izinDurumu: () => ({ ...y.izin }),
       bildirimIzniIste: () => { y.izin.bildirim = izinCevabi; sessionStorage.setItem('__izin', JSON.stringify(y.izin)); return { ...y.izin }; },
     };
+    // telefonun köprüsü (Capacitor native-bridge.js) gibi: nativePromise(eklenti, yöntem, seçenekler)
     window.Capacitor = {
       isNativePlatform: () => true,
       getPlatform: () => platform,
-      registerPlugin: (ad) => new Proxy({}, {
-        get: (_, m) => async (arg) => {
-          y.cagrilar.push({ ad, m, arg: arg === undefined ? null : JSON.parse(JSON.stringify(arg)) });
-          return cevap[m] ? cevap[m](arg) : {};
-        },
-      }),
+      nativePromise: async (ad, m, arg) => {
+        y.cagrilar.push({ ad, m, arg: JSON.parse(JSON.stringify(arg)) });
+        return cevap[m] ? cevap[m](arg) : {};
+      },
     };
   }, [platform, izin, izinCevabi]);
 }

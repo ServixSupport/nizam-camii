@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Süleymaniye Mosque</string>
+    <string name="title_activity_main">Süleymaniye Mosque</string>
+    <string name="package_name">nl.suleymaniyecamii.namaz</string>
+    <string name="custom_url_scheme">nl.suleymaniyecamii.namaz</string>
+    <string name="kanal_vakit">Prayer times</string>
+    <string name="kanal_sayac">Countdown</string>
+    <string name="kanal_sessiz">Silencing</string>
+</resources>

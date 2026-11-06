@@ -3,6 +3,8 @@
 *.md
 /ontwerp
 /tests
+# mağaza uygulaması (Android/iOS projeleri); web sitesi değil
+/app
 /_eski-temmuz
 /no phone prohibited.png
 /.claude

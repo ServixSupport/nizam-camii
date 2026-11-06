@@ -1,0 +1,174 @@
+package nl.suleymaniyecamii.namaz;
+
+import android.Manifest;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
+import android.view.Window;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
+import com.getcapacitor.JSObject;
+import com.getcapacitor.PermissionState;
+import com.getcapacitor.Plugin;
+import com.getcapacitor.PluginCall;
+import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
+import com.getcapacitor.annotation.PermissionCallback;
+
+/**
+ * Uygulama (mobil/yerel.js) ile telefon arasındaki köprü.
+ * Asıl iş Planlayici'de: uygulama kapalıyken de alarmlarla çalışır.
+ */
+@CapacitorPlugin(
+    name = "Cami",
+    permissions = { @Permission(strings = { Manifest.permission.POST_NOTIFICATIONS }, alias = "bildirim") }
+)
+public class CamiPlugin extends Plugin {
+
+    private Boolean koyu = null;
+    private int zemin = Color.parseColor("#F6F1E7");
+
+    @Override
+    public void load() {
+        Planlayici.calistir(getContext());
+    }
+
+    /** Uygulamanın hesapladığı plan (mobil/yerel-plan.js). Eskisinin yerine geçer. */
+    @PluginMethod
+    public void planKur(PluginCall call) {
+        JSObject plan = call.getObject("plan");
+        if (plan == null) {
+            call.reject("plan yok");
+            return;
+        }
+        Planlayici.planKaydet(getContext(), plan.toString());
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void izinDurumu(PluginCall call) {
+        call.resolve(izinler());
+    }
+
+    @PluginMethod
+    public void bildirimIzniIste(PluginCall call) {
+        if (Build.VERSION.SDK_INT >= 33 && getPermissionState("bildirim") != PermissionState.GRANTED) {
+            requestPermissionForAlias("bildirim", call, "bildirimIzniSonucu");
+            return;
+        }
+        call.resolve(izinler());
+    }
+
+    @PermissionCallback
+    private void bildirimIzniSonucu(PluginCall call) {
+        Planlayici.calistir(getContext());
+        call.resolve(izinler());
+    }
+
+    /** Ayarlar'daki "Deneme bildirimi": hemen, namaz vakti bildirimleriyle aynı kanaldan. */
+    @PluginMethod
+    public void deneme(PluginCall call) {
+        Planlayici.bildirimGoster(getContext(), "deneme", call.getString("baslik", ""), call.getString("govde", ""));
+        call.resolve();
+    }
+
+    /** Üst ve alt sistem çubuğu uygulamanın temasına göre (açık temada koyu simgeler, koyu temada açık). */
+    @PluginMethod
+    public void cubuklar(PluginCall call) {
+        koyu = call.getBoolean("koyu", false);
+        try {
+            zemin = Color.parseColor(call.getString("zemin", ""));
+        } catch (IllegalArgumentException e) {
+            zemin = Color.parseColor(koyu ? "#0C1834" : "#F6F1E7");
+        }
+        getActivity().runOnUiThread(() -> {
+            cubuklariUygula();
+            call.resolve();
+        });
+    }
+
+    /** "Rahatsız Etmeyin" erişimi: telefonu sessize alabilmek için (kullanıcı telefonun ayarlarında verir). */
+    @PluginMethod
+    public void sessizIzniAc(PluginCall call) {
+        ac(new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS));
+        call.resolve();
+    }
+
+    /** "Alarmlar ve hatırlatıcılar" (Android 12+): her şey tam zamanında olsun. */
+    @PluginMethod
+    public void tamAlarmIzniAc(PluginCall call) {
+        if (Build.VERSION.SDK_INT >= 31) {
+            ac(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + getContext().getPackageName())));
+        }
+        call.resolve();
+    }
+
+    @Override
+    protected void handleOnResume() {
+        super.handleOnResume();
+        // telefonun ayarlarından dönünce (izinler) ve uzun aradan sonra: geri sayım ve alarm güncel olsun
+        Planlayici.calistir(getContext());
+    }
+
+    @Override
+    protected void handleOnConfigurationChanged(Configuration newConfig) {
+        super.handleOnConfigurationChanged(newConfig);
+        // SystemBars (Capacitor) döndürmede kendi stilini geri koyar; bizimki sonra gelir
+        cubuklariUygula();
+    }
+
+    private void ac(Intent i) {
+        try {
+            getActivity().startActivity(i);
+        } catch (Exception e) {
+            // bazı telefonlarda bu sayfa yok: uygulamanın kendi ayar sayfası
+            getActivity().startActivity(
+                new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getContext().getPackageName()))
+            );
+        }
+    }
+
+    private JSObject izinler() {
+        Context c = getContext();
+        NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+        JSObject r = new JSObject();
+        String bildirim;
+        if (NotificationManagerCompat.from(c).areNotificationsEnabled()) {
+            bildirim = "granted";
+        } else if (Build.VERSION.SDK_INT >= 33 && getPermissionState("bildirim") != PermissionState.DENIED) {
+            bildirim = "prompt";
+        } else {
+            bildirim = "denied";
+        }
+        r.put("bildirim", bildirim);
+        r.put("tamAlarm", Planlayici.tamAlarmVar(c));
+        r.put("sessiz", nm.isNotificationPolicyAccessGranted());
+        return r;
+    }
+
+    @SuppressWarnings("deprecation")
+    private void cubuklariUygula() {
+        if (koyu == null || getActivity() == null) return;
+        Window w = getActivity().getWindow();
+        WindowInsetsControllerCompat ic = WindowCompat.getInsetsController(w, w.getDecorView());
+        ic.setAppearanceLightStatusBars(!koyu);
+        ic.setAppearanceLightNavigationBars(!koyu);
+        w.getDecorView().setBackgroundColor(zemin);
+        if (Build.VERSION.SDK_INT >= 29) {
+            // 3 düğmeli gezinmede sistem yarı saydam perde koymasın: çubuk tam uygulamanın renginde
+            w.setNavigationBarContrastEnforced(false);
+            w.setStatusBarContrastEnforced(false);
+        }
+        if (Build.VERSION.SDK_INT < 35) {
+            w.setNavigationBarColor(zemin);
+            w.setStatusBarColor(zemin);
+        }
+    }
+}
