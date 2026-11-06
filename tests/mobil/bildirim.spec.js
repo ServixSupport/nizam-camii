@@ -30,7 +30,7 @@ test('tasarımdaki başlangıç ayarı; sayfa açılınca izin İSTENMEZ', async
   await expect(page.getByRole('switch', { name: 'Melding bij begin gebedstijd' })).toHaveAttribute('aria-checked', 'true');
   expect(await basili(page.locator('#b-vakitler'))).toEqual(['Fadjr', 'Dhoehr', 'Asr', 'Maghrib', 'Isha']);
   await expect(page.locator('#b-secenekler')).toHaveClass(/soluk/);
-  await expect(page.locator('.b-gizlilik')).toContainText('Geen naam, account of IP-adres');
+  await expect(page.locator('#bildirim-ayar')).not.toContainText('IP-adres');      // gizlilik notu kaldırıldı (kullanıcı isteği, 06-11-2026)
   expect(await page.evaluate(() => window.__test.izinSorulan)).toBe(0);
   expect(b.istekler.filter((i) => i.yol === '/api/bildirim/abone')).toHaveLength(0);
 });

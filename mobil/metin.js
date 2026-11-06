@@ -176,7 +176,6 @@ const BILDIRIM = {
   tr: {
     notif: 'BİLDİRİMLER', notifMaster: 'Namaz vakti bildirimleri', notifBefore: 'Vakitten önce hatırlat',
     notifOff: 'Kapalı', notifMin: 'dk', notifAtTime: 'Vakit girince bildir', notifWhich: 'Hangi vakitler',
-    notifPrivacy: 'Bildirim için sadece bu cihazın bildirim adresini ve buradaki seçimlerinizi saklarız. İsim, hesap veya IP adresi saklanmaz. Bildirimleri kapatınca adres silinir.',
     notifIos: 'iPhone’da bildirimler yalnızca uygulama ana ekrandayken çalışır. Safari’de Paylaş’a dokunup “Ana Ekrana Ekle”yi seçin, sonra uygulamayı ana ekrandan açın.',
     notifUnsupported: 'Bu tarayıcı bildirimleri desteklemiyor.',
     notifDenied: 'Bildirimlere izin verilmedi. Telefonun ayarlarından bu uygulamaya bildirim izni verebilirsiniz.',
@@ -189,7 +188,6 @@ const BILDIRIM = {
   nl: {
     notif: 'MELDINGEN', notifMaster: 'Meldingen voor gebedstijden', notifBefore: 'Herinner me vooraf',
     notifOff: 'Uit', notifMin: 'min', notifAtTime: 'Melding bij begin gebedstijd', notifWhich: 'Voor welke gebeden',
-    notifPrivacy: 'Voor meldingen bewaren we alleen het meldingsadres van dit toestel en je keuzes hierboven. Geen naam, account of IP-adres. Zet je meldingen uit, dan wissen we het adres.',
     notifIos: 'Op de iPhone werken meldingen alleen als de app op het beginscherm staat. Tik in Safari op Deel, kies “Zet op beginscherm” en open de app daarna vanaf je beginscherm.',
     notifUnsupported: 'Deze browser ondersteunt geen meldingen.',
     notifDenied: 'Meldingen zijn niet toegestaan. Je kunt ze aanzetten in de instellingen van je telefoon.',
@@ -202,7 +200,6 @@ const BILDIRIM = {
   en: {
     notif: 'NOTIFICATIONS', notifMaster: 'Prayer time notifications', notifBefore: 'Remind me before',
     notifOff: 'Off', notifMin: 'min', notifAtTime: 'Notify when the prayer time begins', notifWhich: 'Which prayers',
-    notifPrivacy: 'For notifications we only store this device’s notification address and your choices above. No name, account or IP address. Turn notifications off and the address is deleted.',
     notifIos: 'On iPhone, notifications only work when the app is on your home screen. In Safari, tap Share, choose “Add to Home Screen”, then open the app from your home screen.',
     notifUnsupported: 'This browser does not support notifications.',
     notifDenied: 'Notifications are not allowed. You can turn them on in your phone’s settings.',
