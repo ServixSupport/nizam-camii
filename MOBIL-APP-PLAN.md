@@ -1,6 +1,6 @@
 # Mobil uygulama (telefon + tablet) ve `/admin` yönetim paneli
 
-**Durum (04-11-2026):** Faz 0, A, B, C ve D canlıda. Faz D (bildirimler) + renk temaları 04-11-2026'da canlıya alındı (main `9c244fc`); canlıda gerçek Chrome ile onay ve deneme bildirimi (QStash yolu) doğrulandı.
+**Durum (06-11-2026):** Faz 0, A, B, C ve D canlıda. **Faz E (mağaza uygulaması, `app/`)** hazırlandı: Android emülatörde denendi, iOS CI'da derleniyor; mağaza hesapları kullanıcıda (`app/README.md`). Renk temaları kaldırıldı. Eski durum: Faz D (bildirimler) + renk temaları 04-11-2026'da canlıya alındı (main `9c244fc`); canlıda gerçek Chrome ile onay ve deneme bildirimi (QStash yolu) doğrulandı.
 
 Hazırlanma tarihi 24-10-2026; tasarım kullanıcı tarafından onaylandı ("design super").
 **Faz 0:** bitti, kullanıcı onayladı, 24-10-2026'da `main`'e alındı (commit `fe4b5db`).

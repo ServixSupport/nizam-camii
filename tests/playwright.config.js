@@ -54,5 +54,7 @@ export default defineConfig({
     { name: 'yonlendirme', testMatch: 'yonlendirme/**/*.spec.js' },
     // Saf mantık (zaman.js, icerik.js, dogrula.js) ve sunucu fonksiyonları: tarayıcısız
     { name: 'mantik', testMatch: ['mantik/**/*.spec.js', 'sunucu/**/*.spec.js'] },
+    // mağaza görselleri (app/magaza): sadece istenince → MAGAZA=1 npx playwright test --project=magaza
+    ...(process.env.MAGAZA ? [{ name: 'magaza', testMatch: 'magaza/**/*.spec.js' }] : []),
   ],
 });

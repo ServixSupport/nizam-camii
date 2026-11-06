@@ -27,12 +27,16 @@
 | `veri/dogrula.js` | İçerik doğrulama: API, panel ve testler aynı dosyayı kullanır. |
 | `api/bildirim/` | Faz D bildirimleri: `anahtar.js` (hazır mı + açık VAPID anahtarı), `abone.js` (kaydet/sil), `planla.js` (günlük cron), `gonder.js` (QStash çağırır), `deneme.js` (Ayarlar'daki "Deneme bildirimi": 1 dk sonra aynı yoldan). Mantık `api/_lib/bildirim.js`, servisler `api/_lib/bildirim-servis.js`. |
 | `mobil/bildirim.js` | Uygulamada bildirim ayarları ve ana ekrandaki ziller. İzin sadece dokununca istenir. |
-| Renk temaları | `app.css` `data-renk` (yesil, turkuaz, bordo; varsayılan lacivert), her biri gündüz/gece. Seçim `nzm.renk`. Kontrast testi `tests/mobil/davranis.spec.js`. |
+| `mobil/yerel.js`, `yerel-plan.js`, `yerel-ayar.js` | Mağaza uygulaması köprüsü: telefona verilen plan (vakitler, bildirimler, sessiz dönemler) ve Ayarlar'daki "Durum çubuğu", "Sessize alma", "Kilit ekranı". Tarayıcıda hiçbir şey yapmaz. Bildirim metinleri `mobil/bildirim-metin.js` (sunucu da kullanır). |
+| `app/` | Mağaza uygulaması (Capacitor 8; Android + iOS). Ayrıntı: `app/README.md`, mağaza metinleri: `app/MAGAZA.md`. Vercel'e yüklenmez. |
+| `gizlilik/index.html` | Gizlilik sayfası (NL/TR/EN); mağazalar ister, uygulamada bağlantısı var. |
+| `.github/workflows/` | `app.yml` (her değişiklikte Android APK + iOS simülatör derlemesi), `app-ios-testflight.yml` (elle; App Store Connect'e yükleme). |
 | `vercel.json` | Header'lar (`/admin` noindex, `sw.js` no-cache) ve günlük cron (`/api/bildirim/planla`, Hobby: günde bir). |
 
 **Klasör = git deposu (24-10-2026'dan beri).** GitHub `main` ile eşitlendi.
 - Temmuz'dan kalan eski dosyalar `_eski-temmuz/` içinde; git'e ve Vercel'e girmez.
 - `core.autocrlf=false`: dosyalar GitHub'dakiyle bayt bayt aynı kalır (`index.html` 359.624 bayt).
+- Renk temaları (Yeşil, Turkuaz, Bordo) kullanıcı isteğiyle kaldırıldı (06-11-2026): uygulama sadece lacivert, gündüz/gece. Alt sistem çubuğu artık temaya göre (önceden hep lacivert).
 
 **Yükleme (S1, 24-10-2026):** `git push` Claude yapar, kullanıcı GitHub sitesinden yüklemez.
 - Önce ayrı bir dala push (ör. `faz-a`); Vercel o dal için Preview linki verir.
@@ -64,6 +68,7 @@
      - Önizleme Diyanet'e hiç gitmez. Testler: `tests/sunucu/vakit.spec.js`.
 3. **Sırlar** sadece Vercel ortam değişkenlerinde: `DIYANET_EMAIL`, `DIYANET_PASSWORD`, `DIYANET_CITY_ID`, `ADMIN_ANAHTAR`, `BLOB_READ_WRITE_TOKEN` (Blob store bağlanınca otomatik), `CRON_SECRET`, `VAPID_PRIVATE_KEY`, Upstash'inkiler (`KV_REST_API_*`/`UPSTASH_REDIS_REST_*`, `QSTASH_*`; Marketplace bağlanınca otomatik).
    - Abonelikler (push adresleri) sadece Upstash Redis'te; public depoya veya Blob'a konmaz.
+   - Play Store yükleme anahtarı depo dışında: `C:\Users\Altun\Documents\Suleymaniye-uygulama-anahtari\` (Gradle `~/.gradle/gradle.properties` → `CAMI_ANAHTAR_*`). Apple anahtarları sadece GitHub Secrets'ta (kullanıcı kendisi girer).
    - Depo public: hiçbir sır, `.env` dosyası veya kişisel veri commit edilmez.
    - Kullanıcıdan şifreyi sohbete yapıştırmasını isteme; Vercel'e kendisi girsin.
 4. Masaüstündeki `Diyanet namaz vakitleri api.pdf` kişisel veri içerir. Asla bu klasöre veya depoya girmez.
@@ -74,8 +79,12 @@
    - Aladhan yedeği sadece o gün için Diyanet verisi yoksa kullanılır. Düzeltmeler (İmsak +48, Yatsı −41) sadece Aladhan'a uygulanır.
    - Hicri tarih: Diyanet'in `hijri` alanı (sıfırsız G.A.YYYY, ör. `13.5.1448`) ve `HICRI_AY` listesi.
    - Mantığı `index.html`'den birebir al.
-7. `.vercelignore` ile `*.md`, `ontwerp/`, `tests/` ve eski dosyalar yayınlanmasın.
+7. `.vercelignore` ile `*.md`, `ontwerp/`, `tests/`, `app/` ve eski dosyalar yayınlanmasın.
 8. **Faz faz çalış** (plan §9). Her fazın sonunda dur, ekran görüntülerini göster, onay al. Büyük mimari değişiklikleri önce sor.
+9. **Mağaza uygulaması** (`app/`, 06-11-2026'dan beri):
+   - `mobil/` değişince uygulama kendiliğinden güncellenmez. Yeni sürüm için `app/README.md`: `www.mjs` → `cap sync` → `versionCode`'u artır → derle → mağazaya yükle.
+   - Uygulama kimliği `nl.suleymaniyecamii.namaz` değişmez.
+   - iPhone'da sessize alma ve durum çubuğu simgesi yok (Apple izin vermez); bu ayarlar iPhone'da gizli.
 
 ## Test
 
@@ -95,3 +104,8 @@
   - TV: 1920×1080, 1366×768, 960×540
   - Mobil: 390×844, 820×1180, 1180×820
 - Test araçları kendi `package.json`'ı ile `tests/` altında durur. Kökteki `package.json`'ı şişirme; onu Vercel yükler.
+- **Mağaza uygulaması:**
+  - Uygulama tarafı sahte eklentiyle: `tests/mobil/yerel.spec.js`, `tests/mantik/yerel-plan.spec.js`.
+  - Android mantığı JUnit ile (`app/android … PlanMantigiTest`).
+  - Telefonda deneme Android emülatörüyle (`app/README.md`); iPhone sadece CI'da (simülatör) ve TestFlight'ta.
+  - Mağaza görselleri: `MAGAZA=1 npx playwright test --project=magaza`.
