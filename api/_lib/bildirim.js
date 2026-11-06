@@ -2,7 +2,11 @@
 // Vakitler uygulamayla aynı kurallarla hesaplanır (mobil/zaman.js: Sabah = Güneş − 60, Amsterdam saati).
 import crypto from 'node:crypto';
 import { VAKITLER, diyanetGunu, gunOlaylari } from '../../mobil/zaman.js';
-import { METIN, DILLER } from '../../mobil/metin.js';
+import { DILLER } from '../../mobil/metin.js';
+import { bildirimMetni, DENEME } from '../../mobil/bildirim-metin.js';
+
+// Metinler uygulamayla ortak (mağaza uygulaması bildirimleri telefonda kendisi kurar)
+export { saatEki, bildirimMetni } from '../../mobil/bildirim-metin.js';
 
 /** "Vakitten önce hatırlat" seçenekleri (dakika); 0 = kapalı. */
 export const ONCE = [5, 10, 15, 30];
@@ -12,8 +16,6 @@ export const VARSAYILAN = { once: 15, giris: true, vakitler: ['Fajr', 'Dhuhr', '
 export const SINIR_ABONE = 5000;
 /** Gönderim penceresi: vaktinden en fazla 2 dk önce, 10 dk sonra (geç kalan bildirim gönderilmez). */
 export const PENCERE = { once: 2 * 60 * 1000, sonra: 10 * 60 * 1000 };
-
-const NAMAZ = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
 // Tarayıcıların push servisleri. Başka adrese istek atılmaz (sunucu, keyfi adreslere POST yapmasın).
 const PUSH_HOSTLARI = ['fcm.googleapis.com', 'android.googleapis.com', 'updates.push.services.mozilla.com',
@@ -96,47 +98,6 @@ export function istiyorMu(abone, an) {
   return an.tur === 'giris' ? abone.giris === true : abone.once === Number(an.tur.slice(5));
 }
 
-// Türkçe bulunma eki, saatin okunuşuna göre: 18:34’te (otuz dört), 20:09’da (dokuz), 12:00’de (on iki).
-const BIRLER = ['', 'de', 'de', 'te', 'te', 'te', 'da', 'de', 'de', 'da'];   // bir … dokuz
-const ONLAR = ['', 'da', 'de', 'da', 'ta', 'de'];                          // on, yirmi, otuz, kırk, elli
-const ekSayi = (n) => (n === 0 ? 'da' : n % 10 ? BIRLER[n % 10] : ONLAR[n / 10]);
-export function saatEki(saat) {
-  const [h, m] = saat.split(':').map(Number);
-  return `${saat}’${m ? ekSayi(m) : ekSayi(h)}`;
-}
-
-/**
- * Bildirim metni, abonenin dilinde (tasarım: ontwerp/Mobil-Bildirim.dc.html).
- * Dini metin değil; yine de yayından önce hocaya/cami yönetimine gösterilmeli.
- * Vakit girince sadece başlık (kullanıcı isteği, 06-11-2026: "telefonu sessize alın" cümlesi yok).
- */
-export function bildirimMetni(dil, an) {
-  const ad = METIN[dil].names[an.vakit];
-  const n = an.tur === 'giris' ? 0 : Number(an.tur.slice(5));
-  const namaz = NAMAZ.includes(an.vakit);
-  const gunes = an.vakit === 'Sunrise';
-  const s = an.saat;
-  if (dil === 'tr') {
-    if (!n) {
-      return { baslik: gunes ? `Güneş doğdu · ${s}` : `${ad} vakti girdi · ${s}`, govde: '' };
-    }
-    return { baslik: gunes ? `Güneşin doğmasına ${n} dakika` : namaz ? `${ad} namazına ${n} dakika` : `${ad} vaktine ${n} dakika`,
-      govde: gunes ? `Güneş ${saatEki(s)} doğuyor.` : `${ad} vakti ${saatEki(s)} giriyor.` };
-  }
-  if (dil === 'nl') {
-    if (!n) {
-      return { baslik: gunes ? `Zonsopgang · ${s}` : `${ad} is begonnen · ${s}`, govde: '' };
-    }
-    return { baslik: `Nog ${n} minuten tot ${gunes ? 'zonsopgang' : ad}`,
-      govde: gunes ? `De zon komt op om ${s}.` : `${ad} begint om ${s}.` };
-  }
-  if (!n) {
-    return { baslik: gunes ? `Sunrise · ${s}` : `${ad} has begun · ${s}`, govde: '' };
-  }
-  return { baslik: `${n} minutes until ${gunes ? 'sunrise' : ad}`,
-    govde: gunes ? `The sun rises at ${s}.` : `${ad} begins at ${s}.` };
-}
-
 /** Telefona giden içerik (service worker gösterir). Aynı vaktin bildirimleri aynı etiketle birbirinin yerini alır. */
 export function bildirimYuku(abone, an) {
   const { baslik, govde } = bildirimMetni(abone.dil, an);
@@ -160,11 +121,6 @@ export function denemeGecerli(a) {
   return !!a && typeof a === 'object' && a.tur === 'deneme' && /^[0-9a-f]{32}$/.test(a.abone)
     && Number.isFinite(a.an) && a.id === `deneme_${a.abone}_${a.an}`;
 }
-const DENEME = {
-  tr: { baslik: 'Deneme bildirimi', govde: 'Bildirimler çalışıyor. Namaz vakitlerinde böyle bir bildirim alacaksınız.' },
-  nl: { baslik: 'Testmelding', govde: 'Meldingen werken. Bij de gebedstijden krijg je zo’n melding.' },
-  en: { baslik: 'Test notification', govde: 'Notifications work. You will get a notification like this at prayer times.' },
-};
 export function denemeYuku(dil) {
   const m = DENEME[dil] || DENEME.nl;
   return JSON.stringify({ ...m, etiket: 'deneme', dil, adres: '/mobil/' });

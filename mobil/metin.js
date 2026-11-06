@@ -212,3 +212,52 @@ const BILDIRIM = {
 };
 for (const d of Object.keys(BILDIRIM)) Object.assign(METIN[d], BILDIRIM[d]);
 
+// ---------------- Mağaza uygulaması: durum çubuğu, sessize alma, kilit ekranı (06-11-2026) ----------------
+const YEREL = {
+  tr: {
+    sayacAlt: 'Sıradaki vakit', kanalVakit: 'Namaz vakitleri', kanalSayac: 'Geri sayım', kanalSessiz: 'Sessize alma',
+    sayacTitle: 'DURUM ÇUBUĞU', sayacAna: 'Sıradaki vakte geri sayım',
+    sayacNot: 'Telefonun üst çubuğunda cami simgesi durur; sıradaki vakte kalan süre orada ve bildirimlerde görünür.',
+    sessizTitle: 'SESSİZE ALMA', sessizAna: 'Namaz vaktinde telefonu sessize al', sessizSure: 'Ne kadar süre',
+    sessizNasil: 'Nasıl', sessizModAd: { sessiz: 'Sessiz', titresim: 'Titreşim' }, sessizHangi: 'Hangi namazlar',
+    sessizNot: 'Vakit girince telefon sessize alınır, süre bitince eski haline döner. Bu arada sesi kendiniz açarsanız dokunulmaz.',
+    sessizIzin: 'Telefonu sessize alabilmek için uygulamaya “Rahatsız Etmeyin” erişimi verin.',
+    sessizBaslik: { sessiz: 'Telefon sessizde', titresim: 'Telefon titreşimde' },
+    sessizGovde: (saat) => `Namaz vakti. ${saat} itibarıyla telefon eski haline döner.`,
+    tamAlarm: 'Her şeyin tam zamanında olması için “Alarmlar ve hatırlatıcılar” iznini açın.',
+    izinVer: 'İzin ver', ayarAc: 'Ayarları aç', notifTestSentYerel: 'Deneme bildirimi gönderildi',
+    widgetTitle: 'KİLİT EKRANI', widgetAna: 'Geri sayım widget’ı',
+    widgetNot: 'Kilit ekranına basılı tutun, “Özelleştir”e dokunun ve Süleymaniye widget’ını ekleyin. Sıradaki vakte kalan süre orada görünür.',
+  },
+  nl: {
+    sayacAlt: 'Volgende gebedstijd', kanalVakit: 'Gebedstijden', kanalSayac: 'Aftellen', kanalSessiz: 'Op stil zetten',
+    sayacTitle: 'STATUSBALK', sayacAna: 'Aftellen tot het volgende gebed',
+    sayacNot: 'Bovenin je telefoon staat het moskee-icoon; daar en bij je meldingen zie je hoe lang het nog duurt tot het volgende gebed.',
+    sessizTitle: 'OP STIL', sessizAna: 'Telefoon op stil bij gebedstijd', sessizSure: 'Hoe lang',
+    sessizNasil: 'Hoe', sessizModAd: { sessiz: 'Stil', titresim: 'Trillen' }, sessizHangi: 'Bij welke gebeden',
+    sessizNot: 'Bij het begin van de gebedstijd gaat je telefoon op stil en daarna terug zoals hij was. Zet je zelf het geluid weer aan, dan blijft dat zo.',
+    sessizIzin: 'Geef de app toegang tot “Niet storen”, zodat hij je telefoon op stil kan zetten.',
+    sessizBaslik: { sessiz: 'Telefoon op stil', titresim: 'Telefoon op trillen' },
+    sessizGovde: (saat) => `Gebedstijd. Om ${saat} staat je telefoon weer zoals hij was.`,
+    tamAlarm: 'Zet “Wekkers en herinneringen” aan, dan gebeurt alles precies op tijd.',
+    izinVer: 'Toestaan', ayarAc: 'Instellingen openen', notifTestSentYerel: 'Testmelding verstuurd',
+    widgetTitle: 'VERGRENDELSCHERM', widgetAna: 'Aftel-widget',
+    widgetNot: 'Houd je vergrendelscherm ingedrukt, tik op “Pas aan” en voeg de widget Süleymaniye toe. Daar zie je hoe lang het nog duurt tot het volgende gebed.',
+  },
+  en: {
+    sayacAlt: 'Next prayer time', kanalVakit: 'Prayer times', kanalSayac: 'Countdown', kanalSessiz: 'Silencing',
+    sayacTitle: 'STATUS BAR', sayacAna: 'Countdown to the next prayer',
+    sayacNot: 'The mosque icon sits at the top of your phone; there and in your notifications you see the time left until the next prayer.',
+    sessizTitle: 'SILENCE', sessizAna: 'Silence phone at prayer time', sessizSure: 'How long',
+    sessizNasil: 'How', sessizModAd: { sessiz: 'Silent', titresim: 'Vibrate' }, sessizHangi: 'Which prayers',
+    sessizNot: 'When the prayer time begins your phone is silenced, and afterwards it goes back to how it was. If you turn the sound on yourself, it stays on.',
+    sessizIzin: 'Give the app “Do Not Disturb” access so it can silence your phone.',
+    sessizBaslik: { sessiz: 'Phone on silent', titresim: 'Phone on vibrate' },
+    sessizGovde: (saat) => `Prayer time. At ${saat} your phone goes back to how it was.`,
+    tamAlarm: 'Turn on “Alarms & reminders” so everything happens right on time.',
+    izinVer: 'Allow', ayarAc: 'Open settings', notifTestSentYerel: 'Test notification sent',
+    widgetTitle: 'LOCK SCREEN', widgetAna: 'Countdown widget',
+    widgetNot: 'Touch and hold your Lock Screen, tap “Customize” and add the Süleymaniye widget. It shows the time left until the next prayer.',
+  },
+};
+for (const d of Object.keys(YEREL)) Object.assign(METIN[d], YEREL[d]);

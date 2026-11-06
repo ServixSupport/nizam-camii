@@ -8,6 +8,9 @@ import {
 import { METIN, DILLER, VARSAYILAN_DIL, ARAPCA } from './metin.js';
 import { ekranlar } from './ekranlar.js';
 import { bildirimler } from './bildirim.js';
+import { yerelMi, platform, cami, apiAdresi } from './yerel.js';
+import { yerelPlan, PLAN_GUN } from './yerel-plan.js';
+import { yerelAyarlar } from './yerel-ayar.js';
 
 // TV'nin anahtarları (vakitler, nizam-tema, nizam-sayac) kullanılmaz; hepsi "nzm." ile başlar.
 const DEPO = { dil: 'nzm.dil', tema: 'nzm.tema', vakit: 'nzm.vakit', aladhan: 'nzm.aladhan', icerik: 'nzm.icerik' };
@@ -61,7 +64,7 @@ function gunVerisi(ymd) {
 
 async function vakitGetir() {
   try {
-    const r = await fetch('/api/vakit', { cache: 'no-store' });     // parametresiz: CDN cache anahtarı aynı kalsın
+    const r = await fetch(apiAdresi('/api/vakit'), { cache: 'no-store' });     // parametresiz: CDN cache anahtarı aynı kalsın
     const j = await r.json();
     if (j && j.available && Array.isArray(j.days) && j.days.length) {
       diyanetYukle(j.days);
@@ -93,7 +96,7 @@ async function eksikleriTamamla(gunler) {
 async function icerikGetir(zorla) {
   if (!zorla && Date.now() - durum.icerikAlindi < ICERIK_ARALIK) return;
   try {
-    const r = await fetch('/api/icerik', { cache: 'no-cache' });
+    const r = await fetch(apiAdresi('/api/icerik'), { cache: 'no-cache' });
     if (!r.ok) return;
     const j = await r.json();
     if (!j || !Array.isArray(j.faaliyetler) || !Array.isArray(j.programlar)) return;
@@ -127,7 +130,32 @@ function bildir(metin) {
 }
 
 // Faz D: bildirim ayarları ve ana ekrandaki ziller (sunucu hazır değilse hiç görünmez)
-const bld = bildirimler({ L, dil: () => durum.dil, bildir, kuruluMu: () => kuruluMu(), iosMu: () => iosMu() });
+const bld = bildirimler({ L, dil: () => durum.dil, bildir, kuruluMu: () => kuruluMu(), iosMu: () => iosMu(),
+  yerel: cami, planDegisti: planGonderSonra });
+// Mağaza uygulaması: durum çubuğunda geri sayım, sessize alma, kilit ekranı (tarayıcıda yok)
+const yerelAyar = yerelMi ? yerelAyarlar({ L, cami, platform, planDegisti: planGonderSonra, bildirimAcik: () => bld.ayar().aan }) : null;
+
+// ---------------- mağaza uygulaması: telefonun kendi zamanlaması ----------------
+// Plan (vakitler, bildirimler, sessiz dönemler) telefona verilir; telefon uygulama kapalıyken de uygular.
+let _planZaman = 0;
+function planGonderSonra() {
+  if (!yerelMi) return;
+  clearTimeout(_planZaman);
+  _planZaman = setTimeout(planGonder, 300);
+}
+async function planGonder() {
+  if (!yerelMi || !durum.veriVar) return;
+  const bugun = amsGun(Date.now());
+  const gunler = [];
+  for (let i = 0; i < PLAN_GUN; i++) {
+    const ymd = gunEkle(bugun, i);
+    const o = olaylar(ymd);
+    if (o.length) gunler.push({ ymd, olaylar: o });
+  }
+  const y = yerelAyar.ayar();
+  const plan = yerelPlan({ gunler, bildirim: bld.ayar(), sessiz: y.sessiz, sayac: y.sayac, dil: durum.dil, t: L(), simdi: Date.now() });
+  try { await cami.planKur({ plan }); } catch { /* telefon eklentisi yanıt vermedi: sonraki açılışta yeniden */ }
+}
 
 const ekran = ekranlar({
   L, dil: () => durum.dil, icerik: () => durum.icerik, simdi: () => Date.now(),
@@ -153,6 +181,7 @@ function yenile() {
     olaylariKur(true);
     ciz();
     ekranlariCiz();
+    planGonderSonra();
   })().finally(() => { _yenileniyor = null; });
   return _yenileniyor;
 }
@@ -178,6 +207,7 @@ function metinleriYaz() {
   $('link[rel="manifest"]').setAttribute('href', `/mobil/manifest-${durum.dil}.webmanifest`);
   $('meta[name="apple-mobile-web-app-title"]').setAttribute('content', t.appAd);
   for (const el of $$('[data-t]')) el.textContent = t[el.dataset.t];
+  if (yerelAyar) yerelAyar.ciz();
   for (const el of $$('[data-t-aria]')) el.setAttribute('aria-label', t[el.dataset.tAria]);
   for (const el of $$('[data-t-alt]')) el.setAttribute('alt', t[el.dataset.tAlt]);
 
@@ -206,11 +236,14 @@ function dilSec(k) {
   durum.dil = k; yaz(DEPO.dil, k);
   metinleriYaz(); ciz(); ekranlariCiz(); kurulumKartiCiz();
   bld.dilDegisti();
+  planGonderSonra();                                          // sayaç ve sessiz notu yeni dilde
 }
 // telefonun üst çubuğu sayfanın zemin rengini alsın (tema değişince)
 function durumCubugu() {
   const zemin = getComputedStyle(document.documentElement).getPropertyValue('--ground').trim();
   if (zemin) $('meta[name="theme-color"]').setAttribute('content', zemin);
+  // mağaza uygulaması: üst ve alt sistem çubuğu temaya göre (açık temada koyu simgeler, koyu temada açık)
+  if (yerelMi) cami.cubuklar({ koyu: document.documentElement.dataset.tema === 'gece', zemin }).catch(() => {});
 }
 function temaSec(k) {
   durum.tema = k; yaz(DEPO.tema, k);
@@ -457,7 +490,11 @@ icerikGetir(true);
 setInterval(() => { if (document.visibilityState === 'visible') yenile(); }, 60 * 60 * 1000);   // saatte bir (TV gibi)
 setInterval(() => { if (!durum.veriVar) yenile().then(() => { durum.hata = !durum.veriVar; ciz(); }); }, 30 * 1000);
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') { ciz(); icerikGetir(); if (Date.now() - durum.sonGetirme > 30 * 60 * 1000) yenile(); }
+  if (document.visibilityState === 'visible') {
+    ciz(); icerikGetir();
+    if (Date.now() - durum.sonGetirme > 30 * 60 * 1000) yenile();
+    if (yerelAyar) { yerelAyar.izinYenile(); planGonderSonra(); }   // telefonun ayarlarından dönünce (izinler)
+  }
 });
 window.addEventListener('online', () => { yenile(); icerikGetir(true); });
 setInterval(() => { if (document.visibilityState === 'visible') icerikGetir(); }, 10 * 60 * 1000);
@@ -465,7 +502,7 @@ setInterval(() => { if (document.visibilityState === 'visible') icerikGetir(); }
 // ---------------- Faz C: yükleme (PWA) ve yeni sürüm ----------------
 let _kurulumOlayi = null;
 let _surumGecisi = false;
-const kuruluMu = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const kuruluMu = () => yerelMi || matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 const iosMu = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 
 function kurulumKartiCiz() {
@@ -488,12 +525,13 @@ $('#kurulum-dugme').addEventListener('click', async () => {
 });
 kurulumKartiCiz();
 bld.hazirla();
+if (yerelAyar) { durumCubugu(); yerelAyar.hazirla(); }
 
 // Service worker sadece /mobil/ kapsamında; TV sayfası ("/") etkilenmez.
 // Yeni sürüm kullanım sırasında kendiliğinden devreye girmez: çubuk çıkar, kullanıcı "Yenile"ye dokunur.
 (async () => {
   try {
-    if (!('serviceWorker' in navigator)) return;
+    if (yerelMi || !('serviceWorker' in navigator)) return;            // mağaza uygulaması dosyaları zaten içinde taşır
     const kayit = await navigator.serviceWorker.register('/mobil/sw.js', { scope: '/mobil/' });
     const cubuk = () => {
       if (!kayit.waiting || !navigator.serviceWorker.controller) return;

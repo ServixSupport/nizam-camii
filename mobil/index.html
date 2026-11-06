@@ -19,7 +19,6 @@
 /* İlk boyamadan önce dil ve tema (ekran yanıp sönmesin). Ayrıntılı mantık app.js'te. */
 (function () {
   try {
-    if (/Android/i.test(navigator.userAgent)) document.documentElement.classList.add('android');
     var d = localStorage.getItem('nzm.dil');
     if (d === 'tr' || d === 'nl' || d === 'en') {
       /* uygulama adı dile göre: Süleymaniye Camii / Moskee / Mosque (ana ekran adı da) */
@@ -199,6 +198,63 @@
             <button type="button" class="dugme b-deneme" id="b-deneme" data-t="notifTest"></button>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Mağaza uygulaması (yerel-ayar.js); tarayıcıda gizli kalır -->
+    <section class="ayar" id="tam-alarm" hidden>
+      <div class="b-kart">
+        <p class="b-mesaj bilgi" data-t="tamAlarm"></p>
+        <div class="b-satir"><button type="button" class="dugme cerceve" id="tam-alarm-dugme" data-t="ayarAc"></button></div>
+      </div>
+    </section>
+
+    <section class="ayar" id="sayac-ayar" hidden>
+      <h2 class="ayar-baslik" data-t="sayacTitle"></h2>
+      <div class="b-kart">
+        <div class="b-satir">
+          <span class="b-ana-ad" id="sayac-ad" data-t="sayacAna"></span>
+          <button type="button" class="anahtar" role="switch" aria-checked="false" aria-labelledby="sayac-ad" id="sayac-anahtar"><span aria-hidden="true"></span></button>
+        </div>
+        <p class="b-mesaj" id="sayac-mesaj" role="status" hidden></p>
+      </div>
+      <p class="ayar-not b-not" data-t="sayacNot"></p>
+    </section>
+
+    <section class="ayar" id="sessiz-ayar" hidden>
+      <h2 class="ayar-baslik" data-t="sessizTitle"></h2>
+      <div class="b-kart">
+        <div class="b-satir">
+          <span class="b-ana-ad" id="sessiz-ad" data-t="sessizAna"></span>
+          <button type="button" class="anahtar" role="switch" aria-checked="false" aria-labelledby="sessiz-ad" id="sessiz-anahtar"><span aria-hidden="true"></span></button>
+        </div>
+        <p class="b-mesaj" id="sessiz-mesaj" role="status" hidden></p>
+        <div class="b-satir" id="sessiz-izin-satir" hidden>
+          <button type="button" class="dugme altin" id="sessiz-izin" data-t="izinVer"></button>
+        </div>
+        <div class="b-secenekler" id="sessiz-secenekler">
+          <div class="b-satir dikey">
+            <span class="b-ad" id="sessiz-sure-ad" data-t="sessizSure"></span>
+            <div class="b-once" role="group" aria-labelledby="sessiz-sure-ad" id="sessiz-sure"></div>
+          </div>
+          <div class="b-satir dikey">
+            <span class="b-ad" id="sessiz-mod-ad" data-t="sessizNasil"></span>
+            <div class="b-once" role="group" aria-labelledby="sessiz-mod-ad" id="sessiz-mod"></div>
+          </div>
+          <div class="b-satir dikey">
+            <span class="b-ad" id="sessiz-vakit-ad" data-t="sessizHangi"></span>
+            <div class="b-vakitler" role="group" aria-labelledby="sessiz-vakit-ad" id="sessiz-vakitler"></div>
+          </div>
+        </div>
+      </div>
+      <p class="ayar-not b-not" data-t="sessizNot"></p>
+    </section>
+
+    <section class="ayar" id="widget-ayar" hidden>
+      <h2 class="ayar-baslik" data-t="widgetTitle"></h2>
+      <div class="ayar-kart">
+        <span class="ayar-ad" data-t="widgetAna"></span>
+        <span class="ayar-not" data-t="widgetNot"></span>
       </div>
     </section>
 

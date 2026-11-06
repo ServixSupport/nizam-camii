@@ -3,7 +3,10 @@
 // - Sunucu hazır değilse (/api/bildirim/anahtar → aktif: false) ayar bölümü ve ziller hiç görünmez.
 // - Ayarlar cihazda (nzm.bildirim). Bildirimler açıksa aynısı sunucuda (/api/bildirim/abone).
 // - Kapatınca abonelik sunucudan da silinir.
+// - Mağaza uygulamasında (yerel) sunucu ve Web Push yok: bildirimleri telefon kendisi kurar (yerel-plan.js),
+//   ayar değişince app.js planı telefona yeniden gönderir (planDegisti).
 import { VAKITLER } from './zaman.js';
+import { DENEME } from './bildirim-metin.js';
 
 const DEPO = 'nzm.bildirim';
 const ONCE = [0, 5, 10, 15, 30];
@@ -47,16 +50,19 @@ function ayniAnahtar(a, b) {
  * @param {Function} o.bildir   kısa mesaj (alt çubuk)
  * @param {Function} o.kuruluMu ana ekrandan mı açıldı
  * @param {Function} o.iosMu
+ * @param {object} [o.yerel]       mağaza uygulamasında telefon eklentisi (yerel.js), tarayıcıda yok
+ * @param {Function} [o.planDegisti]
  */
-export function bildirimler({ L, dil, bildir, kuruluMu, iosMu }) {
+export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, planDegisti = () => {} }) {
   let ayar = oku();
-  let sunucu = ayar.sunucu && ayar.sunucu.aktif ? ayar.sunucu : { aktif: false, publicKey: null };   // internetsizken son bilinen
+  let sunucu = yerel ? { aktif: true, publicKey: null }                                                   // sunucusuz
+    : ayar.sunucu && ayar.sunucu.aktif ? ayar.sunucu : { aktif: false, publicKey: null };   // internetsizken son bilinen
   let mesaj = '';
   let mesgul = false;
   let _zaman = 0;
   let kuruldu = false;
 
-  const destek = () => ('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window ? 'tamam'
+  const destek = () => (yerel ? 'tamam' : 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window ? 'tamam'
     : iosMu() && !kuruluMu() ? 'ios' : 'yok');
   const yaz = (parca) => { ayar = { ...ayar, ...parca }; sakla(ayar); };
 
@@ -102,8 +108,27 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu }) {
   }
   const esitleSonra = () => { clearTimeout(_zaman); _zaman = setTimeout(esitle, 500); };
 
+  async function yerelAc() {
+    mesgul = true;
+    ciz();
+    try {
+      const r = await yerel.bildirimIzniIste();
+      if (!r || r.bildirim !== 'granted') { mesaj = 'notifDenied'; return; }
+      yaz({ aan: true });
+      mesaj = '';
+      planDegisti();
+      bildir(L().notifOnToast);
+    } catch {
+      mesaj = 'notifError';
+    } finally {
+      mesgul = false;
+      ciz();
+    }
+  }
+
   async function ac() {
     if (mesgul) return;
+    if (yerel) return yerelAc();
     const d = destek();
     if (d !== 'tamam') { mesaj = d === 'ios' ? 'notifIos' : 'notifUnsupported'; ciz(); return; }
     mesgul = true;
@@ -126,6 +151,14 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu }) {
 
   async function kapat() {
     if (mesgul) return;
+    if (yerel) {
+      yaz({ aan: false });
+      mesaj = '';
+      planDegisti();
+      ciz();
+      bildir(L().notifOffToast);
+      return;
+    }
     mesgul = true;
     yaz({ aan: false, endpoint: '', esitleme: 0 });
     mesaj = '';
@@ -155,6 +188,11 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu }) {
     ciz();
     const t = L();
     try {
+      if (yerel) {
+        await yerel.deneme(DENEME[dil()] || DENEME.nl);
+        bildir(t.notifTestSentYerel);
+        return;
+      }
       const sub = await abonelik(false);
       if (!sub) throw new Error('abonelik yok');
       const j = sub.toJSON();
@@ -176,7 +214,7 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu }) {
   function ayarla(parca) {
     yaz(parca);
     ciz();
-    if (ayar.aan) esitleSonra();
+    if (ayar.aan) { if (yerel) planDegisti(); else esitleSonra(); }
   }
 
   /** Ana ekrandaki zil: o vaktin bildirimini aç/kapat. Bildirimler kapalıysa açar (izin penceresi). */
@@ -200,6 +238,15 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu }) {
   }
 
   async function hazirla() {
+    if (yerel) {
+      // izin telefonun ayarlarından geri alındıysa: kapalı göster
+      try {
+        const r = await yerel.izinDurumu();
+        if (ayar.aan && r && r.bildirim !== 'granted') { yaz({ aan: false }); planDegisti(); }
+      } catch { /* */ }
+      ciz();
+      return;
+    }
     try {
       const r = await fetch('/api/bildirim/anahtar');
       const j = r.ok ? await r.json() : null;
@@ -291,6 +338,8 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu }) {
   return {
     hazirla, ciz, zil,
     /** dil değişti: açıksa bildirimler yeni dilde gelsin */
-    dilDegisti() { ciz(); if (ayar.aan) esitleSonra(); },
+    dilDegisti() { ciz(); if (ayar.aan) { if (yerel) planDegisti(); else esitleSonra(); } },
+    /** plana giden ayarlar (mağaza uygulaması) */
+    ayar: () => ({ aan: ayar.aan, once: ayar.once, giris: ayar.giris, vakitler: [...ayar.vakitler] }),
   };
 }

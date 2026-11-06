@@ -542,6 +542,8 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
   font-size: 13.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
 .b-vakitler button[aria-pressed="true"] { background: var(--railActive); color: var(--cobalt); border-color: var(--cobalt); }
 .b-vakitler svg { width: 13px; height: 13px; }
+.b-not { margin: 0 4px; line-height: 1.45; }
+.b-kart > .b-mesaj:last-child { box-shadow: none; }
 
 /* deneme bildirimi düğmesi ve "ayarlanıyor" yazısı */
 .b-deneme { width: 100%; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
