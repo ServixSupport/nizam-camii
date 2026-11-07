@@ -645,41 +645,51 @@ test.describe('ayar: Türkçe ↔ Hollandaca', () => {
 });
 
 // ===================== KREM TEMA: uygulamanın tasarımı (kullanıcı isteği, 07-11-2026) =====================
-// Solda tarih + kemer (sıradaki vakte geri sayım), sağda alt alta 7 vakit, altta /admin'den iki kutu.
+// Solda: logo ve cami adı (küçük), tarih, kemer (sıradaki vakte geri sayım, şimdiki saat, altta İmsak ve Güneş).
+// Sağda: en üstten 5 vakit alt alta, altta /admin'den iki küçük kutu. 60 sn sayacı solda, kemerin üstünde.
 // Koyu ve açık temalar eskisi gibi (yukarıdaki testler ve referans görüntüler).
 test.describe('krem tema: kemer, vakit listesi, /admin kutuları', () => {
-  const satir = (page, k) => page.locator(`.k2-v[data-k2="${k}"]`);
+  const satir = (page, k) => page.locator(`[data-k2="${k}"]`);
   const satirAdlari = (page) => page.locator('.k2-v [data-ad]').allTextContents();
+  const gunesAdlari = (page) => page.locator('.k2-g [data-ad]').allTextContents();
   const icerikAc = (page, zaman, ek = {}) => tvAc(page, { zaman, icerikSaati: new Date(zaman).getTime(), ...ek });
   // içerik isteği gerçek zamanda biter; ekran saniyede bir çizilir: sahte saati azar azar akıtarak bekle
   const akitarakBekle = (page, fn) => expect(async () => { await ileri(page, 500); await fn(); }).toPass({ timeout: 15000 });
 
-  test('varsayılan: 7 vakit sırayla, sıradaki kırmızı, kemerde geri sayım; eski kutular gizli', async ({ page }) => {
+  test('varsayılan: sağda en üstten 5 vakit, sıradaki kırmızı; kemerde geri sayım, saat, İmsak ve Güneş', async ({ page }) => {
     await tvAc(page, { zaman: an('10:05:00.500') });
-    expect(await satirAdlari(page)).toEqual(['İmsak', 'Sabah', 'Güneş', 'Öğle', 'İkindi', 'Akşam', 'Yatsı']);
-    await expect(page.locator('.k2-v .k2-vt')).toHaveText(['05:34', '06:21', '07:21', '12:29', '14:54', '17:27', '19:02']);
+    expect(await satirAdlari(page)).toEqual(['Sabah', 'Öğle', 'İkindi', 'Akşam', 'Yatsı']);
+    await expect(page.locator('.k2-v .k2-vt')).toHaveText(['06:21', '12:29', '14:54', '17:27', '19:02']);
+    expect(await gunesAdlari(page)).toEqual(['İmsak', 'Güneş']);
+    await expect(page.locator('.k2-g .k2-g-vt')).toHaveText(['05:34', '07:21']);
+    await expect(page.locator('.k2-g .k2-g-ar')).toHaveText(['İmsâk', 'Shuruq']);
+    await expect(page.locator('.k2-g .k2-g-ikon svg')).toHaveCount(2);         // açık temadaki güneş simgeleri
+    for (const k of ['Imsak', 'Sunrise', 'Fajr']) await expect(satir(page, k)).toHaveClass(/\bk2-gecti\b/);
     await expect(page.locator('.k2-v.k2-sira')).toHaveCount(1);
     await expect(satir(page, 'Dhuhr')).toHaveClass(/\bk2-sira\b/);
-    for (const k of ['Imsak', 'Fajr', 'Sunrise']) await expect(satir(page, k)).toHaveClass(/\bk2-gecti\b/);
     await expect(page.locator('.k2-v.k2-simdi')).toHaveCount(0);           // Güneş namaz vakti değil
     await expect(page.locator('#k2-etiket')).toHaveText("ÖĞLE'YE KALAN SÜRE");
     await expect(page.locator('#k2-sayac')).toHaveText('2:23:59');
-    await expect(page.locator('#k2-sira-ad')).toHaveText('Öğle');
-    await expect(page.locator('#k2-sira-saat')).toHaveText('12:29');
-    await expect(page.locator('#k2-sira-ar')).toHaveText('Dhuhr');
-    await expect(page.locator('#k2-h')).toHaveText('10');
-    await expect(page.locator('#k2-m')).toHaveText('05');
+    await expect(page.locator('.k2-kemer .k2-saat')).toHaveText('10:05');      // şimdiki saat, kemerde
     await ileri(page, 1000);
     await expect(page.locator('#k2-sayac')).toHaveText('2:23:58');
     // kemer: güneş yolda, Öğle halkası sıradaki
     await expect(page.locator('#k2-gok [data-gok="gunes"]')).toHaveCount(1);
     await expect(page.locator('#k2-noktalar [data-key="Dhuhr"]')).toHaveClass('kn-halka');
     await expect(page.locator('#k2-noktalar [data-key="Imsak"]')).toHaveClass('kn-gecti');
-    await expect(page.locator('.k2-kemer')).toBeVisible();
-    await expect(page.locator('.k2-sag')).toBeVisible();
-    await expect(page.locator('.midrow')).toBeHidden();
-    await expect(page.locator('.grid')).toBeHidden();
-    await expect(page.locator('.k2-adres')).toHaveText('Ookmeerweg 206 · Amsterdam');
+    for (const s of ['.k2-kemer', '.k2-sag', '.k2-kartlar']) await expect(page.locator(s)).toBeVisible();
+    for (const s of ['.midrow', '.grid', '.rule']) await expect(page.locator(s)).toBeHidden();
+    // düzen: liste en üstten başlar; cami adı ve dişli sol sütunda kalır; Yatsı ile kutular arasında boşluk
+    const sag = await page.locator('.k2-sag').boundingBox();
+    expect(sag.y).toBeCloseTo(38, 0);
+    const ad = await page.locator('.brand .name').boundingBox();
+    const disli = await page.locator('#gear').boundingBox();
+    expect(ad.x + ad.width).toBeLessThan(sag.x);
+    expect(disli.x + disli.width).toBeLessThan(sag.x);
+    const yatsi = await satir(page, 'Isha').boundingBox();
+    const kutular = await page.locator('.k2-kartlar').boundingBox();
+    expect(kutular.y - (yatsi.y + yatsi.height)).toBeGreaterThanOrEqual(24);
+    expect(kutular.height).toBeLessThanOrEqual(150);
     // eski elemanlar arka planda yine güncel (diğer temaya geçince hazır)
     await expect(page.locator('#cd-timer')).toHaveText('02:23:58');
   });
@@ -687,51 +697,76 @@ test.describe('krem tema: kemer, vakit listesi, /admin kutuları', () => {
   for (const tema of ['dark', 'light']) {
     test(`${tema}: krem elemanları görünmez, /api/icerik istenmez`, async ({ page }) => {
       const k = await tvAc(page, { zaman: an('10:05:00.500'), adres: `/?theme=${tema}` });
-      for (const s of ['.k2-kemer', '.k2-sag', '.k2-saat', '.k2-adres']) await expect(page.locator(s)).toBeHidden();
+      for (const s of ['.k2-kemer', '.k2-sag']) await expect(page.locator(s)).toBeHidden();
       await expect(page.locator('.grid')).toBeVisible();
+      await expect(page.locator('.rule')).toBeVisible();
       await ileri(page, 30 * 1000);
       expect(k.api.filter((u) => u.pathname === '/api/icerik')).toEqual([]);
     });
   }
 
-  test("Yatsı'dan sonra şimdiki vakit Yatsı, yarının İmsak'ına sayar; kemerde ay; 10 saatten uzun sayaç küçülür", async ({ page }) => {
+  test("İmsak'tan önce kemerin altındaki İmsak sıradaki (kırmızı)", async ({ page }) => {
+    await tvAc(page, { zaman: an('05:00:00.500') });
+    await expect(satir(page, 'Imsak')).toHaveClass(/\bk2-sira\b/);
+    await expect(page.locator('.k2-v.k2-sira')).toHaveCount(0);
+    await expect(page.locator('#k2-etiket')).toHaveText("İMSAK'A KALAN SÜRE");
+    await expect(page.locator('#k2-sayac')).toHaveText('0:33:59');
+  });
+
+  test("Akşam'dan sonra ay; Yatsı'dan sonra yarının İmsak'ına; 10 saatten uzun sayaç küçülür", async ({ page }) => {
     await tvAc(page, { zaman: an('18:10:00.500') });
     await expect(satir(page, 'Maghrib')).toHaveClass(/\bk2-simdi\b/);
     await expect(satir(page, 'Maghrib').locator('.k2-simdi-yazi')).toHaveText('ŞİMDİ');
     await expect(satir(page, 'Isha')).toHaveClass(/\bk2-sira\b/);
-    await expect(page.locator('#k2-gok [data-gok="ay"]')).toHaveCount(1);   // Akşam'dan sonra ay
+    await expect(page.locator('#k2-gok [data-gok="ay"]')).toHaveCount(1);
 
     await saatGit(page, an('19:20:00.500'));
     await expect(satir(page, 'Isha')).toHaveClass(/\bk2-simdi\b/);
-    await expect(page.locator('.k2-v.k2-sira')).toHaveCount(0);           // listede bugünün vakitleri; hepsi geçti
+    await expect(page.locator('.k2-sira')).toHaveCount(0);                 // bugünün vakitleri; hepsi geçti
     await expect(page.locator('#k2-etiket')).toHaveText("İMSAK'A KALAN SÜRE");
     await expect(page.locator('#k2-sayac')).toHaveText('10:14:59');          // → 29-10 05:35
     await expect(page.locator('#k2-sayac')).toHaveClass(/k2-uzun/);
-    await expect(page.locator('#k2-sira-saat')).toHaveText('05:35');
     await expect(page.locator('#k2-noktalar [data-key]')).toHaveCount(2);    // gece: Yatsı → İmsak
 
     await saatGit(page, an('21:05:00.500'));
     await expect(page.locator('#k2-sayac')).toHaveText('8:29:59');
     await expect(page.locator('#k2-sayac')).not.toHaveClass(/k2-uzun/);
+    await expect(page.locator('.k2-kemer .k2-saat')).toHaveText('21:05');
   });
 
-  test('vakit girince kemerde EZAN VAKTİ, satır yanıp söner; ezandan sonra sayaç döner', async ({ page }) => {
-    await tvAc(page, { zaman: an('12:29:10.500') });
+  test('60 sn kala sayaç solda kemerin üstünde (telefon simgesi yok), vakitler yerinde; vakitte EZAN VAKTİ', async ({ page }) => {
+    await tvAc(page, { zaman: an('12:28:30.500') });
+    await expect(swap(page)).toHaveClass(/show-prepare/);
+    await ileri(page, 1000);
+    // kayma geçişi gerçek zamanda (0,7 sn): yerine oturmasını bekle
+    await expect.poll(async () => Math.round((await page.locator('.prep-card').boundingBox()).x)).toBe(54);
+    const kart = await page.locator('.prep-card').boundingBox();
+    const kemer = await page.locator('.k2-kemer').boundingBox();
+    const sag = await page.locator('.k2-sag').boundingBox();
+    expect(kart.x + kart.width).toBeLessThanOrEqual(sag.x);                // solda
+    expect(kart.x).toBeLessThanOrEqual(kemer.x);                           // kemerin üstünü örter
+    expect(kart.x + kart.width).toBeGreaterThanOrEqual(kemer.x + kemer.width);
+    expect(sag.x).toBeCloseTo(800, 0);                                     // vakitler kaymadı
+    await expect(page.locator('.k2-sag')).toBeVisible();
+    await expect(page.locator('.prep-phone')).toBeHidden();
+    await expect(page.locator('#prep-name')).toHaveText('ÖĞLE NAMAZINA');
+
+    await saatGit(page, an('12:29:10.500'));                               // vakit girdi
+    await expect(page.locator('.prep-card')).toHaveClass(/\bezan\b/);
     await expect(page.locator('#k2-etiket')).toHaveText('ÖĞLE');
     await expect(page.locator('#k2-ezan')).toHaveText('EZAN VAKTİ');
-    await expect(page.locator('#k2-ezan')).toBeVisible();
     await expect(page.locator('#k2-sayac')).toBeHidden();
     await expect(satir(page, 'Dhuhr')).toHaveClass(/\bk2-yanar\b/);
     await expect(page.locator('.k2-v.k2-sira')).toHaveCount(0);
-    await expect(swap(page)).toHaveClass(/show-prepare/);                  // sağda ezan paneli
     await saatGit(page, an('12:30:10.500'));
+    await expect(swap(page)).not.toHaveClass(/show-prepare/);
     await expect(page.locator('#k2-ezan')).toBeHidden();
     await expect(page.locator('#k2-etiket')).toHaveText("İKİNDİ'YE KALAN SÜRE");
-    await expect(page.locator('.k2-v.k2-yanar')).toHaveCount(0);
+    await expect(page.locator('.k2-yanar')).toHaveCount(0);
     await expect(satir(page, 'Asr')).toHaveClass(/\bk2-sira\b/);
   });
 
-  test('İmsak vaktinde kemerde İMSAK VAKTİ', async ({ page }) => {
+  test('İmsak vaktinde kemerde İMSAK VAKTİ, İmsak yanıp söner', async ({ page }) => {
     await tvAc(page, { zaman: an('05:34:10.500') });
     await expect(page.locator('#k2-ezan')).toHaveText('İMSAK VAKTİ');
     await expect(satir(page, 'Imsak')).toHaveClass(/\bk2-yanar\b/);
@@ -739,17 +774,17 @@ test.describe('krem tema: kemer, vakit listesi, /admin kutuları', () => {
 
   test('Hollandaca dönemde liste, kemer ve kutular Hollandaca (Arapça harflerle)', async ({ page }) => {
     await icerikAc(page, an('16:04:58.500'), { dil: 'oto', icerik: tasarimIcerik() });
-    expect(await satirAdlari(page)).toEqual(['İmsak', 'Sabah', 'Güneş', 'Öğle', 'İkindi', 'Akşam', 'Yatsı']);
+    expect(await satirAdlari(page)).toEqual(['Sabah', 'Öğle', 'İkindi', 'Akşam', 'Yatsı']);
     await expect(page.locator('#k2-bugun-etiket')).toHaveText('BUGÜN CAMİDE');
     await expect(page.locator('#k2-bugun .k2-p-ad')).toHaveText(['Kur’an kursu', 'Gençlik sohbeti']);
     await ileri(page, 2500);                                               // 16:05: Hollandaca
-    expect(await satirAdlari(page)).toEqual(['Imsak', 'Ochtend', 'Zonsopgang', 'Middag', 'Namiddag', 'Avond', 'Nacht']);
+    expect(await satirAdlari(page)).toEqual(['Ochtend', 'Middag', 'Namiddag', 'Avond', 'Nacht']);
+    expect(await gunesAdlari(page)).toEqual(['Imsak', 'Zonsopgang']);
     await expect(satir(page, 'Maghrib').locator('.k2-ar')).toHaveText('المغرب');
     await expect(satir(page, 'Maghrib').locator('.k2-ar')).toHaveAttribute('lang', 'ar');
+    await expect(satir(page, 'Sunrise').locator('.k2-g-ar')).toHaveText('الشروق');
     await expect(satir(page, 'Asr').locator('.k2-simdi-yazi')).toHaveText('NU');
     await expect(page.locator('#k2-etiket')).toHaveText('NOG TOT AVOND');
-    await expect(page.locator('#k2-sira-ad')).toHaveText('Avond');
-    await expect(page.locator('#k2-sira-ar')).toHaveText('المغرب');
     await expect(page.locator('#k2-bugun-etiket')).toHaveText('VANDAAG IN DE MOSKEE');
     await expect(page.locator('#k2-faaliyet-etiket')).toHaveText('VOLGENDE ACTIVITEIT');
     await expect(page.locator('#k2-bugun .k2-p-ad')).toHaveText(['Koranles', 'Jongerenbijeenkomst']);
@@ -797,27 +832,24 @@ test.describe('krem tema: kemer, vakit listesi, /admin kutuları', () => {
     await akitarakBekle(page, () => expect(page.locator('#k2-faaliyet .k2-f-ad')).toHaveText('Aile Kahvaltısı', { timeout: 200 }));
   });
 
-  test('3 program varsa yerler yazılmaz; uzun başlıklar kutudan taşmaz (1920 ve 960)', async ({ page }) => {
+  test('küçük kutularda en fazla 2 program; uzun başlıklar kutudan taşmaz (1920 ve 960)', async ({ page }) => {
     const ic = tasarimIcerik();
     const p0 = ic.programlar[0];
     ic.programlar = [
       { ...p0, id: 'p-a', baslik: { tr: 'Çok uzun bir program adı: Kur’an-ı Kerîm tilâveti ve meali', nl: '', en: '' }, saat: { tip: 'sabit', baslangic: '11:00', bitis: '12:00' } },
       { ...p0, id: 'p-b', saat: { tip: 'sabit', baslangic: '13:00', bitis: '14:00' } },
       { ...p0, id: 'p-c', saat: { tip: 'sabit', baslangic: '15:00', bitis: '16:00' } },
-      { ...p0, id: 'p-d', saat: { tip: 'sabit', baslangic: '17:00', bitis: '18:00' } },
     ];
     ic.faaliyetler[0].baslik = { tr: 'Çok uzun bir faaliyet adı: Bütün cemaat için aile kahvaltısı ve sohbet', nl: '', en: '' };
     for (const [w, h] of [[1920, 1080], [960, 540]]) {
       await page.setViewportSize({ width: w, height: h });
       await icerikAc(page, an('10:00:30.500', '2026-10-26'), { icerik: ic });
-      await expect(page.locator('#k2-bugun .k2-p')).toHaveCount(3);
-      await expect(page.locator('#k2-bugun')).toHaveClass(/k2-sik/);
-      await expect(page.locator('#k2-bugun .k2-p-yer').first()).toBeHidden();
+      await expect(page.locator('#k2-bugun .k2-p-saat')).toHaveText(['11:00', '13:00']);
       const sorunlar = await page.evaluate(() => {
         const s = [];
         for (const kart of document.querySelectorAll('.k2-kart')) {
           const k = kart.getBoundingClientRect();
-          for (const e of kart.querySelectorAll('.k2-p, .k2-f-ad, .k2-f-meta, .k2-f-yer, .k2-kart-etiket')) {
+          for (const e of kart.querySelectorAll('.k2-p, .k2-f-ad, .k2-f-alt, .k2-kart-etiket')) {
             const r = e.getBoundingClientRect();
             if (r.right > k.right + 0.5 || r.bottom > k.bottom + 0.5) s.push(e.className + ': kutudan taşıyor');
           }
@@ -828,42 +860,45 @@ test.describe('krem tema: kemer, vakit listesi, /admin kutuları', () => {
     }
   });
 
-  test('Hollandaca uzun adlar satırlara sığar; ad, Arapça ad ve saat üst üste binmez; kemerin yazıları içeride (1920 ve 960)', async ({ page }) => {
+  test('Hollandaca uzun adlar sığar; ad, Arapça ad ve saat üst üste binmez; kemerin yazıları içeride (1920 ve 960)', async ({ page }) => {
     for (const [w, h] of [[1920, 1080], [960, 540]]) {
       await page.setViewportSize({ width: w, height: h });
       await tvAc(page, { zaman: an('13:07:00.500'), dil: 'nl' });               // "Nog tot Namiddag", "Zonsopgang"
       const sorunlar = await page.evaluate(() => {
         const s = [];
+        const kutu = (e) => e.getBoundingClientRect();
         for (const li of document.querySelectorAll('.k2-v')) {
-          const k = li.getBoundingClientRect();
-          const ad = li.querySelector('.k2-ad').getBoundingClientRect();
-          const ar = li.querySelector('.k2-ar').getBoundingClientRect();
-          const vt = li.querySelector('.k2-vt').getBoundingClientRect();
+          const k = kutu(li), ad = kutu(li.querySelector('.k2-ad')), ar = kutu(li.querySelector('.k2-ar')), vt = kutu(li.querySelector('.k2-vt'));
           if (ad.right > ar.left - 6) s.push(li.dataset.k2 + ': ad Arapçaya değiyor');
           if (ar.right > vt.left - 6) s.push(li.dataset.k2 + ': Arapça saate değiyor');
           if (vt.right > k.right - 4 || vt.bottom > k.bottom || vt.top < k.top) s.push(li.dataset.k2 + ': saat satırdan taşıyor');
         }
-        const kemer = document.querySelector('.k2-kemer').getBoundingClientRect();
-        for (const id of ['k2-etiket', 'k2-sayac', 'k2-sira-ad', 'k2-sira-saat']) {
-          const r = document.getElementById(id).getBoundingClientRect();
-          if (r.left < kemer.left + kemer.width * 0.04 || r.right > kemer.right - kemer.width * 0.04) s.push(id + ': kemerden taşıyor');
+        // kemerin içi: iç çizginin (viewBox x 26–274, alt 348) içinde
+        const kemer = kutu(document.querySelector('.k2-kemer'));
+        const sol = kemer.left + kemer.width * 26 / 300, sag = kemer.left + kemer.width * 274 / 300, alt = kemer.top + kemer.height * 348 / 360;
+        for (const e of document.querySelectorAll('#k2-etiket, #k2-sayac, .k2-kemer .k2-saat, .k2-g-ikon, .k2-g-ad, .k2-g-ar, .k2-g-vt')) {
+          const r = kutu(e);
+          if (r.left < sol || r.right > sag || r.bottom > alt) s.push((e.id || e.className) + ': kemerden taşıyor');
         }
-        const sag = document.querySelector('.k2-sag').getBoundingClientRect();
-        const sahne = document.getElementById('stage').getBoundingClientRect();
-        if (sag.bottom > sahne.bottom + 0.5 || sag.right > sahne.right + 0.5) s.push('sağ alan sahneden taşıyor');
+        const [imsak, gunes] = document.querySelectorAll('.k2-g');
+        for (const e of imsak.querySelectorAll('*')) if (kutu(e).right > kutu(gunes).left + 1) s.push('İmsak Güneş\'e değiyor');
+        const sagAlan = kutu(document.querySelector('.k2-sag'));
+        const sahne = kutu(document.getElementById('stage'));
+        if (sagAlan.bottom > sahne.bottom + 0.5 || sagAlan.right > sahne.right + 0.5) s.push('sağ alan sahneden taşıyor');
         return s;
       });
       expect(sorunlar, `${w}×${h}`).toEqual([]);
     }
   });
 
-  test('âyet paneli sağdaki alana kayar, kemer görünür kalır', async ({ page }) => {
+  test('âyet paneli sağdaki alana gelir, kemer görünür kalır', async ({ page }) => {
     await tvAc(page, { zaman: an('10:05:00.500'), adres: '/?test=ayet' });
     await expect(swap(page)).toHaveClass(/show-feature/);
     await ileri(page, 1000);
     const panel = await page.locator('.feat-card').boundingBox();
     const kemer = await page.locator('.k2-kemer').boundingBox();
     expect(panel.x).toBeGreaterThan(kemer.x + kemer.width);
+    expect(panel.y).toBeCloseTo(38, 0);
     await expect(page.locator('.k2-kemer')).toBeVisible();
   });
 });
