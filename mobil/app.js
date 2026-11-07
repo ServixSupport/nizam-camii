@@ -495,16 +495,13 @@ function ciz() {
 
 // ---------------- Tema 2: kerahat vaktine geri sayım (Sabah ve İkindi vaktinde) ----------------
 function kerahatCiz(simdi, veriVar) {
-  const el = $('.kerahat');
+  const el = $('.kh-cumle');
   const k = veriVar && document.documentElement.dataset.stil === 'liste' ? kerahatDurumu(simdi, durum.olay.bugun) : null;
   if (el.hidden !== !k) el.hidden = !k;
   if (!k) return;
   const t = L();
-  const hm = (ms) => { const p = amsParcalar(ms); return `${pad(p.h)}:${pad(p.mi)}`; };
   el.classList.toggle('icinde', k.tur === 'icinde');
-  $('.kh-etiket', el).textContent = k.tur === 'icinde' ? t.kerahatIcinde : t.kerahatOnce;
-  $('.kh-alt', el).textContent = `${k.tur === 'icinde' ? t.kerahatBit(hm(k.bit)) : t.kerahatBas(hm(k.bas))} · ${k.kerahat === 'dogus' ? t.kerahatDogus : t.kerahatBatis}`;
-  $('.kh-sayac', el).textContent = geriSayim(k.hedef - simdi);
+  el.textContent = (k.tur === 'icinde' ? t.kerahatIcinde : t.kerahatOnce)(geriSayim(k.hedef - simdi));
 }
 
 let _dakika = -1;
@@ -599,7 +596,9 @@ function bantYuksekligi() {
   const ana = $('.sekme-ana');
   if (document.documentElement.dataset.stil !== 'liste') return;
   const k = $('.kemer').getBoundingClientRect(), a = ana.getBoundingClientRect();
-  if (k.height) ana.style.setProperty('--bant-yuk', `${Math.round(k.bottom - a.top + 16)}px`);
+  if (!k.height) return;
+  const alt = tabletMi.matches ? k.bottom + 16 : $('.vakitler').getBoundingClientRect().top + 40;
+  ana.style.setProperty('--bant-yuk', `${Math.round(alt - a.top)}px`);
 }
 function anaSigdir() {
   bantYuksekligi();
@@ -646,6 +645,6 @@ tabletMi.addEventListener('change', anaSigdir);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(anaSigdir);
 new MutationObserver(() => anaSigdir()).observe($('.vakitler'), { childList: true });
 new MutationObserver(() => anaSigdir()).observe($('.ams-not'), { attributes: true, attributeFilter: ['hidden'] });
-new MutationObserver(() => anaSigdir()).observe($('.kerahat'), { attributes: true, attributeFilter: ['hidden'] });
+new MutationObserver(() => anaSigdir()).observe($('.kh-cumle'), { attributes: true, attributeFilter: ['hidden'] });
 if (window.ResizeObserver) new ResizeObserver(() => bantYuksekligi()).observe($('.kemer'));
 anaSigdir();
