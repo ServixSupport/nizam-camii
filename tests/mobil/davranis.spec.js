@@ -372,7 +372,7 @@ test.describe('tema renkleri', () => {
         // [yazı, zemin, en az]: ana yazı 7, küçük yazılar 4.5 (lacivert kartların üstündeki sabit renkler dahil)
         for (const [a, b, enAz] of [['--ink', '--ground', 7], ['--soft', '--ground', 4.5], ['--soft', '--card', 4.5], ['--cobalt', '--ground', 4.5],
           ['--coral', '--ground', 4.5], ['--turq', '--ground', 4.5], ['--past', '--ground', 4.5], ['#F6F1E7', '--navy', 7], ['#D4DBEA', '--navy', 4.5], ['#E8C27A', '--navy', 4.5],
-          ...(stil === 'liste' ? [['#FFFDF5', '--nextRow', 7], ['--kahramanYazi', '--kahraman2', 4.5]] : [])]) {
+          ...(stil === 'liste' ? [['--kahramanYazi', '--kahraman1', 7], ['--kahramanYazi', '--kahraman2', 4.5], ['--kahramanAltin', '--kahraman1', 4.5], ['--coral', '--card', 4.5]] : [])]) {
           const k = kon(a.startsWith('--') ? v(a) : a, v(b));
           if (k < enAz) sorunlar.push(`${stil}-${tema}: ${a} / ${b} = ${k.toFixed(2)} (< ${enAz})`);
         }
@@ -393,7 +393,7 @@ test.describe('tasarım: Liste', () => {
     await page.getByRole('button', { name: 'Lijst' }).click();
     await expect(page.locator('html')).toHaveAttribute('data-stil', 'liste');
     expect(await page.evaluate(() => localStorage.getItem('nzm.stil'))).toBe('liste');
-    expect(await page.locator('meta[name="theme-color"]').getAttribute('content')).toBe('#F6F1E6');
+    expect(await page.locator('meta[name="theme-color"]').getAttribute('content')).toBe('#F4EEE0');
     await page.reload();
     expect(await page.evaluate(() => document.documentElement.dataset.stil)).toBe('liste');
     await page.getByRole('button', { name: 'Klassiek' }).click();
