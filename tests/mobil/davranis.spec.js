@@ -426,7 +426,8 @@ test.describe('Tema 2', () => {
     expect(ad.y).toBeLessThan(tarih.y);
     expect(tarih.y + tarih.height).toBeLessThanOrEqual(kart.y);
     expect(tarih.height).toBeLessThan(22);                                     // tek satır
-    expect(Math.abs(kart.width / kart.height - 1200 / 940)).toBeLessThan(0.03); // fotoğrafın oranı: bütün cami görünür
+    expect(Math.abs(kart.width / kart.height - 16 / 10)).toBeLessThan(0.03);    // örnek resimdeki oran
+    expect(kart.height / 844).toBeLessThan(0.3);                                // ekranın ~%27'si
     // kartta yazılar solda; ad ve Arapça ad yan yana; kalan süre altında; kerahat hemen altında
     for (const b of [sAd, sayac, cumle]) expect(Math.abs(b.x - etiket.x)).toBeLessThan(2);
     expect(etiket.x - kart.x).toBeLessThan(30);
@@ -435,7 +436,11 @@ test.describe('Tema 2', () => {
     expect(sAd.y).toBeGreaterThan(etiket.y);
     expect(sayac.y).toBeGreaterThan(sAd.y + sAd.height - 4);
     expect(cumle.y).toBeGreaterThanOrEqual(sayac.y + sayac.height - 2);
-    expect(cumle.y - (sayac.y + sayac.height)).toBeLessThan(20);
+    expect(cumle.y - (sayac.y + sayac.height)).toBeLessThan(40);
+    // satırlar kartın yüksekliğine dağılır (örnekteki gibi): ilk satır üstte, son satır altta, aralar dengeli
+    expect(etiket.y - kart.y).toBeGreaterThan(14);
+    expect(kart.y + kart.height - (cumle.y + cumle.height)).toBeGreaterThan(14);
+    expect(kart.y + kart.height - (cumle.y + cumle.height)).toBeLessThan(45);
     // yeşil bant; liste yaprağı: kenardan kenara, üst köşeler yuvarlak, alt düz; bant yaprağın üst köşelerinin arkasına kadar
     const bant = await page.locator('.sekme-ana').evaluate((e) => { const c = getComputedStyle(e, '::before'); return { renk: c.backgroundColor, yuk: parseFloat(c.height), ust: e.getBoundingClientRect().top }; });
     expect(bant.renk).toBe('rgb(31, 77, 43)');
