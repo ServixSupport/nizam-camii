@@ -436,7 +436,8 @@ test.describe('ayarlar penceresi', () => {
     await page.locator('#gear').click();
     await expect(page.locator('#settings')).toBeVisible();
     // üç tema, açıklama yazısı yok, her birinde gerçek görüntü
-    await expect(page.locator('.set-opt .set-name')).toHaveText(['Koyu', 'Açık', 'Krem']);
+    // adları numaralı (kullanıcı isteği, 07-11-2026): Tema 1 = koyu, Tema 2 = açık, Tema 3 = krem
+    await expect(page.locator('.set-opt .set-name')).toHaveText(['Tema 1', 'Tema 2', 'Tema 3']);
     await expect(page.locator('.set-desc, .set-opt[data-mode="auto"]')).toHaveCount(0);
     for (const m of ['dark', 'light', 'krem']) {
       expect(await page.locator(`.set-opt[data-mode="${m}"] .set-prev`).evaluate((e) => getComputedStyle(e).backgroundImage)).toMatch(/^url\("data:image\/jpeg;base64,/);
@@ -665,6 +666,13 @@ test.describe('krem tema: kemer, vakit listesi, /admin kutuları', () => {
     await expect(page.locator('.k2-g .k2-g-ar')).toHaveText(['İmsâk', 'Shuruq']);
     await expect(page.locator('.k2-g .k2-g-ikon svg')).toHaveCount(2);         // açık temadaki güneş simgeleri
     for (const k of ['Imsak', 'Sunrise', 'Fajr']) await expect(satir(page, k)).toHaveClass(/\bk2-gecti\b/);
+    // geçmiş vakitler soluk değil: gelecek vakitlerle aynı renk (sadece sıradaki kırmızı)
+    const renk = (s) => page.locator(s).evaluate((e) => getComputedStyle(e).color);
+    const lacivert = await renk('[data-k2="Asr"] .k2-vt');
+    for (const s of ['[data-k2="Fajr"] .k2-vt', '[data-k2="Fajr"] .k2-ad', '[data-k2="Imsak"] .k2-g-vt', '[data-k2="Sunrise"] .k2-g-vt', '[data-k2="Sunrise"] .k2-g-ad']) {
+      expect(await renk(s), s).toBe(lacivert);
+    }
+    expect(await renk('[data-k2="Dhuhr"] .k2-vt')).not.toBe(lacivert);
     await expect(page.locator('.k2-v.k2-sira')).toHaveCount(1);
     await expect(satir(page, 'Dhuhr')).toHaveClass(/\bk2-sira\b/);
     await expect(page.locator('.k2-v.k2-simdi')).toHaveCount(0);           // Güneş namaz vakti değil

@@ -58,10 +58,12 @@
 
 1. **TV ekranının davranışı değişmez.** `index.html`'e izinli tek ek, en üste konacak küçük yönlendirme betiği (plan §1).
    - İstisna, kullanıcının açık isteğiyle (04-11-2026): yeşil tema kaldırıldı, yerine **krem tema** (uygulamanın renkleri; düzen ve yazı tipleri aynı). Ayarlara **cuma hutbesi** zamanı eklendi (Öğle + dk, süre). "Gündüz açık · Akşam koyu" (otomatik) kaldırıldı; varsayılan tema krem. Ayarlarda tema açıklamaları yok, önizleme TV'nin gerçek görüntüsü (`tests/araclar/tema-onizleme.mjs`). Namaz adları, tarih ve sayaç yazısı 5 dk'da bir değişir (sadece yazı söner/yanar): Türkçe + Latin harfli Arapça ad (eskisi gibi, FAJR …) ↔ Hollandaca (Ochtend, Middag, Namiddag, Avond, Nacht) + Arapça harfler (الفجر …). Başka TV değişikliği yine sadece kullanıcı açıkça isterse.
-   - Kullanıcı isteği (07-11-2026): **krem tema = uygulamanın "Klasik" tasarımı.**
-     - Solda: logo ve küçük cami adı (adres yok), büyük tarih, kemer.
-     - Tarih küçük. Kemerin içi: sıradaki vakte geri sayım ve şimdiki saat.
+   - **Tema adları numaralı** (kullanıcı isteği, 07-11-2026): ayarlarda ve kullanıcıyla konuşurken **Tema 1** = koyu (`dark`), **Tema 2** = açık (`light`), **Tema 3** = krem (`krem`). Yeni tema gelirse Tema 4, Tema 5 … Koddaki adlar (`?theme=`, `nizam-tema`, sınıflar) değişmez.
+   - Kullanıcı isteği (07-11-2026): **krem tema (Tema 3) = uygulamanın "Klasik" tasarımı.**
+     - Solda: logo ve küçük cami adı (adres yok), küçük tarih, kemer.
+     - Kemerin içi: sıradaki vakte geri sayım ve şimdiki saat.
      - Kemerin altında İmsak ve Güneş yan yana, açık temadaki düzenle (güneş simgesi, ad ve Arapça ad, saat; çerçevesiz).
+     - Geçmiş vakitler soluk/gri gösterilmez: hepsi aynı renk, sadece sıradaki kırmızı (ve şimdiki vaktin noktası).
      - Sağda en üstten 5 vakit alt alta (Sabah–Yatsı). Biraz boşluktan sonra iki küçük kutu, `/api/icerik`'ten (yani /admin'den) gelir: bugünkü programlar (en fazla 2) ve sıradaki faaliyet.
      - 60 sn sayacı solda, kemerin üstünde açılır; telefon yasağı simgesi yok. Âyet paneli sağdaki alana gelir.
      - Yazı tipleri koyu/açık temalarınki (Oswald, Inter). Yeni elemanlar `.k2-*`, sadece `body.krem`'de görünür.
