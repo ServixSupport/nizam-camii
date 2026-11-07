@@ -645,7 +645,7 @@ test.describe('ayar: Türkçe ↔ Hollandaca', () => {
 });
 
 // ===================== KREM TEMA: uygulamanın tasarımı (kullanıcı isteği, 07-11-2026) =====================
-// Solda: logo ve cami adı (küçük), tarih, kemer (sıradaki vakte geri sayım, şimdiki saat, altta İmsak ve Güneş).
+// Solda: logo ve cami adı (küçük), tarih (küçük), kemer (sıradaki vakte geri sayım, şimdiki saat), kemerin altında İmsak ve Güneş.
 // Sağda: en üstten 5 vakit alt alta, altta /admin'den iki küçük kutu. 60 sn sayacı solda, kemerin üstünde.
 // Koyu ve açık temalar eskisi gibi (yukarıdaki testler ve referans görüntüler).
 test.describe('krem tema: kemer, vakit listesi, /admin kutuları', () => {
@@ -656,7 +656,7 @@ test.describe('krem tema: kemer, vakit listesi, /admin kutuları', () => {
   // içerik isteği gerçek zamanda biter; ekran saniyede bir çizilir: sahte saati azar azar akıtarak bekle
   const akitarakBekle = (page, fn) => expect(async () => { await ileri(page, 500); await fn(); }).toPass({ timeout: 15000 });
 
-  test('varsayılan: sağda en üstten 5 vakit, sıradaki kırmızı; kemerde geri sayım, saat, İmsak ve Güneş', async ({ page }) => {
+  test('varsayılan: sağda en üstten 5 vakit, sıradaki kırmızı; kemerde geri sayım ve saat, altında İmsak ve Güneş', async ({ page }) => {
     await tvAc(page, { zaman: an('10:05:00.500') });
     expect(await satirAdlari(page)).toEqual(['Sabah', 'Öğle', 'İkindi', 'Akşam', 'Yatsı']);
     await expect(page.locator('.k2-v .k2-vt')).toHaveText(['06:21', '12:29', '14:54', '17:27', '19:02']);
@@ -690,6 +690,14 @@ test.describe('krem tema: kemer, vakit listesi, /admin kutuları', () => {
     const kutular = await page.locator('.k2-kartlar').boundingBox();
     expect(kutular.y - (yatsi.y + yatsi.height)).toBeGreaterThanOrEqual(24);
     expect(kutular.height).toBeLessThanOrEqual(150);
+    // İmsak ve Güneş kemerin içinde değil, altında (sol sütunda, sahnenin içinde); tarih küçük
+    await expect(page.locator('.k2-kemer .k2-g')).toHaveCount(0);
+    const kemer = await page.locator('.k2-kemer').boundingBox();
+    const gunesler = await page.locator('.k2-gunesler').boundingBox();
+    expect(gunesler.y).toBeGreaterThanOrEqual(kemer.y + kemer.height * 300 / 312);
+    expect(gunesler.x + gunesler.width).toBeLessThan(sag.x);
+    expect(gunesler.y + gunesler.height).toBeLessThanOrEqual(1080);
+    expect(await page.locator('.dates .d').evaluate((e) => parseFloat(getComputedStyle(e).fontSize))).toBeLessThanOrEqual(36);
     // eski elemanlar arka planda yine güncel (diğer temaya geçince hazır)
     await expect(page.locator('#cd-timer')).toHaveText('02:23:58');
   });
@@ -697,7 +705,7 @@ test.describe('krem tema: kemer, vakit listesi, /admin kutuları', () => {
   for (const tema of ['dark', 'light']) {
     test(`${tema}: krem elemanları görünmez, /api/icerik istenmez`, async ({ page }) => {
       const k = await tvAc(page, { zaman: an('10:05:00.500'), adres: `/?theme=${tema}` });
-      for (const s of ['.k2-kemer', '.k2-sag']) await expect(page.locator(s)).toBeHidden();
+      for (const s of ['.k2-kemer', '.k2-gunesler', '.k2-sag']) await expect(page.locator(s)).toBeHidden();
       await expect(page.locator('.grid')).toBeVisible();
       await expect(page.locator('.rule')).toBeVisible();
       await ileri(page, 30 * 1000);
@@ -739,14 +747,19 @@ test.describe('krem tema: kemer, vakit listesi, /admin kutuları', () => {
     await expect(swap(page)).toHaveClass(/show-prepare/);
     await ileri(page, 1000);
     // kayma geçişi gerçek zamanda (0,7 sn): yerine oturmasını bekle
-    await expect.poll(async () => Math.round((await page.locator('.prep-card').boundingBox()).x)).toBe(54);
+    await expect.poll(async () => Math.round((await page.locator('.prep-card').boundingBox()).x)).toBe(34);
     const kart = await page.locator('.prep-card').boundingBox();
     const kemer = await page.locator('.k2-kemer').boundingBox();
     const sag = await page.locator('.k2-sag').boundingBox();
     expect(kart.x + kart.width).toBeLessThanOrEqual(sag.x);                // solda
     expect(kart.x).toBeLessThanOrEqual(kemer.x);                           // kemerin üstünü örter
     expect(kart.x + kart.width).toBeGreaterThanOrEqual(kemer.x + kemer.width);
-    expect(sag.x).toBeCloseTo(800, 0);                                     // vakitler kaymadı
+    const gunesler = await page.locator('.k2-gunesler').boundingBox();          // kemerin altındaki İmsak/Güneş de örtülür
+    expect(kart.y).toBeLessThanOrEqual(kemer.y);
+    expect(kart.y + kart.height).toBeGreaterThanOrEqual(gunesler.y + gunesler.height);
+    expect(kart.x).toBeLessThanOrEqual(gunesler.x);
+    expect(kart.x + kart.width).toBeGreaterThanOrEqual(gunesler.x + gunesler.width);
+    expect(sag.x).toBeCloseTo(800, 0);                                   // vakitler kaymadı
     await expect(page.locator('.k2-sag')).toBeVisible();
     await expect(page.locator('.prep-phone')).toBeHidden();
     await expect(page.locator('#prep-name')).toHaveText('ÖĞLE NAMAZINA');
@@ -860,7 +873,7 @@ test.describe('krem tema: kemer, vakit listesi, /admin kutuları', () => {
     }
   });
 
-  test('Hollandaca uzun adlar sığar; ad, Arapça ad ve saat üst üste binmez; kemerin yazıları içeride (1920 ve 960)', async ({ page }) => {
+  test('Hollandaca uzun adlar sığar; ad, Arapça ad ve saat üst üste binmez; kemerin yazıları içeride; İmsak/Güneş sol sütunda (1920 ve 960)', async ({ page }) => {
     for (const [w, h] of [[1920, 1080], [960, 540]]) {
       await page.setViewportSize({ width: w, height: h });
       await tvAc(page, { zaman: an('13:07:00.500'), dil: 'nl' });               // "Nog tot Namiddag", "Zonsopgang"
@@ -873,16 +886,28 @@ test.describe('krem tema: kemer, vakit listesi, /admin kutuları', () => {
           if (ar.right > vt.left - 6) s.push(li.dataset.k2 + ': Arapça saate değiyor');
           if (vt.right > k.right - 4 || vt.bottom > k.bottom || vt.top < k.top) s.push(li.dataset.k2 + ': saat satırdan taşıyor');
         }
-        // kemerin içi: iç çizginin (viewBox x 26–274, alt 348) içinde
+        // kemerin içi: iç çizginin (viewBox x 26–274, alt 300) içinde
         const kemer = kutu(document.querySelector('.k2-kemer'));
-        const sol = kemer.left + kemer.width * 26 / 300, sag = kemer.left + kemer.width * 274 / 300, alt = kemer.top + kemer.height * 348 / 360;
-        for (const e of document.querySelectorAll('#k2-etiket, #k2-sayac, .k2-kemer .k2-saat, .k2-g-ikon, .k2-g-ad, .k2-g-ar, .k2-g-vt')) {
+        const sol = kemer.left + kemer.width * 26 / 300, sag = kemer.left + kemer.width * 274 / 300, alt = kemer.top + kemer.height * 300 / 312;
+        for (const e of document.querySelectorAll('#k2-etiket, #k2-sayac, .k2-kemer .k2-saat')) {
           const r = kutu(e);
           if (r.left < sol || r.right > sag || r.bottom > alt) s.push((e.id || e.className) + ': kemerden taşıyor');
         }
-        const [imsak, gunes] = document.querySelectorAll('.k2-g');
-        for (const e of imsak.querySelectorAll('*')) if (kutu(e).right > kutu(gunes).left + 1) s.push('İmsak Güneş\'e değiyor');
+        // kemerin altı: İmsak ve Güneş birbirine değmez, kendi alanında ve sağdaki listeden önce biter
         const sagAlan = kutu(document.querySelector('.k2-sag'));
+        const satirG = kutu(document.querySelector('.k2-gunesler'));
+        const [imsak, gunes] = document.querySelectorAll('.k2-g');
+        const sagKenar = (g) => Math.max(...[...g.querySelectorAll('*')].map((e) => kutu(e).right));
+        if (sagKenar(imsak) > kutu(gunes).left - 12 * kemer.width / 640) s.push('İmsak Güneş\'e değiyor');
+        for (const g of [imsak, gunes]) {
+          for (const e of g.querySelectorAll('.k2-g-ikon, .k2-g-ad, .k2-g-ar, .k2-g-vt')) {
+            const r = kutu(e);
+            if (r.left < satirG.left - 0.5 || r.right > satirG.right + 0.5 || r.top < kemer.top + kemer.height * 300 / 312 || r.bottom > satirG.bottom + 0.5) s.push(g.dataset.k2 + ' ' + e.className + ': yerinden taşıyor');
+          }
+          const ad = kutu(g.querySelector('.k2-g-yazi')), vt = kutu(g.querySelector('.k2-g-vt'));
+          if (ad.right > vt.left - 4) s.push(g.dataset.k2 + ': ad saate değiyor');
+        }
+        if (satirG.right > sagAlan.left - 20 * kemer.width / 640) s.push('İmsak/Güneş sağdaki listeye çok yakın');
         const sahne = kutu(document.getElementById('stage'));
         if (sagAlan.bottom > sahne.bottom + 0.5 || sagAlan.right > sahne.right + 0.5) s.push('sağ alan sahneden taşıyor');
         return s;
