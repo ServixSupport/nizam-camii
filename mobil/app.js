@@ -3,7 +3,7 @@
 // Metinler her zaman textContent ile yazılır.
 import {
   VAKITLER, amsParcalar, amsGun, gunEkle, diyanetAnahtari, diyanetGunu, aladhanGunu, aladhanAdresi,
-  gunOlaylari, anDurumu, geriSayim, hicriYazi, AMS,
+  gunOlaylari, anDurumu, geriSayim, hicriYazi, kerahatDurumu, AMS,
 } from './zaman.js';
 import { METIN, DILLER, VARSAYILAN_DIL, ARAPCA } from './metin.js';
 import { ekranlar } from './ekranlar.js';
@@ -466,6 +466,7 @@ function ciz() {
     $('.sira-ad').textContent = ' '; $('.sira-saat').textContent = ''; $('.sira-ar').textContent = '';
     $('.vakitler').replaceChildren(); _satirImza = '';
     kemerCiz(null);
+    kerahatCiz(simdi, false);
     mesaj.hidden = false;
     mesaj.textContent = durum.hata ? t.hata : t.yukleniyor;
     return;
@@ -483,6 +484,21 @@ function ciz() {
     $('.sira-saat').textContent = d.siradaki.saat;
     $('.sira-ar').textContent = ARAPCA[d.siradaki.key];
   }
+  kerahatCiz(simdi, true);
+}
+
+// ---------------- Tema 2: kerahat vaktine geri sayım (Sabah ve İkindi vaktinde) ----------------
+function kerahatCiz(simdi, veriVar) {
+  const el = $('.kerahat');
+  const k = veriVar && document.documentElement.dataset.stil === 'liste' ? kerahatDurumu(simdi, durum.olay.bugun) : null;
+  if (el.hidden !== !k) el.hidden = !k;
+  if (!k) return;
+  const t = L();
+  const hm = (ms) => { const p = amsParcalar(ms); return `${pad(p.h)}:${pad(p.mi)}`; };
+  el.classList.toggle('icinde', k.tur === 'icinde');
+  $('.kh-etiket', el).textContent = k.tur === 'icinde' ? t.kerahatIcinde : t.kerahatOnce;
+  $('.kh-alt', el).textContent = `${k.tur === 'icinde' ? t.kerahatBit(hm(k.bit)) : t.kerahatBas(hm(k.bas))} · ${k.kerahat === 'dogus' ? t.kerahatDogus : t.kerahatBatis}`;
+  $('.kh-sayac', el).textContent = geriSayim(k.hedef - simdi);
 }
 
 let _dakika = -1;
@@ -616,4 +632,5 @@ tabletMi.addEventListener('change', anaSigdir);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(anaSigdir);
 new MutationObserver(() => anaSigdir()).observe($('.vakitler'), { childList: true });
 new MutationObserver(() => anaSigdir()).observe($('.ams-not'), { attributes: true, attributeFilter: ['hidden'] });
+new MutationObserver(() => anaSigdir()).observe($('.kerahat'), { attributes: true, attributeFilter: ['hidden'] });
 anaSigdir();

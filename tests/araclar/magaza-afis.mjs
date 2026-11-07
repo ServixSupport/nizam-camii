@@ -13,15 +13,15 @@ fs.mkdirSync(CIKTI, { recursive: true });
 const tarayici = await chromium.launch();
 const sayfa = await tarayici.newPage({ viewport: { width: 1024, height: 500 } });
 await sayfa.setContent(`<!doctype html><html><head><style>
-@font-face { font-family: Bodoni; src: url(data:font/woff2;base64,${b64('fonts/bodoni-moda-latin.woff2')}) format('woff2'); }
-@font-face { font-family: Bodoni; src: url(data:font/woff2;base64,${b64('fonts/bodoni-moda-latin-ext.woff2')}) format('woff2'); unicode-range: U+0100-024F; }
-@font-face { font-family: Hanken; src: url(data:font/woff2;base64,${b64('fonts/hanken-grotesk-latin.woff2')}) format('woff2'); }
-@font-face { font-family: Hanken; src: url(data:font/woff2;base64,${b64('fonts/hanken-grotesk-latin-ext.woff2')}) format('woff2'); unicode-range: U+0100-024F; }
+@font-face { font-family: Oswald; src: url(data:font/woff2;base64,${b64('fonts/oswald-600-latin.woff2')}) format('woff2'); }
+@font-face { font-family: Oswald; src: url(data:font/woff2;base64,${b64('fonts/oswald-600-latin-ext.woff2')}) format('woff2'); unicode-range: U+0100-024F; }
+@font-face { font-family: Inter; src: url(data:font/woff2;base64,${b64('fonts/inter-latin.woff2')}) format('woff2'); }
+@font-face { font-family: Inter; src: url(data:font/woff2;base64,${b64('fonts/inter-latin-ext.woff2')}) format('woff2'); unicode-range: U+0100-024F; }
 body { margin: 0; width: 1024px; height: 500px; display: flex; align-items: center; gap: 48px; padding: 0 72px; box-sizing: border-box;
-  background: radial-gradient(circle at 78% 40%, #23396C 0, #14295A 45%, #0C1834 100%); color: #F6F1E7; font-family: Hanken, sans-serif; }
+  background: radial-gradient(circle at 78% 40%, #23396C 0, #14295A 45%, #0C1834 100%); color: #F6F1E7; font-family: Inter, sans-serif; }
 .logo { width: 260px; height: 260px; border-radius: 50%; background: #F6F1E7; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; box-shadow: 0 0 0 6px rgba(232,194,122,.35); }
 .logo img { width: 230px; }
-h1 { font-family: Bodoni, serif; font-weight: 600; font-size: 64px; line-height: 1.05; margin: 0 0 18px; }
+h1 { font-family: Oswald, sans-serif; font-weight: 600; font-size: 64px; line-height: 1.05; margin: 0 0 18px; }
 p { margin: 0; font-size: 26px; color: #E8C27A; letter-spacing: .5px; }
 small { display: block; margin-top: 14px; font-size: 21px; color: #D4DBEA; }
 </style></head><body>

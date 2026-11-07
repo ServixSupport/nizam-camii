@@ -12,8 +12,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Süleymaniye Moskee">
-<link rel="preload" href="/mobil/fonts/hanken-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/mobil/fonts/bodoni-moda-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/mobil/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/mobil/fonts/oswald-600-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/mobil/app.css">
 <script>
 /* İlk boyamadan önce dil ve tema (ekran yanıp sönmesin). Ayrıntılı mantık app.js'te. */
@@ -89,7 +89,7 @@
     <header class="ust">
       <img src="/mobil/logo.png" data-t-alt="logoAlt" alt="" width="40" height="40">
       <div class="ust-yazi">
-        <h1 class="ust-ad">Nizam-ı Alem Süleymaniye</h1>
+        <h1 class="ust-ad" lang="tr">Nizam-ı Alem <b>Süleymaniye</b></h1>
         <span class="ust-alt" data-t="camiAlt"></span>
       </div>
     </header>
@@ -104,11 +104,19 @@
       <div class="kemer" role="group" data-t-aria="siradakiVakit">
         <svg class="kemer-svg" viewBox="0 0 300 360" aria-hidden="true"></svg>
         <div class="kemer-ic" aria-live="off">
+          <span class="sira-etiket" data-t="siradakiVakit"></span>
           <span class="kalan-etiket">&nbsp;</span>
           <span class="sayac">–:––:––</span>
+          <span class="kalan-kisa" data-t="kalanSure"></span>
           <span class="sira"><span class="sira-ad">&nbsp;</span><span class="sira-saat"></span></span>
           <span class="sira-ar" lang="ar" dir="rtl"></span>
         </div>
+      </div>
+      <!-- Tema 2: Sabah ve İkindi vaktinde kerahate kalan süre (app.js kerahatCiz) -->
+      <div class="kerahat" hidden>
+        <span class="kh-ikon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3h11M6.5 21h11M7.5 3v3.2a4.5 4.5 0 0 0 1.8 3.6L12 12l-2.7 2.2a4.5 4.5 0 0 0-1.8 3.6V21M16.5 3v3.2a4.5 4.5 0 0 1-1.8 3.6L12 12l2.7 2.2a4.5 4.5 0 0 1 1.8 3.6V21"/><path d="M9.5 18.5h5" stroke-width="2.4"/></svg></span>
+        <span class="kh-yazi"><span class="kh-etiket"></span><span class="kh-alt"></span></span>
+        <span class="kh-sayac"></span>
       </div>
     </div>
 

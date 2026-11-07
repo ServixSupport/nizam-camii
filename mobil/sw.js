@@ -5,7 +5,7 @@
 // - Yeni sürüm kendiliğinden devreye girmez: sayfa "Yeni sürüm hazır" gösterir, kullanıcı dokununca geçilir.
 // SURUM: uygulama dosyalarının özeti. Dosya değişince `cd tests && node araclar/sw-surum.mjs` ile güncellenir
 // (test, unutulursa kırmızı olur).
-const SURUM = '657a13cdab';
+const SURUM = 'fe7e21d17f';
 const KABUK = `nzm-kabuk-${SURUM}`;
 const VERI = 'nzm-veri';
 const RESIM = 'nzm-resim';
@@ -14,11 +14,11 @@ const DOSYALAR = [
   '/mobil/',
   '/mobil/app.css', '/mobil/app.js', '/mobil/zaman.js', '/mobil/metin.js', '/mobil/ekranlar.js', '/mobil/icerik.js', '/mobil/bildirim.js',
   '/mobil/bildirim-metin.js', '/mobil/yerel.js', '/mobil/yerel-plan.js', '/mobil/yerel-ayar.js',
-  '/mobil/logo.png', '/mobil/manifest-nl.webmanifest', '/mobil/manifest-tr.webmanifest', '/mobil/manifest-en.webmanifest', '/mobil/ikon-192.png', '/mobil/ikon-512.png',
-  '/mobil/fonts/hanken-grotesk-latin.woff2', '/mobil/fonts/hanken-grotesk-latin-ext.woff2',
-  '/mobil/fonts/bodoni-moda-latin.woff2', '/mobil/fonts/bodoni-moda-latin-ext.woff2',
-  '/mobil/fonts/bodoni-moda-italik-latin.woff2', '/mobil/fonts/bodoni-moda-italik-latin-ext.woff2',
-  '/mobil/fonts/noto-kufi-arabic-arabic.woff2',
+  '/mobil/logo.png', '/mobil/cami-gece.jpg', '/mobil/manifest-nl.webmanifest', '/mobil/manifest-tr.webmanifest', '/mobil/manifest-en.webmanifest', '/mobil/ikon-192.png', '/mobil/ikon-512.png',
+  '/mobil/fonts/inter-latin.woff2', '/mobil/fonts/inter-latin-ext.woff2',
+  '/mobil/fonts/oswald-500-latin.woff2', '/mobil/fonts/oswald-600-latin.woff2', '/mobil/fonts/oswald-700-latin.woff2',
+  '/mobil/fonts/oswald-500-latin-ext.woff2', '/mobil/fonts/oswald-600-latin-ext.woff2', '/mobil/fonts/oswald-700-latin-ext.woff2',
+  '/mobil/fonts/amiri-arabic.woff2', '/mobil/fonts/amiri-kalin-arabic.woff2',
 ];
 const VERI_YOLLARI = ['/api/vakit', '/api/icerik'];
 

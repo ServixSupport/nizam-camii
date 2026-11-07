@@ -1,4 +1,4 @@
-Copyright 2021 The Hanken Grotesk Project Authors (https://github.com/marcologous/hanken-grotesk)
+Copyright 2010-2022 The Amiri Project Authors (https://github.com/aliftype/amiri)
 
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.

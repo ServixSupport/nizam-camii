@@ -37,7 +37,13 @@
 - Temmuz'dan kalan eski dosyalar `_eski-temmuz/` içinde; git'e ve Vercel'e girmez.
 - `core.autocrlf=false`: dosyalar GitHub'dakiyle bayt bayt aynı kalır (`index.html` 359.624 bayt).
 - Renk temaları (Yeşil, Turkuaz, Bordo) kullanıcı isteğiyle kaldırıldı (06-11-2026). Alt sistem çubuğu artık temaya göre (önceden hep lacivert).
-- Uygulamada iki tasarım (07-11-2026): "Klasik" (kemer, lacivert; varsayılan) ve "Liste" (logonun renkleri: yeşil #235A2C, kırmızı #C8352A, krem; sırayla logo + ad, hicri | miladi, kalan süre, büyük vakit listesi). İkisinin de gündüz/gece hali var. Seçim `nzm.stil`, `html[data-stil="liste"]`.
+- Uygulamada iki tema (07-11-2026); ayarlarda **Tema 1 / Tema 2** (NL Thema, EN Theme). İkisinin de gündüz/gece hali var.
+  - Tema 1: kemer, lacivert (eski "Klasik"; varsayılan).
+  - Tema 2 (`nzm.stil=liste`, `html[data-stil="liste"]`; eski "Liste"nin yerine): logonun renkleri (yeşil #235A2C, kırmızı #C8352A, krem).
+    - Sırayla: logo + ad, yanında hicri ve miladi tarih; caminin gece fotoğrafında (`mobil/cami-gece.jpg`, kullanıcının verdiği) sıradaki vakit, adı ve kalan süre; kerahat geri sayımı; İmsak ve Güneş dahil 7 vakitlik liste.
+    - Kerahat: Sabah vaktinde (İmsak → Güneş) ve İkindi vaktinde kerahate, kerahatin içinde bitişine kalan süre (`zaman.js` `kerahatDurumu`, `KERAHAT_DK = 45`). Süreyi hoca onaylamalı; öğle öncesi (istiva) yok.
+  - Geçmiş vakitler hiçbir temada soluk/gri değil.
+- Uygulama ve /admin'in yazı tipleri TV'dekiyle aynı (07-11-2026): Inter (yazı), Oswald (saatler, başlıklar), Amiri (Arapça). `mobil/fonts/`, OFL; Oswald dosyaları TV'nin `index.html`'inde gömülü olanlar.
 
 **Yükleme (S1, 24-10-2026):** `git push` Claude yapar, kullanıcı GitHub sitesinden yüklemez.
 - Önce ayrı bir dala push (ör. `faz-a`); Vercel o dal için Preview linki verir.
@@ -94,6 +100,7 @@
 8. **Faz faz çalış** (plan §9). Her fazın sonunda dur, ekran görüntülerini göster, onay al. Büyük mimari değişiklikleri önce sor.
 9. **Mağaza uygulaması** (`app/`, 06-11-2026'dan beri):
    - `mobil/` değişince uygulama kendiliğinden güncellenmez. Yeni sürüm için `app/README.md`: `www.mjs` → `cap sync` → `versionCode`'u artır → derle → mağazaya yükle.
+   - Kullanıcı isteği (07-11-2026): **her değişiklikte mağaza uygulamasını hazırlama** (www/cap sync/derleme/emülatör yok). Kullanıcı Preview linkinde (tarayıcı, PWA) test eder; mağaza sürümüne kullanıcı "şimdi" deyince geçilir.
    - Uygulama kimliği `nl.suleymaniyecamii.namaz` değişmez.
    - iPhone'da sessize alma ve durum çubuğu simgesi yok (Apple izin vermez); bu ayarlar iPhone'da gizli.
 

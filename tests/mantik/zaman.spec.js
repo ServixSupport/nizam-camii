@@ -2,7 +2,7 @@
 import { test, expect } from '@playwright/test';
 import {
   amsZaman, amsParcalar, amsGun, gunEkle, diyanetGunu, aladhanGunu, gunOlaylari, hicriYazi,
-  geriSayim, anDurumu, gunduzMu, aladhanAdresi,
+  geriSayim, anDurumu, gunduzMu, aladhanAdresi, kerahatDurumu, KERAHAT_DK,
 } from '../../mobil/zaman.js';
 import { VAKIT, aladhanCevap } from '../yardimci/tv.js';
 
@@ -132,4 +132,21 @@ test.describe('ekran durumu ve kemer', () => {
     expect(gunduzMu(an('2026-10-28T17:26:58.999+01:00'), bugun)).toBe(true);
     expect(gunduzMu(an('2026-10-28T17:26:59.000+01:00'), bugun)).toBe(false);
   });
+});
+
+// Tema 2: kerahat (güneş doğarken ve batmadan önce; süre KERAHAT_DK, hocaya danışılacak)
+test('kerahatDurumu: Sabah ve İkindi vaktinde kerahate, kerahatte bitişine; başka zaman null', () => {
+  expect(KERAHAT_DK).toBe(45);
+  const b = gunOlaylari(gun('28.10.2026'), '2026-10-28');      // İmsak 05:34, Güneş 07:21, İkindi 14:54, Akşam 17:27
+  const k = (s) => kerahatDurumu(an(`2026-10-28T${s}+01:00`), b);
+  const ozet = (x) => x && { tur: x.tur, kerahat: x.kerahat, bas: iso(x.bas), bit: iso(x.bit), hedef: iso(x.hedef) };
+  expect(k('05:00')).toBeNull();                                // İmsak'tan önce
+  expect(ozet(k('05:34'))).toEqual({ tur: 'once', kerahat: 'dogus', bas: '2026-10-28T06:21Z', bit: '2026-10-28T07:06Z', hedef: '2026-10-28T06:21Z' });
+  expect(ozet(k('07:21'))).toEqual({ tur: 'icinde', kerahat: 'dogus', bas: '2026-10-28T06:21Z', bit: '2026-10-28T07:06Z', hedef: '2026-10-28T07:06Z' });
+  expect(k('08:06')).toBeNull();                                // Güneş + 45
+  expect(k('14:53')).toBeNull();
+  expect(ozet(k('14:54'))).toEqual({ tur: 'once', kerahat: 'batis', bas: '2026-10-28T15:42Z', bit: '2026-10-28T16:27Z', hedef: '2026-10-28T15:42Z' });
+  expect(ozet(k('16:42'))).toEqual({ tur: 'icinde', kerahat: 'batis', bas: '2026-10-28T15:42Z', bit: '2026-10-28T16:27Z', hedef: '2026-10-28T16:27Z' });
+  expect(k('17:27')).toBeNull();                                // Akşam girdi
+  expect(kerahatDurumu(an('2026-10-28T16:00+01:00'), [])).toBeNull();
 });
