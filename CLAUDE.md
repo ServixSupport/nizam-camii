@@ -44,7 +44,7 @@
 - Kullanıcı onaylayınca `main`'e alınır ve canlıya çıkar. `main`'e doğrudan push yok.
 - `gh` bu bilgisayarda `ServixSupport` hesabıyla giriş yapmış durumda.
 
-**TV'nin localStorage anahtarları:** `vakitler`, `nizam-tema` (`dark|light|krem`, varsayılan krem; eski `green` ve `auto` = krem), `nizam-sayac`, `nizam-hutbe` (`{gecikme, sure}` dk; varsayılan 10 ve 30), `nizam-dil` (`on|off`, Türkçe ↔ Hollandaca; varsayılan açık).
+**TV'nin localStorage anahtarları:** `vakitler`, `nizam-icerik` (krem temanın /admin kutuları için son içerik), `nizam-tema` (`dark|light|krem`, varsayılan krem; eski `green` ve `auto` = krem), `nizam-sayac`, `nizam-hutbe` (`{gecikme, sure}` dk; varsayılan 10 ve 30), `nizam-dil` (`on|off`, Türkçe ↔ Hollandaca; varsayılan açık).
 - Uygulama aynı origin'de çalışır. Bu anahtarları okumaz ve üzerine yazmaz; kendi anahtarlarına önek koyar.
 
 ## Kullanıcı hakkında
@@ -58,6 +58,11 @@
 
 1. **TV ekranının davranışı değişmez.** `index.html`'e izinli tek ek, en üste konacak küçük yönlendirme betiği (plan §1).
    - İstisna, kullanıcının açık isteğiyle (04-11-2026): yeşil tema kaldırıldı, yerine **krem tema** (uygulamanın renkleri; düzen ve yazı tipleri aynı). Ayarlara **cuma hutbesi** zamanı eklendi (Öğle + dk, süre). "Gündüz açık · Akşam koyu" (otomatik) kaldırıldı; varsayılan tema krem. Ayarlarda tema açıklamaları yok, önizleme TV'nin gerçek görüntüsü (`tests/araclar/tema-onizleme.mjs`). Namaz adları, tarih ve sayaç yazısı 5 dk'da bir değişir (sadece yazı söner/yanar): Türkçe + Latin harfli Arapça ad (eskisi gibi, FAJR …) ↔ Hollandaca (Ochtend, Middag, Namiddag, Avond, Nacht) + Arapça harfler (الفجر …). Başka TV değişikliği yine sadece kullanıcı açıkça isterse.
+   - Kullanıcı isteği (07-11-2026): **krem tema = uygulamanın "Klasik" tasarımı.**
+     - Düzen: sol üstte logo ve ad, sağ üstte saat. Solda büyük tarih ve kemerde sıradaki vakte geri sayım. Sağda 7 vakit alt alta.
+     - Altta iki kutu `/api/icerik`'ten (yani /admin'den) gelir: bugünkü programlar ve sıradaki faaliyet.
+     - Yazı tipleri koyu/açık temalarınki (Oswald, Inter). Yeni elemanlar `.k2-*`, sadece `body.krem`'de görünür.
+     - Koyu ve açık temalar değişmedi: referans görüntüleri aynı.
    - Önce mevcut davranışın testlerini yaz (Faz 0), sonra değiştir.
    - Yönlendirme bir TV'yi **asla** mobil sürüme göndermemeli. Şüphede TV.
 2. **Diyanet API'si:** limit uç nokta başına 5 istek. TV ve uygulama vakitleri yalnızca `/api/vakit` üzerinden alır.

@@ -4,9 +4,11 @@
 // Bilerek değiştirilirse: npm run goruntu-guncelle (ve kullanıcıya göster).
 import { test, expect } from '@playwright/test';
 import { tvAc, HUTBE } from '../yardimci/tv.js';
+import { tasarimIcerik } from '../fixtures/tasarim-icerik.js';
 
 const GUN = '2026-10-28';                // Çarşamba
 const CUMA = '2026-10-30';
+const PAZARTESI = '2026-10-26';
 
 // kucuk: true → 1366×768 ve 960×540'ta da çekilir
 const DURUMLAR = [
@@ -22,9 +24,9 @@ const DURUMLAR = [
   { ad: '10-cuma-hutbesi', zaman: `${CUMA}T12:40:00.500+01:00`, adres: '/?theme=light', hutbe: HUTBE, kucuk: true },
   { ad: '11-tema-koyu-gunduz', zaman: `${GUN}T10:05:00.500+01:00`, adres: '/?theme=dark' },
   { ad: '12-tema-acik-gece', zaman: `${GUN}T21:05:00.500+01:00`, adres: '/?theme=light' },
-  { ad: '13-tema-krem', zaman: `${GUN}T10:05:00.500+01:00`, adres: '/?theme=krem' },
+  { ad: '13-tema-krem', zaman: `${GUN}T10:05:00.500+01:00`, adres: '/?theme=krem', kucuk: true },
   { ad: '14-ayarlar', zaman: `${GUN}T10:05:00.500+01:00`, ayarlar: true },
-  // krem tema (yeşilin yerine, 04-11-2026)
+  // krem tema (yeşilin yerine, 04-11-2026; 07-11-2026'dan beri uygulamanın tasarımı: kemer, liste, /admin kutuları)
   { ad: '15-krem-ayet', zaman: `${GUN}T10:05:00.500+01:00`, adres: '/?theme=krem&test=ayet' },
   { ad: '16-krem-hazirlik', zaman: `${GUN}T12:28:30.500+01:00`, adres: '/?theme=krem' },
   { ad: '17-krem-ezan', zaman: `${GUN}T12:29:10.500+01:00`, adres: '/?theme=krem' },
@@ -32,12 +34,17 @@ const DURUMLAR = [
   // Hollandaca (5 dk'da bir Türkçe ile değişir)
   { ad: '19-krem-hollandaca', zaman: `${GUN}T10:05:00.500+01:00`, adres: '/?theme=krem', dil: 'nl' },
   { ad: '20-koyu-hollandaca-gece', zaman: `${GUN}T21:05:00.500+01:00`, adres: '/?theme=dark', dil: 'nl', kucuk: true },
+  // krem: /admin içeriğiyle (örnek içerik, tests/fixtures/tasarim-icerik.js) ve gece (ay)
+  { ad: '21-krem-icerikli', zaman: `${PAZARTESI}T10:00:30.500+01:00`, adres: '/?theme=krem', icerik: true, kucuk: true },
+  { ad: '22-krem-icerikli-hollandaca', zaman: `${GUN}T16:07:00.500+01:00`, adres: '/?theme=krem', dil: 'nl', icerik: true },
+  { ad: '23-krem-gece', zaman: `${GUN}T21:05:00.500+01:00`, adres: '/?theme=krem' },
 ];
 
 for (const d of DURUMLAR) {
   test(d.ad, async ({ page }, info) => {
     test.skip(info.project.name !== 'tv-1920' && !d.kucuk, 'sadece 1920×1080');
-    await tvAc(page, { zaman: d.zaman, adres: d.adres, hutbe: d.hutbe, dil: d.dil });
+    await tvAc(page, { zaman: d.zaman, adres: d.adres, hutbe: d.hutbe, dil: d.dil,
+      ...(d.icerik ? { icerik: tasarimIcerik(), icerikSaati: new Date(d.zaman).getTime() } : {}) });
     if (d.ayarlar) await page.locator('#gear').click();
     await page.clock.runFor(50);   // requestAnimationFrame ile yapılan son değişiklikler
     await expect(page).toHaveScreenshot(`${d.ad}.png`);

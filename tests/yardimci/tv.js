@@ -127,6 +127,7 @@ export async function mockla(page, o = {}) {
  * @param {Record<string,string>} [o.depo]  sayfa açılmadan localStorage'a yazılır (sadece ilk yükleme)
  * @param {boolean} [o.bekle=true]  vakitlerin yüklenmesini bekle
  * @param {'tr'|'nl'|'oto'} [o.dil='tr']  TV dili; 'oto' = gerçek davranış (5 dk'da bir Türkçe ↔ Hollandaca)
+ * @param {object} [o.icerik]  /api/icerik'in sahte deposu (krem temanın /admin kutuları); o.icerikSaati = fonksiyonun "şimdi"si
  */
 export async function tvAc(page, o) {
   const T = new Date(o.zaman).getTime();
@@ -155,8 +156,12 @@ export async function tvAc(page, o) {
   await page.clock.pauseAt(T - PAY_MS);           // sayfa açılmadan durdur: zamanlayıcılar hep aynı sırada
   let adres = o.adres || '/';
   if (o.dil !== 'oto') adres += (adres.includes('?') ? '&' : '?') + 'dil=' + (o.dil || 'tr');   // testler varsayılan Türkçe
+  // krem temanın /admin kutuları: içerik verildiyse cevabı bekle (ekran görüntüsünde kutular hep dolu olsun)
+  const icerikCevabi = o.icerik !== undefined && o.icerik !== 'hata'
+    ? page.waitForResponse((r) => new URL(r.url()).pathname === '/api/icerik') : null;
   await page.goto(adres);
   if (o.bekle !== false) await expect(page.locator('#loading')).toBeHidden();
+  if (icerikCevabi) await (await icerikCevabi).finished();
   await page.evaluate(() => document.fonts.ready);
   await page.clock.runFor(PAY_MS);                // tam istenen ana kadar akıt
   return kayit;
