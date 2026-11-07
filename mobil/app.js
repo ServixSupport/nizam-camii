@@ -13,7 +13,7 @@ import { yerelPlan, PLAN_GUN } from './yerel-plan.js';
 import { yerelAyarlar } from './yerel-ayar.js';
 
 // TV'nin anahtarları (vakitler, nizam-tema, nizam-sayac) kullanılmaz; hepsi "nzm." ile başlar.
-const DEPO = { dil: 'nzm.dil', tema: 'nzm.tema', vakit: 'nzm.vakit', aladhan: 'nzm.aladhan', icerik: 'nzm.icerik' };
+const DEPO = { dil: 'nzm.dil', tema: 'nzm.tema', stil: 'nzm.stil', vakit: 'nzm.vakit', aladhan: 'nzm.aladhan', icerik: 'nzm.icerik' };
 const SEKMELER = ['ana', 'faaliyetler', 'programlar', 'ayarlar'];
 const BOS_ICERIK = { guncelleme: null, faaliyetler: [], programlar: [] };
 const ICERIK_ARALIK = 2 * 60 * 1000;      // içerik en fazla 2 dakikada bir istenir (CDN de 2 dk tutar)
@@ -30,6 +30,8 @@ const pad = (n) => String(n).padStart(2, '0');
 const durum = {
   dil: (() => { const d = oku(DEPO.dil); return METIN[d] ? d : VARSAYILAN_DIL; })(),
   tema: (() => { const t = oku(DEPO.tema); return ['oto', 'gunduz', 'gece'].includes(t) ? t : 'oto'; })(),
+  // tasarım: 'klasik' (kemer) veya 'liste' (büyük vakit listesi, logonun renkleri; 07-11-2026)
+  stil: oku(DEPO.stil) === 'liste' ? 'liste' : 'klasik',
   diyanet: new Map(),      // 'GG.AA.YYYY' → gün
   aladhan: new Map(),      // 'YYYY-MM-DD' → gün
   veriVar: false,
@@ -150,7 +152,8 @@ async function planGonder() {
   for (let i = 0; i < PLAN_GUN; i++) {
     const ymd = gunEkle(bugun, i);
     const o = olaylar(ymd);
-    if (o.length) gunler.push({ ymd, olaylar: o });
+    const g = gunVerisi(ymd);
+    if (o.length) gunler.push({ ymd, olaylar: o, hicri: g && g.hicri ? hicriYazi(g.hicri) : '' });
   }
   const y = yerelAyar.ayar();
   const plan = yerelPlan({ gunler, bildirim: bld.ayar(), sessiz: y.sessiz, sayac: y.sayac, dil: durum.dil, t: L(), simdi: Date.now() });
@@ -219,6 +222,14 @@ function metinleriYaz() {
     b.addEventListener('click', () => dilSec(k));
     return b;
   }));
+  const stil = $('#stil-secim');
+  stil.replaceChildren(...[['klasik', t.stilKlasik], ['liste', t.stilListe]].map(([k, ad]) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = ad;
+    b.setAttribute('aria-pressed', String(k === durum.stil));
+    b.addEventListener('click', () => stilSec(k));
+    return b;
+  }));
   const tema = $('#tema-secim');
   tema.replaceChildren(...[['oto', t.auto], ['gunduz', t.light], ['gece', t.dark]].map(([k, ad]) => {
     const b = document.createElement('button');
@@ -244,6 +255,14 @@ function durumCubugu() {
   if (zemin) $('meta[name="theme-color"]').setAttribute('content', zemin);
   // mağaza uygulaması: üst ve alt sistem çubuğu temaya göre (açık temada koyu simgeler, koyu temada açık)
   if (yerelMi) cami.cubuklar({ koyu: document.documentElement.dataset.tema === 'gece', zemin }).catch(() => {});
+}
+function stilSec(k) {
+  durum.stil = k; yaz(DEPO.stil, k);
+  if (k === 'liste') document.documentElement.dataset.stil = 'liste';
+  else document.documentElement.removeAttribute('data-stil');
+  durumCubugu();
+  metinleriYaz(); ciz(); anaSigdir();
+  $('#stil-secim [aria-pressed="true"]')?.focus();
 }
 function temaSec(k) {
   durum.tema = k; yaz(DEPO.tema, k);
@@ -562,6 +581,19 @@ function anaSigdir() {
     return;
   }
   const ekran = Math.min(window.innerHeight, kok.clientHeight);
+  if (kok.dataset.stil === 'liste') {
+    kemer.style.setProperty('--k', '1');
+    const satirlar = $$('.vakitler > li:not([hidden])');
+    const n = satirlar.length || VAKITLER.length;
+    const h = satirlar.length ? satirlar[0].offsetHeight : 64;
+    const geri = $('main').offsetHeight - n * h;                 // satırlar dışındaki her şey
+    const yeni = Math.min(84, Math.max(50, Math.floor((ekran - geri - 2) / n)));
+    kok.style.setProperty('--satir', `${yeni}px`);
+    const sigiyor = geri + n * yeni <= ekran + 12;
+    kok.classList.toggle('kaydirma-yok', sigiyor);
+    if (sigiyor && window.scrollY) window.scrollTo(0, 0);
+    return;
+  }
   const k = parseFloat(kemer.style.getPropertyValue('--k')) || 1;
   const kemersiz = $('main').offsetHeight - 316 * k;              // kemer dışındaki her şey
   const yeniK = Math.min(1, Math.max(0.5, (ekran - kemersiz - 2) / 316));

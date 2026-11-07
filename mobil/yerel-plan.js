@@ -5,7 +5,7 @@
 //   - namaz vakti bildirimleri (Web Push yerine telefonun kendi zamanlaması),
 //   - namaz vaktinde sessize alma ve süre bitince eski hale döndürme (Android).
 import { NAMAZ, bildirimMetni } from './bildirim-metin.js';
-import { amsParcalar } from './zaman.js';
+import { amsParcalar, VAKITLER } from './zaman.js';
 
 const pad = (n) => String(n).padStart(2, '0');
 const saatYaz = (ms) => { const p = amsParcalar(ms); return `${pad(p.h)}:${pad(p.mi)}`; };
@@ -18,7 +18,7 @@ export const SESSIZ_VARSAYILAN = { aan: false, dakika: 30, vakitler: [...NAMAZ],
 
 /**
  * @param {object} o
- * @param {Array<{ymd: string, olaylar: Array<{key: string, ms: number, saat: string}>}>} o.gunler  bugünden itibaren
+ * @param {Array<{ymd: string, hicri?: string, olaylar: Array<{key: string, ms: number, saat: string}>}>} o.gunler  bugünden itibaren
  * @param {{aan: boolean, once: number, giris: boolean, vakitler: string[]}} o.bildirim
  * @param {{aan: boolean, dakika: number, vakitler: string[], mod: 'sessiz'|'titresim'}} o.sessiz
  * @param {boolean} o.sayac   durum çubuğunda geri sayım
@@ -61,12 +61,19 @@ export function yerelPlan({ gunler, bildirim, sessiz, sayac, dil, t, simdi }) {
   }
   // sessizken bildirim çubuğunda duran not: neden sessiz ve ne zaman eski haline döner
   const mod = sessiz.mod === 'titresim' ? 'titresim' : 'sessiz';
-  for (const p of sessizler) Object.assign(p, { baslik: t.sessizBaslik[mod], govde: t.sessizGovde(saatYaz(p.bit)) });
+  for (const p of sessizler) Object.assign(p, { baslik: t.sessizBaslik[mod], govde: t.sessizGovde(saatYaz(p.bit)), kisa: t.sessizKisa(saatYaz(p.bit)) });
   return {
     surum: 1,
     dil,
     sayac: !!sayac,
     sayacAlt: t.sayacAlt,
+    // Android bildirim panelindeki vakit tablosu (görsel: kullanıcının örneği, 07-11-2026)
+    gunler: gunler.map((g) => ({
+      ymd: g.ymd,
+      hicri: g.hicri || '',
+      vakitler: g.olaylar.map((e) => ({ vakit: e.key, ad: (t.kisaAd && t.kisaAd[e.key]) || t.names[e.key], saat: e.saat, an: e.ms })),
+    })),
+    kalanKisa: Object.fromEntries(VAKITLER.map((k) => [k, t.kalanKisa(k)])),
     kanallar: { vakit: t.kanalVakit, sayac: t.kanalSayac, sessiz: t.kanalSessiz },
     sessizMod: mod,
     sessizBasliklar: t.sessizBaslik,                         // telefon izin yoksa sessiz yerine titreşime alır

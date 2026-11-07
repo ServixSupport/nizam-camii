@@ -6,7 +6,8 @@ telefona özgü özellikler `mobil/yerel*.js` ve bu klasördeki eklentilerde.
 | | Android | iPhone |
 |---|---|---|
 | Namaz vakti bildirimleri | Telefon kendisi zamanlar (sunucu yok) | Telefon kendisi zamanlar (en yakın 60 bildirim; uygulama her açılışta yeniler) |
-| Geri sayım | Durum çubuğunda cami simgesi + bildirimde sayaç; Android 16.1+ üst çubukta canlı sayaç çipi | Kilit ekranı / ana ekran widget'ı (iPhone'da durum çubuğuna uygulama simge koyamaz) |
+| Geri sayım | Bildirim panelinde vakit tablosu (hicri tarih, "Öğle'ye 1:23:45", 7 vakit; sıradaki kırmızı). Vakte 30 dk kala üst çubuktaki cami simgesinin içinde kalan dakika | Kilit ekranı / ana ekran widget'ı (iPhone'da durum çubuğuna uygulama simge koyamaz) |
+| Tek bildirim | Panel açıksa vakit bildirimi ayrı gelmez: panel bir kez sesli uyarır, üst satırında 15 dk "Öğle vakti girdi" yazar | Ayrı bildirimler (aynı vakit gruplanır) |
 | Namaz vaktinde sessize alma | Var (sessiz veya titreşim; süre bitince eski hale döner) | Yok: Apple uygulamaların telefonu sessize almasına izin vermez |
 | Sistem çubukları | Temaya göre (açık/koyu) | Saat ve simgeler temaya göre |
 
@@ -14,7 +15,9 @@ telefona özgü özellikler `mobil/yerel*.js` ve bu klasördeki eklentilerde.
 
 - `android/`: Android projesi. Kendi kodumuz `app/src/main/java/nl/suleymaniyecamii/namaz/`:
   - `CamiPlugin` (köprü)
-  - `Planlayici` (alarm, bildirim, sessiz)
+  - `Planlayici` (alarm, bildirim paneli, sessiz)
+  - `CamiSimgesi` (üst çubukta içinde dakika yazan cami simgesi)
+  - `res/layout/bildirim_vakitler*.xml` (paneldeki tablo: kapalı hali saatler, açık hali adlar + saatler)
   - `PlanMantigi` (saf mantık, birim testli)
   - `VakitAlici` ve `AcilisAlici` (alarm, telefon yeniden açılınca)
 - `ios/`: Xcode projesi.
@@ -56,7 +59,7 @@ cd android && ./gradlew.bat testDebugUnitTest assembleDebug   # deneme APK
 ./gradlew.bat bundleRelease                                    # Play Store için imzalı .aab
 ```
 
-- Emülatörler: `cami` (Android 16) ve `cami161` (Android 16.1, üst çubuk çipi).
+- Emülatörler: `cami` (Android 16) ve `cami161` (Android 16.1).
   - Başlatma: `sdk/emulator/emulator.exe -avd cami161`.
   - Ortam değişkeni: `ANDROID_AVD_HOME=C:\Users\Altun\android\avd`.
 - Simgeler ve açılış ekranı: `cd tests && node araclar/app-simgeler.mjs`.
@@ -73,8 +76,9 @@ cd android && ./gradlew.bat testDebugUnitTest assembleDebug   # deneme APK
 
 - Uygulama tarafı: `tests/mobil/yerel.spec.js` (sahte telefon eklentisiyle) ve `tests/mantik/yerel-plan.spec.js`.
 - Android: `PlanMantigiTest` (JUnit).
-- Emülatörde elle denendi (06-11-2026):
-  - Geri sayım bildirimi ve 16.1 çipi.
+- Emülatörde elle denendi (06/07-11-2026):
+  - Bildirim panelindeki tablo; 12:05'te simgede 24, her dakika bir azaldı; 12:28'de 1.
+  - Vakit girince tek bildirim (panel sesli uyardı, "Maghrib is begonnen · 17:09"), tablo sıradaki vakte geçti.
   - 06:25'te "15 dk kala" bildirimi, 06:40'ta vakit bildirimi.
   - 06:40'ta telefon sessize alındı, 07:10'da zil ve "Rahatsız Etmeyin" eski haline döndü.
   - Açık ve koyu temada sistem çubukları.

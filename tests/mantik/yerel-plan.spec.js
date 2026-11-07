@@ -29,6 +29,17 @@ test('vakitler: sadece gelecektekiler, sıralı, dile göre başlık', () => {
     .vakitler[0].baslik).toBe('Akşam · 17:27');
 });
 
+test('bildirim paneli: günler (7 vakit, kısa ad, hicri), "kalan" yazısı', () => {
+  const p = plan({ gunler: gunler('2026-10-28', 2).map((g, i) => ({ ...g, hicri: ['17 Jumada al-Awwal 1448', '18 Jumada al-Awwal 1448'][i] })) });
+  expect(p.gunler).toHaveLength(2);
+  expect(p.gunler[0].hicri).toBe('17 Jumada al-Awwal 1448');
+  expect(p.gunler[0].vakitler.map((v) => v.vakit)).toEqual(['Imsak', 'Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']);
+  expect(p.gunler[0].vakitler[5]).toEqual({ vakit: 'Maghrib', ad: 'Maghrib', saat: '17:27', an: an('2026-10-28T17:27:00+01:00') });
+  expect(p.kalanKisa.Dhuhr).toBe('Dhoehr over');
+  expect(p.gunler[0].vakitler[2].ad).toBe('Zon');                              // tabloda kısa: "Zonsopgang" değil
+  expect(yerelPlan({ gunler: gunler('2026-10-28', 1), bildirim: KAPALI, sessiz: SESSIZ_VARSAYILAN, sayac: true, dil: 'tr', t: METIN.tr, simdi: SIMDI }).kalanKisa.Dhuhr).toBe("Öğle'ye");
+});
+
 test('bildirimler: önce ve vakit girince, aynı vaktin etiketi aynı; geçmiştekiler yok', () => {
   const p = plan({ bildirim: { aan: true, once: 15, giris: true, vakitler: ['Asr', 'Maghrib'] } });
   const aksam = p.bildirimler.filter((b) => b.etiket === '2026-10-28-Maghrib');
@@ -51,7 +62,7 @@ test('sessize alma: seçilen namazlarda vakit girince, süre kadar; Güneş ve �
   expect(p.sessizMod).toBe('sessiz');
   expect(p.sessiz[0]).toEqual({
     bas: an('2026-10-28T17:27:00+01:00'), bit: an('2026-10-28T17:57:00+01:00'),
-    baslik: 'Telefoon op stil', govde: 'Gebedstijd. Om 17:57 staat je telefoon weer zoals hij was.',
+    baslik: 'Telefoon op stil', govde: 'Gebedstijd. Om 17:57 staat je telefoon weer zoals hij was.', kisa: 'Op stil tot 17:57',
   });
   expect(p.sessiz).toHaveLength(2 + 5);
   expect(p.sessiz.every((s) => s.bit - s.bas === 30 * 60000)).toBe(true);

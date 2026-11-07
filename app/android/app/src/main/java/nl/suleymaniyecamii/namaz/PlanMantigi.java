@@ -16,6 +16,8 @@ final class PlanMantigi {
 
     /** Bundan geç kalan bildirim gösterilmez (sunucudaki gibi: telefon kapalıydı, saatler sonra açıldı vb.). */
     static final long GEC_SINIR = 10 * 60_000L;
+    /** Vakte bu kadar kala üst çubuktaki cami simgesinde kalan dakika görünür (kullanıcı isteği, 07-11-2026). */
+    static final long SIMGE_PENCERE = 30 * 60_000L;
 
     private PlanMantigi() {}
 
@@ -52,6 +54,29 @@ final class PlanMantigi {
             if (an > simdi && (en == null || an < en.optLong("an"))) en = o;
         }
         return en;
+    }
+
+    /** Simgede gösterilecek dakika (1–30); vakte 30 dakikadan fazla varsa 0 (düz cami simgesi). */
+    static int simgeDakikasi(long an, long simdi) {
+        long kalan = an - simdi;
+        if (kalan <= 0 || kalan > SIMGE_PENCERE) return 0;
+        return (int) ((kalan + 59_999) / 60_000);
+    }
+
+    /** Bildirim panelindeki tablo: bu vakti içeren gün (plan.gunler), yoksa null. */
+    static JSONObject tabloGunu(JSONObject plan, long an) {
+        JSONArray g = plan.optJSONArray("gunler");
+        if (g == null) return null;
+        for (int i = 0; i < g.length(); i++) {
+            JSONObject gun = g.optJSONObject(i);
+            JSONArray v = gun == null ? null : gun.optJSONArray("vakitler");
+            if (v == null) continue;
+            for (int j = 0; j < v.length(); j++) {
+                JSONObject x = v.optJSONObject(j);
+                if (x != null && x.optLong("an") == an) return gun;
+            }
+        }
+        return null;
     }
 
     /** Şu an içinde bulunulan sessiz dönem (yoksa null). */
@@ -91,7 +116,14 @@ final class PlanMantigi {
         }
         if (plan.optBoolean("sayac")) {
             JSONObject v = sonrakiVakit(plan, simdi);
-            if (v != null) en = Math.min(en, v.optLong("an"));
+            if (v != null) {
+                long an = v.optLong("an");
+                en = Math.min(en, an);
+                // simgedeki dakika: pencere başlangıcı ve pencerede her dakika değişimi
+                int dk = simgeDakikasi(an, simdi);
+                long degisim = dk > 0 ? an - (long) (dk - 1) * 60_000 : an - SIMGE_PENCERE;
+                if (degisim > simdi) en = Math.min(en, degisim);
+            }
         }
         return en == Long.MAX_VALUE ? 0 : en;
     }

@@ -48,10 +48,10 @@ public class PlanMantigiTest {
         assertEquals("Maghrib", PlanMantigi.sonrakiVakit(p, T).getString("vakit"));
         assertEquals("Isha", PlanMantigi.sonrakiVakit(p, T + 30 * DK).getString("vakit"));
         assertNull(PlanMantigi.sonrakiVakit(p, T + 200 * DK));
-        assertEquals(T + 15 * DK, PlanMantigi.sonrakiAlarm(p, T));
-        assertEquals(T + 30 * DK, PlanMantigi.sonrakiAlarm(p, T + 15 * DK));
+        assertEquals(T + 1 * DK, PlanMantigi.sonrakiAlarm(p, T));                    // simgede 30 → 29 dk
+        assertEquals(T + 16 * DK, PlanMantigi.sonrakiAlarm(p, T + 15 * DK));
         assertEquals(T + 60 * DK, PlanMantigi.sonrakiAlarm(p, T + 30 * DK));         // sessiz bitişi
-        assertEquals(T + 120 * DK, PlanMantigi.sonrakiAlarm(p, T + 60 * DK));        // sayaç: Yatsı
+        assertEquals(T + 90 * DK, PlanMantigi.sonrakiAlarm(p, T + 60 * DK));         // Yatsı'ya 30 dk kala simge
         assertEquals(0, PlanMantigi.sonrakiAlarm(plan(false), T + 60 * DK));         // sayaç kapalı: alarm yok
     }
 
@@ -64,5 +64,30 @@ public class PlanMantigiTest {
         // dönemin ortasında açıldı (son = şimdi): birden susmaz
         assertFalse(PlanMantigi.yeniBasladi(PlanMantigi.aktifSessiz(p, T + 40 * DK), T + 40 * DK, T + 41 * DK));
         assertNull(PlanMantigi.aktifSessiz(p, T + 60 * DK));
+    }
+
+    @Test
+    public void simge_vakte30DakikaKalaDakikaGosterir_herDakikaGuncellenir() throws Exception {
+        long an = T + 120 * DK;                                         // Yatsı
+        assertEquals(0, PlanMantigi.simgeDakikasi(an, an - 31 * DK));
+        assertEquals(30, PlanMantigi.simgeDakikasi(an, an - 30 * DK));
+        assertEquals(30, PlanMantigi.simgeDakikasi(an, an - 29 * DK - 1));
+        assertEquals(1, PlanMantigi.simgeDakikasi(an, an - 1));
+        assertEquals(0, PlanMantigi.simgeDakikasi(an, an));
+        JSONObject p = plan(true);
+        // Akşam (T+30) geçti, sıradaki Yatsı: önce pencere başlangıcı, sonra her dakika
+        assertEquals(an - 30 * DK, PlanMantigi.sonrakiAlarm(p, T + 61 * DK));
+        assertEquals(an - 29 * DK, PlanMantigi.sonrakiAlarm(p, an - 30 * DK));
+        assertEquals(an - 9 * DK, PlanMantigi.sonrakiAlarm(p, an - 9 * DK - 30_000));
+        assertEquals(an, PlanMantigi.sonrakiAlarm(p, an - 30_000));
+    }
+
+    @Test
+    public void tabloGunu_vaktiIcerenGun() throws Exception {
+        JSONObject p = new JSONObject("{\"gunler\":[{\"ymd\":\"a\",\"vakitler\":[{\"an\":1},{\"an\":2}]},"
+            + "{\"ymd\":\"b\",\"vakitler\":[{\"an\":3}]}]}");
+        assertEquals("b", PlanMantigi.tabloGunu(p, 3).getString("ymd"));
+        assertEquals("a", PlanMantigi.tabloGunu(p, 2).getString("ymd"));
+        assertNull(PlanMantigi.tabloGunu(p, 9));
     }
 }

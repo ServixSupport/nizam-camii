@@ -50,6 +50,31 @@
   color-scheme: dark;
 }
 
+/* ---------- "Liste" tasarımı (kullanıcı isteği, 07-11-2026): logonun renkleri (yeşil #235A2C, kırmızı #C8352A, krem);
+   ana ekranda sırayla logo + cami adı, hicri | miladi tarih, sıradaki vakte kalan süre, büyük vakit listesi. ---------- */
+:root[data-stil="liste"], :root[data-stil="liste"][data-tema="gunduz"] {
+  --ground: #F6F1E6; --ink: #17261A; --soft: #55645A; --line: #E2DACB; --gold: #8E7A3A; --goldLine: rgba(142,122,58,.38);
+  --cobalt: #235A2C; --turq: #2B7238; --coral: #B8352A; --sun: #E2A43C; --card: #FFFDF8;
+  --rail: #EEE8DA; --railActive: rgba(35,90,44,.10); --nextRow: #235A2C; --nextBorder: #235A2C;
+  --tabBg: rgba(246,241,230,.96); --patternOp: .14; --past: #5F6C63;
+  --segBg: #EAE3D3; --segOn: #FFFDF8; --segShadow: 0 1px 2px rgba(23,38,26,.18);
+  --navy: #1E4A26; --navyLine: transparent; --anahtarKapali: #C9C1AE;
+  --g-herkes: #17261A; --g-erkekler: #235A2C; --tablo-cizgi: #ECE4D4; --tablo-sutun: #F0EADD; --saat-yazi: #5E6B62; --vakit-yazi: #8E6A2A;
+  --kahraman1: #235A2C; --kahraman2: #2F7A3C; --kahramanYazi: #FFFDF5;
+  color-scheme: light;
+}
+:root[data-stil="liste"][data-tema="gece"] {
+  --ground: #0C130E; --ink: #F2EEE4; --soft: #A7B5AA; --line: rgba(242,238,228,.10); --gold: #D9B970; --goldLine: rgba(217,185,112,.32);
+  --cobalt: #8FD39C; --turq: #6FCF86; --coral: #F07F6C; --sun: #E8C27A; --card: #142019;
+  --rail: #09100B; --railActive: rgba(143,211,156,.12); --nextRow: #24602F; --nextBorder: #24602F;
+  --tabBg: rgba(12,19,14,.96); --patternOp: .08; --past: #8E9C92;
+  --segBg: rgba(167,181,170,.12); --segOn: #1F3A26; --segShadow: 0 1px 2px rgba(0,0,0,.35);
+  --navy: #1C4424; --navyLine: rgba(217,185,112,.28); --anahtarKapali: #34463A;
+  --g-herkes: #F2EEE4; --g-erkekler: #8FD39C; --tablo-cizgi: rgba(242,238,228,.08); --tablo-sutun: rgba(242,238,228,.05); --saat-yazi: #A7B5AA; --vakit-yazi: #D9B970;
+  --kahraman1: #1D4D27; --kahraman2: #286A35; --kahramanYazi: #F7F3EA;
+  color-scheme: dark;
+}
+
 /* ---------- temel ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; height: 100%; background: var(--ground); }
@@ -549,3 +574,36 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 .b-deneme { width: 100%; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
 .b-deneme:disabled { opacity: .6; }
 .b-mesaj.bilgi { color: var(--soft); }
+
+/* ================= "Liste" tasarımı: ana ekran ================= */
+:root[data-stil="liste"] .cizgi, :root[data-stil="liste"] .kemer-svg, :root[data-stil="liste"] .sira, :root[data-stil="liste"] .sira-ar { display: none; }
+:root[data-stil="liste"] .tarih { flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 4px 10px; }
+:root[data-stil="liste"] .hicri { order: -1; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-style: normal; font-weight: 600; font-size: 14px; color: var(--ink); }
+:root[data-stil="liste"] .miladi { padding-left: 10px; border-left: 1px solid var(--line); color: var(--soft); letter-spacing: .12em; }
+:root[data-stil="liste"] .kemer { width: auto; height: auto; margin: 12px 0 0; }
+:root[data-stil="liste"] .kemer-ic { position: static; flex-direction: row; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 2px 14px;
+  padding: 12px 18px 14px; border-radius: 20px; background: linear-gradient(135deg, var(--kahraman1), var(--kahraman2)); color: var(--kahramanYazi);
+  box-shadow: 0 6px 18px rgba(23,38,26,.18); }
+:root[data-stil="liste"] .kalan-etiket { color: var(--kahramanYazi); opacity: .88; font-size: 12.5px; letter-spacing: .12em; }
+:root[data-stil="liste"] .sayac { font-family: 'Hanken Grotesk', system-ui, sans-serif; font-weight: 700; font-size: 44px; line-height: 1; letter-spacing: -.01em; }
+:root[data-stil="liste"] .vakitler { margin-top: 10px; gap: 4px; }
+:root[data-stil="liste"] .vakit { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; grid-template-rows: auto auto; align-content: center; column-gap: 10px;
+  height: var(--satir, 64px); padding: 0 12px; border-radius: 16px; box-shadow: none; }
+:root[data-stil="liste"] .v-ikon { grid-column: 1; grid-row: 1 / 3; }
+:root[data-stil="liste"] .v-metin { grid-column: 2; grid-row: 1; }
+:root[data-stil="liste"] .v-ad { font-size: 13.5px; font-weight: 600; color: var(--soft); }
+:root[data-stil="liste"] .v-saat { grid-column: 2; grid-row: 2; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-weight: 600;
+  font-size: calc(var(--satir, 64px) * .46); line-height: 1.05; letter-spacing: -.01em; }
+:root[data-stil="liste"] .v-zil { grid-column: 3; grid-row: 1 / 3; align-self: center; }
+:root[data-stil="liste"] .vakit.siradaki { background: var(--nextRow); }
+:root[data-stil="liste"] .vakit.siradaki .v-ad, :root[data-stil="liste"] .vakit.siradaki .v-saat, :root[data-stil="liste"] .vakit.siradaki .v-ar,
+:root[data-stil="liste"] .vakit.siradaki .v-ikon, :root[data-stil="liste"] .vakit.siradaki .v-zil { color: #FFFDF5 !important; }
+:root[data-stil="liste"] .vakit.simdi .v-ad { color: var(--ink); }
+:root[data-stil="liste"] .vakit.simdi .v-simdi { color: var(--coral); }
+@media (min-width: 768px) {
+  :root[data-stil="liste"] .kemer { margin: 0; }
+  :root[data-stil="liste"] .kemer-ic { padding: 22px 28px; }
+  :root[data-stil="liste"] .sayac { font-size: 64px; }
+  :root[data-stil="liste"] .vakit { --satir: 76px; border: 1px solid var(--line); background: var(--card); }
+  :root[data-stil="liste"] .vakit.siradaki { background: var(--nextRow); border-color: var(--nextRow); }
+}

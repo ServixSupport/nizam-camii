@@ -28,6 +28,7 @@
       document.querySelector('link[rel="manifest"]').setAttribute('href', '/mobil/manifest-' + d + '.webmanifest');
       document.querySelector('meta[name="apple-mobile-web-app-title"]').setAttribute('content', ad);
     }
+    if (localStorage.getItem('nzm.stil') === 'liste') document.documentElement.setAttribute('data-stil', 'liste');
     var t = localStorage.getItem('nzm.tema');
     if (t !== 'gunduz' && t !== 'gece') {
       var h = +new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Amsterdam', hour: '2-digit', hourCycle: 'h23' }).format(new Date());
@@ -261,6 +262,8 @@
     <section class="ayar">
       <h2 class="ayar-baslik" data-t="look"></h2>
       <div class="ayar-kart">
+        <span class="ayar-ad" data-t="stil"></span>
+        <div class="secenekler" role="group" data-t-aria="stil" id="stil-secim"></div>
         <span class="ayar-ad" data-t="theme"></span>
         <div class="secenekler" role="group" data-t-aria="theme" id="tema-secim"></div>
         <span class="ayar-not" data-t="autoHint"></span>

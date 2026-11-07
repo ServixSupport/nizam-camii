@@ -52,8 +52,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- namaz vakti bildirimleri ve durum çubuğundaki geri sayım -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <!-- Android 16+: geri sayım üst çubukta "canlı güncelleme" olarak -->
-    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
     <!-- vakitler tam zamanında (kullanıcı "Alarmlar ve hatırlatıcılar"dan verir) -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <!-- telefon yeniden açılınca plan devam etsin -->

@@ -2,4 +2,6 @@
 <resources>
     <color name="cami_lacivert">#14295A</color>
     <color name="cami_krem">#F6F1E7</color>
+    <color name="cami_yesil">#235A2C</color>
+    <color name="cami_kirmizi">#D3352A</color>
 </resources>

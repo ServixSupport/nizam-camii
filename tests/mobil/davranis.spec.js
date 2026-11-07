@@ -357,7 +357,7 @@ test.describe('tema renkleri', () => {
     expect(await ustCubuk()).toBe('#0C1834');
   });
 
-  test('gündüz ve gece: yazılar okunaklı (WCAG kontrastı)', async ({ page }) => {
+  test('her iki tasarım, gündüz ve gece: yazılar okunaklı (WCAG kontrastı)', async ({ page }) => {
     await mobilAc(page, { zaman: an('16:00:00.500') });
     const sonuc = await page.evaluate(() => {
       const rgb = (c) => { const x = document.createElement('div'); x.style.color = c; document.body.append(x); const v = getComputedStyle(x).color; x.remove(); return v.match(/[\d.]+/g).map(Number); };
@@ -365,18 +365,54 @@ test.describe('tema renkleri', () => {
       const kon = (a, b) => { const [x, y] = [lum(rgb(a)), lum(rgb(b))].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
       const kok = document.documentElement;
       const sorunlar = [];
-      for (const tema of ['gunduz', 'gece']) {
+      for (const stil of ['klasik', 'liste']) for (const tema of ['gunduz', 'gece']) {
+        if (stil === 'liste') kok.dataset.stil = 'liste'; else kok.removeAttribute('data-stil');
         kok.dataset.tema = tema;
         const v = (n) => getComputedStyle(kok).getPropertyValue(n).trim();
         // [yazı, zemin, en az]: ana yazı 7, küçük yazılar 4.5 (lacivert kartların üstündeki sabit renkler dahil)
         for (const [a, b, enAz] of [['--ink', '--ground', 7], ['--soft', '--ground', 4.5], ['--soft', '--card', 4.5], ['--cobalt', '--ground', 4.5],
-          ['--coral', '--ground', 4.5], ['--turq', '--ground', 4.5], ['--past', '--ground', 4.5], ['#F6F1E7', '--navy', 7], ['#D4DBEA', '--navy', 4.5], ['#E8C27A', '--navy', 4.5]]) {
+          ['--coral', '--ground', 4.5], ['--turq', '--ground', 4.5], ['--past', '--ground', 4.5], ['#F6F1E7', '--navy', 7], ['#D4DBEA', '--navy', 4.5], ['#E8C27A', '--navy', 4.5],
+          ...(stil === 'liste' ? [['#FFFDF5', '--nextRow', 7], ['--kahramanYazi', '--kahraman2', 4.5]] : [])]) {
           const k = kon(a.startsWith('--') ? v(a) : a, v(b));
-          if (k < enAz) sorunlar.push(`${tema}: ${a} / ${b} = ${k.toFixed(2)} (< ${enAz})`);
+          if (k < enAz) sorunlar.push(`${stil}-${tema}: ${a} / ${b} = ${k.toFixed(2)} (< ${enAz})`);
         }
       }
       return sorunlar;
     });
     expect(sonuc).toEqual([]);
+  });
+});
+
+// ---------------- "Liste" tasarımı (kullanıcı isteği, 07-11-2026) ----------------
+test.describe('tasarım: Liste', () => {
+  test('Ayarlar → Ontwerp: seçilir, saklanır, ilk boyamadan önce uygulanır; varsayılan Klassiek', async ({ page }) => {
+    await mobilAc(page, { zaman: an('16:00:00.500'), adres: '/mobil/#ayarlar', depo: { 'nzm.tema': 'gunduz' } });
+    await expect(page.locator('#stil-secim button')).toHaveText(['Klassiek', 'Lijst']);
+    await expect(page.locator('#stil-secim [aria-pressed="true"]')).toHaveText('Klassiek');
+    expect(await page.evaluate(() => document.documentElement.hasAttribute('data-stil'))).toBe(false);
+    await page.getByRole('button', { name: 'Lijst' }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-stil', 'liste');
+    expect(await page.evaluate(() => localStorage.getItem('nzm.stil'))).toBe('liste');
+    expect(await page.locator('meta[name="theme-color"]').getAttribute('content')).toBe('#F6F1E6');
+    await page.reload();
+    expect(await page.evaluate(() => document.documentElement.dataset.stil)).toBe('liste');
+    await page.getByRole('button', { name: 'Klassiek' }).click();
+    expect(await page.evaluate(() => document.documentElement.hasAttribute('data-stil'))).toBe(false);
+  });
+
+  test('ana ekran: sırayla logo + ad, hicri | miladi, kalan süre, vakitler; kemer yok; telefonda kaydırmasız', async ({ page }) => {
+    await mobilAc(page, { zaman: an('16:00:00.500'), depo: { 'nzm.stil': 'liste', 'nzm.dil': 'tr' } });
+    await expect(page.locator('.kemer-svg')).toBeHidden();
+    await expect(page.locator('.kalan-etiket')).toHaveText("AKŞAM'A KALAN");
+    const y = async (s) => (await page.locator(s).boundingBox()).y;
+    expect(await y('.ust')).toBeLessThan(await y('.hicri'));
+    expect(await y('.hicri')).toBeLessThan(await y('.sayac'));
+    expect(await y('.sayac')).toBeLessThan(await y('.vakitler'));
+    expect((await page.locator('.hicri').boundingBox()).x).toBeLessThan((await page.locator('.miladi').boundingBox()).x);   // hicri önce
+    await expect(page.locator('.vakit.siradaki .v-ad')).toHaveText('Akşam');
+    await page.waitForFunction(() => document.documentElement.classList.contains('kaydirma-yok'));
+    const son = await page.locator('.vakit[data-key="Isha"]').boundingBox();
+    const menu = await page.locator('.menu').boundingBox();
+    expect(son.y + son.height).toBeLessThanOrEqual(menu.y + 1);                  // Yatsı menünün üstünde, kaydırmadan görünür
   });
 });

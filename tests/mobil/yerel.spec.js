@@ -58,7 +58,7 @@ test('Android ilk açılış: geri sayım açık, bildirim izni bir kez sorulur,
   expect(p.vakitler.length).toBeGreaterThan(25 * 7);                          // ~30 gün ileri
   expect(p).toMatchObject({ dil: 'nl', sayacAlt: 'Volgende gebedstijd', bildirimler: [], sessiz: [] });
   await expect(page.locator('#sayac-ayar')).toBeVisible();
-  await expect(page.getByRole('switch', { name: 'Aftellen tot het volgende gebed' })).toHaveAttribute('aria-checked', 'true');
+  await expect(page.getByRole('switch', { name: 'Gebedstijden en aftellen' })).toHaveAttribute('aria-checked', 'true');
   expect(await cagrilar(page, 'bildirimIzniIste')).toHaveLength(1);
   await page.reload();
   await expect(page.locator('#sayac-ayar')).toBeVisible();
@@ -66,7 +66,7 @@ test('Android ilk açılış: geri sayım açık, bildirim izni bir kez sorulur,
   expect(await cagrilar(page, 'bildirimIzniIste')).toHaveLength(0);           // yeniden sorulmaz
 
   // kapatınca plan sayaçsız gider
-  await page.getByRole('switch', { name: 'Aftellen tot het volgende gebed' }).click();
+  await page.getByRole('switch', { name: 'Gebedstijden en aftellen' }).click();
   await page.clock.runFor(1000);
   expect((await sonPlan(page)).sayac).toBe(false);
   expect(await page.evaluate(() => localStorage.getItem('nzm.sayac'))).toBe('kapali');
@@ -75,7 +75,7 @@ test('Android ilk açılış: geri sayım açık, bildirim izni bir kez sorulur,
 test('izin verilmezse geri sayım kapalı görünür ve mesaj çıkar', async ({ page }) => {
   await telefon(page, { izinCevabi: 'denied' });
   await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar' });
-  const anahtar = page.getByRole('switch', { name: 'Aftellen tot het volgende gebed' });
+  const anahtar = page.getByRole('switch', { name: 'Gebedstijden en aftellen' });
   await expect(anahtar).toHaveAttribute('aria-checked', 'false');
   await anahtar.click();
   await expect(page.locator('#sayac-mesaj')).toHaveText('Meldingen zijn niet toegestaan. Je kunt ze aanzetten in de instellingen van je telefoon.');

@@ -36,7 +36,8 @@
 **Klasör = git deposu (24-10-2026'dan beri).** GitHub `main` ile eşitlendi.
 - Temmuz'dan kalan eski dosyalar `_eski-temmuz/` içinde; git'e ve Vercel'e girmez.
 - `core.autocrlf=false`: dosyalar GitHub'dakiyle bayt bayt aynı kalır (`index.html` 359.624 bayt).
-- Renk temaları (Yeşil, Turkuaz, Bordo) kullanıcı isteğiyle kaldırıldı (06-11-2026): uygulama sadece lacivert, gündüz/gece. Alt sistem çubuğu artık temaya göre (önceden hep lacivert).
+- Renk temaları (Yeşil, Turkuaz, Bordo) kullanıcı isteğiyle kaldırıldı (06-11-2026). Alt sistem çubuğu artık temaya göre (önceden hep lacivert).
+- Uygulamada iki tasarım (07-11-2026): "Klasik" (kemer, lacivert; varsayılan) ve "Liste" (logonun renkleri: yeşil #235A2C, kırmızı #C8352A, krem; sırayla logo + ad, hicri | miladi, kalan süre, büyük vakit listesi). İkisinin de gündüz/gece hali var. Seçim `nzm.stil`, `html[data-stil="liste"]`.
 
 **Yükleme (S1, 24-10-2026):** `git push` Claude yapar, kullanıcı GitHub sitesinden yüklemez.
 - Önce ayrı bir dala push (ör. `faz-a`); Vercel o dal için Preview linki verir.

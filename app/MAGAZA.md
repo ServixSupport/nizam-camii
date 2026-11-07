@@ -26,8 +26,9 @@ Google Play Console ve App Store Connect'e kopyalanacak metinler. Görseller: `a
 De officiële app van de Nizam-ı Alem Süleymaniye Moskee, Ookmeerweg 206 in Amsterdam.
 
 • Gebedstijden van vandaag en morgen (Diyanet), in Amsterdamse tijd
-• Aftellen tot het volgende gebed, ook bovenin je telefoon in de statusbalk
-• Melding vooraf (5, 10, 15 of 30 minuten) en bij het begin van de gebedstijd
+• Gebedstijden en aftellen in je meldingenscherm; vanaf 30 minuten voor het gebed staat het aantal minuten in het moskee-icoon bovenin
+• Eén melding vooraf (5, 10, 15 of 30 minuten) en bij het begin van de gebedstijd
+• Twee ontwerpen: klassiek of een overzichtelijke lijst in de kleuren van ons logo
 • Zet je telefoon automatisch op stil bij gebedstijd; na de gekozen tijd staat hij weer zoals hij was
 • Activiteiten en wekelijkse lessen van de moskee
 • Licht en donker thema, in het Nederlands, Turks en Engels
@@ -45,8 +46,9 @@ Geen account, geen advertenties, geen tracking. Je instellingen blijven op je te
 Nizam-ı Alem Süleymaniye Camii'nin (Ookmeerweg 206, Amsterdam) resmî uygulaması.
 
 • Bugünün ve yarının namaz vakitleri (Diyanet), Amsterdam saatiyle
-• Sıradaki vakte geri sayım, telefonun üst çubuğunda da
-• Vakitten önce (5, 10, 15 veya 30 dakika) ve vakit girince bildirim
+• Bildirim panelinde vakitler ve geri sayım; vakte 30 dakika kala üstteki cami simgesinde kalan dakika
+• Vakitten önce (5, 10, 15 veya 30 dakika) ve vakit girince tek bildirim
+• İki tasarım: klasik veya logomuzun renklerinde sade bir liste
 • Namaz vaktinde telefonu otomatik sessize alma; seçtiğiniz süre bitince telefon eski haline döner
 • Caminin faaliyetleri ve haftalık dersleri
 • Açık ve koyu tema; Türkçe, Hollandaca ve İngilizce
@@ -64,8 +66,9 @@ Hesap yok, reklam yok, takip yok. Ayarlarınız telefonunuzda kalır.
 The official app of the Nizam-ı Alem Süleymaniye Mosque, Ookmeerweg 206, Amsterdam.
 
 • Today's and tomorrow's prayer times (Diyanet), in Amsterdam time
-• Countdown to the next prayer, also at the top of your phone in the status bar
-• Notification before (5, 10, 15 or 30 minutes) and when the prayer time begins
+• Prayer times and countdown in your notification shade; from 30 minutes before, the minutes appear in the mosque icon at the top
+• One notification before (5, 10, 15 or 30 minutes) and when the prayer time begins
+• Two designs: classic or a clear list in the colours of our logo
 • Automatically silence your phone at prayer time; afterwards it goes back to how it was
 • The mosque's activities and weekly lessons
 • Light and dark theme, in Dutch, Turkish and English
@@ -131,7 +134,7 @@ Hepsi "normal" izindir; Play'de ayrıca beyan gerekmez:
 ### Diğer alanlar
 
 - **Açıklama:** Play'deki uzun açıklamayla aynı. iPhone'da üç şey farklıdır; ilgili satırları bunlarla değiştirin:
-  - Geri sayım kilit ekranı widget'ındadır. "üst çubukta" yazan satır yerine: "Aftel-widget op je vergrendelscherm" / "Kilit ekranında geri sayım widget'ı" / "Countdown widget on your Lock Screen".
+  - Geri sayım kilit ekranı widget'ındadır. "meldingenscherm / bildirim paneli" satırı yerine: "Aftel-widget op je vergrendelscherm" / "Kilit ekranında geri sayım widget'ı" / "Countdown widget on your Lock Screen".
   - Sessize alma satırını iPhone'da silin: Apple buna izin vermez.
 - **App Privacy:** "Data Not Collected" (Veri toplanmıyor).
 - **Şifreleme:** Sadece standart HTTPS. `Info.plist`'te `ITSAppUsesNonExemptEncryption = NO`.
