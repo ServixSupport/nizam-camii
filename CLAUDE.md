@@ -39,8 +39,11 @@
 - Renk temaları (Yeşil, Turkuaz, Bordo) kullanıcı isteğiyle kaldırıldı (06-11-2026). Alt sistem çubuğu artık temaya göre (önceden hep lacivert).
 - Uygulamada iki tema (07-11-2026); ayarlarda **Tema 1 / Tema 2** (NL Thema, EN Theme). İkisinin de gündüz/gece hali var.
   - Tema 1: kemer, lacivert (eski "Klasik"; varsayılan).
-  - Tema 2 (`nzm.stil=liste`, `html[data-stil="liste"]`; eski "Liste"nin yerine): logonun renkleri (yeşil #235A2C, kırmızı #C8352A, krem).
-    - Sırayla: logo + ad, yanında hicri ve miladi tarih; caminin gece fotoğrafında (`mobil/cami-gece.jpg`, kullanıcının verdiği) sıradaki vakit, adı ve kalan süre; kerahat geri sayımı; İmsak ve Güneş dahil 7 vakitlik liste.
+  - Tema 2 (`nzm.stil=liste`, `html[data-stil="liste"]`; eski "Liste"nin yerine): kullanıcının örnek resmine göre; logonun renkleri.
+    - Üstte yeşil bant (#1F4D2B; yüksekliği JS'ten `--bant-yuk`): logo + ad, altında tek satır tarih "17 Jumada al-Awwal 1448 AH • 28 okt 2026" (TR'de "H").
+    - Bantta kart: sağda caminin tamamı (`mobil/cami-gece.jpg`, kullanıcının verdiği), solda sıradaki vakit, ad ve Arapça ad yan yana, altında yazısız kalan süre.
+    - Sonra kerahat geri sayımı ve İmsak ile Güneş dahil 7 vakitlik liste (büyük adlar).
+    - Gece hali yeşil değil: koyu temaların nötr renkleri (#121212 zemin, #1E1E1E kart, altın vurgu).
     - Kerahat: Sabah vaktinde (İmsak → Güneş) ve İkindi vaktinde kerahate, kerahatin içinde bitişine kalan süre (`zaman.js` `kerahatDurumu`, `KERAHAT_DK = 45`). Süreyi hoca onaylamalı; öğle öncesi (istiva) yok.
   - Geçmiş vakitler hiçbir temada soluk/gri değil.
 - Uygulama ve /admin'in yazı tipleri TV'dekiyle aynı (07-11-2026): Inter (yazı), Oswald (saatler, başlıklar), Amiri (Arapça). `mobil/fonts/`, OFL; Oswald dosyaları TV'nin `index.html`'inde gömülü olanlar.

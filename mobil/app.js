@@ -251,8 +251,10 @@ function dilSec(k) {
 }
 // telefonun üst çubuğu sayfanın zemin rengini alsın (tema değişince)
 function durumCubugu() {
-  const zemin = getComputedStyle(document.documentElement).getPropertyValue('--ground').trim();
-  if (zemin) $('meta[name="theme-color"]').setAttribute('content', zemin);
+  const stil = getComputedStyle(document.documentElement);
+  const zemin = stil.getPropertyValue('--ground').trim();
+  const ust = stil.getPropertyValue('--ustZemin').trim() || zemin;
+  if (ust) $('meta[name="theme-color"]').setAttribute('content', ust);
   // mağaza uygulaması: üst ve alt sistem çubuğu temaya göre (açık temada koyu simgeler, koyu temada açık)
   if (yerelMi) cami.cubuklar({ koyu: document.documentElement.dataset.tema === 'gece', zemin }).catch(() => {});
 }
@@ -440,6 +442,10 @@ function tarihCiz(simdi) {
   $('.miladi').textContent = `${p.weekday} · ${p.day} ${p.month} ${p.year}`.toLocaleUpperCase(t.locale);
   const g = gunVerisi(durum.gun);
   $('.hicri').textContent = g ? hicriYazi(g.hicri) : ' ';
+  const k = {};
+  for (const x of new Intl.DateTimeFormat(t.locale, { timeZone: AMS, day: 'numeric', month: 'short', year: 'numeric' }).formatToParts(new Date(simdi))) k[x.type] = x.value;
+  const miladiKisa = `${k.day} ${String(k.month).replace(/\.$/, '')} ${k.year}`;
+  $('.tarih-kisa').textContent = g ? `${hicriYazi(g.hicri)} ${t.hicriEk} • ${miladiKisa}` : miladiKisa;
 }
 
 const cihazAmsterdam = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone === AMS; } catch { return true; } })();
@@ -515,6 +521,7 @@ function tik() {
 metinleriYaz();
 kemerKur();
 sekmeGoster();
+if (!yerelMi) durumCubugu();                                // tarayıcı çubuğu ilk açılışta da temanın rengi (gece dahil)
 window.addEventListener('hashchange', sekmeGoster);
 tik();
 yenile().then(() => {
@@ -588,7 +595,14 @@ if (yerelAyar) { durumCubugu(); yerelAyar.hazirla(); }
 // Taşma varsa sadece kemer küçülür (--k, en az %50); tablette bu yapılmaz.
 // Ölçü: ana ekranın kendi yüksekliği (main) ile görünen alan. scrollHeight kullanılmaz: gerçek Android'de
 // belge içerikten uzun ölçülebiliyor (sistem çubuğu); o zaman kemer boşuna küçülüp sayfa yine kayıyordu.
+function bantYuksekligi() {
+  const ana = $('.sekme-ana');
+  if (document.documentElement.dataset.stil !== 'liste') return;
+  const k = $('.kemer').getBoundingClientRect(), a = ana.getBoundingClientRect();
+  if (k.height) ana.style.setProperty('--bant-yuk', `${Math.round(k.bottom - a.top + 16)}px`);
+}
 function anaSigdir() {
+  bantYuksekligi();
   const kemer = $('.kemer');
   const kok = document.documentElement;
   if (tabletMi.matches || aktifSekme().sekme !== 'ana') {
@@ -633,4 +647,5 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(anaSigdir)
 new MutationObserver(() => anaSigdir()).observe($('.vakitler'), { childList: true });
 new MutationObserver(() => anaSigdir()).observe($('.ams-not'), { attributes: true, attributeFilter: ['hidden'] });
 new MutationObserver(() => anaSigdir()).observe($('.kerahat'), { attributes: true, attributeFilter: ['hidden'] });
+if (window.ResizeObserver) new ResizeObserver(() => bantYuksekligi()).observe($('.kemer'));
 anaSigdir();

@@ -394,34 +394,47 @@ test.describe('Tema 2', () => {
     await page.getByRole('button', { name: 'Thema 2' }).click();
     await expect(page.locator('html')).toHaveAttribute('data-stil', 'liste');
     expect(await page.evaluate(() => localStorage.getItem('nzm.stil'))).toBe('liste');
-    expect(await page.locator('meta[name="theme-color"]').getAttribute('content')).toBe('#F4EEE0');
+    expect(await page.locator('meta[name="theme-color"]').getAttribute('content')).toBe('#1F4D2B');   // üstteki yeşil bant
     await page.reload();
     expect(await page.evaluate(() => document.documentElement.dataset.stil)).toBe('liste');
     await page.getByRole('button', { name: 'Thema 1' }).click();
     expect(await page.evaluate(() => document.documentElement.hasAttribute('data-stil'))).toBe(false);
   });
 
-  test('ana ekran: logo + ad, tarihler; fotoğraflı kartta sıradaki vakit ve kalan süre; kerahat; 7 vakit; telefonda kaydırmasız', async ({ page }) => {
-    await mobilAc(page, { zaman: an('16:00:00.500'), depo: { 'nzm.stil': 'liste', 'nzm.dil': 'tr' } });
+  test('ana ekran (örnek resim gibi): yeşil bantta logo + ad ve tek satır tarih; fotoğraflı kartta solda sıradaki vakit, ad ve Arapça yan yana, kalan süre; kerahat; 7 vakit', async ({ page }) => {
+    await mobilAc(page, { zaman: an('16:00:00.500'), depo: { 'nzm.stil': 'liste', 'nzm.dil': 'tr', 'nzm.tema': 'gunduz' } });
     await expect(page.locator('.kemer-svg')).toBeHidden();
+    await expect(page.locator('.tarih-kisa')).toHaveText('17 Jumada al-Awwal 1448 H • 28 Eki 2026');
+    for (const s of ['.miladi', '.hicri', '.sira-saat', '.kalan-kisa', '.kalan-etiket']) await expect(page.locator(s)).toBeHidden();
     await expect(page.locator('.sira-etiket')).toHaveText('Sıradaki vakit');
     await expect(page.locator('.sira-ad')).toHaveText('Akşam');
-    await expect(page.locator('.sira-saat')).toHaveText('17:27');
+    await expect(page.locator('.sira-ar')).toHaveText('المغرب');
     await expect(page.locator('.sayac')).toHaveText('1:26:59');
-    await expect(page.locator('.kalan-kisa')).toHaveText('kalan süre');
-    expect(await page.locator('.kemer-ic').evaluate((e) => getComputedStyle(e).backgroundImage)).toContain('/mobil/cami-gece.jpg');
-    // sıra: logo ve ad, altında tarihler; sonra kart, kerahat, liste
+    expect(await page.locator('.kemer-ic').evaluate((e) => getComputedStyle(e, '::before').backgroundImage)).toContain('/mobil/cami-gece.jpg');
     const k = async (s) => page.locator(s).boundingBox();
-    const [logo, ad, hicri, miladi, kart, kerahat, liste] = await Promise.all(['.ust img', '.ust-ad', '.hicri', '.miladi', '.kemer-ic', '.kerahat', '.vakitler'].map(k));
+    const [logo, ad, tarih, kart, etiket, sAd, sAr, sayac, kerahat, liste] = await Promise.all(
+      ['.ust img', '.ust-ad', '.tarih-kisa', '.kemer-ic', '.sira-etiket', '.sira-ad', '.sira-ar', '.sayac', '.kerahat', '.vakitler'].map(k));
     expect(ad.x).toBeGreaterThan(logo.x + logo.width);
-    expect(hicri.x).toBeGreaterThan(logo.x + logo.width);
-    expect(ad.y).toBeLessThan(hicri.y);
-    expect(hicri.y).toBeLessThan(miladi.y);
-    expect(miladi.y + miladi.height).toBeLessThanOrEqual(kart.y);
-    expect(kart.y + kart.height).toBeLessThanOrEqual(kerahat.y);
+    expect(tarih.x).toBeGreaterThan(logo.x + logo.width);
+    expect(ad.y).toBeLessThan(tarih.y);
+    expect(tarih.y + tarih.height).toBeLessThanOrEqual(kart.y);
+    expect(tarih.height).toBeLessThan(22);                                     // tek satır
+    // kartta yazılar solda; ad ve Arapça ad yan yana
+    for (const b of [etiket, sAd, sayac]) expect(Math.abs(b.x - etiket.x)).toBeLessThan(2);
+    expect(etiket.x - kart.x).toBeLessThan(30);
+    expect(sAr.x).toBeGreaterThan(sAd.x + sAd.width);
+    expect(Math.abs((sAr.y + sAr.height / 2) - (sAd.y + sAd.height / 2))).toBeLessThan(12);
+    expect(sAd.y).toBeGreaterThan(etiket.y);
+    expect(sayac.y).toBeGreaterThan(sAd.y + sAd.height - 4);
+    // yeşil bant: üstten kartın altına kadar
+    const bant = await page.locator('.sekme-ana').evaluate((e) => { const st = getComputedStyle(e, '::before'); return { renk: st.backgroundColor, yuk: parseFloat(st.height), ust: e.getBoundingClientRect().top }; });
+    expect(bant.renk).toBe('rgb(31, 77, 43)');
+    expect(bant.ust + bant.yuk).toBeGreaterThanOrEqual(kart.y + kart.height);
+    expect(bant.ust + bant.yuk).toBeLessThanOrEqual(kerahat.y);
     expect(kerahat.y + kerahat.height).toBeLessThanOrEqual(liste.y);
     await expect(page.locator('.vakit:not([hidden]) .v-ad')).toHaveText(['İmsak', 'Sabah', 'Güneş', 'Öğle', 'İkindi', 'Akşam', 'Yatsı']);
     await expect(page.locator('.vakit.siradaki .v-ad')).toHaveText('Akşam');
+    expect(parseFloat(await page.locator('.v-ad').first().evaluate((e) => getComputedStyle(e).fontSize))).toBeGreaterThanOrEqual(20);   // büyük adlar
     // her vaktin simgesi var
     for (const v of await page.locator('.vakit .v-ikon').all()) {
       expect(await v.evaluate((e) => getComputedStyle(e, '::before').maskImage || getComputedStyle(e, '::before').webkitMaskImage)).toMatch(/^url\(/);
@@ -430,9 +443,19 @@ test.describe('Tema 2', () => {
     expect(await page.locator('.sayac').evaluate((e) => getComputedStyle(e).fontFamily)).toMatch(/^"?Oswald/);
     expect(await page.locator('.v-ad').first().evaluate((e) => getComputedStyle(e).fontFamily)).toMatch(/^"?Inter/);
     await page.waitForFunction(() => document.documentElement.classList.contains('kaydirma-yok'));
-    const son = await k('.vakit[data-key="Isha"]');
+    const sonSatir = await k('.vakit[data-key="Isha"]');
     const menu = await k('.menu');
-    expect(son.y + son.height).toBeLessThanOrEqual(menu.y + 1);                  // Yatsı menünün üstünde, kaydırmadan görünür
+    expect(sonSatir.y + sonSatir.height).toBeLessThanOrEqual(menu.y + 1);       // Yatsı menünün üstünde, kaydırmadan görünür
+  });
+
+  test('gece: yeşil değil, koyu temaların nötr renkleri', async ({ page }) => {
+    await mobilAc(page, { zaman: an('21:30:00.500'), depo: { 'nzm.stil': 'liste', 'nzm.dil': 'nl', 'nzm.tema': 'gece' } });
+    await expect(page.locator('.tarih-kisa')).toHaveText('17 Jumada al-Awwal 1448 AH • 28 okt 2026');
+    const renk = (s, o) => page.locator(s).evaluate((e, o) => getComputedStyle(e, o.ps)[o.ozellik], o);
+    expect(await renk('body', { ps: null, ozellik: 'backgroundColor' })).toBe('rgb(18, 18, 18)');
+    expect(await renk('.sekme-ana', { ps: '::before', ozellik: 'backgroundColor' })).toBe('rgb(28, 28, 30)');
+    expect(await renk('.vakitler', { ps: null, ozellik: 'backgroundColor' })).toBe('rgb(30, 30, 30)');
+    expect(await page.locator('meta[name="theme-color"]').getAttribute('content')).toBe('#1C1C1E');
   });
 
   test('kerahat: Sabah ve İkindi vaktinde kerahate, kerahatte bitişine kalan süre; başka zaman ve Thema 1\'de yok', async ({ page }) => {
