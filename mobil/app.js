@@ -491,9 +491,9 @@ function ciz() {
     $('.sira-saat').textContent = d.siradaki.saat;
     $('.sira-ar').textContent = ARAPCA[d.siradaki.key];
   }
-  // Tema 2: "Vaktin çıkmasına": sayaç içinde bulunulan vaktin bitişine (Güneş → Öğle arası: Öğle'nin girmesine)
+  // Tema 2: "Vaktin çıkmasına": sayaç içinde bulunulan vaktin bitişine; İmsak → Sabah namazı "Sabah namazına", Güneş → Öğle "Öğle namazına"
   const vs = document.documentElement.dataset.stil === 'liste' ? vakitSonu(simdi, durum.olay.bugun, durum.olay.yarin) : null;
-  $('.sira-etiket').textContent = vs && vs.tur === 'giris' ? t.vaktinGirmesine : t.vaktinCikmasina;
+  $('.sira-etiket').textContent = vs && vs.tur === 'giris' ? t.namazina(t.names[vs.vakit]) : t.vaktinCikmasina;
   if (vs) $('.sayac').textContent = geriSayim(vs.hedef - simdi);
   kerahatCiz(simdi, true);
 }

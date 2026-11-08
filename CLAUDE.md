@@ -44,7 +44,13 @@
       - Telefonda fotoğraf ekran genişliğinde. Altı listenin hemen arkasında (12 px): bütün cami listenin üstünde görünür, gökyüzünün üstü kesilir ("çoğu gökyüzü" olmasın). Yazılar logo ile liste arasında dikey ortada. Bandın yüksekliği JS'ten `--bant-yuk`; tarayıcı çubuğu `--ustZemin`.
       - Yatay tablette solda tam boy panel.
     - Fotoğrafın üstünde: logo + ad; ortada sırayla "Vaktin çıkmasına" (beyaz), kalan süre (sarı), tek satır tarih "17 Jumada al-Awwal 1448 AH • 28 okt 2026" (TR'de "H"; beyaz), kerahat cümlesi (sarı). Vakit adı ve Arapça adı gösterilmez.
-    - Sayaç içinde bulunulan vaktin bitişine (`zaman.js` `vakitSonu`): Sabah vakti Güneş'te çıkar (listedeki Sabah satırı sınır değil), Yatsı ertesi İmsak'ta. Güneş → Öğle arası namaz vakti yok: "Vaktin girmesine" (Öğle'ye). Tema 1'in sayacı değişmedi (sıradaki vakte).
+    - Sayaç (`zaman.js` `vakitSonu`, kullanıcı isteği):
+      - İmsak → Sabah namazı (listedeki Sabah satırı, Güneş − 60): "Sabah namazına".
+      - Sabah namazından sonra Güneş'e kadar: "Vaktin çıkmasına".
+      - Güneş → Öğle: "Öğle namazına".
+      - Diğer vakitlerde vaktin bitişine "Vaktin çıkmasına"; Yatsı ertesi İmsak'ta çıkar.
+      - NL/EN: "Fadjr begint over", "Gebedstijd eindigt over"; "Dhuhr begins in", "Prayer time ends in".
+      - Tema 1'in sayacı değişmedi (sıradaki vakte).
     - Altta liste: telefonda kenardan kenara yaprak, üst köşeler yuvarlak, alt düz (zeminle ve menüyle birleşir); İmsak ve Güneş dahil 7 vakit (büyük adlar).
     - Gece hali yeşil değil: koyu temaların nötr renkleri (#121212 zemin, #1E1E1E kart, altın vurgu).
     - Kerahat: Sabah vaktinde (İmsak → Güneş) ve İkindi vaktinde kerahate, kerahatin içinde bitişine kalan süre (`zaman.js` `kerahatDurumu`, `KERAHAT_DK = 45`). Süreyi hoca onaylamalı; öğle öncesi (istiva) yok.

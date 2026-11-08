@@ -162,19 +162,21 @@ export function kerahatDurumu(simdi, bugun, dk = KERAHAT_DK) {
 
 /**
  * Tema 2: "Vaktin çıkmasına" (kullanıcı isteği, 08-11-2026), yani içinde bulunulan namaz vaktinin bitişine kalan süre.
- * Vakitler: Sabah (İmsak → Güneş), Öğle (→ İkindi), İkindi (→ Akşam), Akşam (→ Yatsı), Yatsı (→ ertesi günün İmsak'ı).
- * Listedeki "Sabah" satırı (Güneş − 60) cami saatidir, vaktin sınırı değil.
- * Güneş → Öğle arasında namaz vakti yok: o zaman Öğle vaktinin girmesine kalan süre (tur 'giris').
+ * Vakitler: Sabah (→ Güneş), Öğle (→ İkindi), İkindi (→ Akşam), Akşam (→ Yatsı), Yatsı (→ ertesi günün İmsak'ı).
+ * Kullanıcı isteği (08-11-2026): İmsak → Sabah namazı (listedeki Sabah satırı, Güneş − 60) arası "Sabah namazına";
+ * Sabah namazından sonra Güneş'e kadar "Vaktin çıkmasına"; Güneş → Öğle arası "Öğle namazına" (tur 'giris').
  * @returns {null | { tur: 'cikis'|'giris', vakit: string, hedef: number }}
  */
 export function vakitSonu(simdi, bugun, yarin = []) {
   const bul = (l, k) => l.find((e) => e.key === k);
-  const [imsak, gunes, ogle, ikindi, aksam, yatsi] = ['Imsak', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map((k) => bul(bugun, k));
-  if (!imsak || !gunes || !ogle || !ikindi || !aksam || !yatsi) return null;
+  const [imsak, sabah, gunes, ogle, ikindi, aksam, yatsi] = ['Imsak', 'Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map((k) => bul(bugun, k));
+  if (!imsak || !sabah || !gunes || !ogle || !ikindi || !aksam || !yatsi) return null;
   const cikis = (vakit, e) => ({ tur: 'cikis', vakit, hedef: e.ms });
+  const giris = (vakit, e) => ({ tur: 'giris', vakit, hedef: e.ms });
   if (simdi < imsak.ms) return cikis('Isha', imsak);
+  if (simdi < sabah.ms) return giris('Fajr', sabah);
   if (simdi < gunes.ms) return cikis('Fajr', gunes);
-  if (simdi < ogle.ms) return { tur: 'giris', vakit: 'Dhuhr', hedef: ogle.ms };
+  if (simdi < ogle.ms) return giris('Dhuhr', ogle);
   if (simdi < ikindi.ms) return cikis('Dhuhr', ikindi);
   if (simdi < aksam.ms) return cikis('Asr', aksam);
   if (simdi < yatsi.ms) return cikis('Maghrib', yatsi);

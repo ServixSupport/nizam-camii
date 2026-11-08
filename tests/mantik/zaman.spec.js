@@ -151,14 +151,15 @@ test('kerahatDurumu: Sabah ve İkindi vaktinde kerahate, kerahatte bitişine; ba
   expect(kerahatDurumu(an('2026-10-28T16:00+01:00'), [])).toBeNull();
 });
 
-test('vakitSonu (Tema 2 "Vaktin çıkmasına"): içinde bulunulan vaktin bitişi; Sabah satırı sınır değil; Güneş → Öğle arası Öğle\'nin girişi', () => {
+test('vakitSonu (Tema 2): İmsak → Sabah namazı "Sabah namazına", sonra Güneş\'e kadar "Vaktin çıkmasına"; Güneş → Öğle "Öğle namazına"; diğer vakitlerde vaktin bitişi', () => {
   const b = gunOlaylari(gun('28.10.2026'), '2026-10-28');      // İmsak 05:34, Güneş 07:21, Öğle 12:29, İkindi 14:54, Akşam 17:27, Yatsı 19:02
   const y = gunOlaylari(gun('29.10.2026'), '2026-10-29');
   const v = (s) => { const x = vakitSonu(an(`2026-10-28T${s}+01:00`), b, y); return x && { tur: x.tur, vakit: x.vakit, hedef: iso(x.hedef) }; };
   expect(v('03:00')).toEqual({ tur: 'cikis', vakit: 'Isha', hedef: '2026-10-28T04:34Z' });      // gece yarısından sonra: Yatsı, İmsak'a kadar
-  expect(v('05:34')).toEqual({ tur: 'cikis', vakit: 'Fajr', hedef: '2026-10-28T06:21Z' });      // Sabah vakti Güneş'e kadar
-  expect(v('06:30')).toEqual({ tur: 'cikis', vakit: 'Fajr', hedef: '2026-10-28T06:21Z' });      // Sabah satırından (06:21) sonra da
-  expect(v('07:21')).toEqual({ tur: 'giris', vakit: 'Dhuhr', hedef: '2026-10-28T11:29Z' });     // Güneş → Öğle: vakit yok
+  expect(v('05:34')).toEqual({ tur: 'giris', vakit: 'Fajr', hedef: '2026-10-28T05:21Z' });      // İmsak → Sabah namazı (06:21)
+  expect(v('06:20')).toEqual({ tur: 'giris', vakit: 'Fajr', hedef: '2026-10-28T05:21Z' });
+  expect(v('06:21')).toEqual({ tur: 'cikis', vakit: 'Fajr', hedef: '2026-10-28T06:21Z' });      // Sabah namazından sonra: vakit Güneş'te çıkar
+  expect(v('07:21')).toEqual({ tur: 'giris', vakit: 'Dhuhr', hedef: '2026-10-28T11:29Z' });     // Güneş → Öğle namazı
   expect(v('12:29')).toEqual({ tur: 'cikis', vakit: 'Dhuhr', hedef: '2026-10-28T13:54Z' });
   expect(v('16:00')).toEqual({ tur: 'cikis', vakit: 'Asr', hedef: '2026-10-28T16:27Z' });
   expect(v('18:00')).toEqual({ tur: 'cikis', vakit: 'Maghrib', hedef: '2026-10-28T18:02Z' });

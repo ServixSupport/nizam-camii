@@ -468,14 +468,15 @@ test.describe('Tema 2', () => {
     expect(sonSatir.y + sonSatir.height).toBeLessThanOrEqual(menu.y + 1);       // Yatsı menünün üstünde, kaydırmadan görünür
   });
 
-  test('"Vaktin çıkmasına": sayaç içinde bulunulan vaktin bitişine (Sabah satırı sınır değil); Güneş → Öğle arası "Vaktin girmesine"; Thema 1 değişmedi', async ({ page }) => {
+  test('"Vaktin çıkmasına": sayaç vaktin bitişine; İmsak → Sabah namazı "Sabah namazına", Güneş → Öğle "Öğle namazına"; Thema 1 değişmedi', async ({ page }) => {
     const ac = (saat, dil = 'tr') => mobilAc(page, { zaman: an(saat), depo: { 'nzm.stil': 'liste', 'nzm.dil': dil } });
     const etiket = page.locator('.sira-etiket'), sayac = page.locator('.sayac');
     // 28-10: İmsak 05:34, Sabah 06:21, Güneş 07:21, Öğle 12:29, İkindi 14:54, Akşam 17:27, Yatsı 19:02
     for (const [saat, yazi, kalan] of [
       ['04:00:00.500', 'Vaktin çıkmasına', '1:33:59'],     // Yatsı vakti İmsak'ta çıkar
-      ['06:00:00.500', 'Vaktin çıkmasına', '1:20:59'],     // Sabah vakti Güneş'te çıkar (Sabah satırında değil)
-      ['09:00:00.500', 'Vaktin girmesine', '3:28:59'],     // Güneş → Öğle: namaz vakti yok
+      ['06:00:00.500', 'Sabah namazına', '0:20:59'],       // İmsak → Sabah namazı (06:21)
+      ['06:30:00.500', 'Vaktin çıkmasına', '0:50:59'],     // Sabah namazından sonra: vakit Güneş'te çıkar
+      ['09:00:00.500', 'Öğle namazına', '3:28:59'],        // Güneş → Öğle namazı
       ['13:00:00.500', 'Vaktin çıkmasına', '1:53:59'],
       ['18:00:00.500', 'Vaktin çıkmasına', '1:01:59'],
       ['21:30:00.500', 'Vaktin çıkmasına', '8:04:59'],     // Yatsı vakti ertesi günün İmsak'ında çıkar
@@ -488,10 +489,13 @@ test.describe('Tema 2', () => {
     const degistir = async (k, v) => { await page.evaluate(([k, v]) => localStorage.setItem(k, v), [k, v]); await page.reload(); await expect(page.locator('.vakit')).toHaveCount(7); };
     await ac('09:00:00.500');
     await degistir('nzm.dil', 'en');
-    await expect(etiket).toHaveText('Prayer time begins in');
+    await expect(etiket).toHaveText('Dhuhr begins in');
     await ac('06:00:00.500');
     await degistir('nzm.dil', 'nl');
+    await expect(etiket).toHaveText('Fadjr begint over');
+    await ac('06:30:00.500');
     await expect(etiket).toHaveText('Gebedstijd eindigt over');
+    await ac('06:00:00.500');
     await degistir('nzm.dil', 'tr');
     // Thema 1: sayaç eskisi gibi sıradaki vakte (06:00 → Sabah 06:21)
     await page.evaluate(() => localStorage.setItem('nzm.stil', 'klasik'));
