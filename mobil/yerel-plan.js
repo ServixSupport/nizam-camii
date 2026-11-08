@@ -15,6 +15,8 @@ export const PLAN_GUN = 30;
 /** Sessize alma süresi seçenekleri (dakika) */
 export const SESSIZ_DK = [15, 20, 30, 45, 60];
 export const SESSIZ_VARSAYILAN = { aan: false, dakika: 30, vakitler: [...NAMAZ], mod: 'sessiz' };
+/** Ezanın süresi (sn; res/raw/ezan_kisa 17,6 sn, ezan_uzun 2:34). Sessize alma ezan bitince başlar, yoksa ezanı keser. */
+export const EZAN_SN = { 'ezan-kisa': 20, 'ezan-uzun': 160 };
 
 /**
  * @param {object} o
@@ -48,8 +50,11 @@ export function yerelPlan({ gunler, bildirim, sessiz, sayac, dil, t, simdi }) {
         }
       }
       if (sessiz.aan && NAMAZ.includes(e.key) && sessiz.vakitler.includes(e.key)) {
+        // bu vakitte ezan okunacaksa telefon ezan bitince susar (kullanıcı isteği, 08-11-2026: önce ezan, sonra sessiz)
+        const ezanli = bildirim.aan && bildirim.giris && bildirim.vakitler.includes(e.key) && EZAN_SN[bildirim.ses];
+        const bas = e.ms + (ezanli ? EZAN_SN[bildirim.ses] * 1000 : 0);
         const bit = e.ms + sessiz.dakika * 60000;
-        if (bit > simdi) pencereler.push({ bas: e.ms, bit });
+        if (bit > simdi) pencereler.push({ bas, bit });
       }
     }
   }

@@ -582,4 +582,23 @@ test.describe('Tema 1 (liste)', () => {
       }
     }
   });
+
+  test('şimdiki vakit: "ŞİMDİ" yazısı yerine solda yeşil çizgi; adlar hiç kısalmaz (kullanıcı isteği, 08-11-2026: "İ…")', async ({ page }) => {
+    for (const [w, h] of [[390, 844], [360, 640]]) {
+      await page.setViewportSize({ width: w, height: h });
+      await mobilAc(page, { zaman: an('06:08:00.500'), depo: { 'nzm.stil': 'liste', 'nzm.dil': 'tr', 'nzm.tema': 'gunduz' } });   // İmsak vakti
+      const imsak = page.locator('.vakit[data-key="Imsak"]');
+      await expect(imsak).toHaveClass(/simdi/);
+      // yazı ekran okuyucu için var ama görünmez (1 px)
+      await expect(imsak.locator('.v-simdi')).toHaveText('ŞİMDİ');
+      expect((await imsak.locator('.v-simdi').boundingBox()).width).toBeLessThanOrEqual(1);
+      const cizgi = await imsak.evaluate((e) => { const c = getComputedStyle(e, '::after'); return { icerik: c.content, en: c.width, zemin: c.backgroundColor, sol: c.left }; });
+      expect(cizgi).toEqual({ icerik: '""', en: '4px', zemin: 'rgb(42, 110, 53)', sol: '0px' });
+      expect(await page.locator('.vakit[data-key="Fajr"]').evaluate((e) => getComputedStyle(e, '::after').content)).toBe('none');
+      // hiçbir ad kısalmaz (İmsak, Güneş … tam görünür)
+      const kesik = await page.locator('.vakit .v-ad').evaluateAll((l) => l.filter((e) => e.scrollWidth > e.clientWidth + 0.5).map((e) => e.textContent));
+      expect(kesik, `${w}px`).toEqual([]);
+      await expect(imsak.locator('.v-ad')).toHaveText('İmsak');
+    }
+  });
 });

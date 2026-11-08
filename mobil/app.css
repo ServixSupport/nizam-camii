@@ -644,9 +644,12 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 :root[data-stil="liste"] .vakit[data-key="Maghrib"] { --ikon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg stroke='black' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' fill='none'%3E%3Cpath d='M50 10v22M40 21l10 11 10-11M14 78h72M26 90h48'/%3E%3Cpath d='M20 50l7 5M80 50l-7 5'/%3E%3C/g%3E%3Cpath d='M28 70a22 22 0 0 1 44 0z'/%3E%3C/svg%3E"); }
 :root[data-stil="liste"] .vakit[data-key="Isha"] { --ikon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M62 10a40 40 0 1 0 28 62A34 34 0 0 1 62 10z'/%3E%3Cpath d='M78 18l3 8 8 1-6 5 2 8-7-4-7 4 2-8-6-5 8-1z'/%3E%3C/svg%3E"); }
 :root[data-stil="liste"] .v-metin { display: flex; align-items: baseline; gap: 8px; flex: 1; min-width: 0; }
-:root[data-stil="liste"] .v-ad { font-size: 20px; font-weight: 600; color: var(--ink); }
-:root[data-stil="liste"] .v-ar { order: 2; font-family: 'Amiri', 'Traditional Arabic', serif; font-weight: 700; font-size: 19px; line-height: 1; color: var(--soft); white-space: nowrap; }
-:root[data-stil="liste"] .v-simdi { order: 3; align-self: center; padding: 2px 7px; border-radius: 999px; font-size: 9.5px; letter-spacing: .12em; color: var(--turq); background: var(--railActive); }
+:root[data-stil="liste"] .v-ad { flex-shrink: 0; overflow: visible; font-size: 20px; font-weight: 600; color: var(--ink); }   /* ad hiç kısalmaz; yer yoksa Arapça ad kesilir */
+:root[data-stil="liste"] .v-ar { order: 2; min-width: 0; overflow: hidden; font-family: 'Amiri', 'Traditional Arabic', serif; font-weight: 700; font-size: 19px; line-height: 1.2; color: var(--soft); white-space: nowrap; }
+/* şimdiki vakit: "ŞİMDİ" yazısı yerine satırın solunda yeşil çizgi (kullanıcı isteği, 08-11-2026: yazı adları sıkıştırıyordu, "İ…").
+   Yazı ekran okuyucular için kalır. */
+:root[data-stil="liste"] .v-simdi { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+:root[data-stil="liste"] .vakit.simdi::after { content: ""; position: absolute; left: 0; top: 13px; bottom: 13px; width: 4px; border-radius: 2px; background: var(--turq); }
 :root[data-stil="liste"] .v-saat { font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 500; font-size: clamp(22px, calc(var(--satir, 56px) * .44), 32px); line-height: 1;
   letter-spacing: .01em; color: var(--ink); }
 :root[data-stil="liste"] .v-zil { margin: 0 -10px 0 -6px; }

@@ -21,6 +21,8 @@ telefona özgü özellikler `mobil/yerel*.js` ve bu klasördeki eklentilerde.
 - Durdurmak: bildirim ekranını aşağı çekmek (Android bunu kendisi yapar), bildirime dokunmak veya kaydırmak. Bildirim panelinde uygulama açılınca panel sessizce yenilenir, ezan yine durur.
 - Emülatörde denendi (08-11-2026): deneme bildirimi kısa ve uzun ezanla çaldı; panelden vakit uyarısı (uygulama arka planda) uzun ezanla çaldı, 35 sn sonra hâlâ çalıyordu; bildirim ekranını aşağı çekince ve uygulamayı açınca durdu.
 - Caminin kendi müezzininin kaydı gelirse aynı adlarla (`ezan_kisa.ogg`, `ezan_uzun.ogg`) değiştirin.
+- Sessize alma aynı vakitte açıksa telefon ezan bitince susar (önce ezan, sonra sessiz). Emülatörde denendi (08-11-2026): kısa ezan çaldı, 20 sn sonra telefon sessize alındı.
+- Son sessize alma denemesi Ayarlar'da görünür ("Son: … · telefon sessize alındı" / "zaten sessizdeydi" / "Rahatsız Etmeyin açıktı" / izin yok). Telefonda sorun olursa önce buna bakın.
 
 ## Klasörler
 

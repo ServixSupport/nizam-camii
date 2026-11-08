@@ -7,12 +7,15 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.SystemClock;
 import android.service.notification.StatusBarNotification;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.widget.RemoteViews;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -36,6 +39,8 @@ final class Planlayici {
     private static final String K_PLAN = "plan";
     private static final String K_SON = "sonIslenen";
     private static final String K_SESSIZ = "sessizDurum";
+    /** Son sessize alma denemesi ve sonucu (Ayarlar'da gösterilir; kullanıcı isteği, 08-11-2026: "sessize almadı, kontrol et"). */
+    private static final String K_SESSIZ_SON = "sessizSon";
     /** Panel açıkken vakit bildirimi ayrı gelmez: panel bir kez sesli uyarır ve üst satırında bu süre gösterir. */
     private static final String K_UYARI = "uyari";
     static final long UYARI_SURE = 15 * 60_000L;
@@ -217,9 +222,9 @@ final class Planlayici {
         // vakit uyarısı (vakit girdi / X dk kala): 15 dk boyunca üst satırda; ilk gönderimde sesli
         JSONObject u = uyari(depo(c), simdi);
         String uyariYazi = u == null ? null : u.optString("baslik");
-        // kapalı halde üst satır ve saatler, açınca adlar da
-        RemoteViews kucuk = tablo(c, plan, v, gun, simdi, R.layout.bildirim_vakitler_kucuk, false, uyariYazi);
-        RemoteViews buyuk = tablo(c, plan, v, gun, simdi, R.layout.bildirim_vakitler, true, uyariYazi);
+        // kapalı ve açık halde aynı düzen (üst satır, çizgi, 7 sütun: ad + saat); açık hali daha büyük yazılı
+        RemoteViews kucuk = tablo(c, plan, v, gun, simdi, R.layout.bildirim_vakitler_kucuk, uyariYazi);
+        RemoteViews buyuk = tablo(c, plan, v, gun, simdi, R.layout.bildirim_vakitler, uyariYazi);
         // panel açıkken ayrı vakit bildirimleri kalmasın (deneme bildirimi hariç)
         NotificationManager nmx = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
         for (StatusBarNotification s : nmx.getActiveNotifications()) {
@@ -253,7 +258,7 @@ final class Planlayici {
     }
 
     /** Tablo: üst satırda hicri tarih (sessizken "Op stil tot 07:10") ve "Öğle'ye 1:23:45"; altta günün 7 vakti, sıradaki kırmızı. */
-    private static RemoteViews tablo(Context c, JSONObject plan, JSONObject v, JSONObject gun, long simdi, int duzen, boolean adlar, String uyariYazi) {
+    private static RemoteViews tablo(Context c, JSONObject plan, JSONObject v, JSONObject gun, long simdi, int duzen, String uyariYazi) {
         long an = v.optLong("an");
         RemoteViews rv = new RemoteViews(c.getPackageName(), duzen);
         String sol = gun == null ? "" : gun.optString("hicri");
@@ -270,14 +275,21 @@ final class Planlayici {
         for (int i = 0; i < SAAT.length; i++) {
             JSONObject x = liste == null ? null : liste.optJSONObject(i);
             boolean sirada = x != null && x.optLong("an") == an;
-            rv.setTextViewText(SAAT[i], x == null ? "" : x.optString("saat"));
-            if (sirada) rv.setTextColor(SAAT[i], vurgu);
-            if (adlar) {
-                rv.setTextViewText(AD[i], x == null ? "" : x.optString("ad"));
-                if (sirada) rv.setTextColor(AD[i], vurgu);
+            rv.setTextViewText(SAAT[i], x == null ? "" : sirada ? kalin(x.optString("saat")) : x.optString("saat"));
+            rv.setTextViewText(AD[i], x == null ? "" : sirada ? kalin(x.optString("ad")) : x.optString("ad"));
+            if (sirada) {
+                rv.setTextColor(SAAT[i], vurgu);
+                rv.setTextColor(AD[i], vurgu);
             }
         }
         return rv;
+    }
+
+    /** Sıradaki vakit tabloda kalın (ve kırmızı). */
+    private static CharSequence kalin(String s) {
+        SpannableString k = new SpannableString(s);
+        k.setSpan(new StyleSpan(Typeface.BOLD), 0, s.length(), 0);
+        return k;
     }
 
     // ---------------- sessize alma ----------------
@@ -307,7 +319,8 @@ final class Planlayici {
         }
         if (donem != null && PlanMantigi.yeniBasladi(donem, son, simdi)) {
             JSONObject yeni = sessizBaslat(c, plan.optString("sessizMod", "sessiz"));
-            if (yeni == null) return;
+            sessizSonYaz(c, donem.optLong("bas"), yeni.optString("sonuc"));
+            if (!yeni.has("kurulan")) return;
             try {
                 yeni.put("bit", donem.optLong("bit"));
             } catch (JSONException e) { /* */ }
@@ -316,34 +329,68 @@ final class Planlayici {
         }
     }
 
-    /** Telefonu sessize (veya titreşime) alır; zaten sessizse dokunmaz. Döner: { eski, kurulan } veya null. */
+    /**
+     * Telefonu sessize (veya titreşime) alır; zaten sessizse dokunmaz.
+     * Döner: { sonuc, eski?, kurulan? }; "kurulan" sadece telefonun ayarı değiştiyse vardır.
+     * sonuc: sessiz | titresim | titresimIzinYok | zatenSessiz | zatenTitresim | rahatsizEtmeyin | izinYok
+     */
     private static JSONObject sessizBaslat(Context c, String mod) {
         AudioManager am = (AudioManager) c.getSystemService(Context.AUDIO_SERVICE);
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+        JSONObject d = new JSONObject();
         int eski = am.getRingerMode();
-        if (eski == AudioManager.RINGER_MODE_SILENT) return null;
-        // kullanıcı zaten "Rahatsız Etmeyin"deyse dokunma
-        if (nm.getCurrentInterruptionFilter() > NotificationManager.INTERRUPTION_FILTER_ALL) return null;
+        if (eski == AudioManager.RINGER_MODE_SILENT) return sonuc(d, "zatenSessiz");
+        // kullanıcı zaten "Rahatsız Etmeyin"deyse (veya bir mod açıksa) dokunma
+        if (nm.getCurrentInterruptionFilter() > NotificationManager.INTERRUPTION_FILTER_ALL) return sonuc(d, "rahatsizEtmeyin");
         int hedef = "titresim".equals(mod) ? AudioManager.RINGER_MODE_VIBRATE : AudioManager.RINGER_MODE_SILENT;
         // "Rahatsız Etmeyin" erişimi yoksa sessiz yapılamaz: titreşim
-        if (hedef == AudioManager.RINGER_MODE_SILENT && !nm.isNotificationPolicyAccessGranted()) hedef = AudioManager.RINGER_MODE_VIBRATE;
-        if (eski == hedef) return null;
+        boolean izinYok = hedef == AudioManager.RINGER_MODE_SILENT && !nm.isNotificationPolicyAccessGranted();
+        if (izinYok) hedef = AudioManager.RINGER_MODE_VIBRATE;
+        if (eski == hedef) return sonuc(d, "zatenTitresim");
         try {
             am.setRingerMode(hedef);
         } catch (SecurityException e) {
-            if (hedef != AudioManager.RINGER_MODE_SILENT) return null;
+            if (hedef != AudioManager.RINGER_MODE_SILENT) return sonuc(d, "izinYok");
             try {
                 am.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                izinYok = true;
             } catch (SecurityException e2) {
-                return null;
+                return sonuc(d, "izinYok");
             }
         }
-        JSONObject d = new JSONObject();
+        int kurulan = am.getRingerMode();
+        if (kurulan == eski) return sonuc(d, "izinYok");          // telefon (üretici) değişikliği kabul etmedi
         try {
             d.put("eski", eski);
-            d.put("kurulan", am.getRingerMode());
+            d.put("kurulan", kurulan);
+        } catch (JSONException e) { /* */ }
+        return sonuc(d, kurulan == AudioManager.RINGER_MODE_SILENT ? "sessiz" : izinYok ? "titresimIzinYok" : "titresim");
+    }
+
+    private static JSONObject sonuc(JSONObject d, String s) {
+        try {
+            d.put("sonuc", s);
         } catch (JSONException e) { /* */ }
         return d;
+    }
+
+    private static void sessizSonYaz(Context c, long an, String sonuc) {
+        JSONObject o = new JSONObject();
+        try {
+            o.put("an", an);
+            o.put("sonuc", sonuc);
+        } catch (JSONException e) { /* */ }
+        depo(c).edit().putString(K_SESSIZ_SON, o.toString()).apply();
+    }
+
+    /** Son sessize alma denemesi: { an, sonuc } veya null. */
+    static JSONObject sessizSon(Context c) {
+        try {
+            String s = depo(c).getString(K_SESSIZ_SON, null);
+            return s == null ? null : new JSONObject(s);
+        } catch (JSONException e) {
+            return null;
+        }
     }
 
     /** Eski haline döndürür; kullanıcı bu arada sesi kendisi değiştirdiyse dokunmaz. */

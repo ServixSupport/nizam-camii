@@ -126,6 +126,13 @@ export function yerelAyarlar({ L, cami, platform, planDegisti, bildirimAcik }) {
     $('#sessiz-anahtar').setAttribute('aria-checked', String(sessiz.aan));
     $('#sessiz-secenekler').classList.toggle('soluk', !sessiz.aan);
     const izinGerek = sessiz.aan && sessiz.mod === 'sessiz' && !izin.sessiz;
+    // son deneme ve sonucu (telefonda ne oldu: sessiz, titreşim, zaten sessiz, "Rahatsız Etmeyin" açıktı …)
+    const son = izin.sessizSon;
+    const sonYazi = sessiz.aan && son && son.an && t.sessizSonuc[son.sonuc]
+      ? t.sessizSon(new Intl.DateTimeFormat(document.documentElement.lang || 'nl', { timeZone: 'Europe/Amsterdam', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(son.an), t.sessizSonuc[son.sonuc])
+      : '';
+    $('#sessiz-son').hidden = !sonYazi;
+    $('#sessiz-son').textContent = sonYazi;
     $('#sessiz-mesaj').hidden = !izinGerek;
     $('#sessiz-mesaj').textContent = izinGerek ? t.sessizIzin : '';
     $('#sessiz-izin-satir').hidden = !izinGerek;

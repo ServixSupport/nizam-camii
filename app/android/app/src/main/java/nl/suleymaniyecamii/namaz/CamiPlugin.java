@@ -150,6 +150,14 @@ public class CamiPlugin extends Plugin {
         r.put("bildirim", bildirim);
         r.put("tamAlarm", Planlayici.tamAlarmVar(c));
         r.put("sessiz", nm.isNotificationPolicyAccessGranted());
+        // son sessize alma denemesi (Ayarlar'da "Son: 06:41 · telefon sessize alındı")
+        org.json.JSONObject son = Planlayici.sessizSon(c);
+        if (son != null) {
+            JSObject s = new JSObject();
+            s.put("an", son.optLong("an"));
+            s.put("sonuc", son.optString("sonuc"));
+            r.put("sessizSon", s);
+        }
         return r;
     }
 

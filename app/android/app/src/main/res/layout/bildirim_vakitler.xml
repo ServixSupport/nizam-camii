@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Bildirim panelindeki vakit tablosu (Planlayici.sayacGoster). Renkler sistemin bildirim temasından: açık/koyu uyumlu. -->
+<!-- Bildirim panelindeki vakit tablosu, açık hali (Planlayici.sayacGoster).
+     Kullanıcı isteği (08-11-2026, örnek: başka bir namaz uygulamasının paneli): üstte hicri tarih ve sıradaki vakte kalan süre,
+     ince çizgi, altta 7 eşit sütun (ad üstte, saat altta); sıradaki vakit kırmızı (Planlayici.tablo).
+     Yükseklikler sabit, yazı sığmazsa küçülür (autoSize): büyük yazı tipli telefonlarda saatler birbirine yapışmaz.
+     Renkler sistemin bildirim temasından: açık/koyu uyumlu. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -18,12 +22,13 @@
             android:layout_weight="1"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textSize="12sp" />
+            android:textSize="13sp" />
         <TextView
             android:id="@+id/kalan_etiket"
             style="@style/TextAppearance.Compat.Notification.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:maxLines="1"
             android:textSize="14sp" />
         <Chronometer
@@ -31,15 +36,26 @@
             style="@style/TextAppearance.Compat.Notification.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:layout_marginStart="5dp"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:fontFeatureSettings="tnum" />
     </LinearLayout>
+
+    <!-- ince çizgi (sistem renginin yarı saydamı: açık ve koyu temada) -->
+    <ImageView
+        android:id="@+id/cizgi"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:alpha="0.18"
+        android:importantForAccessibility="no"
+        android:src="@drawable/bildirim_cizgi" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
         android:orientation="horizontal">
         <LinearLayout
             android:layout_width="0dp"
@@ -51,24 +67,34 @@
                 android:id="@+id/v0_ad"
                 style="@style/TextAppearance.Compat.Notification.Info"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="17dp"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
+                android:fontFamily="sans-serif-condensed"
                 android:gravity="center"
                 android:maxLines="1"
+                android:includeFontPadding="false"
                 android:autoSizeTextType="uniform"
                 android:autoSizeMinTextSize="7sp"
-                android:autoSizeMaxTextSize="12sp"
-                android:textSize="12sp" />
+                android:autoSizeMaxTextSize="13sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:textSize="13sp" />
             <TextView
                 android:id="@+id/v0_saat"
                 style="@style/TextAppearance.Compat.Notification.Title"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="23dp"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
+                android:fontFamily="sans-serif-condensed"
                 android:gravity="center"
                 android:maxLines="1"
+                android:includeFontPadding="false"
                 android:autoSizeTextType="uniform"
-                android:autoSizeMinTextSize="9sp"
-                android:autoSizeMaxTextSize="15sp"
-                android:textSize="15sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeMaxTextSize="17.5sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:textSize="17.5sp"
                 android:fontFeatureSettings="tnum" />
         </LinearLayout>
         <LinearLayout
@@ -81,24 +107,34 @@
                 android:id="@+id/v1_ad"
                 style="@style/TextAppearance.Compat.Notification.Info"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="17dp"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
+                android:fontFamily="sans-serif-condensed"
                 android:gravity="center"
                 android:maxLines="1"
+                android:includeFontPadding="false"
                 android:autoSizeTextType="uniform"
                 android:autoSizeMinTextSize="7sp"
-                android:autoSizeMaxTextSize="12sp"
-                android:textSize="12sp" />
+                android:autoSizeMaxTextSize="13sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:textSize="13sp" />
             <TextView
                 android:id="@+id/v1_saat"
                 style="@style/TextAppearance.Compat.Notification.Title"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="23dp"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
+                android:fontFamily="sans-serif-condensed"
                 android:gravity="center"
                 android:maxLines="1"
+                android:includeFontPadding="false"
                 android:autoSizeTextType="uniform"
-                android:autoSizeMinTextSize="9sp"
-                android:autoSizeMaxTextSize="15sp"
-                android:textSize="15sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeMaxTextSize="17.5sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:textSize="17.5sp"
                 android:fontFeatureSettings="tnum" />
         </LinearLayout>
         <LinearLayout
@@ -111,24 +147,34 @@
                 android:id="@+id/v2_ad"
                 style="@style/TextAppearance.Compat.Notification.Info"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="17dp"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
+                android:fontFamily="sans-serif-condensed"
                 android:gravity="center"
                 android:maxLines="1"
+                android:includeFontPadding="false"
                 android:autoSizeTextType="uniform"
                 android:autoSizeMinTextSize="7sp"
-                android:autoSizeMaxTextSize="12sp"
-                android:textSize="12sp" />
+                android:autoSizeMaxTextSize="13sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:textSize="13sp" />
             <TextView
                 android:id="@+id/v2_saat"
                 style="@style/TextAppearance.Compat.Notification.Title"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="23dp"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
+                android:fontFamily="sans-serif-condensed"
                 android:gravity="center"
                 android:maxLines="1"
+                android:includeFontPadding="false"
                 android:autoSizeTextType="uniform"
-                android:autoSizeMinTextSize="9sp"
-                android:autoSizeMaxTextSize="15sp"
-                android:textSize="15sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeMaxTextSize="17.5sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:textSize="17.5sp"
                 android:fontFeatureSettings="tnum" />
         </LinearLayout>
         <LinearLayout
@@ -141,24 +187,34 @@
                 android:id="@+id/v3_ad"
                 style="@style/TextAppearance.Compat.Notification.Info"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="17dp"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
+                android:fontFamily="sans-serif-condensed"
                 android:gravity="center"
                 android:maxLines="1"
+                android:includeFontPadding="false"
                 android:autoSizeTextType="uniform"
                 android:autoSizeMinTextSize="7sp"
-                android:autoSizeMaxTextSize="12sp"
-                android:textSize="12sp" />
+                android:autoSizeMaxTextSize="13sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:textSize="13sp" />
             <TextView
                 android:id="@+id/v3_saat"
                 style="@style/TextAppearance.Compat.Notification.Title"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="23dp"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
+                android:fontFamily="sans-serif-condensed"
                 android:gravity="center"
                 android:maxLines="1"
+                android:includeFontPadding="false"
                 android:autoSizeTextType="uniform"
-                android:autoSizeMinTextSize="9sp"
-                android:autoSizeMaxTextSize="15sp"
-                android:textSize="15sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeMaxTextSize="17.5sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:textSize="17.5sp"
                 android:fontFeatureSettings="tnum" />
         </LinearLayout>
         <LinearLayout
@@ -171,24 +227,34 @@
                 android:id="@+id/v4_ad"
                 style="@style/TextAppearance.Compat.Notification.Info"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="17dp"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
+                android:fontFamily="sans-serif-condensed"
                 android:gravity="center"
                 android:maxLines="1"
+                android:includeFontPadding="false"
                 android:autoSizeTextType="uniform"
                 android:autoSizeMinTextSize="7sp"
-                android:autoSizeMaxTextSize="12sp"
-                android:textSize="12sp" />
+                android:autoSizeMaxTextSize="13sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:textSize="13sp" />
             <TextView
                 android:id="@+id/v4_saat"
                 style="@style/TextAppearance.Compat.Notification.Title"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="23dp"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
+                android:fontFamily="sans-serif-condensed"
                 android:gravity="center"
                 android:maxLines="1"
+                android:includeFontPadding="false"
                 android:autoSizeTextType="uniform"
-                android:autoSizeMinTextSize="9sp"
-                android:autoSizeMaxTextSize="15sp"
-                android:textSize="15sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeMaxTextSize="17.5sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:textSize="17.5sp"
                 android:fontFeatureSettings="tnum" />
         </LinearLayout>
         <LinearLayout
@@ -201,24 +267,34 @@
                 android:id="@+id/v5_ad"
                 style="@style/TextAppearance.Compat.Notification.Info"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="17dp"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
+                android:fontFamily="sans-serif-condensed"
                 android:gravity="center"
                 android:maxLines="1"
+                android:includeFontPadding="false"
                 android:autoSizeTextType="uniform"
                 android:autoSizeMinTextSize="7sp"
-                android:autoSizeMaxTextSize="12sp"
-                android:textSize="12sp" />
+                android:autoSizeMaxTextSize="13sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:textSize="13sp" />
             <TextView
                 android:id="@+id/v5_saat"
                 style="@style/TextAppearance.Compat.Notification.Title"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="23dp"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
+                android:fontFamily="sans-serif-condensed"
                 android:gravity="center"
                 android:maxLines="1"
+                android:includeFontPadding="false"
                 android:autoSizeTextType="uniform"
-                android:autoSizeMinTextSize="9sp"
-                android:autoSizeMaxTextSize="15sp"
-                android:textSize="15sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeMaxTextSize="17.5sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:textSize="17.5sp"
                 android:fontFeatureSettings="tnum" />
         </LinearLayout>
         <LinearLayout
@@ -231,24 +307,34 @@
                 android:id="@+id/v6_ad"
                 style="@style/TextAppearance.Compat.Notification.Info"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="17dp"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
+                android:fontFamily="sans-serif-condensed"
                 android:gravity="center"
                 android:maxLines="1"
+                android:includeFontPadding="false"
                 android:autoSizeTextType="uniform"
                 android:autoSizeMinTextSize="7sp"
-                android:autoSizeMaxTextSize="12sp"
-                android:textSize="12sp" />
+                android:autoSizeMaxTextSize="13sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:textSize="13sp" />
             <TextView
                 android:id="@+id/v6_saat"
                 style="@style/TextAppearance.Compat.Notification.Title"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="23dp"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
+                android:fontFamily="sans-serif-condensed"
                 android:gravity="center"
                 android:maxLines="1"
+                android:includeFontPadding="false"
                 android:autoSizeTextType="uniform"
-                android:autoSizeMinTextSize="9sp"
-                android:autoSizeMaxTextSize="15sp"
-                android:textSize="15sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeMaxTextSize="17.5sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:textSize="17.5sp"
                 android:fontFeatureSettings="tnum" />
         </LinearLayout>
     </LinearLayout>

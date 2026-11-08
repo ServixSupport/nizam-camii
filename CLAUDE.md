@@ -118,6 +118,10 @@
    - Uygulama kimliği `nl.suleymaniyecamii.namaz` değişmez.
    - iPhone'da sessize alma ve durum çubuğu simgesi yok (Apple izin vermez); bu ayarlar iPhone'da gizli.
    - **Ezan sesi** (08-11-2026, sadece Android): `app/android/app/src/main/res/raw/ezan_uzun.ogg` (Wikimedia Commons "Beautiful adhan.ogg", CC0, 2:34) ve `ezan_kisa.ogg` (aynısının ilk 17,6 sn'si, ilk "Allahu ekber" ikilisi). Her ses kendi bildirim kanalında (`vakit_ezan_kisa`, `vakit_ezan_uzun`); ezan sadece beş vakitte vakit girince, önceden hatırlatma telefonun sesiyle. Tarayıcıda (Web Push) ve iPhone'da (en fazla 30 sn) şimdilik yok. Hoca dinlemeli.
+     - Aynı vakitte sessize alma da açıksa telefon ezan bitince susar (`yerel-plan.js` `EZAN_SN`: kısa 20 sn, uzun 160 sn).
+     - Son sessize alma denemesi ve sonucu telefonda saklanır (`Planlayici` `sessizSon`), Ayarlar'da "Son: 8 Kas 06:41 · telefon sessize alındı" (veya "zaten sessizdeydi", "Rahatsız Etmeyin açıktı" …).
+   - **Bildirim panelindeki tablo** (08-11-2026, kullanıcının örneğine göre): üst satır, ince çizgi, 7 eşit sütun (ad üstte, saat altta, `sans-serif-condensed`); sıradaki kırmızı ve kalın; sabit yükseklik + autoSize. Soldaki uygulama simgesi Android 12+ sistemin çerçevesi: uygulama küçültemez.
+   - Uygulamada (Tema 1) şimdiki vakit "ŞİMDİ" yazısıyla değil, satırın solunda yeşil çizgiyle (yazı ekran okuyucu için kalır); adlar hiç kısalmaz.
 
 ## Test
 

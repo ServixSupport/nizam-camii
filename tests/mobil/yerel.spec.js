@@ -183,6 +183,18 @@ test('sessize alma: ayar, "Niet storen" izni, süre, nasıl ve hangi namazlar', 
   await expect(page.locator('#sessiz-mesaj')).toBeHidden();
 });
 
+test('sessize alma: son deneme ve sonucu görünür (telefonda ne oldu; kullanıcı isteği, 08-11-2026)', async ({ page }) => {
+  const sessizAcik = JSON.stringify({ aan: true, dakika: 30, vakitler: ['Fajr'], mod: 'sessiz' });
+  await telefon(page, { izin: { bildirim: 'granted', sessiz: true, sessizSon: { an: new Date('2026-10-28T06:21:00+01:00').getTime(), sonuc: 'rahatsizEtmeyin' } } });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar', depo: { 'nzm.sessiz': sessizAcik, 'nzm.dil': 'tr' } });
+  await expect(page.locator('#sessiz-son')).toHaveText('Son: 28 Eki 06:21 · “Rahatsız Etmeyin” açıktı, dokunulmadı');
+  await page.evaluate(() => { window.__yerel.izin.sessizSon.sonuc = 'sessiz'; document.dispatchEvent(new Event('visibilitychange')); });
+  await expect(page.locator('#sessiz-son')).toHaveText('Son: 28 Eki 06:21 · telefon sessize alındı');
+  // ayar kapalıyken gösterilmez
+  await page.getByRole('switch', { name: 'Namaz vaktinde telefonu sessize al' }).click();
+  await expect(page.locator('#sessiz-son')).toBeHidden();
+});
+
 test('"Alarmlar ve hatırlatıcılar" izni yoksa uyarı ve ayar düğmesi', async ({ page }) => {
   await telefon(page, { izin: { bildirim: 'granted', tamAlarm: false } });
   await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar' });
