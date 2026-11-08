@@ -41,7 +41,7 @@
   - **08-11-2026'dan beri numaralar yer değiştirdi (kullanıcı isteği):** Tema 1 = fotoğraflı liste (varsayılan), Tema 2 = kemer.
     - Depo: `nzm.stil` `'klasik'` ise kemer; yoksa veya `'liste'` ise liste. Testlerde `mobilAc` varsayılan olarak `'klasik'` yazar (eski testler kemeri dener); varsayılanı denemek için `'nzm.stil': null`.
   - Tema 2: kemer, lacivert (eski "Klasik").
-  - Tema 1 (`nzm.stil=liste`, `html[data-stil="liste"]`; eski "Liste"nin yerine): kullanıcının örnek resmine göre; logonun renkleri. Telefonda logo 40 px (08-11-2026; önce 52).
+  - Tema 1 (`nzm.stil=liste`, `html[data-stil="liste"]`; eski "Liste"nin yerine): kullanıcının örnek resmine göre; logonun renkleri. Telefonda logo 34 px (08-11-2026; önce 52, sonra 40).
     - 08-11-2026'dan beri yeşil bant ve kutu (kart) yok. Üstte caminin fotoğrafı, olduğu gibi (`mobil/cami-gece.jpg`, kullanıcının verdiği; karartma yok).
       - Telefonda fotoğraf ekran genişliğinde. Altı listenin hemen arkasında (10 px; liste 08-11-2026 4 px aşağı alındı, fotoğraf yerinde): bütün cami listenin üstünde görünür, gökyüzünün üstü kesilir ("çoğu gökyüzü" olmasın). Yazılar logo ile liste arasında dikey ortada. Bandın yüksekliği JS'ten `--bant-yuk`; tarayıcı çubuğu `--ustZemin`.
       - Yatay tablette solda tam boy panel.
@@ -55,7 +55,7 @@
       - Kemerli temanın (Tema 2) sayacı değişmedi (sıradaki vakte).
     - Altta liste: telefonda kenardan kenara yaprak, üst köşeler yuvarlak, alt düz (zeminle ve menüyle birleşir); İmsak ve Güneş dahil 7 vakit (büyük adlar).
     - Gece hali yeşil değil: koyu temaların nötr renkleri (#121212 zemin, #1E1E1E kart, altın vurgu).
-    - Kerahat: Sabah vaktinde (İmsak → Güneş) ve İkindi vaktinde kerahate kalan süre, ama en erken 60 dk kala (`KERAHAT_ONCE_DK = 60`, kullanıcı isteği 08-11-2026; doğuşta yani Sabah namazından itibaren); kerahatin içinde bitişine kalan süre (`zaman.js` `kerahatDurumu`, `KERAHAT_DK = 45`). Telefonda yazı satırları arası 12 px (08-11-2026). Süreyi hoca onaylamalı; öğle öncesi (istiva) yok.
+    - Kerahat: sadece İkindi vaktinde (Sabah vaktinde, güneş doğarken gösterilmez; kullanıcı isteği 08-11-2026) kerahate kalan süre, en erken 60 dk kala (`KERAHAT_ONCE_DK = 60`); kerahatin içinde bitişine kalan süre (`zaman.js` `kerahatDurumu`, `KERAHAT_DK = 45`). Telefonda yazı satırları arası 12 px (08-11-2026). Süreyi hoca onaylamalı; öğle öncesi (istiva) yok.
   - Geçmiş vakitler hiçbir temada soluk/gri değil.
 - Uygulama ve /admin'in yazı tipleri TV'dekiyle aynı (07-11-2026): Inter (yazı), Oswald (saatler, başlıklar), Amiri (Arapça). `mobil/fonts/`, OFL; Oswald dosyaları TV'nin `index.html`'inde gömülü olanlar.
 

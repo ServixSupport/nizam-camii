@@ -444,7 +444,7 @@ test.describe('Tema 1 (liste)', () => {
     const [logo, ad, etiket, sayac, tarih, cumle, liste] = await Promise.all(
       ['.ust img', '.ust-ad', '.sira-etiket', '.sayac', '.kart-tarih', '.kh-cumle', '.vakitler'].map(k));
     expect(ad.x).toBeGreaterThan(logo.x + logo.width);
-    expect(logo.width).toBe(40);                                              // logo küçük (kullanıcı isteği, 08-11-2026; önce 52)
+    expect(logo.width).toBe(34);                                              // logo küçük (kullanıcı isteği, 08-11-2026; önce 52, sonra 40)
     // ortalı ve sırayla: Vaktin çıkmasına, kalan süre, tarih, kerahat
     for (const b of [etiket, sayac, tarih, cumle]) expect(Math.abs(b.x + b.width / 2 - 195)).toBeLessThan(2);
     expect(etiket.y).toBeGreaterThan(logo.y + logo.height);
@@ -539,20 +539,20 @@ test.describe('Tema 1 (liste)', () => {
     expect(await page.locator('meta[name="theme-color"]').getAttribute('content')).toBe('#0E0E0C');
   });
 
-  test('kerahat: Sabah ve İkindi vaktinde tek cümle (kerahate ya da bitişine kalan süre); başka zaman ve Thema 2\'de (kemer) yok', async ({ page }) => {
+  test('kerahat: sadece İkindi vaktinde tek cümle (kerahate ya da bitişine kalan süre); Sabah vaktinde, başka zaman ve Thema 2\'de (kemer) yok', async ({ page }) => {
     const ac = (saat) => mobilAc(page, { zaman: an(saat), depo: { 'nzm.stil': 'liste', 'nzm.dil': 'tr' } });
     const kh = page.locator('.kh-cumle');
     // 28-10: İmsak 05:34, Güneş 07:21, İkindi 14:54, Akşam 17:27 (kerahat 45 dk)
+    // Sabah vaktinde ve güneş doğarken yok (kullanıcı isteği, 08-11-2026)
     await ac('06:40:00.500');
-    await expect(kh).toHaveText('Kerahat vaktine 0:40:59 kaldı');
-    await expect(kh).not.toHaveClass(/icinde/);
+    await expect(kh).toBeHidden();
     await ac('07:40:00.500');
-    await expect(kh).toHaveText('Kerahat vakti, 0:25:59 sonra bitiyor');
-    await expect(kh).toHaveClass(/icinde/);
+    await expect(kh).toBeHidden();
     await ac('12:00:00.500');
     await expect(kh).toBeHidden();
     await ac('16:50:00.500');
     await expect(kh).toHaveText('Kerahat vakti, 0:36:59 sonra bitiyor');
+    await expect(kh).toHaveClass(/icinde/);
     await ac('21:00:00.500');
     await expect(kh).toBeHidden();
     // kerahate 60 dk'dan çok varken yok (kullanıcı isteği, 08-11-2026): İkindi 14:54, kerahat 16:42
@@ -560,7 +560,7 @@ test.describe('Tema 1 (liste)', () => {
     await expect(kh).toBeHidden();
     await ac('15:42:00.500');
     await expect(kh).toHaveText('Kerahat vaktine 0:59:59 kaldı');
-    await ac('06:00:00.500');                                                  // Sabah vakti, Güneş 07:21: 81 dk
+    await ac('06:00:00.500');                                                  // Sabah vakti
     await expect(kh).toBeHidden();
     await ac('16:00:00.500');
     await expect(kh).toBeVisible();
