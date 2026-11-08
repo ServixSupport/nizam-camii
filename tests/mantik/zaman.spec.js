@@ -2,7 +2,7 @@
 import { test, expect } from '@playwright/test';
 import {
   amsZaman, amsParcalar, amsGun, gunEkle, diyanetGunu, aladhanGunu, gunOlaylari, hicriYazi,
-  geriSayim, anDurumu, gunduzMu, aladhanAdresi, kerahatDurumu, KERAHAT_DK,
+  geriSayim, anDurumu, gunduzMu, aladhanAdresi, kerahatDurumu, KERAHAT_DK, vakitSonu,
 } from '../../mobil/zaman.js';
 import { VAKIT, aladhanCevap } from '../yardimci/tv.js';
 
@@ -149,4 +149,21 @@ test('kerahatDurumu: Sabah ve İkindi vaktinde kerahate, kerahatte bitişine; ba
   expect(ozet(k('16:42'))).toEqual({ tur: 'icinde', kerahat: 'batis', bas: '2026-10-28T15:42Z', bit: '2026-10-28T16:27Z', hedef: '2026-10-28T16:27Z' });
   expect(k('17:27')).toBeNull();                                // Akşam girdi
   expect(kerahatDurumu(an('2026-10-28T16:00+01:00'), [])).toBeNull();
+});
+
+test('vakitSonu (Tema 2 "Vaktin çıkmasına"): içinde bulunulan vaktin bitişi; Sabah satırı sınır değil; Güneş → Öğle arası Öğle\'nin girişi', () => {
+  const b = gunOlaylari(gun('28.10.2026'), '2026-10-28');      // İmsak 05:34, Güneş 07:21, Öğle 12:29, İkindi 14:54, Akşam 17:27, Yatsı 19:02
+  const y = gunOlaylari(gun('29.10.2026'), '2026-10-29');
+  const v = (s) => { const x = vakitSonu(an(`2026-10-28T${s}+01:00`), b, y); return x && { tur: x.tur, vakit: x.vakit, hedef: iso(x.hedef) }; };
+  expect(v('03:00')).toEqual({ tur: 'cikis', vakit: 'Isha', hedef: '2026-10-28T04:34Z' });      // gece yarısından sonra: Yatsı, İmsak'a kadar
+  expect(v('05:34')).toEqual({ tur: 'cikis', vakit: 'Fajr', hedef: '2026-10-28T06:21Z' });      // Sabah vakti Güneş'e kadar
+  expect(v('06:30')).toEqual({ tur: 'cikis', vakit: 'Fajr', hedef: '2026-10-28T06:21Z' });      // Sabah satırından (06:21) sonra da
+  expect(v('07:21')).toEqual({ tur: 'giris', vakit: 'Dhuhr', hedef: '2026-10-28T11:29Z' });     // Güneş → Öğle: vakit yok
+  expect(v('12:29')).toEqual({ tur: 'cikis', vakit: 'Dhuhr', hedef: '2026-10-28T13:54Z' });
+  expect(v('16:00')).toEqual({ tur: 'cikis', vakit: 'Asr', hedef: '2026-10-28T16:27Z' });
+  expect(v('18:00')).toEqual({ tur: 'cikis', vakit: 'Maghrib', hedef: '2026-10-28T18:02Z' });
+  expect(v('21:30').vakit).toBe('Isha');
+  expect(v('21:30').hedef).toBe(iso(y.find((e) => e.key === 'Imsak').ms));                    // ertesi günün İmsak'ı
+  expect(vakitSonu(an('2026-10-28T21:30+01:00'), b, [])).toBeNull();                          // yarın yoksa (sayaç sıradaki vakte döner)
+  expect(vakitSonu(an('2026-10-28T16:00+01:00'), [], y)).toBeNull();
 });

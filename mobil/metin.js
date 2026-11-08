@@ -37,7 +37,7 @@ export const METIN = {
     // Ayarlar
     title: 'Ayarlar', lang: 'DİL', look: 'GÖRÜNÜM', theme: 'Açık / koyu', stil: 'Tasarım', stilKlasik: 'Tema 1', stilListe: 'Tema 2',
     // Tema 2: sıradaki vakit kartı ve kerahat (süre hocaya danışılacak: zaman.js KERAHAT_DK)
-    hicriEk: 'H', kalanSure: 'kalan süre', kerahatOnce: (s) => `Kerahat vaktine ${s} kaldı`, kerahatIcinde: (s) => `Kerahat vakti, ${s} sonra bitiyor`,
+    hicriEk: 'H', kalanSure: 'kalan süre', vaktinCikmasina: 'Vaktin çıkmasına', vaktinGirmesine: 'Vaktin girmesine', kerahatOnce: (s) => `Kerahat vaktine ${s} kaldı`, kerahatIcinde: (s) => `Kerahat vakti, ${s} sonra bitiyor`,
     auto: 'Otomatik', light: 'Açık', dark: 'Koyu', autoHint: 'Güneş doğunca açık, Akşam vaktinde koyu tema.',
     mosque: 'CAMİ', source: 'Vakitler: Diyanet İşleri Başkanlığı', harita: 'Haritada aç',
   },
@@ -62,7 +62,7 @@ export const METIN = {
     prTitle: 'Programma’s', prSub: 'Wekelijkse lessen en bijeenkomsten',
     prEmpty: 'Nog geen programma’s.', prEmptySub: 'Wekelijkse lessen en bijeenkomsten verschijnen hier zodra ze zijn toegevoegd.',
     title: 'Instellingen', lang: 'TAAL', look: 'WEERGAVE', theme: 'Licht / donker', stil: 'Ontwerp', stilKlasik: 'Thema 1', stilListe: 'Thema 2',
-    hicriEk: 'AH', kalanSure: 'resterend', kerahatOnce: (s) => `Nog ${s} tot de kerahat-tijd`, kerahatIcinde: (s) => `Kerahat-tijd, eindigt over ${s}`,
+    hicriEk: 'AH', kalanSure: 'resterend', vaktinCikmasina: 'Gebedstijd eindigt over', vaktinGirmesine: 'Gebedstijd begint over', kerahatOnce: (s) => `Nog ${s} tot de kerahat-tijd`, kerahatIcinde: (s) => `Kerahat-tijd, eindigt over ${s}`,
     auto: 'Automatisch', light: 'Licht', dark: 'Donker', autoHint: 'Licht vanaf zonsopgang, donker vanaf maghrib.',
     mosque: 'MOSKEE', source: 'Gebedstijden: Diyanet', harita: 'Openen in kaart',
   },
@@ -87,7 +87,7 @@ export const METIN = {
     prTitle: 'Programs', prSub: 'Weekly lessons and gatherings',
     prEmpty: 'No programs yet.', prEmptySub: 'Weekly lessons and gatherings will appear here once they are added.',
     title: 'Settings', lang: 'LANGUAGE', look: 'APPEARANCE', theme: 'Light / dark', stil: 'Design', stilKlasik: 'Theme 1', stilListe: 'Theme 2',
-    hicriEk: 'AH', kalanSure: 'remaining', kerahatOnce: (s) => `${s} until kerahat time`, kerahatIcinde: (s) => `Kerahat time, ends in ${s}`,
+    hicriEk: 'AH', kalanSure: 'remaining', vaktinCikmasina: 'Prayer time ends in', vaktinGirmesine: 'Prayer time begins in', kerahatOnce: (s) => `${s} until kerahat time`, kerahatIcinde: (s) => `Kerahat time, ends in ${s}`,
     auto: 'Automatic', light: 'Light', dark: 'Dark', autoHint: 'Light from sunrise, dark from maghrib.',
     mosque: 'MOSQUE', source: 'Prayer times: Diyanet', harita: 'Open in maps',
   },

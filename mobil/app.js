@@ -3,7 +3,7 @@
 // Metinler her zaman textContent ile yazılır.
 import {
   VAKITLER, amsParcalar, amsGun, gunEkle, diyanetAnahtari, diyanetGunu, aladhanGunu, aladhanAdresi,
-  gunOlaylari, anDurumu, geriSayim, hicriYazi, kerahatDurumu, AMS,
+  gunOlaylari, anDurumu, geriSayim, hicriYazi, kerahatDurumu, vakitSonu, AMS,
 } from './zaman.js';
 import { METIN, DILLER, VARSAYILAN_DIL, ARAPCA } from './metin.js';
 import { ekranlar } from './ekranlar.js';
@@ -445,7 +445,7 @@ function tarihCiz(simdi) {
   const k = {};
   for (const x of new Intl.DateTimeFormat(t.locale, { timeZone: AMS, day: 'numeric', month: 'short', year: 'numeric' }).formatToParts(new Date(simdi))) k[x.type] = x.value;
   const miladiKisa = `${k.day} ${String(k.month).replace(/\.$/, '')} ${k.year}`;
-  $('.tarih-kisa').textContent = g ? `${hicriYazi(g.hicri)} ${t.hicriEk} • ${miladiKisa}` : miladiKisa;
+  $('.tarih-kisa').textContent = $('.kart-tarih').textContent = g ? `${hicriYazi(g.hicri)} ${t.hicriEk} • ${miladiKisa}` : miladiKisa;
 }
 
 const cihazAmsterdam = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone === AMS; } catch { return true; } })();
@@ -468,6 +468,7 @@ function ciz() {
   if (!durum.veriVar) {
     temaUygula(amsParcalar(simdi).h >= 7 && amsParcalar(simdi).h < 18);
     $('.kalan-etiket').textContent = ' ';
+    $('.sira-etiket').textContent = t.vaktinCikmasina;
     $('.sayac').textContent = '–:––:––';
     $('.sira-ad').textContent = ' '; $('.sira-saat').textContent = ''; $('.sira-ar').textContent = '';
     $('.vakitler').replaceChildren(); _satirImza = '';
@@ -490,6 +491,10 @@ function ciz() {
     $('.sira-saat').textContent = d.siradaki.saat;
     $('.sira-ar').textContent = ARAPCA[d.siradaki.key];
   }
+  // Tema 2: "Vaktin çıkmasına": sayaç içinde bulunulan vaktin bitişine (Güneş → Öğle arası: Öğle'nin girmesine)
+  const vs = document.documentElement.dataset.stil === 'liste' ? vakitSonu(simdi, durum.olay.bugun, durum.olay.yarin) : null;
+  $('.sira-etiket').textContent = vs && vs.tur === 'giris' ? t.vaktinGirmesine : t.vaktinCikmasina;
+  if (vs) $('.sayac').textContent = geriSayim(vs.hedef - simdi);
   kerahatCiz(simdi, true);
 }
 
@@ -597,7 +602,7 @@ function bantYuksekligi() {
   if (document.documentElement.dataset.stil !== 'liste') return;
   const k = $('.kemer').getBoundingClientRect(), a = ana.getBoundingClientRect();
   if (!k.height) return;
-  const alt = tabletMi.matches ? k.bottom + 16 : $('.vakitler').getBoundingClientRect().top + 40;
+  const alt = tabletMi.matches ? k.bottom + 16 : $('.vakitler').getBoundingClientRect().top + 26;   // telefonda listenin yuvarlak köşelerine kadar
   ana.style.setProperty('--bant-yuk', `${Math.round(alt - a.top)}px`);
 }
 function anaSigdir() {

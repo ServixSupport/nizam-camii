@@ -40,8 +40,11 @@
 - Uygulamada iki tema (07-11-2026); ayarlarda **Tema 1 / Tema 2** (NL Thema, EN Theme). İkisinin de gündüz/gece hali var.
   - Tema 1: kemer, lacivert (eski "Klasik"; varsayılan).
   - Tema 2 (`nzm.stil=liste`, `html[data-stil="liste"]`; eski "Liste"nin yerine): kullanıcının örnek resmine göre; logonun renkleri.
-    - Üstte yeşil bant (#1F4D2B; yüksekliği JS'ten `--bant-yuk`): logo + ad, altında tek satır tarih "17 Jumada al-Awwal 1448 AH • 28 okt 2026" (TR'de "H").
-    - Bantta altın çerçeveli kart: arka planı caminin fotoğrafı, olduğu gibi (`mobil/cami-gece.jpg`, kullanıcının verdiği; karartma yok). Oran örnek resimdeki gibi 16:10 (telefon ekranının ~%27si); satırlar kartın yüksekliğine eşit dağılır. Solda sıradaki vakit, ad ve Arapça ad yan yana, altında yazısız kalan süre (sarı), hemen altında beyaz tek cümle kerahat.
+    - 08-11-2026'dan beri yeşil bant ve kutu (kart) yok. Üstte caminin fotoğrafı, olduğu gibi (`mobil/cami-gece.jpg`, kullanıcının verdiği; karartma yok).
+      - Telefonda fotoğraf ekran genişliğinde, bütün cami görünür. Altı listenin yuvarlak köşelerinde, üstü gökyüzü rengi (`--ustZemin`, tarayıcı çubuğu da). Yüksekliği JS'ten `--bant-yuk`.
+      - Yatay tablette solda tam boy panel.
+    - Fotoğrafın üstünde: logo + ad; ortada sırayla "Vaktin çıkmasına" (beyaz), kalan süre (sarı), tek satır tarih "17 Jumada al-Awwal 1448 AH • 28 okt 2026" (TR'de "H"; beyaz), kerahat cümlesi (sarı). Vakit adı ve Arapça adı gösterilmez.
+    - Sayaç içinde bulunulan vaktin bitişine (`zaman.js` `vakitSonu`): Sabah vakti Güneş'te çıkar (listedeki Sabah satırı sınır değil), Yatsı ertesi İmsak'ta. Güneş → Öğle arası namaz vakti yok: "Vaktin girmesine" (Öğle'ye). Tema 1'in sayacı değişmedi (sıradaki vakte).
     - Altta liste: telefonda kenardan kenara yaprak, üst köşeler yuvarlak, alt düz (zeminle ve menüyle birleşir); İmsak ve Güneş dahil 7 vakit (büyük adlar).
     - Gece hali yeşil değil: koyu temaların nötr renkleri (#121212 zemin, #1E1E1E kart, altın vurgu).
     - Kerahat: Sabah vaktinde (İmsak → Güneş) ve İkindi vaktinde kerahate, kerahatin içinde bitişine kalan süre (`zaman.js` `kerahatDurumu`, `KERAHAT_DK = 45`). Süreyi hoca onaylamalı; öğle öncesi (istiva) yok.

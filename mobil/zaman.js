@@ -161,6 +161,28 @@ export function kerahatDurumu(simdi, bugun, dk = KERAHAT_DK) {
 }
 
 /**
+ * Tema 2: "Vaktin çıkmasına" (kullanıcı isteği, 08-11-2026), yani içinde bulunulan namaz vaktinin bitişine kalan süre.
+ * Vakitler: Sabah (İmsak → Güneş), Öğle (→ İkindi), İkindi (→ Akşam), Akşam (→ Yatsı), Yatsı (→ ertesi günün İmsak'ı).
+ * Listedeki "Sabah" satırı (Güneş − 60) cami saatidir, vaktin sınırı değil.
+ * Güneş → Öğle arasında namaz vakti yok: o zaman Öğle vaktinin girmesine kalan süre (tur 'giris').
+ * @returns {null | { tur: 'cikis'|'giris', vakit: string, hedef: number }}
+ */
+export function vakitSonu(simdi, bugun, yarin = []) {
+  const bul = (l, k) => l.find((e) => e.key === k);
+  const [imsak, gunes, ogle, ikindi, aksam, yatsi] = ['Imsak', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map((k) => bul(bugun, k));
+  if (!imsak || !gunes || !ogle || !ikindi || !aksam || !yatsi) return null;
+  const cikis = (vakit, e) => ({ tur: 'cikis', vakit, hedef: e.ms });
+  if (simdi < imsak.ms) return cikis('Isha', imsak);
+  if (simdi < gunes.ms) return cikis('Fajr', gunes);
+  if (simdi < ogle.ms) return { tur: 'giris', vakit: 'Dhuhr', hedef: ogle.ms };
+  if (simdi < ikindi.ms) return cikis('Dhuhr', ikindi);
+  if (simdi < aksam.ms) return cikis('Asr', aksam);
+  if (simdi < yatsi.ms) return cikis('Maghrib', yatsi);
+  const yi = bul(yarin, 'Imsak');
+  return yi ? cikis('Isha', yi) : null;
+}
+
+/**
  * Ekranın o anki durumu.
  * @param {number} simdi  an (ms)
  * @param {Array} bugun   gunOlaylari(bugün)
