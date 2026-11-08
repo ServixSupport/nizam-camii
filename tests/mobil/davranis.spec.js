@@ -432,14 +432,20 @@ test.describe('Tema 2', () => {
     expect(tarih.y).toBeGreaterThanOrEqual(sayac.y + sayac.height - 2);
     expect(cumle.y).toBeGreaterThanOrEqual(tarih.y + tarih.height - 2);
     expect(tarih.height).toBeLessThan(24);                                     // tek satır
-    expect(cumle.y + cumle.height).toBeLessThan(liste.y - 40);                // altında caminin binası görünür
-    // fotoğraf: üstten listenin yuvarlak köşelerine kadar; telefonun genişliğinde, bütün cami (1200 × 940 → 390 × 305)
-    const bant = await page.locator('.sekme-ana').evaluate((e) => { const c = getComputedStyle(e, '::before'); return { bg: c.backgroundImage, boyut: c.backgroundSize, yuk: parseFloat(c.height), ust: e.getBoundingClientRect().top }; });
+    // yazılar logo ile liste arasında dikey ortada (kullanıcı isteği, 08-11-2026)
+    const ust = logo.y + logo.height, alt = liste.y - 18;
+    expect(Math.abs((etiket.y + cumle.y + cumle.height) / 2 - (ust + alt) / 2)).toBeLessThan(10);
+    // fotoğraf: üstten listenin yuvarlak köşelerine kadar; telefonun genişliğinde (1200 × 940 → 390 × 305).
+    // Altı listenin 12 px üstünde: bütün cami listenin üstünde görünür, gökyüzünün üstü kesilir ("çoğu gökyüzü" olmasın)
+    const bant = await page.locator('.sekme-ana').evaluate((e) => { const c = getComputedStyle(e, '::before'); return { bg: c.backgroundImage, boyut: c.backgroundSize, konum: c.backgroundPositionY, yuk: parseFloat(c.height), ust: e.getBoundingClientRect().top }; });
     expect(bant.bg).toContain('/mobil/cami-gece.jpg');
     expect(bant.boyut).toContain('100% auto');
+    expect(bant.konum).toMatch(/12px/);
     expect(bant.ust).toBe(0);
     expect(Math.abs(bant.ust + bant.yuk - (liste.y + 26))).toBeLessThan(2);
-    expect(bant.yuk).toBeGreaterThanOrEqual(390 * 940 / 1200);
+    const foto = 390 * 940 / 1200, gorunen = liste.y + 14;                   // fotoğrafın listenin üstünde kalan kısmı
+    expect(gorunen).toBeLessThan(foto);                                       // gökyüzünün üstü kesik
+    expect(gorunen / foto).toBeGreaterThan(0.72);                             // minareler dahil bütün cami (bina ~%40, minare şerefeleri ~%30)
     // liste yaprağı: kenardan kenara, üst köşeler yuvarlak, alt düz
     const yaprak = await st('.vakitler');
     expect(yaprak.ust).toBe('26px');
