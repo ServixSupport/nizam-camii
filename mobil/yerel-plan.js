@@ -19,7 +19,8 @@ export const SESSIZ_VARSAYILAN = { aan: false, dakika: 30, vakitler: [...NAMAZ],
 /**
  * @param {object} o
  * @param {Array<{ymd: string, hicri?: string, olaylar: Array<{key: string, ms: number, saat: string}>}>} o.gunler  bugünden itibaren
- * @param {{aan: boolean, once: number, giris: boolean, vakitler: string[]}} o.bildirim
+ * @param {{aan: boolean, once: number, giris: boolean, vakitler: string[], ses?: 'telefon'|'ezan-kisa'|'ezan-uzun'}} o.bildirim
+ *        ses: vakit girince (sadece beş vakit namazda; önceden hatırlatma ve İmsak/Güneş telefonun sesiyle)
  * @param {{aan: boolean, dakika: number, vakitler: string[], mod: 'sessiz'|'titresim'}} o.sessiz
  * @param {boolean} o.sayac   durum çubuğunda geri sayım
  * @param {'tr'|'nl'|'en'} o.dil
@@ -41,7 +42,10 @@ export function yerelPlan({ gunler, bildirim, sessiz, sayac, dil, t, simdi }) {
           const an = e.ms - bildirim.once * 60000;
           if (an > simdi) bildirimler.push({ an, etiket, ...bildirimMetni(dil, { ...ortak, tur: `once-${bildirim.once}` }) });
         }
-        if (bildirim.giris && e.ms > simdi) bildirimler.push({ an: e.ms, etiket, ...bildirimMetni(dil, { ...ortak, tur: 'giris' }) });
+        if (bildirim.giris && e.ms > simdi) {
+          const ezan = NAMAZ.includes(e.key) && (bildirim.ses === 'ezan-kisa' || bildirim.ses === 'ezan-uzun');
+          bildirimler.push({ an: e.ms, etiket, ...bildirimMetni(dil, { ...ortak, tur: 'giris' }), ...(ezan ? { ses: bildirim.ses } : {}) });
+        }
       }
       if (sessiz.aan && NAMAZ.includes(e.key) && sessiz.vakitler.includes(e.key)) {
         const bit = e.ms + sessiz.dakika * 60000;
@@ -74,7 +78,7 @@ export function yerelPlan({ gunler, bildirim, sessiz, sayac, dil, t, simdi }) {
       vakitler: g.olaylar.map((e) => ({ vakit: e.key, ad: (t.kisaAd && t.kisaAd[e.key]) || t.names[e.key], saat: e.saat, an: e.ms })),
     })),
     kalanKisa: Object.fromEntries(VAKITLER.map((k) => [k, t.kalanKisa(k)])),
-    kanallar: { vakit: t.kanalVakit, sayac: t.kanalSayac, sessiz: t.kanalSessiz },
+    kanallar: { vakit: t.kanalVakit, sayac: t.kanalSayac, sessiz: t.kanalSessiz, ezanKisa: t.kanalEzanKisa, ezanUzun: t.kanalEzanUzun },
     sessizMod: mod,
     sessizBasliklar: t.sessizBaslik,                         // telefon izin yoksa sessiz yerine titreşime alır
     vakitler,

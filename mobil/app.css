@@ -659,25 +659,25 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 
 /* telefon: logo solda, yanında ad; altında yazılar; sonra liste (tam genişlik). Fotoğraf telefonun genişliğinde, bütün cami görünür. */
 @media (max-width: 767px) {
-  :root[data-stil="liste"] .sekme-ana { display: grid; grid-template-columns: 52px minmax(0, 1fr); column-gap: 12px; align-content: start; padding-bottom: 0; }
+  :root[data-stil="liste"] .sekme-ana { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 12px; align-content: start; padding-bottom: 0; }
   :root[data-stil="liste"] .ust, :root[data-stil="liste"] .sol, :root[data-stil="liste"] .sag { display: contents; }
-  :root[data-stil="liste"] .ust img { grid-column: 1; grid-row: 1; width: 52px; height: 52px; align-self: center; }
+  :root[data-stil="liste"] .ust img { grid-column: 1; grid-row: 1; width: 40px; height: 40px; align-self: center; }   /* logo küçük (kullanıcı isteği, 08-11-2026; önce 52) */
   :root[data-stil="liste"] .ust-yazi { grid-column: 2; grid-row: 1; align-self: center; }
   :root[data-stil="liste"] .ams-not, :root[data-stil="liste"] .kemer,
   :root[data-stil="liste"] .vakitler, :root[data-stil="liste"] .durum-mesaj { grid-column: 1 / -1; }
   /* fotoğraf (1200 × 940) telefonun genişliğinde; altı listenin hemen arkasında (10 px), cami listenin üstünde bütünüyle görünür,
      üstteki gökyüzünün bir kısmı kesilir (kullanıcı isteği, 08-11-2026: "çoğu gökyüzü, fotoğrafı yukarı al").
      Liste 4 px daha aşağıda (kullanıcı isteği, 08-11-2026); fotoğraf yerinde kalır (bant listenin 26 px altında biter, fotoğrafın altı bandın 16 px üstünde).
-     Yazılar logo ile liste arasında dikey ortada. Listenin üstü = 14 + 52 (logo) + yazı alanı + 22 ≈ %61 vw + 4 */
+     Yazılar logo ile liste arasında dikey ortada. Listenin üstü = 14 + 40 (logo) + yazı alanı + 22 ≈ %61 vw + 4 (logo küçülünce yazı alanı büyüdü: liste yerinde kaldı) */
   :root[data-stil="liste"] .sekme-ana::before { background: url(/mobil/cami-gece.jpg) center bottom 16px / 100% auto no-repeat, var(--ustZemin); }
-  :root[data-stil="liste"] .kemer-ic { min-height: calc(61vw - 84px); justify-content: center; gap: 5px; padding: 6px 0; }
+  :root[data-stil="liste"] .kemer-ic { min-height: calc(61vw - 72px); justify-content: center; gap: 12px; padding: 6px 0; }   /* satırlar arası ferah (kullanıcı isteği, 08-11-2026; önce 5) */
   /* liste: yaprak; üst köşeler yuvarlak, alt düz (zeminle ve menüyle birleşir), kenardan kenara */
   :root[data-stil="liste"] .vakitler { margin: 22px -18px 0; padding: 12px 18px 8px; border: 0; border-radius: 26px 26px 0 0; background: var(--ground); box-shadow: none; }
   :root[data-stil="liste"] .menu { border-top-color: var(--line); }
 }
 /* kısa telefon ekranı: yazılar biraz küçük; yazı alanı yazılar kadar (fotoğrafın gökyüzü daha çok kesilir) */
 @media (max-width: 767px) and (max-height: 700px) {
-  :root[data-stil="liste"] .kemer-ic { min-height: 0; gap: 3px; padding: 8px 0; }
+  :root[data-stil="liste"] .kemer-ic { min-height: 0; gap: 6px; padding: 8px 0; }
   :root[data-stil="liste"] .sira-etiket { font-size: 15px; }
   :root[data-stil="liste"] .sayac { font-size: 46px; }
   :root[data-stil="liste"] .kart-tarih, :root[data-stil="liste"] .kh-cumle { font-size: 13px; }

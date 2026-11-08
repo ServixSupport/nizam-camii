@@ -56,6 +56,26 @@ test('bildirimler: önce ve vakit girince, aynı vaktin etiketi aynı; geçmişt
   expect(plan({ bildirim: { aan: false, once: 15, giris: true, vakitler: ['Maghrib'] } }).bildirimler).toEqual([]);
 });
 
+test('vakit girince ezan (kullanıcı isteği, 08-11-2026): sadece beş vakit namazın giriş bildiriminde; önceden hatırlatma, İmsak ve Güneş telefonun sesiyle', () => {
+  const hepsi = ['Imsak', 'Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+  for (const ses of ['ezan-kisa', 'ezan-uzun']) {
+    const p = plan({ bildirim: { aan: true, once: 15, giris: true, vakitler: hepsi, ses } });
+    const giris = p.bildirimler.filter((b) => b.baslik.includes('is begonnen'));
+    const ezanli = giris.filter((b) => b.ses === ses).map((b) => b.etiket.slice(11));
+    expect([...new Set(ezanli)].sort()).toEqual(['Asr', 'Dhuhr', 'Fajr', 'Isha', 'Maghrib']);
+    expect(giris.filter((b) => /-(Imsak|Sunrise)$/.test(b.etiket)).every((b) => !('ses' in b))).toBe(true);
+    expect(p.bildirimler.filter((b) => b.baslik.startsWith('Nog ')).every((b) => !('ses' in b))).toBe(true);   // önceden hatırlatma
+    expect(p.bildirimler.find((b) => b.etiket === '2026-10-28-Maghrib' && b.ses)).toMatchObject({ an: an('2026-10-28T17:27:00+01:00'), ses });
+  }
+  // telefonun sesi (varsayılan): hiçbir bildirimde ses alanı yok
+  for (const ses of ['telefon', undefined]) {
+    expect(plan({ bildirim: { aan: true, once: 15, giris: true, vakitler: hepsi, ses } }).bildirimler.some((b) => 'ses' in b)).toBe(false);
+  }
+  // Android bildirim kanallarının adları (telefonun ayarlarında görünür)
+  expect(plan().kanallar).toEqual({ vakit: 'Gebedstijden', sayac: 'Gebedstijden-widget', sessiz: 'Op stil zetten',
+    ezanKisa: 'Gebedstijden (korte adhan)', ezanUzun: 'Gebedstijden (lange adhan)' });
+});
+
 test('sessize alma: seçilen namazlarda vakit girince, süre kadar; Güneş ve İmsak hiç', () => {
   const sessiz = { aan: true, dakika: 30, vakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'], mod: 'sessiz' };
   const p = plan({ sessiz });

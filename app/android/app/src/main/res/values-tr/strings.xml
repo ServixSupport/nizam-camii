@@ -5,4 +5,6 @@
     <string name="kanal_vakit">Namaz vakitleri</string>
     <string name="kanal_sayac">Geri sayım</string>
     <string name="kanal_sessiz">Sessize alma</string>
+    <string name="kanal_ezan_kisa">Namaz vakitleri (kısa ezan)</string>
+    <string name="kanal_ezan_uzun">Namaz vakitleri (uzun ezan)</string>
 </resources>

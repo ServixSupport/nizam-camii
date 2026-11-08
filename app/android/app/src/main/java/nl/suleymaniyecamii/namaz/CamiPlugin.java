@@ -72,10 +72,10 @@ public class CamiPlugin extends Plugin {
         call.resolve(izinler());
     }
 
-    /** Ayarlar'daki "Deneme bildirimi": hemen, namaz vakti bildirimleriyle aynı kanaldan. */
+    /** Ayarlar'daki "Deneme bildirimi": hemen, namaz vakti bildirimleriyle aynı kanaldan (seçilen sesle: ezan dinlenebilir). */
     @PluginMethod
     public void deneme(PluginCall call) {
-        Planlayici.bildirimGoster(getContext(), "deneme", call.getString("baslik", ""), call.getString("govde", ""));
+        Planlayici.bildirimGoster(getContext(), "deneme", call.getString("baslik", ""), call.getString("govde", ""), call.getString("ses", ""));
         call.resolve();
     }
 

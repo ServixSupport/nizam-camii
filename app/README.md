@@ -10,6 +10,17 @@ telefona özgü özellikler `mobil/yerel*.js` ve bu klasördeki eklentilerde.
 | Tek bildirim | Panel açıksa vakit bildirimi ayrı gelmez: panel bir kez sesli uyarır, üst satırında 15 dk "Öğle vakti girdi" yazar | Ayrı bildirimler (aynı vakit gruplanır) |
 | Namaz vaktinde sessize alma | Var (sessiz veya titreşim; süre bitince eski hale döner) | Yok: Apple uygulamaların telefonu sessize almasına izin vermez |
 | Sistem çubukları | Temaya göre (açık/koyu) | Saat ve simgeler temaya göre |
+| Vakit girince ses | Telefonun sesi, kısa ezan veya uzun ezan (Ayarlar → Bildirimler; 1.1 sürümünden beri) | Telefonun sesi (iPhone'da bildirim sesi en fazla 30 sn; şimdilik seçenek yok) |
+
+## Ezan sesleri (Android, `android/app/src/main/res/raw/`)
+
+- `ezan_uzun.ogg`: Wikimedia Commons, [Beautiful adhan.ogg](https://commons.wikimedia.org/wiki/File:Beautiful_adhan.ogg), yükleyen Adam-synagda, lisans **CC0** (serbest; isim yazmak gerekmez). Değiştirilmeden, 2:34.
+- `ezan_kisa.ogg`: aynı kaydın ilk 17,6 saniyesi (ilk "Allahu ekber, Allahu ekber"), sonda 1 sn ses azalır (ffmpeg).
+- Her ses kendi bildirim kanalında (`vakit_ezan_kisa`, `vakit_ezan_uzun`; `Planlayici.kanallar`). Android'de kanalın sesi sonradan değişmez; dosyayı aynı adla değiştirmek yeterli.
+- Ezan sadece beş vakit namazda, vakit girince çalar. Önceden hatırlatma, İmsak ve Güneş telefonun sesiyle.
+- Durdurmak: bildirim ekranını aşağı çekmek (Android bunu kendisi yapar), bildirime dokunmak veya kaydırmak. Bildirim panelinde uygulama açılınca panel sessizce yenilenir, ezan yine durur.
+- Emülatörde denendi (08-11-2026): deneme bildirimi kısa ve uzun ezanla çaldı; panelden vakit uyarısı (uygulama arka planda) uzun ezanla çaldı, 35 sn sonra hâlâ çalıyordu; bildirim ekranını aşağı çekince ve uygulamayı açınca durdu.
+- Caminin kendi müezzininin kaydı gelirse aynı adlarla (`ezan_kisa.ogg`, `ezan_uzun.ogg`) değiştirin.
 
 ## Klasörler
 

@@ -96,7 +96,7 @@ test('bildirimler telefonda kurulur (sunucu ve Web Push yok); deneme bildirimi h
   expect(p.bildirimler.some((b) => b.etiket.endsWith('-Imsak') || b.etiket.endsWith('-Sunrise'))).toBe(false);
 
   await page.getByRole('button', { name: 'Testmelding sturen' }).click();
-  expect((await cagrilar(page, 'deneme'))[0].arg).toEqual({ baslik: 'Testmelding', govde: 'Meldingen werken. Bij de gebedstijden krijg je zo’n melding.' });
+  expect((await cagrilar(page, 'deneme'))[0].arg).toEqual({ baslik: 'Testmelding', govde: 'Meldingen werken. Bij de gebedstijden krijg je zo’n melding.', ses: 'telefon' });
   await expect(page.locator('.bildirim')).toHaveText('Testmelding verstuurd');
 
   // dil değişince bildirimler yeni dilde
@@ -105,6 +105,36 @@ test('bildirimler telefonda kurulur (sunucu ve Web Push yok); deneme bildirimi h
   const tr = await sonPlan(page, (x) => x.dil === 'tr');
   expect(tr.bildirimler.find((b) => b.etiket === '2026-10-28-Maghrib').baslik).toBe('Akşam namazına 15 dakika');
   expect(tr.vakitler[0].baslik).toBe('Akşam · 17:27');
+});
+
+test('vakit girince ses (Android): Telefoon / Korte adhan / Lange adhan; plan ve deneme bildirimi seçilen sesle', async ({ page }) => {
+  await telefon(page, { izin: { bildirim: 'granted' } });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar', depo: { 'nzm.bildirim': JSON.stringify({ aan: true, once: 15, giris: true, vakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] }) } });
+  const satir = page.locator('#b-ses-satir');
+  await expect(satir).toBeVisible();
+  await expect(satir.locator('.b-ad')).toHaveText('Geluid bij begin gebedstijd');
+  await expect(satir.locator('#b-ses button')).toHaveText(['Telefoon', 'Korte adhan', 'Lange adhan']);
+  await expect(satir.locator('#b-ses [aria-pressed="true"]')).toHaveText('Telefoon');               // varsayılan
+  await expect(satir.locator('.ayar-not')).toContainText('Trek het meldingenscherm omlaag of tik op de melding om de adhan te stoppen');
+  // "Melding bij begin gebedstijd"in altında, "Voor welke gebeden"in hemen üstünde
+  expect(await satir.evaluate((e) => e.nextElementSibling.querySelector('#b-vakitler') !== null)).toBe(true);
+
+  await satir.getByRole('button', { name: 'Lange adhan' }).click();
+  await page.clock.runFor(1000);
+  let p = await sonPlan(page, (x) => x.bildirimler.some((b) => b.ses === 'ezan-uzun'));
+  expect(p.bildirimler.find((b) => b.etiket === '2026-10-28-Maghrib' && b.ses)).toMatchObject({ an: an('2026-10-28T17:27:00+01:00'), ses: 'ezan-uzun' });
+  expect(JSON.parse(await page.evaluate(() => localStorage.getItem('nzm.bildirim'))).ses).toBe('ezan-uzun');
+  await page.getByRole('button', { name: 'Testmelding sturen' }).click();
+  expect((await cagrilar(page, 'deneme')).at(-1).arg.ses).toBe('ezan-uzun');                        // ezanı dinlemek için
+
+  await satir.getByRole('button', { name: 'Korte adhan' }).click();
+  await page.clock.runFor(1000);
+  p = await sonPlan(page, (x) => x.bildirimler.some((b) => b.ses === 'ezan-kisa'));
+  expect(p.bildirimler.some((b) => b.ses === 'ezan-uzun')).toBe(false);
+  await page.reload();
+  await expect(page.locator('#b-ses [aria-pressed="true"]')).toHaveText('Korte adhan');
+  await page.getByRole('button', { name: 'Türkçe' }).click();
+  await expect(page.locator('#b-ses button')).toHaveText(['Telefon', 'Kısa ezan', 'Uzun ezan']);
 });
 
 test('izin telefondan geri alındıysa bildirimler kapalı görünür', async ({ page }) => {
@@ -177,6 +207,7 @@ test('iPhone: sessize alma ve durum çubuğu yok (Apple izin vermez), kilit ekra
   await expect(page.locator('#sessiz-ayar')).toBeHidden();
   await expect(page.locator('#sayac-ayar')).toBeHidden();
   await expect(page.locator('#tam-alarm')).toBeHidden();
+  await expect(page.locator('#b-ses-satir')).toBeHidden();                       // ezan sesi şimdilik sadece Android'de
   const p = await sonPlan(page);
   expect(p.sayac).toBe(false);
   expect(p.vakitler.length).toBeGreaterThan(0);                               // kilit ekranı widget'ı için
@@ -185,5 +216,5 @@ test('iPhone: sessize alma ve durum çubuğu yok (Apple izin vermez), kilit ekra
 
 test('tarayıcıda (web uygulaması) yeni bölümler hiç görünmez ve telefon eklentisi çağrılmaz', async ({ page }) => {
   await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar' });
-  for (const id of ['#sayac-ayar', '#sessiz-ayar', '#widget-ayar', '#tam-alarm', '#gizlilik-link']) await expect(page.locator(id)).toBeHidden();
+  for (const id of ['#sayac-ayar', '#sessiz-ayar', '#widget-ayar', '#tam-alarm', '#gizlilik-link', '#b-ses-satir']) await expect(page.locator(id)).toBeHidden();
 });

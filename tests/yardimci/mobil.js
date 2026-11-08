@@ -12,13 +12,17 @@ const PAY_MS = 2000;
 export async function mobilAc(page, o) {
   const T = new Date(o.zaman).getTime();
   if (Number.isNaN(T)) throw new Error('geçersiz zaman: ' + o.zaman);
-  if (o.depo) {
-    await page.addInitScript((depo) => {
-      if (sessionStorage.getItem('__test_depo')) return;
-      for (const [k, v] of Object.entries(depo)) localStorage.setItem(k, v);
-      sessionStorage.setItem('__test_depo', '1');
-    }, o.depo);
-  }
+  // Tasarım: 08-11-2026'dan beri varsayılan Tema 1 = 'liste'. Eski testler kemerli tasarımı (Tema 2, 'klasik') test eder:
+  // depo'da 'nzm.stil' yoksa 'klasik' yazılır. Varsayılanı denemek için 'nzm.stil': null (anahtar silinir).
+  const depo = { 'nzm.stil': 'klasik', ...(o.depo || {}) };
+  await page.addInitScript((depo) => {
+    if (sessionStorage.getItem('__test_depo')) return;
+    for (const [k, v] of Object.entries(depo)) {
+      if (v === null) localStorage.removeItem(k);
+      else localStorage.setItem(k, v);
+    }
+    sessionStorage.setItem('__test_depo', '1');
+  }, depo);
   const kayit = await mockla(page, { icerikSaati: T, ...o });
   await page.clock.install({ time: T - PAY_MS - 1000 });
   await page.clock.pauseAt(T - PAY_MS);

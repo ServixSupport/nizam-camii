@@ -30,8 +30,9 @@ const pad = (n) => String(n).padStart(2, '0');
 const durum = {
   dil: (() => { const d = oku(DEPO.dil); return METIN[d] ? d : VARSAYILAN_DIL; })(),
   tema: (() => { const t = oku(DEPO.tema); return ['oto', 'gunduz', 'gece'].includes(t) ? t : 'oto'; })(),
-  // tasarım: 'klasik' (kemer) veya 'liste' (büyük vakit listesi, logonun renkleri; 07-11-2026)
-  stil: oku(DEPO.stil) === 'liste' ? 'liste' : 'klasik',
+  // tasarım: 'liste' (Tema 1: caminin fotoğrafı ve büyük vakit listesi; varsayılan) veya 'klasik' (Tema 2: kemer).
+  // Kullanıcı isteği (08-11-2026): eski "Tema 2" artık Tema 1 ve varsayılan; seçmeyenler de bunu görür.
+  stil: oku(DEPO.stil) === 'klasik' ? 'klasik' : 'liste',
   diyanet: new Map(),      // 'GG.AA.YYYY' → gün
   aladhan: new Map(),      // 'YYYY-MM-DD' → gün
   veriVar: false,
@@ -132,8 +133,9 @@ function bildir(metin) {
 }
 
 // Faz D: bildirim ayarları ve ana ekrandaki ziller (sunucu hazır değilse hiç görünmez)
+// Vakit girince ses (telefonun sesi, kısa veya uzun ezan): sadece Android mağaza uygulamasında (tarayıcı ve iPhone'da yok)
 const bld = bildirimler({ L, dil: () => durum.dil, bildir, kuruluMu: () => kuruluMu(), iosMu: () => iosMu(),
-  yerel: cami, planDegisti: planGonderSonra });
+  yerel: cami, planDegisti: planGonderSonra, sesSecimi: yerelMi && platform === 'android' });
 // Mağaza uygulaması: durum çubuğunda geri sayım, sessize alma, kilit ekranı (tarayıcıda yok)
 const yerelAyar = yerelMi ? yerelAyarlar({ L, cami, platform, planDegisti: planGonderSonra, bildirimAcik: () => bld.ayar().aan }) : null;
 
@@ -223,7 +225,7 @@ function metinleriYaz() {
     return b;
   }));
   const stil = $('#stil-secim');
-  stil.replaceChildren(...[['klasik', t.stilKlasik], ['liste', t.stilListe]].map(([k, ad]) => {
+  stil.replaceChildren(...[['liste', t.stilListe], ['klasik', t.stilKlasik]].map(([k, ad]) => {
     const b = document.createElement('button');
     b.type = 'button'; b.textContent = ad;
     b.setAttribute('aria-pressed', String(k === durum.stil));

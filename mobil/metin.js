@@ -35,7 +35,7 @@ export const METIN = {
     prTitle: 'Programlar', prSub: 'Her hafta düzenli dersler ve sohbetler',
     prEmpty: 'Henüz program eklenmedi.', prEmptySub: 'Haftalık dersler ve sohbetler eklendiğinde burada görünür.',
     // Ayarlar
-    title: 'Ayarlar', lang: 'DİL', look: 'GÖRÜNÜM', theme: 'Açık / koyu', stil: 'Tasarım', stilKlasik: 'Tema 1', stilListe: 'Tema 2',
+    title: 'Ayarlar', lang: 'DİL', look: 'GÖRÜNÜM', theme: 'Açık / koyu', stil: 'Tasarım', stilKlasik: 'Tema 2', stilListe: 'Tema 1',
     // Tema 2: sıradaki vakit kartı ve kerahat (süre hocaya danışılacak: zaman.js KERAHAT_DK)
     kalanSure: 'kalan süre', vaktinCikmasina: 'Vaktin çıkmasına', namazina: (ad) => `${ad} namazına`, kerahatOnce: (s) => `Kerahat vaktine ${s} kaldı`, kerahatIcinde: (s) => `Kerahat vakti, ${s} sonra bitiyor`,
     auto: 'Otomatik', light: 'Açık', dark: 'Koyu', autoHint: 'Güneş doğunca açık, Akşam vaktinde koyu tema.',
@@ -61,7 +61,7 @@ export const METIN = {
     evEmpty: 'Nog geen komende activiteiten.', evEmptySub: 'Zodra de moskee een activiteit toevoegt, zie je die hier.',
     prTitle: 'Programma’s', prSub: 'Wekelijkse lessen en bijeenkomsten',
     prEmpty: 'Nog geen programma’s.', prEmptySub: 'Wekelijkse lessen en bijeenkomsten verschijnen hier zodra ze zijn toegevoegd.',
-    title: 'Instellingen', lang: 'TAAL', look: 'WEERGAVE', theme: 'Licht / donker', stil: 'Ontwerp', stilKlasik: 'Thema 1', stilListe: 'Thema 2',
+    title: 'Instellingen', lang: 'TAAL', look: 'WEERGAVE', theme: 'Licht / donker', stil: 'Ontwerp', stilKlasik: 'Thema 2', stilListe: 'Thema 1',
     kalanSure: 'resterend', vaktinCikmasina: 'Gebedstijd eindigt over', namazina: (ad) => `${ad} begint over`, kerahatOnce: (s) => `Nog ${s} tot de kerahat-tijd`, kerahatIcinde: (s) => `Kerahat-tijd, eindigt over ${s}`,
     auto: 'Automatisch', light: 'Licht', dark: 'Donker', autoHint: 'Licht vanaf zonsopgang, donker vanaf maghrib.',
     mosque: 'MOSKEE', source: 'Gebedstijden: Diyanet', harita: 'Openen in kaart',
@@ -86,7 +86,7 @@ export const METIN = {
     evEmpty: 'No upcoming activities yet.', evEmptySub: 'New activities from the mosque will appear here.',
     prTitle: 'Programs', prSub: 'Weekly lessons and gatherings',
     prEmpty: 'No programs yet.', prEmptySub: 'Weekly lessons and gatherings will appear here once they are added.',
-    title: 'Settings', lang: 'LANGUAGE', look: 'APPEARANCE', theme: 'Light / dark', stil: 'Design', stilKlasik: 'Theme 1', stilListe: 'Theme 2',
+    title: 'Settings', lang: 'LANGUAGE', look: 'APPEARANCE', theme: 'Light / dark', stil: 'Design', stilKlasik: 'Theme 2', stilListe: 'Theme 1',
     kalanSure: 'remaining', vaktinCikmasina: 'Prayer time ends in', namazina: (ad) => `${ad} begins in`, kerahatOnce: (s) => `${s} until kerahat time`, kerahatIcinde: (s) => `Kerahat time, ends in ${s}`,
     auto: 'Automatic', light: 'Light', dark: 'Dark', autoHint: 'Light from sunrise, dark from maghrib.',
     mosque: 'MOSQUE', source: 'Prayer times: Diyanet', harita: 'Open in maps',
@@ -188,6 +188,8 @@ const BILDIRIM = {
     notifBusy: 'Bildirimler ayarlanıyor…', notifTest: 'Deneme bildirimi gönder',
     notifTestSent: 'Bir dakika içinde deneme bildirimi gelecek', notifTestWait: 'Az önce gönderildi; birkaç dakika sonra tekrar deneyin',
     zilAcik: (ad) => `${ad} bildirimi açık`, zilKapali: (ad) => `${ad} bildirimi kapalı`,
+    notifSes: 'Vakit girince ses', notifSesAd: { telefon: 'Telefon', 'ezan-kisa': 'Kısa ezan', 'ezan-uzun': 'Uzun ezan' },
+    notifSesNot: 'Ezan sadece beş vakit namazda okunur; önceden hatırlatma telefonun sesiyle gelir. Ezanı durdurmak için bildirim ekranını aşağı çekin veya bildirime dokunun.',
   },
   nl: {
     notif: 'MELDINGEN', notifMaster: 'Meldingen voor gebedstijden', notifBefore: 'Herinner me vooraf',
@@ -200,6 +202,8 @@ const BILDIRIM = {
     notifBusy: 'Meldingen worden ingesteld…', notifTest: 'Testmelding sturen',
     notifTestSent: 'Binnen een minuut komt er een testmelding', notifTestWait: 'Net verstuurd; probeer het over een paar minuten opnieuw',
     zilAcik: (ad) => `Melding voor ${ad} aan`, zilKapali: (ad) => `Melding voor ${ad} uit`,
+    notifSes: 'Geluid bij begin gebedstijd', notifSesAd: { telefon: 'Telefoon', 'ezan-kisa': 'Korte adhan', 'ezan-uzun': 'Lange adhan' },
+    notifSesNot: 'De adhan klinkt alleen bij de vijf gebeden; de herinnering vooraf met het gewone meldingsgeluid. Trek het meldingenscherm omlaag of tik op de melding om de adhan te stoppen.',
   },
   en: {
     notif: 'NOTIFICATIONS', notifMaster: 'Prayer time notifications', notifBefore: 'Remind me before',
@@ -212,6 +216,8 @@ const BILDIRIM = {
     notifBusy: 'Setting up notifications…', notifTest: 'Send test notification',
     notifTestSent: 'A test notification will arrive within a minute', notifTestWait: 'Just sent; try again in a few minutes',
     zilAcik: (ad) => `${ad} notification on`, zilKapali: (ad) => `${ad} notification off`,
+    notifSes: 'Sound when the prayer time begins', notifSesAd: { telefon: 'Phone', 'ezan-kisa': 'Short adhan', 'ezan-uzun': 'Full adhan' },
+    notifSesNot: 'The adhan only plays for the five daily prayers; the reminder before uses the normal sound. Pull down the notification shade or tap the notification to stop the adhan.',
   },
 };
 for (const d of Object.keys(BILDIRIM)) Object.assign(METIN[d], BILDIRIM[d]);
@@ -220,6 +226,7 @@ for (const d of Object.keys(BILDIRIM)) Object.assign(METIN[d], BILDIRIM[d]);
 const YEREL = {
   tr: {
     sayacAlt: 'Sıradaki vakit', kanalVakit: 'Namaz vakitleri', kanalSayac: 'Vakitler paneli', kanalSessiz: 'Sessize alma',
+    kanalEzanKisa: 'Namaz vakitleri (kısa ezan)', kanalEzanUzun: 'Namaz vakitleri (uzun ezan)',
     sayacTitle: 'BİLDİRİM PANELİ', sayacAna: 'Vakitler ve geri sayım',
     sayacNot: 'Bildirim panelinde bugünün vakitleri ve sıradaki vakte kalan süre durur. Vakte 30 dakika kala üstteki cami simgesinde kalan dakika görünür.',
     kalanKisa: (k) => ({ Imsak: "İmsak'a", Fajr: "Sabah'a", Sunrise: "Güneş'e", Dhuhr: "Öğle'ye", Asr: "İkindi'ye", Maghrib: "Akşam'a", Isha: "Yatsı'ya" })[k],
@@ -237,6 +244,7 @@ const YEREL = {
   },
   nl: {
     sayacAlt: 'Volgende gebedstijd', kanalVakit: 'Gebedstijden', kanalSayac: 'Gebedstijden-widget', kanalSessiz: 'Op stil zetten',
+    kanalEzanKisa: 'Gebedstijden (korte adhan)', kanalEzanUzun: 'Gebedstijden (lange adhan)',
     sayacTitle: 'MELDINGENSCHERM', sayacAna: 'Gebedstijden en aftellen',
     sayacNot: 'In je meldingenscherm staan de gebedstijden van vandaag en de tijd tot het volgende gebed. Vanaf 30 minuten ervoor staat het aantal minuten in het moskee-icoon bovenin.',
     kalanKisa: (k) => `${METIN.nl.names[k]} over`,
@@ -255,6 +263,7 @@ const YEREL = {
   },
   en: {
     sayacAlt: 'Next prayer time', kanalVakit: 'Prayer times', kanalSayac: 'Prayer times widget', kanalSessiz: 'Silencing',
+    kanalEzanKisa: 'Prayer times (short adhan)', kanalEzanUzun: 'Prayer times (full adhan)',
     sayacTitle: 'NOTIFICATION SHADE', sayacAna: 'Prayer times and countdown',
     sayacNot: 'Your notification shade shows today’s prayer times and the time until the next prayer. From 30 minutes before, the minutes appear in the mosque icon at the top.',
     kalanKisa: (k) => `${METIN.en.names[k]} in`,

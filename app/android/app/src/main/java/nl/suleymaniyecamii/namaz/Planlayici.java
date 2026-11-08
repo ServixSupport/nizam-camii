@@ -7,7 +7,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.SystemClock;
 import android.service.notification.StatusBarNotification;
@@ -38,7 +40,7 @@ final class Planlayici {
     private static final String K_UYARI = "uyari";
     static final long UYARI_SURE = 15 * 60_000L;
 
-    static final String KANAL_VAKIT = "vakit";
+    static final String KANAL_VAKIT = PlanMantigi.KANAL_VAKIT;
     static final String KANAL_SAYAC = "vakitler";
     private static final String ESKI_KANAL_SAYAC = "sayac";
     static final String KANAL_SESSIZ = "sessiz";
@@ -87,7 +89,7 @@ final class Planlayici {
         JSONObject yeniUyari = null;
         for (JSONObject b : PlanMantigi.vaktiGelenBildirimler(plan, son, simdi)) {
             if (panel) yeniUyari = b;
-            else bildirimGoster(c, b.optString("etiket"), b.optString("baslik"), b.optString("govde"));
+            else bildirimGoster(c, b.optString("etiket"), b.optString("baslik"), b.optString("govde"), b.optString("ses"));
         }
         if (yeniUyari != null) p.edit().putString(K_UYARI, yeniUyari.toString()).apply();
         sessizIsle(c, plan, son, simdi);
@@ -116,10 +118,27 @@ final class Planlayici {
         nm.deleteNotificationChannel(ESKI_KANAL_SAYAC);
         NotificationChannel sessiz = new NotificationChannel(KANAL_SESSIZ, adi(ad, "sessiz", c.getString(R.string.kanal_sessiz)), NotificationManager.IMPORTANCE_LOW);
         sessiz.setShowBadge(false);
+        // vakit girince ezan (kullanıcı isteği, 08-11-2026): her ses kendi kanalında; ses dosyası res/raw içinde.
+        // Bildirim kalkınca (dokununca, kaydırınca veya panel sessizce yenilenince) ezan da durur.
+        NotificationChannel ezanKisa = ezanKanali(c, PlanMantigi.KANAL_EZAN_KISA, adi(ad, "ezanKisa", c.getString(R.string.kanal_ezan_kisa)), "ezan_kisa");
+        NotificationChannel ezanUzun = ezanKanali(c, PlanMantigi.KANAL_EZAN_UZUN, adi(ad, "ezanUzun", c.getString(R.string.kanal_ezan_uzun)), "ezan_uzun");
         // aynı kimlikle yeniden oluşturmak sadece adı günceller (kullanıcının seçtiği ses vb. korunur)
         nm.createNotificationChannel(vakit);
         nm.createNotificationChannel(sayac);
         nm.createNotificationChannel(sessiz);
+        nm.createNotificationChannel(ezanKisa);
+        nm.createNotificationChannel(ezanUzun);
+    }
+
+    private static NotificationChannel ezanKanali(Context c, String kimlik, String ad, String dosya) {
+        NotificationChannel k = new NotificationChannel(kimlik, ad, NotificationManager.IMPORTANCE_HIGH);
+        Uri ses = Uri.parse("android.resource://" + c.getPackageName() + "/raw/" + dosya);
+        k.setSound(ses, new AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build());
+        k.enableVibration(true);
+        return k;
     }
 
     private static String adi(JSONObject ad, String k, String yedek) {
@@ -150,12 +169,15 @@ final class Planlayici {
     }
 
     // ---------------- namaz vakti bildirimi ----------------
-    /** Aynı etiket (aynı vakit) birbirinin yerini alır: "15 dk kala"nın yerine "vakit girdi" (yine ses çıkar). */
+    /**
+     * Aynı etiket (aynı vakit) birbirinin yerini alır: "15 dk kala"nın yerine "vakit girdi" (yine ses çıkar).
+     * ses: "ezan-kisa" / "ezan-uzun" ise ezan kanalından (PlanMantigi.kanal), yoksa telefonun bildirim sesi.
+     */
     @SuppressWarnings("MissingPermission")
-    static void bildirimGoster(Context c, String etiket, String baslik, String govde) {
+    static void bildirimGoster(Context c, String etiket, String baslik, String govde, String ses) {
         if (!bildirimIzni(c)) return;
         kanallar(c, planOku(depo(c)));
-        NotificationCompat.Builder b = new NotificationCompat.Builder(c, KANAL_VAKIT)
+        NotificationCompat.Builder b = new NotificationCompat.Builder(c, PlanMantigi.kanal(ses))
             .setSmallIcon(R.drawable.ic_stat_cami)
             .setColor(ContextCompat.getColor(c, R.color.cami_lacivert))
             .setContentTitle(baslik)
@@ -206,7 +228,8 @@ final class Planlayici {
         boolean sesli = uyar && u != null;
         // vakte 30 dk kala: üst çubuktaki cami simgesinin içinde kalan dakika
         int dk = PlanMantigi.simgeDakikasi(an, simdi);
-        NotificationCompat.Builder b = new NotificationCompat.Builder(c, sesli ? KANAL_VAKIT : KANAL_SAYAC)
+        // sesli uyarı vakit bildiriminin sesiyle (ezan seçildiyse ezan); sonraki sessiz yenileme sesi durdurur
+        NotificationCompat.Builder b = new NotificationCompat.Builder(c, sesli ? PlanMantigi.kanal(u.optString("ses")) : KANAL_SAYAC)
             .setColor(ContextCompat.getColor(c, R.color.cami_yesil))
             .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(kucuk)

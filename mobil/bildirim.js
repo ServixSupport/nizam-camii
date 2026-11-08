@@ -10,8 +10,12 @@ import { DENEME } from './bildirim-metin.js';
 
 const DEPO = 'nzm.bildirim';
 const ONCE = [0, 5, 10, 15, 30];
+/** Vakit girince ses (kullanıcı isteği, 08-11-2026; sadece Android mağaza uygulaması). Ezan sadece beş vakit namazda çalar.
+ *  Tarayıcı bildirimlerinde (Web Push) ses seçilemez; iPhone'da bildirim sesi en fazla 30 sn. */
+export const SESLER = ['telefon', 'ezan-kisa', 'ezan-uzun'];
 const VARSAYILAN = {
   aan: false, once: 15, giris: true, vakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'],   // tasarımdaki başlangıç
+  ses: 'telefon',
   endpoint: '', esitleme: 0, sunucu: null,
 };
 const GUN = 24 * 60 * 60 * 1000;
@@ -28,6 +32,7 @@ function oku() {
     if (!ONCE.includes(a.once)) a.once = VARSAYILAN.once;
     a.vakitler = VAKITLER.filter((k) => Array.isArray(a.vakitler) && a.vakitler.includes(k));
     a.giris = a.giris !== false;
+    if (!SESLER.includes(a.ses)) a.ses = VARSAYILAN.ses;
     return a;
   } catch { return { ...VARSAYILAN }; }
 }
@@ -52,8 +57,9 @@ function ayniAnahtar(a, b) {
  * @param {Function} o.iosMu
  * @param {object} [o.yerel]       mağaza uygulamasında telefon eklentisi (yerel.js), tarayıcıda yok
  * @param {Function} [o.planDegisti]
+ * @param {boolean} [o.sesSecimi]  vakit girince ses seçimi (Android mağaza uygulaması)
  */
-export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, planDegisti = () => {} }) {
+export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, planDegisti = () => {}, sesSecimi = false }) {
   let ayar = oku();
   let sunucu = yerel ? { aktif: true, publicKey: null }                                                   // sunucusuz
     : ayar.sunucu && ayar.sunucu.aktif ? ayar.sunucu : { aktif: false, publicKey: null };   // internetsizken son bilinen
@@ -65,6 +71,7 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
   const destek = () => (yerel ? 'tamam' : 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window ? 'tamam'
     : iosMu() && !kuruluMu() ? 'ios' : 'yok');
   const yaz = (parca) => { ayar = { ...ayar, ...parca }; sakla(ayar); };
+  const ses = () => (sesSecimi ? ayar.ses : 'telefon');
 
   // service worker hazır değilse sonsuza kadar beklemesin (10 sn sonra hata mesajı)
   function hazirKayit() {
@@ -189,7 +196,8 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     const t = L();
     try {
       if (yerel) {
-        await yerel.deneme(DENEME[dil()] || DENEME.nl);
+        // deneme bildirimi seçilen sesle gelir (ezanı dinlemek için de)
+        await yerel.deneme({ ...(DENEME[dil()] || DENEME.nl), ses: ses() });
         bildir(t.notifTestSentYerel);
         return;
       }
@@ -280,6 +288,12 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
       b.addEventListener('click', () => ayarla({ once: n }));
       return b;
     }));
+    $('#b-ses').replaceChildren(...SESLER.map((s) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.dataset.ses = s;
+      b.addEventListener('click', () => ayarla({ ses: s }));
+      return b;
+    }));
     $('#b-vakitler').replaceChildren(...VAKITLER.map((k) => {
       const b = document.createElement('button');
       b.type = 'button'; b.dataset.key = k;
@@ -305,6 +319,11 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
       const n = +b.dataset.once;
       b.textContent = n ? `${n} ${t.notifMin}` : t.notifOff;
       b.setAttribute('aria-pressed', String(n === ayar.once));
+    }
+    $('#b-ses-satir').hidden = !sesSecimi;
+    for (const b of $('#b-ses').children) {
+      b.textContent = t.notifSesAd[b.dataset.ses];
+      b.setAttribute('aria-pressed', String(b.dataset.ses === ayar.ses));
     }
     for (const b of $('#b-vakitler').children) {
       const on = ayar.vakitler.includes(b.dataset.key);
@@ -340,6 +359,6 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     /** dil değişti: açıksa bildirimler yeni dilde gelsin */
     dilDegisti() { ciz(); if (ayar.aan) { if (yerel) planDegisti(); else esitleSonra(); } },
     /** plana giden ayarlar (mağaza uygulaması) */
-    ayar: () => ({ aan: ayar.aan, once: ayar.once, giris: ayar.giris, vakitler: [...ayar.vakitler] }),
+    ayar: () => ({ aan: ayar.aan, once: ayar.once, giris: ayar.giris, vakitler: [...ayar.vakitler], ses: ses() }),
   };
 }

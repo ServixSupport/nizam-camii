@@ -28,7 +28,7 @@
       document.querySelector('link[rel="manifest"]').setAttribute('href', '/mobil/manifest-' + d + '.webmanifest');
       document.querySelector('meta[name="apple-mobile-web-app-title"]').setAttribute('content', ad);
     }
-    if (localStorage.getItem('nzm.stil') === 'liste') document.documentElement.setAttribute('data-stil', 'liste');
+    if (localStorage.getItem('nzm.stil') !== 'klasik') document.documentElement.setAttribute('data-stil', 'liste');   // Tema 1 (liste) varsayılan
     var t = localStorage.getItem('nzm.tema');
     if (t !== 'gunduz' && t !== 'gece') {
       var h = +new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Amsterdam', hour: '2-digit', hourCycle: 'h23' }).format(new Date());
@@ -194,6 +194,11 @@
           <div class="b-satir">
             <span class="b-ad" id="b-giris-ad" data-t="notifAtTime"></span>
             <button type="button" class="anahtar" role="switch" aria-checked="true" aria-labelledby="b-giris-ad" id="b-giris"><span aria-hidden="true"></span></button>
+          </div>
+          <div class="b-satir dikey" id="b-ses-satir" hidden>   <!-- vakit girince ses: sadece Android mağaza uygulaması (bildirim.js) -->
+            <span class="b-ad" id="b-ses-ad" data-t="notifSes"></span>
+            <div class="b-once" role="group" aria-labelledby="b-ses-ad" id="b-ses"></div>
+            <span class="ayar-not" data-t="notifSesNot"></span>
           </div>
           <div class="b-satir dikey">
             <span class="b-ad" id="b-vakit-ad" data-t="notifWhich"></span>
