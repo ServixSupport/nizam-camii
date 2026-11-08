@@ -7,6 +7,4 @@
     <string name="kanal_vakit">Prayer times</string>
     <string name="kanal_sayac">Countdown</string>
     <string name="kanal_sessiz">Silencing</string>
-    <string name="kanal_ezan_kisa">Prayer times (short adhan)</string>
-    <string name="kanal_ezan_uzun">Prayer times (full adhan)</string>
 </resources>

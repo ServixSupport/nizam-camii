@@ -500,7 +500,7 @@ function ciz() {
   kerahatCiz(simdi, true);
 }
 
-// ---------------- Tema 2: kerahat vaktine geri sayım (Sabah ve İkindi vaktinde) ----------------
+// ---------------- Tema 1 (liste): kerahat (sadece İkindi vaktinde) ----------------
 function kerahatCiz(simdi, veriVar) {
   const el = $('.kh-cumle');
   const k = veriVar && document.documentElement.dataset.stil === 'liste' ? kerahatDurumu(simdi, durum.olay.bugun) : null;
@@ -508,7 +508,7 @@ function kerahatCiz(simdi, veriVar) {
   if (!k) return;
   const t = L();
   el.classList.toggle('icinde', k.tur === 'icinde');
-  el.textContent = (k.tur === 'icinde' ? t.kerahatIcinde : t.kerahatOnce)(geriSayim(k.hedef - simdi));
+  el.textContent = k.tur === 'icinde' ? t.kerahatIcinde : t.kerahatOnce(geriSayim(k.hedef - simdi));
 }
 
 let _dakika = -1;

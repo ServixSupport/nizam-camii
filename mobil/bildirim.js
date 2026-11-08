@@ -6,15 +6,15 @@
 // - Mağaza uygulamasında (yerel) sunucu ve Web Push yok: bildirimleri telefon kendisi kurar (yerel-plan.js),
 //   ayar değişince app.js planı telefona yeniden gönderir (planDegisti).
 import { VAKITLER } from './zaman.js';
-import { DENEME } from './bildirim-metin.js';
+import { DENEME, SESLER } from './bildirim-metin.js';
 
 const DEPO = 'nzm.bildirim';
 const ONCE = [0, 5, 10, 15, 30];
-/** Vakit girince ses (kullanıcı isteği, 08-11-2026; sadece Android mağaza uygulaması). Ezan sadece beş vakit namazda çalar.
- *  Tarayıcı bildirimlerinde (Web Push) ses seçilemez; iPhone'da bildirim sesi en fazla 30 sn. */
-export const SESLER = ['telefon', 'ezan-kisa', 'ezan-uzun'];
+// Vakit girince ses (SESLER, kullanıcı isteği 08-11-2026): sadece Android mağaza uygulaması. Ezan sadece beş vakit namazda çalar.
+// Tarayıcı bildirimlerinde (Web Push) ses seçilemez; iPhone'da henüz yok.
 const VARSAYILAN = {
   aan: false, once: 15, giris: true, vakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'],   // tasarımdaki başlangıç
+  onceVakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'],                                  // vakitten önce ayrı seçilir
   ses: 'telefon',
   endpoint: '', esitleme: 0, sunucu: null,
 };
@@ -31,11 +31,14 @@ function oku() {
     const a = { ...VARSAYILAN, ...v };
     if (!ONCE.includes(a.once)) a.once = VARSAYILAN.once;
     a.vakitler = VAKITLER.filter((k) => Array.isArray(a.vakitler) && a.vakitler.includes(k));
+    // eski kayıtlarda tek liste vardı: ikisi aynı başlar
+    a.onceVakitler = Array.isArray(v.onceVakitler) ? VAKITLER.filter((k) => v.onceVakitler.includes(k)) : [...a.vakitler];
     a.giris = a.giris !== false;
     if (!SESLER.includes(a.ses)) a.ses = VARSAYILAN.ses;
     return a;
   } catch { return { ...VARSAYILAN }; }
 }
+const cevir = (liste, k) => (liste.includes(k) ? liste.filter((x) => x !== k) : VAKITLER.filter((x) => x === k || liste.includes(x)));
 function sakla(a) { try { localStorage.setItem(DEPO, JSON.stringify(a)); } catch { /* dolu veya kapalı */ } }
 
 function b64(s) {
@@ -95,7 +98,7 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
   async function kaydet(sub) {
     const r = await fetch('/api/bildirim/abone', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ abonelik: sub.toJSON(), dil: dil(), vakitler: ayar.vakitler, once: ayar.once, giris: ayar.giris }),
+      body: JSON.stringify({ abonelik: sub.toJSON(), dil: dil(), vakitler: ayar.vakitler, onceVakitler: ayar.onceVakitler, once: ayar.once, giris: ayar.giris }),
     });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     yaz({ endpoint: sub.endpoint, esitleme: Date.now() });
@@ -225,17 +228,22 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     if (ayar.aan) { if (yerel) planDegisti(); else esitleSonra(); }
   }
 
-  /** Ana ekrandaki zil: o vaktin bildirimini aç/kapat. Bildirimler kapalıysa açar (izin penceresi). */
+  /** Bu vakit için herhangi bir bildirim (vakit girince veya önceden) var mı? */
+  const seciliMi = (k) => (ayar.giris && ayar.vakitler.includes(k)) || (ayar.once > 0 && ayar.onceVakitler.includes(k));
+
+  /** Ana ekrandaki zil: o vaktin bildirimlerini (vakit girince ve önceden) aç/kapat. Bildirimler kapalıysa açar (izin penceresi). */
   function zil(key) {
     if (!sunucu.aktif || mesgul) return;
     const t = L();
-    const vardi = ayar.vakitler.includes(key);
+    const ekle = (l) => VAKITLER.filter((k) => k === key || l.includes(k));
     if (ayar.aan) {
-      ayarla({ vakitler: vardi ? ayar.vakitler.filter((k) => k !== key) : VAKITLER.filter((k) => k === key || ayar.vakitler.includes(k)) });
+      const vardi = seciliMi(key);
+      if (vardi) ayarla({ vakitler: ayar.vakitler.filter((k) => k !== key), onceVakitler: ayar.onceVakitler.filter((k) => k !== key) });
+      else ayarla({ vakitler: ekle(ayar.vakitler), onceVakitler: ekle(ayar.onceVakitler), giris: ayar.giris || !ayar.once });
       bildir((vardi ? t.zilKapali : t.zilAcik)(t.names[key]));
       return;
     }
-    yaz({ vakitler: VAKITLER.filter((k) => k === key || ayar.vakitler.includes(k)) });
+    yaz({ vakitler: ekle(ayar.vakitler), onceVakitler: ekle(ayar.onceVakitler) });
     if (destek() !== 'tamam') {
       mesaj = destek() === 'ios' ? 'notifIos' : 'notifUnsupported';
       location.hash = '#ayarlar';
@@ -288,18 +296,21 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
       b.addEventListener('click', () => ayarla({ once: n }));
       return b;
     }));
-    $('#b-ses').replaceChildren(...SESLER.map((s) => {
-      const b = document.createElement('button');
-      b.type = 'button'; b.dataset.ses = s;
-      b.addEventListener('click', () => ayarla({ ses: s }));
-      return b;
+    const sec = $('#b-ses');
+    sec.replaceChildren(...SESLER.map((s) => {
+      const o = document.createElement('option');
+      o.value = s;
+      return o;
     }));
-    $('#b-vakitler').replaceChildren(...VAKITLER.map((k) => {
+    sec.addEventListener('change', () => ayarla({ ses: sec.value }));
+    const vakitDugmeleri = (kap, alan) => kap.replaceChildren(...VAKITLER.map((k) => {
       const b = document.createElement('button');
       b.type = 'button'; b.dataset.key = k;
-      b.addEventListener('click', () => ayarla({ vakitler: ayar.vakitler.includes(k) ? ayar.vakitler.filter((x) => x !== k) : VAKITLER.filter((x) => x === k || ayar.vakitler.includes(x)) }));
+      b.addEventListener('click', () => ayarla({ [alan]: cevir(ayar[alan], k) }));
       return b;
     }));
+    vakitDugmeleri($('#b-vakitler'), 'vakitler');
+    vakitDugmeleri($('#b-once-vakitler'), 'onceVakitler');
   }
 
   function ciz() {
@@ -320,16 +331,20 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
       b.textContent = n ? `${n} ${t.notifMin}` : t.notifOff;
       b.setAttribute('aria-pressed', String(n === ayar.once));
     }
+    // kapalı bölümün ayrıntıları görünmez: sayfa kısa kalır
+    $('#b-giris-detay').hidden = !ayar.giris;
+    $('#b-once-vakit-satir').hidden = !ayar.once;
     $('#b-ses-satir').hidden = !sesSecimi;
-    for (const b of $('#b-ses').children) {
-      b.textContent = t.notifSesAd[b.dataset.ses];
-      b.setAttribute('aria-pressed', String(b.dataset.ses === ayar.ses));
-    }
-    for (const b of $('#b-vakitler').children) {
-      const on = ayar.vakitler.includes(b.dataset.key);
-      b.innerHTML = on ? TIK : '';
-      b.append(t.names[b.dataset.key]);
-      b.setAttribute('aria-pressed', String(on));
+    const sec = $('#b-ses');
+    for (const o of sec.options) o.textContent = o.value === 'telefon' ? t.notifSesTelefon : `Ezan ${o.value.slice(5)}`;
+    sec.value = ayar.ses;
+    for (const [kap, liste] of [[$('#b-vakitler'), ayar.vakitler], [$('#b-once-vakitler'), ayar.onceVakitler]]) {
+      for (const b of kap.children) {
+        const on = liste.includes(b.dataset.key);
+        b.innerHTML = on ? TIK : '';
+        b.append(t.names[b.dataset.key]);
+        b.setAttribute('aria-pressed', String(on));
+      }
     }
     const m = $('#b-mesaj');
     const yazi = mesgul ? t.notifBusy : mesaj ? t[mesaj] : '';
@@ -347,7 +362,7 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
       const key = b.closest('li').dataset.key;
       b.hidden = !sunucu.aktif;
       if (!sunucu.aktif) continue;
-      const on = ayar.aan && ayar.vakitler.includes(key);
+      const on = ayar.aan && seciliMi(key);
       if (b.dataset.on !== String(on)) { b.innerHTML = on ? ZIL : ZIL_KAPALI; b.dataset.on = String(on); }
       b.setAttribute('aria-pressed', String(on));
       b.setAttribute('aria-label', (on ? t.zilAcik : t.zilKapali)(t.names[key]));
@@ -359,6 +374,6 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     /** dil değişti: açıksa bildirimler yeni dilde gelsin */
     dilDegisti() { ciz(); if (ayar.aan) { if (yerel) planDegisti(); else esitleSonra(); } },
     /** plana giden ayarlar (mağaza uygulaması) */
-    ayar: () => ({ aan: ayar.aan, once: ayar.once, giris: ayar.giris, vakitler: [...ayar.vakitler], ses: ses() }),
+    ayar: () => ({ aan: ayar.aan, once: ayar.once, giris: ayar.giris, vakitler: [...ayar.vakitler], onceVakitler: [...ayar.onceVakitler], ses: ses() }),
   };
 }

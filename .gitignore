@@ -13,3 +13,7 @@ tests/.cache/
 _eski-temmuz/
 no phone prohibited.png
 .claude/settings.local.json
+
+# ezan kayıtları: kaynağı ve lisansı belli değil, public depoya girmez (yerel derlemede APK'nın içinde)
+Ezan sesleri/
+app/android/app/src/main/res/raw/ezan_*.mp3

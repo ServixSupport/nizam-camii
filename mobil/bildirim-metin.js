@@ -3,6 +3,9 @@
 import { METIN } from './metin.js';
 
 export const NAMAZ = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+/** Vakit girince ses: telefonun sesi veya ezan kayıtları (Android: res/raw/ezan_1.mp3 …; ekranda "Ezan 1" …). */
+export const EZAN_SAYISI = 7;
+export const SESLER = ['telefon', ...Array.from({ length: EZAN_SAYISI }, (_, i) => `ezan-${i + 1}`)];
 
 /** Ayarlar'daki "Deneme bildirimi" */
 export const DENEME = {

@@ -45,12 +45,16 @@ export function aboneDogrula(g) {
   if (!Array.isArray(g.vakitler) || g.vakitler.length > VAKITLER.length || !g.vakitler.every((v) => VAKITLER.includes(v))) return hata('vakitler geçersiz');
   if (![0, ...ONCE].includes(g.once)) return hata('önce süresi geçersiz');
   if (typeof g.giris !== 'boolean') return hata('giriş ayarı geçersiz');
+  // vakitten önce hatırlatılacak vakitler ayrı seçilir (yoksa: vakitler; eski uygulama sürümleri göndermez)
+  const onceListe = g.onceVakitler === undefined ? g.vakitler : g.onceVakitler;
+  if (!Array.isArray(onceListe) || onceListe.length > VAKITLER.length || !onceListe.every((v) => VAKITLER.includes(v))) return hata('önce vakitleri geçersiz');
   return {
     gecerli: true,
     abone: {
       abonelik: { endpoint: a.endpoint, keys: { p256dh: k.p256dh, auth: k.auth } },
       dil: g.dil,
       vakitler: VAKITLER.filter((v) => g.vakitler.includes(v)),
+      onceVakitler: VAKITLER.filter((v) => onceListe.includes(v)),
       once: g.once,
       giris: g.giris,
     },
@@ -94,7 +98,10 @@ export function anGecerli(a) {
 
 /** Bu abone bu anda bildirim istiyor mu? */
 export function istiyorMu(abone, an) {
-  if (!abone || !Array.isArray(abone.vakitler) || !abone.vakitler.includes(an.vakit)) return false;
+  if (!abone) return false;
+  // eski kayıtlarda onceVakitler yok: tek liste geçerli
+  const liste = an.tur === 'giris' || !Array.isArray(abone.onceVakitler) ? abone.vakitler : abone.onceVakitler;
+  if (!Array.isArray(liste) || !liste.includes(an.vakit)) return false;
   return an.tur === 'giris' ? abone.giris === true : abone.once === Number(an.tur.slice(5));
 }
 

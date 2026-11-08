@@ -136,23 +136,21 @@ export function gunduzMu(simdi, bugun) {
  * Süre (dakika) hocaya danışılmalı; Diyanet "yaklaşık 45 dakika" der. Öğle öncesi (istiva) burada yok.
  */
 export const KERAHAT_DK = 45;
-/** Kerahate kalan süre en erken bu kadar önce görünür (kullanıcı isteği, 08-11-2026). */
-export const KERAHAT_ONCE_DK = 60;
 
 /**
  * Sadece İkindi vaktinde (kullanıcı isteği, 08-11-2026: Sabah'ta, yani güneş doğarken kerahat gösterilmez):
- * kerahate (Akşam − KERAHAT_DK) en erken KERAHAT_ONCE_DK dakika kala kalan süre; kerahatin içindeyse
- * (Akşam − KERAHAT_DK → Akşam) bitişine kalan süre. Başka zaman null.
+ * İkindi girince kerahate (Akşam − KERAHAT_DK) kalan süre ('once'); kerahat girince 'icinde'
+ * (ekranda sadece "Kerahat vakti" yazar). Başka zaman null.
  * @returns {null | { tur: 'once'|'icinde', kerahat: 'batis', bas: number, bit: number, hedef: number }}
  */
-export function kerahatDurumu(simdi, bugun, dk = KERAHAT_DK, onceDk = KERAHAT_ONCE_DK) {
+export function kerahatDurumu(simdi, bugun, dk = KERAHAT_DK) {
   const bul = (k) => bugun.find((e) => e.key === k);
   const ikindi = bul('Asr'), aksam = bul('Maghrib');
-  const sure = dk * 60000, once = onceDk * 60000;
+  const sure = dk * 60000;
   const sonuc = (tur, kerahat, bas, bit) => ({ tur, kerahat, bas, bit, hedef: tur === 'once' ? bas : bit });
   if (ikindi && aksam) {
     const bas = Math.max(ikindi.ms, aksam.ms - sure), bit = aksam.ms;
-    if (simdi >= Math.max(ikindi.ms, bas - once) && simdi < bas) return sonuc('once', 'batis', bas, bit);
+    if (simdi >= ikindi.ms && simdi < bas) return sonuc('once', 'batis', bas, bit);
     if (simdi >= bas && simdi < bit) return sonuc('icinde', 'batis', bas, bit);
   }
   return null;

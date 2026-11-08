@@ -23,12 +23,14 @@ test('tasarımdaki başlangıç ayarı; sayfa açılınca izin İSTENMEZ', async
   const b = await bildirimKur(page, { zaman: ZAMAN });
   await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar' });
   await expect(page.locator('#bildirim-ayar')).toBeVisible();
-  await expect(page.locator('#bildirim-ayar h2')).toHaveText('MELDINGEN');
+  await expect(page.locator('#bildirim-ayar h2')).toHaveText('MELDINGEN EN GELUID');
   await expect(ana(page)).toHaveAttribute('aria-checked', 'false');
   expect(await basili(page.locator('#b-once'))).toEqual(['15 min']);
   await expect(page.locator('#b-once button')).toHaveText(['Uit', '5 min', '10 min', '15 min', '30 min']);
   await expect(page.getByRole('switch', { name: 'Melding bij begin gebedstijd' })).toHaveAttribute('aria-checked', 'true');
   expect(await basili(page.locator('#b-vakitler'))).toEqual(['Fadjr', 'Dhoehr', 'Asr', 'Maghrib', 'Isha']);
+  expect(await basili(page.locator('#b-once-vakitler'))).toEqual(['Fadjr', 'Dhoehr', 'Asr', 'Maghrib', 'Isha']);   // vakitten önce ayrı seçilir
+  await expect(page.locator('#b-ses-satir')).toBeHidden();                  // tarayıcıda ses seçilemez
   await expect(page.locator('#b-secenekler')).toHaveClass(/soluk/);
   await expect(page.locator('#bildirim-ayar')).not.toContainText('IP-adres');      // gizlilik notu kaldırıldı (kullanıcı isteği, 06-11-2026)
   expect(await page.evaluate(() => window.__test.izinSorulan)).toBe(0);
@@ -49,9 +51,11 @@ test('aç → izin bir kez, abonelik sunucuda; ayarlar ve dil değişince sunucu
   // seçimler: hemen değil, kısa bir beklemeden sonra tek istekle
   await page.locator('#b-once').getByRole('button', { name: '5 min', exact: true }).click();
   await page.locator('#b-vakitler').getByRole('button', { name: 'Imsak' }).click();
+  await page.locator('#b-once-vakitler').getByRole('button', { name: 'Isha' }).click();
   await page.getByRole('switch', { name: 'Melding bij begin gebedstijd' }).click();
+  await expect(page.locator('#b-vakitler')).toBeHidden();                   // kapalı bölümün ayrıntıları görünmez
   await page.clock.runFor(600);
-  await expect.poll(() => b.kayitlar()[0]).toMatchObject({ once: 5, giris: false, vakitler: ['Imsak', 'Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] });
+  await expect.poll(() => b.kayitlar()[0]).toMatchObject({ once: 5, giris: false, vakitler: ['Imsak', 'Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'], onceVakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib'] });
   expect(b.istekler.filter((i) => i.yol === '/api/bildirim/abone')).toHaveLength(2);
 
   await page.getByRole('button', { name: 'Türkçe' }).click();

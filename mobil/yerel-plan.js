@@ -4,7 +4,7 @@
 //   - durum çubuğunda sıradaki vakte geri sayım (Android),
 //   - namaz vakti bildirimleri (Web Push yerine telefonun kendi zamanlaması),
 //   - namaz vaktinde sessize alma ve süre bitince eski hale döndürme (Android).
-import { NAMAZ, bildirimMetni } from './bildirim-metin.js';
+import { NAMAZ, SESLER, bildirimMetni } from './bildirim-metin.js';
 import { amsParcalar, VAKITLER } from './zaman.js';
 
 const pad = (n) => String(n).padStart(2, '0');
@@ -15,14 +15,16 @@ export const PLAN_GUN = 30;
 /** Sessize alma süresi seçenekleri (dakika) */
 export const SESSIZ_DK = [15, 20, 30, 45, 60];
 export const SESSIZ_VARSAYILAN = { aan: false, dakika: 30, vakitler: [...NAMAZ], mod: 'sessiz' };
-/** Ezanın süresi (sn; res/raw/ezan_kisa 17,6 sn, ezan_uzun 2:34). Sessize alma ezan bitince başlar, yoksa ezanı keser. */
-export const EZAN_SN = { 'ezan-kisa': 20, 'ezan-uzun': 160 };
+/** Ezan bitene kadar beklenen süre (sn; en uzun kayıt 30 sn). Sessize alma ezan bitince başlar, yoksa ezanı keser. */
+export const EZAN_SN = 35;
+const ezanMi = (ses) => ses !== 'telefon' && SESLER.includes(ses);
 
 /**
  * @param {object} o
  * @param {Array<{ymd: string, hicri?: string, olaylar: Array<{key: string, ms: number, saat: string}>}>} o.gunler  bugünden itibaren
- * @param {{aan: boolean, once: number, giris: boolean, vakitler: string[], ses?: 'telefon'|'ezan-kisa'|'ezan-uzun'}} o.bildirim
- *        ses: vakit girince (sadece beş vakit namazda; önceden hatırlatma ve İmsak/Güneş telefonun sesiyle)
+ * @param {{aan: boolean, once: number, giris: boolean, vakitler: string[], onceVakitler?: string[], ses?: string}} o.bildirim
+ *        vakitler: vakit girince bildirilenler; onceVakitler: önceden hatırlatılanlar (yoksa vakitler).
+ *        ses: 'telefon' veya 'ezan-1' … (vakit girince, sadece beş vakit namazda; önceden hatırlatma ve İmsak/Güneş telefonun sesiyle)
  * @param {{aan: boolean, dakika: number, vakitler: string[], mod: 'sessiz'|'titresim'}} o.sessiz
  * @param {boolean} o.sayac   durum çubuğunda geri sayım
  * @param {'tr'|'nl'|'en'} o.dil
@@ -36,23 +38,23 @@ export function yerelPlan({ gunler, bildirim, sessiz, sayac, dil, t, simdi }) {
   for (const g of gunler) {
     for (const e of g.olaylar) {
       if (e.ms > simdi) vakitler.push({ an: e.ms, vakit: e.key, baslik: `${t.names[e.key]} · ${e.saat}` });
-      if (bildirim.aan && bildirim.vakitler.includes(e.key)) {
+      if (bildirim.aan) {
         // aynı vaktin bildirimleri aynı etiketle birbirinin yerini alır ("15 dk kala"nın yerine "vakit girdi")
         const ortak = { tarih: g.ymd, vakit: e.key, saat: e.saat };
         const etiket = `${g.ymd}-${e.key}`;
-        if (bildirim.once) {
+        if (bildirim.once && (bildirim.onceVakitler || bildirim.vakitler).includes(e.key)) {
           const an = e.ms - bildirim.once * 60000;
           if (an > simdi) bildirimler.push({ an, etiket, ...bildirimMetni(dil, { ...ortak, tur: `once-${bildirim.once}` }) });
         }
-        if (bildirim.giris && e.ms > simdi) {
-          const ezan = NAMAZ.includes(e.key) && (bildirim.ses === 'ezan-kisa' || bildirim.ses === 'ezan-uzun');
+        if (bildirim.giris && bildirim.vakitler.includes(e.key) && e.ms > simdi) {
+          const ezan = NAMAZ.includes(e.key) && ezanMi(bildirim.ses);
           bildirimler.push({ an: e.ms, etiket, ...bildirimMetni(dil, { ...ortak, tur: 'giris' }), ...(ezan ? { ses: bildirim.ses } : {}) });
         }
       }
       if (sessiz.aan && NAMAZ.includes(e.key) && sessiz.vakitler.includes(e.key)) {
         // bu vakitte ezan okunacaksa telefon ezan bitince susar (kullanıcı isteği, 08-11-2026: önce ezan, sonra sessiz)
-        const ezanli = bildirim.aan && bildirim.giris && bildirim.vakitler.includes(e.key) && EZAN_SN[bildirim.ses];
-        const bas = e.ms + (ezanli ? EZAN_SN[bildirim.ses] * 1000 : 0);
+        const ezanli = bildirim.aan && bildirim.giris && bildirim.vakitler.includes(e.key) && ezanMi(bildirim.ses);
+        const bas = e.ms + (ezanli ? EZAN_SN * 1000 : 0);
         const bit = e.ms + sessiz.dakika * 60000;
         if (bit > simdi) pencereler.push({ bas, bit });
       }
@@ -83,7 +85,7 @@ export function yerelPlan({ gunler, bildirim, sessiz, sayac, dil, t, simdi }) {
       vakitler: g.olaylar.map((e) => ({ vakit: e.key, ad: (t.kisaAd && t.kisaAd[e.key]) || t.names[e.key], saat: e.saat, an: e.ms })),
     })),
     kalanKisa: Object.fromEntries(VAKITLER.map((k) => [k, t.kalanKisa(k)])),
-    kanallar: { vakit: t.kanalVakit, sayac: t.kanalSayac, sessiz: t.kanalSessiz, ezanKisa: t.kanalEzanKisa, ezanUzun: t.kanalEzanUzun },
+    kanallar: { vakit: t.kanalVakit, sayac: t.kanalSayac, sessiz: t.kanalSessiz },
     sessizMod: mod,
     sessizBasliklar: t.sessizBaslik,                         // telefon izin yoksa sessiz yerine titreşime alır
     vakitler,

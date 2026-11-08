@@ -58,7 +58,7 @@ test('bildirimler: önce ve vakit girince, aynı vaktin etiketi aynı; geçmişt
 
 test('vakit girince ezan (kullanıcı isteği, 08-11-2026): sadece beş vakit namazın giriş bildiriminde; önceden hatırlatma, İmsak ve Güneş telefonun sesiyle', () => {
   const hepsi = ['Imsak', 'Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-  for (const ses of ['ezan-kisa', 'ezan-uzun']) {
+  for (const ses of ['ezan-1', 'ezan-7']) {
     const p = plan({ bildirim: { aan: true, once: 15, giris: true, vakitler: hepsi, ses } });
     const giris = p.bildirimler.filter((b) => b.baslik.includes('is begonnen'));
     const ezanli = giris.filter((b) => b.ses === ses).map((b) => b.etiket.slice(11));
@@ -72,21 +72,33 @@ test('vakit girince ezan (kullanıcı isteği, 08-11-2026): sadece beş vakit na
     expect(plan({ bildirim: { aan: true, once: 15, giris: true, vakitler: hepsi, ses } }).bildirimler.some((b) => 'ses' in b)).toBe(false);
   }
   // Android bildirim kanallarının adları (telefonun ayarlarında görünür)
-  expect(plan().kanallar).toEqual({ vakit: 'Gebedstijden', sayac: 'Gebedstijden-widget', sessiz: 'Op stil zetten',
-    ezanKisa: 'Gebedstijden (korte adhan)', ezanUzun: 'Gebedstijden (lange adhan)' });
+  expect(plan().kanallar).toEqual({ vakit: 'Gebedstijden', sayac: 'Gebedstijden-widget', sessiz: 'Op stil zetten' });
+  // bilinmeyen ses (eski sürümlerin ezan-kisa'sı): telefonun sesi
+  expect(plan({ bildirim: { aan: true, once: 0, giris: true, vakitler: ['Maghrib'], ses: 'ezan-kisa' } }).bildirimler.some((b) => 'ses' in b)).toBe(false);
+});
+
+test('vakitten önce ve vakit girince ayrı vakitler (kullanıcı isteği, 08-11-2026)', () => {
+  const p = plan({ bildirim: { aan: true, once: 15, giris: true, vakitler: ['Isha'], onceVakitler: ['Maghrib'] } });
+  const bugun = p.bildirimler.filter((b) => b.etiket.startsWith('2026-10-28'));
+  expect(bugun.map((b) => [b.etiket, b.an])).toEqual([
+    ['2026-10-28-Maghrib', an('2026-10-28T17:12:00+01:00')],                  // sadece önceden
+    ['2026-10-28-Isha', bugun[1].an],                                         // sadece vakit girince
+  ]);
+  expect(bugun[1].baslik).toContain('is begonnen');
+  // eski kayıt (onceVakitler yok): tek liste
+  expect(plan({ bildirim: { aan: true, once: 15, giris: true, vakitler: ['Maghrib'] } }).bildirimler.filter((b) => b.etiket === '2026-10-28-Maghrib')).toHaveLength(2);
 });
 
 test('ezan ve sessize alma aynı vakitte: telefon ezan bitince susar (kullanıcı isteği, 08-11-2026), bitiş aynı', () => {
   const sessiz = { aan: true, dakika: 30, vakitler: ['Maghrib', 'Isha'], mod: 'sessiz' };
   const aksam = an('2026-10-28T17:27:00+01:00');
   const ilk = (bildirim) => plan({ sessiz, bildirim }).sessiz[0];
-  expect(ilk({ aan: true, once: 0, giris: true, vakitler: ['Maghrib'], ses: 'ezan-uzun' })).toMatchObject({ bas: aksam + 160000, bit: aksam + 30 * 60000 });
-  expect(ilk({ aan: true, once: 0, giris: true, vakitler: ['Maghrib'], ses: 'ezan-kisa' })).toMatchObject({ bas: aksam + 20000, bit: aksam + 30 * 60000 });
+  expect(ilk({ aan: true, once: 0, giris: true, vakitler: ['Maghrib'], ses: 'ezan-3' })).toMatchObject({ bas: aksam + 35000, bit: aksam + 30 * 60000 });
   // ezan yoksa (telefonun sesi, bildirim kapalı, o vakit seçili değil, giriş bildirimi kapalı) vakit girince
   for (const b of [{ aan: true, once: 0, giris: true, vakitler: ['Maghrib'], ses: 'telefon' },
-    { aan: false, once: 0, giris: true, vakitler: ['Maghrib'], ses: 'ezan-uzun' },
-    { aan: true, once: 0, giris: true, vakitler: ['Isha'], ses: 'ezan-uzun' },
-    { aan: true, once: 15, giris: false, vakitler: ['Maghrib'], ses: 'ezan-uzun' }]) expect(ilk(b).bas).toBe(aksam);
+    { aan: false, once: 0, giris: true, vakitler: ['Maghrib'], ses: 'ezan-3' },
+    { aan: true, once: 0, giris: true, vakitler: ['Isha'], ses: 'ezan-3' },
+    { aan: true, once: 15, giris: false, vakitler: ['Maghrib'], ses: 'ezan-3' }]) expect(ilk(b).bas).toBe(aksam);
 });
 
 test('sessize alma: seçilen namazlarda vakit girince, süre kadar; Güneş ve İmsak hiç', () => {

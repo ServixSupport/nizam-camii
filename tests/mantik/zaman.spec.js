@@ -2,7 +2,7 @@
 import { test, expect } from '@playwright/test';
 import {
   amsZaman, amsParcalar, amsGun, gunEkle, diyanetGunu, aladhanGunu, gunOlaylari, hicriYazi,
-  geriSayim, anDurumu, gunduzMu, aladhanAdresi, kerahatDurumu, KERAHAT_DK, KERAHAT_ONCE_DK, vakitSonu,
+  geriSayim, anDurumu, gunduzMu, aladhanAdresi, kerahatDurumu, KERAHAT_DK, vakitSonu,
 } from '../../mobil/zaman.js';
 import { VAKIT, aladhanCevap } from '../yardimci/tv.js';
 
@@ -135,9 +135,8 @@ test.describe('ekran durumu ve kemer', () => {
 });
 
 // Tema 1 (liste): kerahat (sadece güneş batmadan önce; süre KERAHAT_DK, hocaya danışılacak)
-test('kerahatDurumu: sadece İkindi vaktinde kerahate (en erken 60 dk kala), kerahatte bitişine; Sabah vaktinde ve başka zaman null', () => {
+test('kerahatDurumu: sadece İkindi vaktinde: İkindi girince kerahate kalan süre, kerahat girince icinde; Sabah vaktinde ve başka zaman null', () => {
   expect(KERAHAT_DK).toBe(45);
-  expect(KERAHAT_ONCE_DK).toBe(60);                                // kullanıcı isteği, 08-11-2026
   const b = gunOlaylari(gun('28.10.2026'), '2026-10-28');      // İmsak 05:34, Güneş 07:21, İkindi 14:54, Akşam 17:27
   const k = (s) => kerahatDurumu(an(`2026-10-28T${s}+01:00`), b);
   const ozet = (x) => x && { tur: x.tur, kerahat: x.kerahat, bas: iso(x.bas), bit: iso(x.bit), hedef: iso(x.hedef) };
@@ -145,9 +144,8 @@ test('kerahatDurumu: sadece İkindi vaktinde kerahate (en erken 60 dk kala), ker
   // Sabah'ta (güneş doğarken) kerahat yok (kullanıcı isteği, 08-11-2026)
   for (const s of ['05:34', '06:21', '07:00', '07:21', '07:40', '08:06']) expect(k(s), s).toBeNull();
   expect(k('14:53')).toBeNull();
-  expect(k('14:54')).toBeNull();                                // İkindi girdi; kerahat 16:42'de, 60 dk'dan çok var
-  expect(k('15:41')).toBeNull();
-  expect(ozet(k('15:42'))).toEqual({ tur: 'once', kerahat: 'batis', bas: '2026-10-28T15:42Z', bit: '2026-10-28T16:27Z', hedef: '2026-10-28T15:42Z' });   // 16:42 − 60
+  expect(ozet(k('14:54'))).toEqual({ tur: 'once', kerahat: 'batis', bas: '2026-10-28T15:42Z', bit: '2026-10-28T16:27Z', hedef: '2026-10-28T15:42Z' });   // İkindi girer girmez (kullanıcı isteği, 08-11-2026)
+  expect(k('16:41').tur).toBe('once');
   expect(ozet(k('16:42'))).toEqual({ tur: 'icinde', kerahat: 'batis', bas: '2026-10-28T15:42Z', bit: '2026-10-28T16:27Z', hedef: '2026-10-28T16:27Z' });
   expect(k('17:27')).toBeNull();                                // Akşam girdi
   expect(kerahatDurumu(an('2026-10-28T16:00+01:00'), [])).toBeNull();

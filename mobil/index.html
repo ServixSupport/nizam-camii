@@ -178,6 +178,18 @@
       <div class="segment" role="group" data-t-aria="lang" id="dil-secim"></div>
     </section>
 
+    <section class="ayar">
+      <h2 class="ayar-baslik" data-t="look"></h2>
+      <div class="ayar-kart">
+        <span class="ayar-ad" data-t="stil"></span>
+        <div class="secenekler" role="group" data-t-aria="stil" id="stil-secim"></div>
+        <span class="ayar-ad" data-t="theme"></span>
+        <div class="secenekler" role="group" data-t-aria="theme" id="tema-secim"></div>
+        <span class="ayar-not" data-t="autoHint"></span>
+      </div>
+    </section>
+
+    <!-- Bildirimler ve ses: tek grup (kullanıcı isteği, 08-11-2026). Başlık burada; alttaki bölümler (panel, sessiz …) aynı grubun kartları. -->
     <section class="ayar" id="bildirim-ayar" hidden>
       <h2 class="ayar-baslik" data-t="notif"></h2>
       <div class="b-kart">
@@ -186,41 +198,54 @@
           <button type="button" class="anahtar" role="switch" aria-checked="false" aria-labelledby="b-ana-ad" id="b-ana"><span aria-hidden="true"></span></button>
         </div>
         <p class="b-mesaj" id="b-mesaj" role="status" hidden></p>
-        <div class="b-secenekler" id="b-secenekler">
-          <div class="b-satir dikey">
-            <span class="b-ad" id="b-once-ad" data-t="notifBefore"></span>
-            <div class="b-once" role="group" aria-labelledby="b-once-ad" id="b-once"></div>
-          </div>
+      </div>
+      <div class="b-secenekler" id="b-secenekler">
+        <!-- vakit girince -->
+        <div class="b-kart">
           <div class="b-satir">
-            <span class="b-ad" id="b-giris-ad" data-t="notifAtTime"></span>
+            <span class="b-ana-ad" id="b-giris-ad" data-t="notifAtTime"></span>
             <button type="button" class="anahtar" role="switch" aria-checked="true" aria-labelledby="b-giris-ad" id="b-giris"><span aria-hidden="true"></span></button>
           </div>
-          <div class="b-satir dikey" id="b-ses-satir" hidden>   <!-- vakit girince ses: sadece Android mağaza uygulaması (bildirim.js) -->
-            <span class="b-ad" id="b-ses-ad" data-t="notifSes"></span>
-            <div class="b-once" role="group" aria-labelledby="b-ses-ad" id="b-ses"></div>
-            <span class="ayar-not" data-t="notifSesNot"></span>
+          <div id="b-giris-detay">
+            <div class="b-satir dikey" id="b-ses-satir" hidden>   <!-- ses: sadece Android mağaza uygulaması (bildirim.js) -->
+              <div class="b-yan">
+                <label class="b-ad" for="b-ses" data-t="notifSes"></label>
+                <span class="b-sec"><select id="b-ses"></select></span>
+              </div>
+              <span class="ayar-not" data-t="notifSesNot"></span>
+            </div>
+            <div class="b-satir dikey">
+              <span class="b-ad" id="b-vakit-ad" data-t="notifWhich"></span>
+              <div class="b-vakitler" role="group" aria-labelledby="b-vakit-ad" id="b-vakitler"></div>
+            </div>
           </div>
+        </div>
+        <!-- vakitten önce -->
+        <div class="b-kart">
           <div class="b-satir dikey">
-            <span class="b-ad" id="b-vakit-ad" data-t="notifWhich"></span>
-            <div class="b-vakitler" role="group" aria-labelledby="b-vakit-ad" id="b-vakitler"></div>
+            <span class="b-ana-ad" id="b-once-ad" data-t="notifBefore"></span>
+            <div class="b-once" role="group" aria-labelledby="b-once-ad" id="b-once"></div>
           </div>
-          <div class="b-satir" id="b-deneme-satir" hidden>
-            <button type="button" class="dugme b-deneme" id="b-deneme" data-t="notifTest"></button>
+          <div class="b-satir dikey" id="b-once-vakit-satir">
+            <span class="b-ad" id="b-once-vakit-ad" data-t="notifWhich"></span>
+            <div class="b-vakitler" role="group" aria-labelledby="b-once-vakit-ad" id="b-once-vakitler"></div>
           </div>
+        </div>
+        <div id="b-deneme-satir" hidden>
+          <button type="button" class="dugme b-deneme" id="b-deneme" data-t="notifTest"></button>
         </div>
       </div>
     </section>
 
     <!-- Mağaza uygulaması (yerel-ayar.js); tarayıcıda gizli kalır -->
-    <section class="ayar" id="tam-alarm" hidden>
+    <section class="ayar grup-ici" id="tam-alarm" hidden>
       <div class="b-kart">
         <p class="b-mesaj bilgi" data-t="tamAlarm"></p>
         <div class="b-satir"><button type="button" class="dugme cerceve" id="tam-alarm-dugme" data-t="ayarAc"></button></div>
       </div>
     </section>
 
-    <section class="ayar" id="sayac-ayar" hidden>
-      <h2 class="ayar-baslik" data-t="sayacTitle"></h2>
+    <section class="ayar grup-ici" id="sayac-ayar" hidden>
       <div class="b-kart">
         <div class="b-satir">
           <span class="b-ana-ad" id="sayac-ad" data-t="sayacAna"></span>
@@ -231,8 +256,7 @@
       <p class="ayar-not b-not" data-t="sayacNot"></p>
     </section>
 
-    <section class="ayar" id="sessiz-ayar" hidden>
-      <h2 class="ayar-baslik" data-t="sessizTitle"></h2>
+    <section class="ayar grup-ici" id="sessiz-ayar" hidden>
       <div class="b-kart">
         <div class="b-satir">
           <span class="b-ana-ad" id="sessiz-ad" data-t="sessizAna"></span>
@@ -261,22 +285,10 @@
       <p class="ayar-not b-not" data-t="sessizNot"></p>
     </section>
 
-    <section class="ayar" id="widget-ayar" hidden>
-      <h2 class="ayar-baslik" data-t="widgetTitle"></h2>
+    <section class="ayar grup-ici" id="widget-ayar" hidden>
       <div class="ayar-kart">
         <span class="ayar-ad" data-t="widgetAna"></span>
         <span class="ayar-not" data-t="widgetNot"></span>
-      </div>
-    </section>
-
-    <section class="ayar">
-      <h2 class="ayar-baslik" data-t="look"></h2>
-      <div class="ayar-kart">
-        <span class="ayar-ad" data-t="stil"></span>
-        <div class="secenekler" role="group" data-t-aria="stil" id="stil-secim"></div>
-        <span class="ayar-ad" data-t="theme"></span>
-        <div class="secenekler" role="group" data-t-aria="theme" id="tema-secim"></div>
-        <span class="ayar-not" data-t="autoHint"></span>
       </div>
     </section>
 

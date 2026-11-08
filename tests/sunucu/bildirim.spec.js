@@ -78,6 +78,12 @@ test.describe('anlar ve metinler', () => {
     expect(istiyorMu(ab, an('Dhuhr', 'once-15'))).toBe(false);
     expect(istiyorMu({ ...ab, giris: true, once: 0 }, an('Isha', 'giris'))).toBe(true);
     expect(istiyorMu({ ...ab, once: 0 }, an('Isha', 'once-5'))).toBe(false);
+    // vakitten önce ayrı liste (08-11-2026)
+    const ayri = { vakitler: ['Isha'], onceVakitler: ['Maghrib'], once: 15, giris: true };
+    expect(istiyorMu(ayri, an('Maghrib', 'once-15'))).toBe(true);
+    expect(istiyorMu(ayri, an('Isha', 'once-15'))).toBe(false);
+    expect(istiyorMu(ayri, an('Isha', 'giris'))).toBe(true);
+    expect(istiyorMu(ayri, an('Maghrib', 'giris'))).toBe(false);
   });
 });
 
@@ -86,8 +92,10 @@ test.describe('abonelik doğrulama', () => {
     const { abonelik } = testAboneligi();
     const d = aboneDogrula({ ...aboneGovdesi(abonelik, { vakitler: ['Isha', 'Fajr', 'Isha'] }), isim: 'x', ip: '1.2.3.4' });
     expect(d.gecerli).toBe(true);
-    expect(Object.keys(d.abone).sort()).toEqual(['abonelik', 'dil', 'giris', 'once', 'vakitler']);
+    expect(Object.keys(d.abone).sort()).toEqual(['abonelik', 'dil', 'giris', 'once', 'onceVakitler', 'vakitler']);
     expect(d.abone.vakitler).toEqual(['Fajr', 'Isha']);        // sıralı, tekrarsız
+    expect(d.abone.onceVakitler).toEqual(['Fajr', 'Isha']);    // eski uygulama göndermez: vakitler ile aynı
+    expect(aboneDogrula(aboneGovdesi(abonelik, { vakitler: ['Isha'], onceVakitler: ['Asr'] })).abone.onceVakitler).toEqual(['Asr']);
     expect(VARSAYILAN).toEqual({ once: 15, giris: true, vakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] });
   });
 
@@ -104,7 +112,7 @@ test.describe('abonelik doğrulama', () => {
     const bozuk = [
       { ...g, abonelik: { ...abonelik, keys: { ...abonelik.keys, p256dh: 'kisa' } } },
       { ...g, abonelik: { ...abonelik, keys: { ...abonelik.keys, auth: 'a b c d e f g h i j k l' } } },
-      { ...g, dil: 'de' }, { ...g, vakitler: ['Cuma'] }, { ...g, vakitler: 'Isha' },
+      { ...g, dil: 'de' }, { ...g, vakitler: ['Cuma'] }, { ...g, vakitler: 'Isha' }, { ...g, onceVakitler: ['Cuma'] }, { ...g, onceVakitler: 'Isha' },
       { ...g, once: 7 }, { ...g, once: '15' }, { ...g, giris: 'evet' }, null,
     ];
     for (const b of bozuk) expect(aboneDogrula(b).gecerli, JSON.stringify(b && { ...b, abonelik: undefined })).toBe(false);

@@ -460,6 +460,7 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
   .kart-yildiz { position: absolute; right: -46px; bottom: -56px; width: 180px; height: 180px; opacity: .16; }
 
   .sayfa { padding: 40px 48px 48px; max-width: 760px; gap: 26px; }
+  .ayar.grup-ici { margin-top: -16px; }
   .sayfa h1 { font-size: 40px; }
 
   /* Programlar: haftalık tablo (Tablet-Programlar.dc.html) */
@@ -558,8 +559,17 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 .b-kart { display: flex; flex-direction: column; border-radius: 20px; background: var(--card); border: 1px solid var(--line); }
 .b-satir { display: flex; align-items: center; gap: 12px; padding: 14px 16px; box-shadow: inset 0 -1px 0 var(--line); }
 .b-satir.dikey { flex-direction: column; align-items: stretch; gap: 10px; }
-.b-secenekler > .b-satir:last-child { box-shadow: none; padding-bottom: 16px; }
+/* Ayarlar, "Bildirimler ve ses" grubu (08-11-2026): ana anahtar, altında ayrı kartlar */
+.b-secenekler { display: flex; flex-direction: column; gap: 10px; }
 .b-secenekler.soluk { opacity: .45; }
+.b-kart > .b-satir:last-child, .b-kart > div:last-child > .b-satir:last-child, .b-kart > .b-satir:has(+ .b-mesaj[hidden]:last-child) { box-shadow: none; }
+.ayar.grup-ici { margin-top: -12px; }                  /* aynı grubun kartları birbirine yakın (.sayfa gap 22) */
+.b-yan { display: flex; align-items: center; gap: 12px; }
+.b-yan .b-ad { flex: 0 0 auto; }
+.b-sec { position: relative; flex: 1 1 auto; min-width: 0; }
+.b-sec select { width: 100%; height: 44px; padding: 0 34px 0 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  font: inherit; font-size: 14.5px; font-weight: 600; appearance: none; -webkit-appearance: none; cursor: pointer; text-overflow: ellipsis; }
+.b-sec::after { content: ""; position: absolute; right: 13px; top: 50%; width: 8px; height: 8px; margin-top: -6px; border-right: 2px solid var(--soft); border-bottom: 2px solid var(--soft); transform: rotate(45deg); pointer-events: none; }
 .b-ana-ad { flex: 1; font-weight: 700; font-size: 15.5px; }
 .b-ad { flex: 1; font-weight: 600; font-size: 14.5px; }
 .b-mesaj { margin: 0; padding: 12px 16px; font-size: 13.5px; line-height: 1.45; color: var(--coral); box-shadow: inset 0 -1px 0 var(--line); }

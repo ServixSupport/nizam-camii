@@ -19,21 +19,17 @@ final class PlanMantigi {
     /** Vakte bu kadar kala üst çubuktaki cami simgesinde kalan dakika görünür (kullanıcı isteği, 07-11-2026). */
     static final long SIMGE_PENCERE = 30 * 60_000L;
 
-    /** Vakit bildirimi kanalları: her ses kendi kanalında (Android'de kanalın sesi sonradan değişmez). */
+    /** Vakit bildirimi kanalı; her ezan kaydı kendi kanalında (Android'de kanalın sesi sonradan değişmez). */
     static final String KANAL_VAKIT = "vakit";
-    static final String KANAL_EZAN_KISA = "vakit_ezan_kisa";
-    static final String KANAL_EZAN_UZUN = "vakit_ezan_uzun";
 
     private PlanMantigi() {}
 
     /**
-     * Bildirimin "ses" alanına göre kanal (kullanıcı isteği, 08-11-2026): "ezan-kisa" / "ezan-uzun" kendi kanalında
-     * (res/raw/ezan_kisa, ezan_uzun); yoksa veya bilinmiyorsa telefonun bildirim sesi.
+     * Bildirimin "ses" alanına göre kanal (kullanıcı isteği, 08-11-2026): "ezan-3" → "vakit_ezan_3" (res/raw/ezan_3);
+     * yoksa veya bilinmiyorsa telefonun bildirim sesi.
      */
     static String kanal(String ses) {
-        if ("ezan-kisa".equals(ses)) return KANAL_EZAN_KISA;
-        if ("ezan-uzun".equals(ses)) return KANAL_EZAN_UZUN;
-        return KANAL_VAKIT;
+        return ses != null && ses.matches("ezan-[1-9][0-9]?") ? "vakit_ezan_" + ses.substring(5) : KANAL_VAKIT;
     }
 
     /**

@@ -27,8 +27,9 @@ public class PlanMantigiTest {
 
     @Test
     public void kanal_sesSecimineGore() {
-        assertEquals("vakit_ezan_kisa", PlanMantigi.kanal("ezan-kisa"));
-        assertEquals("vakit_ezan_uzun", PlanMantigi.kanal("ezan-uzun"));
+        assertEquals("vakit_ezan_1", PlanMantigi.kanal("ezan-1"));
+        assertEquals("vakit_ezan_7", PlanMantigi.kanal("ezan-7"));
+        assertEquals("vakit", PlanMantigi.kanal("ezan-kisa"));
         assertEquals("vakit", PlanMantigi.kanal(""));
         assertEquals("vakit", PlanMantigi.kanal(null));
         assertEquals("vakit", PlanMantigi.kanal("telefon"));

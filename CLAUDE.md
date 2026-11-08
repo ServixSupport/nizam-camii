@@ -26,7 +26,7 @@
 | `mobil/sw.js`, `manifest.webmanifest`, `ikon-*.png` | PWA (Faz C). Uygulama dosyası değişince: `cd tests && node araclar/sw-surum.mjs` (yoksa telefonlar eski sürümde kalır; test yakalar). |
 | `veri/dogrula.js` | İçerik doğrulama: API, panel ve testler aynı dosyayı kullanır. |
 | `api/bildirim/` | Faz D bildirimleri: `anahtar.js` (hazır mı + açık VAPID anahtarı), `abone.js` (kaydet/sil), `planla.js` (günlük cron), `gonder.js` (QStash çağırır), `deneme.js` (Ayarlar'daki "Deneme bildirimi": 1 dk sonra aynı yoldan). Mantık `api/_lib/bildirim.js`, servisler `api/_lib/bildirim-servis.js`. |
-| `mobil/bildirim.js` | Uygulamada bildirim ayarları ve ana ekrandaki ziller. İzin sadece dokununca istenir. "Vakit girince ses" (Telefon / Kısa ezan / Uzun ezan; 08-11-2026) sadece Android mağaza uygulamasında. |
+| `mobil/bildirim.js` | Uygulamada bildirim ayarları ve ana ekrandaki ziller. İzin sadece dokununca istenir. "Ses" açılır listesi (telefonun sesi, Ezan 1 … 7; 08-11-2026) sadece Android mağaza uygulamasında. Vakitten önce (`onceVakitler`) ve vakit girince (`vakitler`) ayrı vakit seçimi. |
 | `mobil/yerel.js`, `yerel-plan.js`, `yerel-ayar.js` | Mağaza uygulaması köprüsü: telefona verilen plan (vakitler, bildirimler, sessiz dönemler) ve Ayarlar'daki "Durum çubuğu", "Sessize alma", "Kilit ekranı". Tarayıcıda hiçbir şey yapmaz. Bildirim metinleri `mobil/bildirim-metin.js` (sunucu da kullanır). |
 | `app/` | Mağaza uygulaması (Capacitor 8; Android + iOS). Ayrıntı: `app/README.md`, mağaza metinleri: `app/MAGAZA.md`. Vercel'e yüklenmez. |
 | `gizlilik/index.html` | Gizlilik sayfası (NL/TR/EN); mağazalar ister, uygulamada bağlantısı var. |
@@ -55,8 +55,9 @@
       - Kemerli temanın (Tema 2) sayacı değişmedi (sıradaki vakte).
     - Altta liste: telefonda kenardan kenara yaprak, üst köşeler yuvarlak, alt düz (zeminle ve menüyle birleşir); İmsak ve Güneş dahil 7 vakit (büyük adlar).
     - Gece hali yeşil değil: koyu temaların nötr renkleri (#121212 zemin, #1E1E1E kart, altın vurgu).
-    - Kerahat: sadece İkindi vaktinde (Sabah vaktinde, güneş doğarken gösterilmez; kullanıcı isteği 08-11-2026) kerahate kalan süre, en erken 60 dk kala (`KERAHAT_ONCE_DK = 60`); kerahatin içinde bitişine kalan süre (`zaman.js` `kerahatDurumu`, `KERAHAT_DK = 45`). Telefonda yazı satırları arası 12 px (08-11-2026). Süreyi hoca onaylamalı; öğle öncesi (istiva) yok.
+    - Kerahat: sadece İkindi vaktinde (kullanıcı isteği 08-11-2026; Sabah'ta gösterilmez). İkindi girince kerahate kalan süre, kerahat girince sadece "Kerahat vakti" (`zaman.js` `kerahatDurumu`, `KERAHAT_DK = 45`). Süreyi hoca onaylamalı; öğle öncesi (istiva) yok. Telefonda yazı satırları arası 12 px (08-11-2026).
   - Geçmiş vakitler hiçbir temada soluk/gri değil.
+- Uygulamanın Ayarlar sayfası gruplu (kullanıcı isteği, 08-11-2026; Android ayar kılavuzu ve Muslim Pro'ya bakıldı): Dil → Tema ve görünüm → Bildirimler ve ses (ana anahtar; "Vakit girince" kartı: anahtar, ses, vakitler; "Vakitten önce" kartı: dakika, vakitler; deneme; panel; sessize alma) → Cami. Kapalı kartın ayrıntıları görünmez. Sunucuda da `onceVakitler` var (eski kayıtlarda `vakitler` geçerli).
 - Uygulama ve /admin'in yazı tipleri TV'dekiyle aynı (07-11-2026): Inter (yazı), Oswald (saatler, başlıklar), Amiri (Arapça). `mobil/fonts/`, OFL; Oswald dosyaları TV'nin `index.html`'inde gömülü olanlar.
 
 **Yükleme (S1, 24-10-2026):** `git push` Claude yapar, kullanıcı GitHub sitesinden yüklemez.
@@ -117,8 +118,11 @@
    - Kullanıcı isteği (07-11-2026): **her değişiklikte mağaza uygulamasını hazırlama** (www/cap sync/derleme/emülatör yok). Kullanıcı Preview linkinde (tarayıcı, PWA) test eder; mağaza sürümüne kullanıcı "şimdi" deyince geçilir.
    - Uygulama kimliği `nl.suleymaniyecamii.namaz` değişmez.
    - iPhone'da sessize alma ve durum çubuğu simgesi yok (Apple izin vermez); bu ayarlar iPhone'da gizli.
-   - **Ezan sesi** (08-11-2026, sadece Android): `app/android/app/src/main/res/raw/ezan_uzun.ogg` (Wikimedia Commons "Beautiful adhan.ogg", CC0, 2:34) ve `ezan_kisa.ogg` (aynısının ilk 17,6 sn'si, ilk "Allahu ekber" ikilisi). Her ses kendi bildirim kanalında (`vakit_ezan_kisa`, `vakit_ezan_uzun`); ezan sadece beş vakitte vakit girince, önceden hatırlatma telefonun sesiyle. Tarayıcıda (Web Push) ve iPhone'da (en fazla 30 sn) şimdilik yok. Hoca dinlemeli.
-     - Aynı vakitte sessize alma da açıksa telefon ezan bitince susar (`yerel-plan.js` `EZAN_SN`: kısa 20 sn, uzun 160 sn).
+   - **Ezan sesi** (08-11-2026, sadece Android): Ayarlar'da "Ses" açılır listesi: telefonun sesi veya Ezan 1 … 7 (`bildirim-metin.js` `SESLER`, `EZAN_SAYISI`).
+     - Dosyalar kullanıcının `Ezan sesleri/` klasöründen `app/android/app/src/main/res/raw/ezan_1.mp3 … ezan_7.mp3` olarak kopyalandı: 1 = Ezan, 2 = Ezan 2, 3 = Ezan 3, 4 = Beautiful Azan, 5 = Duygusal Adhane, 6 = Ezan Salah fajr, 7 = Güzel Ezan Kısa.
+     - **Bu mp3'ler git'e girmez** (`.gitignore`; depo public, kaynakları ve lisansları belli değil). Sadece bu bilgisayarda derlenen APK/AAB'de var; GitHub Actions derlemesinde yok, o zaman telefonun sesi çalar (`Planlayici.kanalIcin`). Mağazaya yüklemeden önce kullanım hakkı netleşmeli.
+     - Her kayıt kendi bildirim kanalında (`vakit_ezan_N`; `res/raw`'daki dosyalar sırayla taranır). Ezan sadece beş vakitte vakit girince; önceden hatırlatma telefonun sesiyle. Tarayıcıda (Web Push) ve iPhone'da yok. Hoca dinlemeli.
+     - Aynı vakitte sessize alma da açıksa telefon ezan bitince susar (`yerel-plan.js` `EZAN_SN = 35`; en uzun kayıt 30 sn).
      - Son sessize alma denemesi ve sonucu telefonda saklanır (`Planlayici` `sessizSon`), Ayarlar'da "Son: 8 Kas 06:41 · telefon sessize alındı" (veya "zaten sessizdeydi", "Rahatsız Etmeyin açıktı" …).
    - **Bildirim panelindeki tablo** (08-11-2026, kullanıcının örneğine göre): üst satır, ince çizgi, 7 eşit sütun (ad üstte, saat altta, `sans-serif-condensed`); sıradaki kırmızı ve kalın; sabit yükseklik + autoSize. Soldaki uygulama simgesi Android 12+ sistemin çerçevesi: uygulama küçültemez.
    - Uygulamada (Tema 1) şimdiki vakit "ŞİMDİ" yazısıyla değil, satırın solunda yeşil çizgiyle (yazı ekran okuyucu için kalır); adlar hiç kısalmaz.

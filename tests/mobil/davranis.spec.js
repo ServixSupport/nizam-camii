@@ -551,15 +551,14 @@ test.describe('Tema 1 (liste)', () => {
     await ac('12:00:00.500');
     await expect(kh).toBeHidden();
     await ac('16:50:00.500');
-    await expect(kh).toHaveText('Kerahat vakti, 0:36:59 sonra bitiyor');
+    await expect(kh).toHaveText('Kerahat vakti');                              // kerahat girince sadece bu (kullanıcı isteği, 08-11-2026)
     await expect(kh).toHaveClass(/icinde/);
     await ac('21:00:00.500');
     await expect(kh).toBeHidden();
-    // kerahate 60 dk'dan çok varken yok (kullanıcı isteği, 08-11-2026): İkindi 14:54, kerahat 16:42
-    await ac('15:00:00.500');
-    await expect(kh).toBeHidden();
-    await ac('15:42:00.500');
-    await expect(kh).toHaveText('Kerahat vaktine 0:59:59 kaldı');
+    // İkindi girince kerahate kalan süre (kullanıcı isteği, 08-11-2026): İkindi 14:54, kerahat 16:42
+    await ac('14:54:00.500');
+    await expect(kh).toHaveText('Kerahat vaktine 1:47:59 kaldı');
+    await expect(kh).not.toHaveClass(/icinde/);
     await ac('06:00:00.500');                                                  // Sabah vakti
     await expect(kh).toBeHidden();
     await ac('16:00:00.500');
