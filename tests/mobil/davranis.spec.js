@@ -408,7 +408,7 @@ test.describe('Tema 2', () => {
     for (const s of ['.tarih-satir', '.sira', '.sira-ar', '.kalan-kisa', '.kalan-etiket']) await expect(page.locator(s)).toBeHidden();
     await expect(page.locator('.sira-etiket')).toHaveText('Vaktin çıkmasına');
     await expect(page.locator('.sayac')).toHaveText('1:26:59');                // İkindi vakti Akşam'da çıkar
-    await expect(page.locator('.kart-tarih')).toHaveText('17 Jumada al-Awwal 1448 H • 28 Eki 2026');
+    await expect(page.locator('.kart-tarih')).toHaveText('17 Jumada al-Awwal 1448 • 28 Eki 2026');   // yılın arkasında "H" yok (kullanıcı isteği, 08-11-2026)
     await expect(page.locator('.kh-cumle')).toHaveText('Kerahat vaktine 0:41:59 kaldı');
     const st = (s, ps = null) => page.locator(s).evaluate((e, ps) => { const c = getComputedStyle(e, ps); return { bg: c.backgroundImage, renk: c.color, cerceve: c.borderTopWidth, ust: c.borderTopLeftRadius, alt: c.borderBottomLeftRadius, zemin: c.backgroundColor }; }, ps);
     // kutu yok: yazıların arkasında zemin, çerçeve, resim yok
@@ -433,17 +433,19 @@ test.describe('Tema 2', () => {
     expect(cumle.y).toBeGreaterThanOrEqual(tarih.y + tarih.height - 2);
     expect(tarih.height).toBeLessThan(24);                                     // tek satır
     // yazılar logo ile liste arasında dikey ortada (kullanıcı isteği, 08-11-2026)
-    const ust = logo.y + logo.height, alt = liste.y - 18;
+    const ust = logo.y + logo.height, alt = liste.y - 22;
     expect(Math.abs((etiket.y + cumle.y + cumle.height) / 2 - (ust + alt) / 2)).toBeLessThan(10);
     // fotoğraf: üstten listenin yuvarlak köşelerine kadar; telefonun genişliğinde (1200 × 940 → 390 × 305).
-    // Altı listenin 12 px üstünde: bütün cami listenin üstünde görünür, gökyüzünün üstü kesilir ("çoğu gökyüzü" olmasın)
+    // Altı listenin 10 px altında: bütün cami listenin üstünde görünür, gökyüzünün üstü kesilir ("çoğu gökyüzü" olmasın).
+    // Liste 4 px aşağıda (kullanıcı isteği, 08-11-2026), fotoğraf yerinde: margin 22 px, fotoğrafın altı bandın 16 px üstünde
     const bant = await page.locator('.sekme-ana').evaluate((e) => { const c = getComputedStyle(e, '::before'); return { bg: c.backgroundImage, boyut: c.backgroundSize, konum: c.backgroundPositionY, yuk: parseFloat(c.height), ust: e.getBoundingClientRect().top }; });
     expect(bant.bg).toContain('/mobil/cami-gece.jpg');
     expect(bant.boyut).toContain('100% auto');
-    expect(bant.konum).toMatch(/12px/);
+    expect(bant.konum).toMatch(/16px/);
+    expect(await page.locator('.vakitler').evaluate((e) => getComputedStyle(e).marginTop)).toBe('22px');
     expect(bant.ust).toBe(0);
     expect(Math.abs(bant.ust + bant.yuk - (liste.y + 26))).toBeLessThan(2);
-    const foto = 390 * 940 / 1200, gorunen = liste.y + 14;                   // fotoğrafın listenin üstünde kalan kısmı
+    const foto = 390 * 940 / 1200, gorunen = liste.y + 10;                // fotoğrafın listenin üstünde kalan kısmı
     expect(gorunen).toBeLessThan(foto);                                       // gökyüzünün üstü kesik
     expect(gorunen / foto).toBeGreaterThan(0.72);                             // minareler dahil bütün cami (bina ~%40, minare şerefeleri ~%30)
     // liste yaprağı: kenardan kenara, üst köşeler yuvarlak, alt düz
@@ -508,7 +510,7 @@ test.describe('Tema 2', () => {
 
   test('gece: koyu temaların nötr renkleri; üstte yine caminin fotoğrafı', async ({ page }) => {
     await mobilAc(page, { zaman: an('21:30:00.500'), depo: { 'nzm.stil': 'liste', 'nzm.dil': 'nl', 'nzm.tema': 'gece' } });
-    await expect(page.locator('.kart-tarih')).toHaveText('17 Jumada al-Awwal 1448 AH • 28 okt 2026');
+    await expect(page.locator('.kart-tarih')).toHaveText('17 Jumada al-Awwal 1448 • 28 okt 2026');
     const renk = (s, o) => page.locator(s).evaluate((e, o) => getComputedStyle(e, o.ps)[o.ozellik], o);
     expect(await renk('body', { ps: null, ozellik: 'backgroundColor' })).toBe('rgb(18, 18, 18)');
     expect(await renk('.sekme-ana', { ps: '::before', ozellik: 'backgroundImage' })).toContain('/mobil/cami-gece.jpg');

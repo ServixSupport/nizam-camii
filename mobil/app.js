@@ -445,7 +445,7 @@ function tarihCiz(simdi) {
   const k = {};
   for (const x of new Intl.DateTimeFormat(t.locale, { timeZone: AMS, day: 'numeric', month: 'short', year: 'numeric' }).formatToParts(new Date(simdi))) k[x.type] = x.value;
   const miladiKisa = `${k.day} ${String(k.month).replace(/\.$/, '')} ${k.year}`;
-  $('.tarih-kisa').textContent = $('.kart-tarih').textContent = g ? `${hicriYazi(g.hicri)} ${t.hicriEk} • ${miladiKisa}` : miladiKisa;
+  $('.tarih-kisa').textContent = $('.kart-tarih').textContent = g ? `${hicriYazi(g.hicri)} • ${miladiKisa}` : miladiKisa;
 }
 
 const cihazAmsterdam = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone === AMS; } catch { return true; } })();

@@ -41,9 +41,9 @@
   - Tema 1: kemer, lacivert (eski "Klasik"; varsayılan).
   - Tema 2 (`nzm.stil=liste`, `html[data-stil="liste"]`; eski "Liste"nin yerine): kullanıcının örnek resmine göre; logonun renkleri.
     - 08-11-2026'dan beri yeşil bant ve kutu (kart) yok. Üstte caminin fotoğrafı, olduğu gibi (`mobil/cami-gece.jpg`, kullanıcının verdiği; karartma yok).
-      - Telefonda fotoğraf ekran genişliğinde. Altı listenin hemen arkasında (12 px): bütün cami listenin üstünde görünür, gökyüzünün üstü kesilir ("çoğu gökyüzü" olmasın). Yazılar logo ile liste arasında dikey ortada. Bandın yüksekliği JS'ten `--bant-yuk`; tarayıcı çubuğu `--ustZemin`.
+      - Telefonda fotoğraf ekran genişliğinde. Altı listenin hemen arkasında (10 px; liste 08-11-2026 4 px aşağı alındı, fotoğraf yerinde): bütün cami listenin üstünde görünür, gökyüzünün üstü kesilir ("çoğu gökyüzü" olmasın). Yazılar logo ile liste arasında dikey ortada. Bandın yüksekliği JS'ten `--bant-yuk`; tarayıcı çubuğu `--ustZemin`.
       - Yatay tablette solda tam boy panel.
-    - Fotoğrafın üstünde: logo + ad; ortada sırayla "Vaktin çıkmasına" (beyaz), kalan süre (sarı), tek satır tarih "17 Jumada al-Awwal 1448 AH • 28 okt 2026" (TR'de "H"; beyaz), kerahat cümlesi (sarı). Vakit adı ve Arapça adı gösterilmez.
+    - Fotoğrafın üstünde: logo + ad; ortada sırayla "Vaktin çıkmasına" (beyaz), kalan süre (sarı), tek satır tarih "17 Jumada al-Awwal 1448 • 28 okt 2026" (yılın arkasında H/AH yok, kullanıcı isteği; beyaz), kerahat cümlesi (sarı). Vakit adı ve Arapça adı gösterilmez.
     - Sayaç (`zaman.js` `vakitSonu`, kullanıcı isteği):
       - İmsak → Sabah namazı (listedeki Sabah satırı, Güneş − 60): "Sabah namazına".
       - Sabah namazından sonra Güneş'e kadar: "Vaktin çıkmasına".
