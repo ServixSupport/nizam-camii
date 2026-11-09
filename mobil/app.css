@@ -232,8 +232,11 @@ main {
 .ayar-kart { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 16px; border-radius: 20px; background: var(--card); border: 1px solid var(--line); }
 .ayar-ad { font-weight: 600; font-size: 14.5px; }
 .ayar-not { font-size: 13px; line-height: 1.4; color: var(--soft); }
+.ayar-satir { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 0; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.ayar-satir .ayar-ad { flex: 1; }
+.ayar-deger { font-size: 14.5px; font-weight: 600; color: var(--soft); }
+.ayar-satir svg { width: 18px; height: 18px; flex: 0 0 auto; color: var(--soft); }
 .secenekler { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-#stil-secim { grid-template-columns: repeat(2, minmax(0, 1fr)); }   /* Tema 1 / Tema 2: iki düğme */
 .secenekler button { height: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 14px; font-weight: 700; cursor: pointer; padding: 0 4px; }
 .secenekler button[aria-pressed="true"] { background: var(--ink); color: var(--ground); border-color: var(--ink); }
 .cami-kart { flex-direction: row; align-items: center; gap: 12px; padding: 14px 16px; }
@@ -567,9 +570,21 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 .b-yan { display: flex; align-items: center; gap: 12px; }
 .b-yan .b-ad { flex: 0 0 auto; }
 .b-sec { position: relative; flex: 1 1 auto; min-width: 0; }
-.b-sec select { width: 100%; height: 44px; padding: 0 34px 0 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink);
-  font: inherit; font-size: 14.5px; font-weight: 600; appearance: none; -webkit-appearance: none; cursor: pointer; text-overflow: ellipsis; }
+.b-sec button { display: block; width: 100%; height: 44px; padding: 0 34px 0 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  font: inherit; font-size: 14.5px; font-weight: 600; text-align: left; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .b-sec::after { content: ""; position: absolute; right: 13px; top: 50%; width: 8px; height: 8px; margin-top: -6px; border-right: 2px solid var(--soft); border-bottom: 2px solid var(--soft); transform: rotate(45deg); pointer-events: none; }
+.b-sec.acik::after { margin-top: -2px; transform: rotate(225deg); }
+/* ses listesi: satır seçer, ▶ dinletir */
+.b-ses-liste { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.b-ses-liste[hidden] { display: none; }
+.b-ses-oge { display: flex; align-items: stretch; }
+.b-ses-oge + .b-ses-oge { border-top: 1px solid var(--line); }
+.b-ses-sec { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 12px; border: 0; background: none; color: var(--ink); font: inherit; font-size: 14.5px; font-weight: 600; text-align: left; cursor: pointer; }
+.b-radyo { flex: 0 0 auto; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--soft); }
+.b-ses-sec[aria-pressed="true"] .b-radyo { border-color: var(--turq); background: var(--turq); box-shadow: inset 0 0 0 3px var(--card); }
+.b-ses-dinle { flex: 0 0 auto; width: 52px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: none; color: var(--soft); cursor: pointer; }
+.b-ses-dinle svg { width: 22px; height: 22px; }
+.b-ses-dinle[data-on="true"] { color: var(--coral); }
 .b-ana-ad { flex: 1; font-weight: 700; font-size: 15.5px; }
 .b-ad { flex: 1; font-weight: 600; font-size: 14.5px; }
 .b-mesaj { margin: 0; padding: 12px 16px; font-size: 13.5px; line-height: 1.45; color: var(--coral); box-shadow: inset 0 -1px 0 var(--line); }
@@ -728,4 +743,34 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
   :root[data-stil="liste"] .sayac { font-size: 84px; }
   :root[data-stil="liste"] .vakit { --satir: 60px; }
   :root[data-stil="liste"] .zilli .vakit { padding: 0 10px; }
+}
+
+/* ================= Tema seçimi: tam ekran canlı önizleme (tema-onizleme.js, 09-11-2026) =================
+   Her tema iframe'de uygulamanın kendisi. iframe dokunma almaz: kaydırmayı şerit yapar.
+   Renkler sabit (koyu): önizlenen temadan bağımsız, uygulamanın parçası gibi görünmesin. */
+.tema-on { position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; overflow: hidden; background: #121212; color: #fff; }
+.tema-on::backdrop { background: #121212; }
+.to-serit { position: absolute; inset: 0; display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; overscroll-behavior: contain; scrollbar-width: none; }
+.to-serit::-webkit-scrollbar { display: none; }
+.to-slayt { flex: 0 0 100%; height: 100%; scroll-snap-align: center; scroll-snap-stop: always; }
+.to-slayt iframe { display: block; width: 100%; height: 100%; border: 0; pointer-events: none; }
+.to-kapat { flex: 0 0 auto; width: 40px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: none; color: #fff; cursor: pointer; }
+.to-kapat svg { width: 20px; height: 20px; }
+/* telefonda alt menünün yerine oturur: menüyle aynı yükseklik, listeyi örtmez; ekranın üstünde önizlemeyi örten bir şey olmaz */
+.to-alt { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: calc(58px + env(safe-area-inset-bottom));
+  padding: 6px calc(12px + env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) calc(6px + env(safe-area-inset-left)); background: #121212; }
+.to-gez { display: flex; align-items: center; flex: 0 0 auto; margin-right: auto; }
+.to-gez button { width: 40px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: none; color: #fff; cursor: pointer; }
+.to-gez button:disabled { opacity: .3; cursor: default; }
+.to-gez svg { width: 22px; height: 22px; }
+#to-ad { min-width: 62px; text-align: center; font-size: 15px; font-weight: 700; white-space: nowrap; }
+#to-sec { flex: 0 1 auto; min-width: 0; white-space: nowrap; }
+#to-sec:disabled { background: transparent; color: #E8C27A; cursor: default; }
+@media (max-width: 359px) {
+  .to-gez button, .to-kapat { width: 32px; }
+  #to-ad { min-width: 54px; font-size: 14px; }
+  #to-sec { padding: 0 10px; }
+}
+@media (min-width: 768px) {
+  .to-alt { left: 50%; right: auto; bottom: calc(20px + env(safe-area-inset-bottom)); transform: translateX(-50%); min-width: 400px; min-height: 60px; padding: 8px 10px; border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,.45); }
 }

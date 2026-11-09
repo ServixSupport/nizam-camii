@@ -6,10 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.view.Window;
+import androidx.activity.OnBackPressedCallback;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -34,10 +37,21 @@ public class CamiPlugin extends Plugin {
 
     private Boolean koyu = null;
     private int zemin = Color.parseColor("#F6F1E7");
+    private MediaPlayer dinleme;
+    private PluginCall dinlemeCagri;
+
+    /** Tam ekran tema önizlemesi açıkken geri tuşu uygulamadan çıkmasın, önizlemeyi kapatsın (mobil/tema-onizleme.js). */
+    private final OnBackPressedCallback geri = new OnBackPressedCallback(false) {
+        @Override
+        public void handleOnBackPressed() {
+            getBridge().triggerDocumentJSEvent("camiGeri");
+        }
+    };
 
     @Override
     public void load() {
         Planlayici.calistir(getContext());
+        getActivity().getOnBackPressedDispatcher().addCallback(getActivity(), geri);
     }
 
     /** Uygulamanın hesapladığı plan (mobil/yerel-plan.js). Eskisinin yerine geçer. */
@@ -79,6 +93,77 @@ public class CamiPlugin extends Plugin {
         call.resolve();
     }
 
+    /**
+     * Ayarlar'daki ▶: sesi seçmeden önce dinlemek. Ses bitince veya durdurulunca cevap verir.
+     * Medya sesiyle çalar: telefon sessizdeyken de duyulur, ses tuşları çalışır.
+     */
+    @PluginMethod
+    public synchronized void sesDinle(PluginCall call) {
+        dinlemeBitir();
+        String ses = call.getString("ses", "telefon");
+        Uri adres = "telefon".equals(ses) ? Settings.System.DEFAULT_NOTIFICATION_URI : Planlayici.ezanAdresi(getContext(), ses);
+        if (adres == null) {
+            call.reject("ses yok");
+            return;
+        }
+        MediaPlayer mp = new MediaPlayer();
+        try {
+            mp.setAudioAttributes(
+                new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()
+            );
+            mp.setDataSource(getContext(), adres);
+        } catch (Exception e) {
+            mp.release();
+            call.reject("ses açılamadı");
+            return;
+        }
+        mp.setOnPreparedListener(MediaPlayer::start);
+        mp.setOnCompletionListener(this::dinlemeSonu);
+        mp.setOnErrorListener((m, a, b) -> {
+            dinlemeSonu(m);
+            return true;
+        });
+        dinleme = mp;
+        dinlemeCagri = call;
+        mp.prepareAsync();
+    }
+
+    @PluginMethod
+    public synchronized void sesDurdur(PluginCall call) {
+        dinlemeBitir();
+        call.resolve();
+    }
+
+    private synchronized void dinlemeSonu(MediaPlayer m) {
+        if (m == dinleme) dinlemeBitir();
+    }
+
+    private synchronized void dinlemeBitir() {
+        if (dinleme != null) {
+            try {
+                dinleme.stop();
+            } catch (IllegalStateException e) {
+                // henüz başlamamıştı
+            }
+            dinleme.release();
+            dinleme = null;
+        }
+        if (dinlemeCagri != null) {
+            dinlemeCagri.resolve();
+            dinlemeCagri = null;
+        }
+    }
+
+    /** Tema önizlemesi açılınca { acik: true }, kapanınca { acik: false }. */
+    @PluginMethod
+    public void geriYakala(PluginCall call) {
+        boolean acik = call.getBoolean("acik", false);
+        getActivity().runOnUiThread(() -> {
+            geri.setEnabled(acik);
+            call.resolve();
+        });
+    }
+
     /** Üst ve alt sistem çubuğu uygulamanın temasına göre (açık temada koyu simgeler, koyu temada açık). */
     @PluginMethod
     public void cubuklar(PluginCall call) {
@@ -115,6 +200,12 @@ public class CamiPlugin extends Plugin {
         super.handleOnResume();
         // telefonun ayarlarından dönünce (izinler) ve uzun aradan sonra: geri sayım ve alarm güncel olsun
         Planlayici.calistir(getContext());
+    }
+
+    @Override
+    protected void handleOnPause() {
+        super.handleOnPause();
+        dinlemeBitir();                 // uygulamadan çıkınca dinleme susar
     }
 
     @Override

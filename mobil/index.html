@@ -28,7 +28,8 @@
       document.querySelector('link[rel="manifest"]').setAttribute('href', '/mobil/manifest-' + d + '.webmanifest');
       document.querySelector('meta[name="apple-mobile-web-app-title"]').setAttribute('content', ad);
     }
-    if (localStorage.getItem('nzm.stil') !== 'klasik') document.documentElement.setAttribute('data-stil', 'liste');   // Tema 1 (liste) varsayılan
+    var oz = new URLSearchParams(location.search).get('onizleme');   // tam ekran tema önizlemesi (tema-onizleme.js)
+    if ((oz === 'liste' || oz === 'klasik' ? oz : localStorage.getItem('nzm.stil')) !== 'klasik') document.documentElement.setAttribute('data-stil', 'liste');   // Tema 1 (liste) varsayılan
     var t = localStorage.getItem('nzm.tema');
     if (t !== 'gunduz' && t !== 'gece') {
       var h = +new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Amsterdam', hour: '2-digit', hourCycle: 'h23' }).format(new Date());
@@ -181,8 +182,12 @@
     <section class="ayar">
       <h2 class="ayar-baslik" data-t="look"></h2>
       <div class="ayar-kart">
-        <span class="ayar-ad" data-t="stil"></span>
-        <div class="secenekler" role="group" data-t-aria="stil" id="stil-secim"></div>
+        <!-- tema: tam ekran canlı önizleme açılır (tema-onizleme.js) -->
+        <button type="button" class="ayar-satir" id="stil-ac">
+          <span class="ayar-ad" data-t="stil"></span>
+          <span class="ayar-deger" id="stil-ad"></span>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
         <span class="ayar-ad" data-t="theme"></span>
         <div class="secenekler" role="group" data-t-aria="theme" id="tema-secim"></div>
         <span class="ayar-not" data-t="autoHint"></span>
@@ -209,9 +214,10 @@
           <div id="b-giris-detay">
             <div class="b-satir dikey" id="b-ses-satir" hidden>   <!-- ses: sadece Android mağaza uygulaması (bildirim.js) -->
               <div class="b-yan">
-                <label class="b-ad" for="b-ses" data-t="notifSes"></label>
-                <span class="b-sec"><select id="b-ses"></select></span>
+                <span class="b-ad" id="b-ses-ad" data-t="notifSes"></span>
+                <span class="b-sec"><button type="button" id="b-ses" aria-labelledby="b-ses-ad b-ses" aria-expanded="false" aria-controls="b-ses-liste"></button></span>
               </div>
+              <div class="b-ses-liste" id="b-ses-liste" role="group" aria-labelledby="b-ses-ad" hidden></div>   <!-- seçmeden önce dinlenir (▶) -->
               <span class="ayar-not" data-t="notifSesNot"></span>
             </div>
             <div class="b-satir dikey">
@@ -327,6 +333,21 @@
     </section>
   </section>
 </main>
+
+<!-- Tema seçimi: tam ekran canlı önizleme, sağa sola kaydırılır (tema-onizleme.js) -->
+<dialog class="tema-on" id="tema-on" data-t-aria="temaOnizleme">
+  <div class="to-serit" id="to-serit"></div>
+  <div class="to-alt">
+    <button type="button" class="to-kapat" id="to-kapat" data-t-aria="kapat" autofocus><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="to-gez">
+      <button type="button" id="to-onceki" data-t-aria="temaOnceki"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <span id="to-ad" role="status"></span>
+      <button type="button" id="to-sonraki" data-t-aria="temaSonraki"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    <button type="button" class="dugme altin" id="to-sec"></button>
+  </div>
+</dialog>
+
 <div class="surum-cubugu" id="surum-cubugu" role="status" hidden>
   <span data-t="newVersion"></span>
   <button type="button" class="dugme altin" id="surum-dugme" data-t="refresh"></button>

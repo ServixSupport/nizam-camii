@@ -5,7 +5,7 @@
 // - Yeni sürüm kendiliğinden devreye girmez: sayfa "Yeni sürüm hazır" gösterir, kullanıcı dokununca geçilir.
 // SURUM: uygulama dosyalarının özeti. Dosya değişince `cd tests && node araclar/sw-surum.mjs` ile güncellenir
 // (test, unutulursa kırmızı olur).
-const SURUM = 'acce4abed5';
+const SURUM = '14fa5289e0';
 const KABUK = `nzm-kabuk-${SURUM}`;
 const VERI = 'nzm-veri';
 const RESIM = 'nzm-resim';
@@ -13,7 +13,7 @@ const RESIM = 'nzm-resim';
 const DOSYALAR = [
   '/mobil/',
   '/mobil/app.css', '/mobil/app.js', '/mobil/zaman.js', '/mobil/metin.js', '/mobil/ekranlar.js', '/mobil/icerik.js', '/mobil/bildirim.js',
-  '/mobil/bildirim-metin.js', '/mobil/yerel.js', '/mobil/yerel-plan.js', '/mobil/yerel-ayar.js',
+  '/mobil/bildirim-metin.js', '/mobil/yerel.js', '/mobil/yerel-plan.js', '/mobil/yerel-ayar.js', '/mobil/tema-onizleme.js',
   '/mobil/logo.png', '/mobil/cami-gece.jpg', '/mobil/manifest-nl.webmanifest', '/mobil/manifest-tr.webmanifest', '/mobil/manifest-en.webmanifest', '/mobil/ikon-192.png', '/mobil/ikon-512.png',
   '/mobil/fonts/inter-latin.woff2', '/mobil/fonts/inter-latin-ext.woff2',
   '/mobil/fonts/oswald-500-latin.woff2', '/mobil/fonts/oswald-600-latin.woff2', '/mobil/fonts/oswald-700-latin.woff2',

@@ -137,7 +137,7 @@ final class Planlayici {
         }
     }
 
-    /** Bu ezan kaydı uygulamanın içinde mi? (mp3'ler depoda değil; depodan derlenen sürümde yok) */
+    /** Bu ezan kaydı uygulamanın içinde mi? */
     private static boolean sesVar(Context c, String ses) {
         return c.getResources().getIdentifier(ses.replace('-', '_'), "raw", c.getPackageName()) != 0;
     }
@@ -148,9 +148,14 @@ final class Planlayici {
         return k.equals(KANAL_VAKIT) || sesVar(c, ses) ? k : KANAL_VAKIT;
     }
 
+    /** "ezan-N" kaydının adresi; uygulamada yoksa null. */
+    static Uri ezanAdresi(Context c, String ses) {
+        return sesVar(c, ses) ? Uri.parse("android.resource://" + c.getPackageName() + "/raw/" + ses.replace('-', '_')) : null;
+    }
+
     private static NotificationChannel ezanKanali(Context c, int n, String ad) {
         NotificationChannel k = new NotificationChannel(PlanMantigi.kanal("ezan-" + n), ad, NotificationManager.IMPORTANCE_HIGH);
-        Uri ses = Uri.parse("android.resource://" + c.getPackageName() + "/raw/ezan_" + n);
+        Uri ses = ezanAdresi(c, "ezan-" + n);
         k.setSound(ses, new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_NOTIFICATION)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)

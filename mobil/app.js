@@ -8,9 +8,10 @@ import {
 import { METIN, DILLER, VARSAYILAN_DIL, ARAPCA } from './metin.js';
 import { ekranlar } from './ekranlar.js';
 import { bildirimler } from './bildirim.js';
-import { yerelMi, platform, cami, apiAdresi } from './yerel.js';
+import { yerelMi, platform, cami, apiAdresi, onizleme } from './yerel.js';
 import { yerelPlan, PLAN_GUN } from './yerel-plan.js';
 import { yerelAyarlar } from './yerel-ayar.js';
+import { temaOnizleme } from './tema-onizleme.js';
 
 // TV'nin anahtarları (vakitler, nizam-tema, nizam-sayac) kullanılmaz; hepsi "nzm." ile başlar.
 const DEPO = { dil: 'nzm.dil', tema: 'nzm.tema', stil: 'nzm.stil', vakit: 'nzm.vakit', aladhan: 'nzm.aladhan', icerik: 'nzm.icerik' };
@@ -32,7 +33,7 @@ const durum = {
   tema: (() => { const t = oku(DEPO.tema); return ['oto', 'gunduz', 'gece'].includes(t) ? t : 'oto'; })(),
   // tasarım: 'liste' (Tema 1: caminin fotoğrafı ve büyük vakit listesi; varsayılan) veya 'klasik' (Tema 2: kemer).
   // Kullanıcı isteği (08-11-2026): eski "Tema 2" artık Tema 1 ve varsayılan; seçmeyenler de bunu görür.
-  stil: oku(DEPO.stil) === 'klasik' ? 'klasik' : 'liste',
+  stil: onizleme || (oku(DEPO.stil) === 'klasik' ? 'klasik' : 'liste'),
   diyanet: new Map(),      // 'GG.AA.YYYY' → gün
   aladhan: new Map(),      // 'YYYY-MM-DD' → gün
   veriVar: false,
@@ -97,6 +98,7 @@ async function eksikleriTamamla(gunler) {
 }
 
 async function icerikGetir(zorla) {
+  if (onizleme) return;                                      // önizleme ağa gitmez: kayıtlı içerik
   if (!zorla && Date.now() - durum.icerikAlindi < ICERIK_ARALIK) return;
   try {
     const r = await fetch(apiAdresi('/api/icerik'), { cache: 'no-cache' });
@@ -135,7 +137,8 @@ function bildir(metin) {
 // Faz D: bildirim ayarları ve ana ekrandaki ziller (sunucu hazır değilse hiç görünmez)
 // Vakit girince ses (telefonun sesi, kısa veya uzun ezan): sadece Android mağaza uygulamasında (tarayıcı ve iPhone'da yok)
 const bld = bildirimler({ L, dil: () => durum.dil, bildir, kuruluMu: () => kuruluMu(), iosMu: () => iosMu(),
-  yerel: cami, planDegisti: planGonderSonra, sesSecimi: yerelMi && platform === 'android' });
+  yerel: cami, planDegisti: planGonderSonra, sesSecimi: yerelMi && platform === 'android',
+  zilliOnizleme: !!onizleme && window.parent.document.documentElement.classList.contains('zilli') });
 // Mağaza uygulaması: durum çubuğunda geri sayım, sessize alma, kilit ekranı (tarayıcıda yok)
 const yerelAyar = yerelMi ? yerelAyarlar({ L, cami, platform, planDegisti: planGonderSonra, bildirimAcik: () => bld.ayar().aan }) : null;
 
@@ -162,6 +165,10 @@ async function planGonder() {
   try { await cami.planKur({ plan }); } catch { /* telefon eklentisi yanıt vermedi: sonraki açılışta yeniden */ }
 }
 
+// Ayarlar → Tema: tam ekran canlı önizleme; Android'de geri tuşu önizlemeyi kapatır
+const temaOn = temaOnizleme({ L, mevcut: () => durum.stil, sec: stilSec, telefon: yerelMi && platform === 'android' ? cami : null });
+$('#stil-ac').addEventListener('click', temaOn.ac);
+
 const ekran = ekranlar({
   L, dil: () => durum.dil, icerik: () => durum.icerik, simdi: () => Date.now(),
   tablet: () => tabletMi.matches, olaylar, olaylarYaklasik, bildir,
@@ -177,6 +184,7 @@ function ekranlariCiz(ilk = false) {
 
 let _yenileniyor = null;
 function yenile() {
+  if (onizleme) { olaylariKur(true); ciz(); ekranlariCiz(); return Promise.resolve(); }   // önizleme ağa gitmez: kayıtlı vakitler
   if (_yenileniyor) return _yenileniyor;
   _yenileniyor = (async () => {
     await vakitGetir();
@@ -224,14 +232,7 @@ function metinleriYaz() {
     b.addEventListener('click', () => dilSec(k));
     return b;
   }));
-  const stil = $('#stil-secim');
-  stil.replaceChildren(...[['liste', t.stilListe], ['klasik', t.stilKlasik]].map(([k, ad]) => {
-    const b = document.createElement('button');
-    b.type = 'button'; b.textContent = ad;
-    b.setAttribute('aria-pressed', String(k === durum.stil));
-    b.addEventListener('click', () => stilSec(k));
-    return b;
-  }));
+  $('#stil-ad').textContent = durum.stil === 'liste' ? t.stilListe : t.stilKlasik;
   const tema = $('#tema-secim');
   tema.replaceChildren(...[['oto', t.auto], ['gunduz', t.light], ['gece', t.dark]].map(([k, ad]) => {
     const b = document.createElement('button');
@@ -266,7 +267,6 @@ function stilSec(k) {
   else document.documentElement.removeAttribute('data-stil');
   durumCubugu();
   metinleriYaz(); ciz(); anaSigdir();
-  $('#stil-secim [aria-pressed="true"]')?.focus();
 }
 function temaSec(k) {
   durum.tema = k; yaz(DEPO.tema, k);
@@ -570,14 +570,14 @@ $('#kurulum-dugme').addEventListener('click', async () => {
   _kurulumOlayi = null; kurulumKartiCiz();
 });
 kurulumKartiCiz();
-bld.hazirla();
+if (!onizleme) bld.hazirla();
 if (yerelAyar) { durumCubugu(); yerelAyar.hazirla(); }
 
 // Service worker sadece /mobil/ kapsamında; TV sayfası ("/") etkilenmez.
 // Yeni sürüm kullanım sırasında kendiliğinden devreye girmez: çubuk çıkar, kullanıcı "Yenile"ye dokunur.
 (async () => {
   try {
-    if (yerelMi || !('serviceWorker' in navigator)) return;            // mağaza uygulaması dosyaları zaten içinde taşır
+    if (onizleme || yerelMi || !('serviceWorker' in navigator)) return;            // mağaza uygulaması dosyaları zaten içinde taşır
     const kayit = await navigator.serviceWorker.register('/mobil/sw.js', { scope: '/mobil/' });
     const cubuk = () => {
       if (!kayit.waiting || !navigator.serviceWorker.controller) return;

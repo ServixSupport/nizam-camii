@@ -23,6 +23,8 @@ const GUN = 24 * 60 * 60 * 1000;
 const ZIL = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>';
 const ZIL_KAPALI = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/><path d="M3 3l18 18"/></svg>';
 const TIK = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const DINLE = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6a.6.6 0 0 0 .9.5l11-6.8a.6.6 0 0 0 0-1l-11-6.8a.6.6 0 0 0-.9.5z"/></svg>';
+const DURDUR = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><rect x="6.5" y="6.5" width="11" height="11" rx="1.6"/></svg>';
 
 function oku() {
   try {
@@ -61,15 +63,19 @@ function ayniAnahtar(a, b) {
  * @param {object} [o.yerel]       mağaza uygulamasında telefon eklentisi (yerel.js), tarayıcıda yok
  * @param {Function} [o.planDegisti]
  * @param {boolean} [o.sesSecimi]  vakit girince ses seçimi (Android mağaza uygulaması)
+ * @param {boolean} [o.zilliOnizleme]  tema önizlemesi: ziller uygulamadaki gibi görünsün (sunucuya sormadan)
  */
-export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, planDegisti = () => {}, sesSecimi = false }) {
+export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, planDegisti = () => {}, sesSecimi = false, zilliOnizleme = false }) {
   let ayar = oku();
-  let sunucu = yerel ? { aktif: true, publicKey: null }                                                   // sunucusuz
+  let sunucu = yerel || zilliOnizleme ? { aktif: true, publicKey: null }                                  // sunucusuz
     : ayar.sunucu && ayar.sunucu.aktif ? ayar.sunucu : { aktif: false, publicKey: null };   // internetsizken son bilinen
   let mesaj = '';
   let mesgul = false;
   let _zaman = 0;
   let kuruldu = false;
+  let sesAcik = false;      // ses listesi açık mı
+  let calan = null;         // şu an dinlenen ses
+  let dinlemeNo = 0;
 
   const destek = () => (yerel ? 'tamam' : 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window ? 'tamam'
     : iosMu() && !kuruluMu() ? 'ios' : 'yok');
@@ -281,6 +287,33 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     ciz();
   }
 
+  // ---------------- ses listesi: seçmeden önce dinlemek (kullanıcı isteği, 09-11-2026) ----------------
+  // Satıra dokunmak seçer, ▶ sadece dinletir. Liste kapanınca, sekme değişince ve uygulama arka plana gidince ses durur.
+  function dinlemeDurdur() {
+    if (!calan) return;
+    calan = null;
+    dinlemeNo++;
+    yerel.sesDurdur().catch(() => {});
+    sesCiz();
+  }
+  async function dinle(s) {
+    if (calan === s) { dinlemeDurdur(); return; }
+    const no = ++dinlemeNo;
+    calan = s;
+    sesCiz();
+    try {
+      await yerel.sesDinle({ ses: s });                    // ses bitince veya durdurulunca döner
+    } catch {
+      if (no === dinlemeNo) bildir(L().notifError);
+    }
+    if (no === dinlemeNo) { calan = null; sesCiz(); }
+  }
+  function sesListesi(acik) {
+    sesAcik = acik;
+    if (!acik) dinlemeDurdur();
+    sesCiz();
+  }
+
   // ---------------- çizim ----------------
   const $ = (s) => document.querySelector(s);
 
@@ -288,7 +321,7 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     if (kuruldu) return;
     kuruldu = true;
     $('#b-ana').addEventListener('click', () => (ayar.aan ? kapat() : ac()));
-    $('#b-giris').addEventListener('click', () => ayarla({ giris: !ayar.giris }));
+    $('#b-giris').addEventListener('click', () => { if (sesSecimi) sesListesi(false); ayarla({ giris: !ayar.giris }); });
     $('#b-deneme').addEventListener('click', deneme);
     $('#b-once').replaceChildren(...ONCE.map((n) => {
       const b = document.createElement('button');
@@ -296,13 +329,19 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
       b.addEventListener('click', () => ayarla({ once: n }));
       return b;
     }));
-    const sec = $('#b-ses');
-    sec.replaceChildren(...SESLER.map((s) => {
-      const o = document.createElement('option');
-      o.value = s;
-      return o;
-    }));
-    sec.addEventListener('change', () => ayarla({ ses: sec.value }));
+    if (sesSecimi) {
+      $('#b-ses').addEventListener('click', () => sesListesi(!sesAcik));
+      $('#b-ses-liste').replaceChildren(...SESLER.map((s) => {
+        const oge = document.createElement('div');
+        oge.className = 'b-ses-oge'; oge.dataset.ses = s;
+        oge.innerHTML = '<button type="button" class="b-ses-sec"><span class="b-radyo" aria-hidden="true"></span><span></span></button>'
+          + '<button type="button" class="b-ses-dinle"></button>';
+        oge.firstElementChild.addEventListener('click', () => { ayarla({ ses: s }); sesListesi(false); $('#b-ses').focus(); });
+        oge.lastElementChild.addEventListener('click', () => dinle(s));
+        return oge;
+      }));
+      window.addEventListener('hashchange', () => sesListesi(false));
+    }
     const vakitDugmeleri = (kap, alan) => kap.replaceChildren(...VAKITLER.map((k) => {
       const b = document.createElement('button');
       b.type = 'button'; b.dataset.key = k;
@@ -311,6 +350,24 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     }));
     vakitDugmeleri($('#b-vakitler'), 'vakitler');
     vakitDugmeleri($('#b-once-vakitler'), 'onceVakitler');
+  }
+
+  const sesAdi = (s) => (s === 'telefon' ? L().notifSesTelefon : `Ezan ${s.slice(5)}`);
+  function sesCiz() {
+    const t = L();
+    const b = $('#b-ses');
+    b.textContent = sesAdi(ayar.ses);
+    b.setAttribute('aria-expanded', String(sesAcik));
+    b.parentElement.classList.toggle('acik', sesAcik);
+    $('#b-ses-liste').hidden = !sesAcik;
+    for (const oge of $('#b-ses-liste').children) {
+      const s = oge.dataset.ses, ad = sesAdi(s), caliyor = s === calan;
+      oge.firstElementChild.setAttribute('aria-pressed', String(s === ayar.ses));
+      oge.firstElementChild.lastElementChild.textContent = ad;
+      const d = oge.lastElementChild;
+      if (d.dataset.on !== String(caliyor)) { d.innerHTML = caliyor ? DURDUR : DINLE; d.dataset.on = String(caliyor); }
+      d.setAttribute('aria-label', (caliyor ? t.notifSesDurdur : t.notifSesDinle)(ad));
+    }
   }
 
   function ciz() {
@@ -335,9 +392,7 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     $('#b-giris-detay').hidden = !ayar.giris;
     $('#b-once-vakit-satir').hidden = !ayar.once;
     $('#b-ses-satir').hidden = !sesSecimi;
-    const sec = $('#b-ses');
-    for (const o of sec.options) o.textContent = o.value === 'telefon' ? t.notifSesTelefon : `Ezan ${o.value.slice(5)}`;
-    sec.value = ayar.ses;
+    if (sesSecimi) sesCiz();
     for (const [kap, liste] of [[$('#b-vakitler'), ayar.vakitler], [$('#b-once-vakitler'), ayar.onceVakitler]]) {
       for (const b of kap.children) {
         const on = liste.includes(b.dataset.key);

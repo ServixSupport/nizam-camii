@@ -15,7 +15,8 @@ telefona özgü özellikler `mobil/yerel*.js` ve bu klasördeki eklentilerde.
 ## Ezan sesleri (Android, `android/app/src/main/res/raw/`)
 
 - `ezan_1.mp3 … ezan_7.mp3`, ekranda "Ezan 1 … 7". Kaynak: projedeki `Ezan sesleri/` klasörü (1 = Ezan, 2 = Ezan 2, 3 = Ezan 3, 4 = Beautiful Azan, 5 = Duygusal Adhane, 6 = Ezan Salah fajr, 7 = Güzel Ezan Kısa).
-- **Git'e girmez** (`.gitignore`): depo public, kayıtların kaynağı ve lisansı belli değil. Sadece bu bilgisayarda derlenen APK/AAB'de var. Mağazaya yüklemeden önce kullanım hakkı netleşmeli.
+- Kullanıcıya göre kayıtlar serbest lisanslı (09-11-2026): `res/raw/` altındaki mp3'ler depoda, her derlemede var. Kaynak klasör `Ezan sesleri/` git'e girmez.
+- Ayarlar'da seçmeden önce dinlenir (▶; `CamiPlugin.sesDinle`, medya sesiyle).
 - Yeni kayıt eklemek: `res/raw/ezan_8.mp3` ekleyin ve `mobil/bildirim-metin.js`'te `EZAN_SAYISI`'nı artırın. 30 sn'den uzunsa `yerel-plan.js`'teki `EZAN_SN`'yi de artırın.
 - Her kayıt kendi bildirim kanalında (`vakit_ezan_N`; `Planlayici.kanallar`). Android'de kanalın sesi sonradan değişmez; dosyayı aynı adla değiştirmek yeterli.
 - Ezan sadece beş vakit namazda, vakit girince çalar. Önceden hatırlatma, İmsak ve Güneş telefonun sesiyle.

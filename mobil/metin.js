@@ -189,6 +189,8 @@ const BILDIRIM = {
     notifTestSent: 'Bir dakika içinde deneme bildirimi gelecek', notifTestWait: 'Az önce gönderildi; birkaç dakika sonra tekrar deneyin',
     zilAcik: (ad) => `${ad} bildirimi açık`, zilKapali: (ad) => `${ad} bildirimi kapalı`,
     notifSes: 'Ses', notifSesTelefon: 'Telefonun varsayılan sesi',
+    notifSesDinle: (ad) => `${ad} dinle`, notifSesDurdur: (ad) => `${ad} durdur`,
+    temaOnizleme: 'Tema önizlemesi', temaSecDugme: 'Bu temayı seç', temaSecili: 'Seçili', temaOnceki: 'Önceki tema', temaSonraki: 'Sonraki tema', kapat: 'Kapat',
     notifSesNot: 'Ezan sadece beş vakit namazda okunur. Durdurmak için bildirim ekranını aşağı çekin veya bildirime dokunun.',
   },
   nl: {
@@ -203,6 +205,8 @@ const BILDIRIM = {
     notifTestSent: 'Binnen een minuut komt er een testmelding', notifTestWait: 'Net verstuurd; probeer het over een paar minuten opnieuw',
     zilAcik: (ad) => `Melding voor ${ad} aan`, zilKapali: (ad) => `Melding voor ${ad} uit`,
     notifSes: 'Geluid', notifSesTelefon: 'Standaard telefoonmelding',
+    notifSesDinle: (ad) => `Luister naar ${ad}`, notifSesDurdur: (ad) => `${ad} stoppen`,
+    temaOnizleme: 'Themavoorbeeld', temaSecDugme: 'Kies dit thema', temaSecili: 'Gekozen', temaOnceki: 'Vorig thema', temaSonraki: 'Volgend thema', kapat: 'Sluiten',
     notifSesNot: 'De adhan klinkt alleen bij de vijf gebeden. Trek het meldingenscherm omlaag of tik op de melding om te stoppen.',
   },
   en: {
@@ -217,6 +221,8 @@ const BILDIRIM = {
     notifTestSent: 'A test notification will arrive within a minute', notifTestWait: 'Just sent; try again in a few minutes',
     zilAcik: (ad) => `${ad} notification on`, zilKapali: (ad) => `${ad} notification off`,
     notifSes: 'Sound', notifSesTelefon: 'Default phone sound',
+    notifSesDinle: (ad) => `Listen to ${ad}`, notifSesDurdur: (ad) => `Stop ${ad}`,
+    temaOnizleme: 'Theme preview', temaSecDugme: 'Use this theme', temaSecili: 'Selected', temaOnceki: 'Previous theme', temaSonraki: 'Next theme', kapat: 'Close',
     notifSesNot: 'The adhan only plays for the five daily prayers. Pull down the notification shade or tap the notification to stop it.',
   },
 };

@@ -14,6 +14,5 @@ _eski-temmuz/
 no phone prohibited.png
 .claude/settings.local.json
 
-# ezan kayıtları: kaynağı ve lisansı belli değil, public depoya girmez (yerel derlemede APK'nın içinde)
+# ezan kayıtlarının kaynak klasörü; uygulamadakiler app/android/app/src/main/res/raw/ altında
 Ezan sesleri/
-app/android/app/src/main/res/raw/ezan_*.mp3

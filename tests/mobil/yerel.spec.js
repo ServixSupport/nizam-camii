@@ -16,6 +16,7 @@ async function telefon(page, { platform = 'android', izin = {}, izinCevabi = 'gr
     const cevap = {
       izinDurumu: () => ({ ...y.izin }),
       bildirimIzniIste: () => { y.izin.bildirim = izinCevabi; sessionStorage.setItem('__izin', JSON.stringify(y.izin)); return { ...y.izin }; },
+      sesDinle: () => new Promise((r) => { y.dinlemeBitti = r; }),            // telefon: ses bitince cevap verir
     };
     // telefonun köprüsü (Capacitor native-bridge.js) gibi: nativePromise(eklenti, yöntem, seçenekler)
     window.Capacitor = {
@@ -107,17 +108,28 @@ test('bildirimler telefonda kurulur (sunucu ve Web Push yok); deneme bildirimi h
   expect(tr.vakitler[0].baslik).toBe('Akşam · 17:27');
 });
 
+const SES_DEPO = JSON.stringify({ aan: true, once: 15, giris: true, vakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] });
+
 test('vakit girince ses (Android): açılır liste, standart telefon sesi ve Ezan 1 … 7; plan ve deneme bildirimi seçilen sesle', async ({ page }) => {
   await telefon(page, { izin: { bildirim: 'granted' } });
-  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar', depo: { 'nzm.bildirim': JSON.stringify({ aan: true, once: 15, giris: true, vakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] }) } });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar', depo: { 'nzm.bildirim': SES_DEPO } });
   const satir = page.locator('#b-ses-satir');
   await expect(satir).toBeVisible();
-  const sec = page.getByRole('combobox', { name: 'Geluid' });
-  await expect(sec.locator('option')).toHaveText(['Standaard telefoonmelding', 'Ezan 1', 'Ezan 2', 'Ezan 3', 'Ezan 4', 'Ezan 5', 'Ezan 6', 'Ezan 7']);
-  await expect(sec).toHaveValue('telefon');                                  // varsayılan
+  const sec = page.getByRole('button', { name: /^Geluid/ });
+  const liste = page.locator('#b-ses-liste');
+  await expect(sec).toHaveText('Standaard telefoonmelding');                  // varsayılan
+  await expect(sec).toHaveAttribute('aria-expanded', 'false');
+  await expect(liste).toBeHidden();
   await expect(satir.locator('.ayar-not')).toContainText('Trek het meldingenscherm omlaag of tik op de melding om te stoppen');
 
-  await sec.selectOption({ label: 'Ezan 5' });
+  await sec.click();
+  await expect(sec).toHaveAttribute('aria-expanded', 'true');
+  await expect(liste.locator('.b-ses-sec')).toHaveText(['Standaard telefoonmelding', 'Ezan 1', 'Ezan 2', 'Ezan 3', 'Ezan 4', 'Ezan 5', 'Ezan 6', 'Ezan 7']);
+  await expect(liste.getByRole('button', { name: 'Standaard telefoonmelding', exact: true })).toHaveAttribute('aria-pressed', 'true');
+
+  await liste.getByRole('button', { name: 'Ezan 5', exact: true }).click();
+  await expect(liste).toBeHidden();                                           // seçince kapanır
+  await expect(sec).toHaveText('Ezan 5');
   await page.clock.runFor(1000);
   let p = await sonPlan(page, (x) => x.bildirimler.some((b) => b.ses === 'ezan-5'));
   expect(p.bildirimler.find((b) => b.etiket === '2026-10-28-Maghrib' && b.ses)).toMatchObject({ an: an('2026-10-28T17:27:00+01:00'), ses: 'ezan-5' });
@@ -125,20 +137,96 @@ test('vakit girince ses (Android): açılır liste, standart telefon sesi ve Eza
   await page.getByRole('button', { name: 'Testmelding sturen' }).click();
   expect((await cagrilar(page, 'deneme')).at(-1).arg.ses).toBe('ezan-5');     // ezanı dinlemek için
 
-  await sec.selectOption({ label: 'Ezan 2' });
+  await sec.click();
+  await liste.getByRole('button', { name: 'Ezan 2', exact: true }).click();
   await page.clock.runFor(1000);
   p = await sonPlan(page, (x) => x.bildirimler.some((b) => b.ses === 'ezan-2'));
   expect(p.bildirimler.some((b) => b.ses === 'ezan-5')).toBe(false);
   await page.reload();
-  await expect(page.getByRole('combobox', { name: 'Geluid' })).toHaveValue('ezan-2');
+  await expect(sec).toHaveText('Ezan 2');
   await page.getByRole('button', { name: 'Türkçe' }).click();
-  await expect(page.getByRole('combobox', { name: 'Ses' }).locator('option').first()).toHaveText('Telefonun varsayılan sesi');
+  await page.locator('#b-ses').click();
+  await expect(liste.locator('.b-ses-sec').first()).toHaveText('Telefonun varsayılan sesi');
+});
+
+test('ses listesi: seçmeden önce dinlenir (▶); dinlemek seçimi değiştirmez; bitince, kapanınca ve sekme değişince susar', async ({ page }) => {
+  await telefon(page, { izin: { bildirim: 'granted' } });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar', depo: { 'nzm.bildirim': SES_DEPO } });
+  const sec = page.getByRole('button', { name: /^Geluid/ });
+  await sec.click();
+  const dinle = (ad) => page.getByRole('button', { name: `Luister naar ${ad}`, exact: true });
+  const durdur = (ad) => page.getByRole('button', { name: `${ad} stoppen`, exact: true });
+
+  await dinle('Ezan 3').click();
+  expect((await cagrilar(page, 'sesDinle')).at(-1).arg).toEqual({ ses: 'ezan-3' });
+  await expect(durdur('Ezan 3')).toBeVisible();
+  await expect(sec).toHaveText('Standaard telefoonmelding');                  // dinlemek seçmek değil
+  expect(JSON.parse(await page.evaluate(() => localStorage.getItem('nzm.bildirim'))).ses).toBeUndefined();
+
+  // başka kayda geçince öncekinin düğmesi geri gelir; ses bitince ▶ geri gelir
+  await dinle('Ezan 1').click();
+  await expect(durdur('Ezan 3')).toHaveCount(0);
+  await expect(durdur('Ezan 1')).toBeVisible();
+  await page.evaluate(() => window.__yerel.dinlemeBitti());
+  await expect(dinle('Ezan 1')).toBeVisible();
+  expect(await cagrilar(page, 'sesDurdur')).toHaveLength(0);
+
+  // telefonun kendi sesi de dinlenir; ■ durdurur
+  await dinle('Standaard telefoonmelding').click();
+  expect((await cagrilar(page, 'sesDinle')).at(-1).arg).toEqual({ ses: 'telefon' });
+  await durdur('Standaard telefoonmelding').click();
+  await expect.poll(async () => (await cagrilar(page, 'sesDurdur')).length).toBe(1);
+  await expect(dinle('Standaard telefoonmelding')).toBeVisible();
+
+  // liste kapanınca susar
+  await dinle('Ezan 7').click();
+  await sec.click();
+  await expect.poll(async () => (await cagrilar(page, 'sesDurdur')).length).toBe(2);
+
+  // satır seçince susar
+  await sec.click();
+  await dinle('Ezan 4').click();
+  await page.getByRole('button', { name: 'Ezan 4', exact: true }).click();
+  await expect.poll(async () => (await cagrilar(page, 'sesDurdur')).length).toBe(3);
+  await expect(sec).toHaveText('Ezan 4');
+
+  // sekme değişince susar
+  await sec.click();
+  await dinle('Ezan 2').click();
+  await page.evaluate(() => { location.hash = '#ana'; });
+  await expect.poll(async () => (await cagrilar(page, 'sesDurdur')).length).toBe(4);
 });
 
 test('eski ses ayarı (kısa/uzun ezan) telefonun sesine döner', async ({ page }) => {
   await telefon(page, { izin: { bildirim: 'granted' } });
   await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar', depo: { 'nzm.bildirim': JSON.stringify({ aan: true, once: 15, giris: true, vakitler: ['Maghrib'], ses: 'ezan-uzun' }) } });
-  await expect(page.locator('#b-ses')).toHaveValue('telefon');
+  await expect(page.locator('#b-ses')).toHaveText('Standaard telefoonmelding');
+});
+
+test('tema önizlemesi: iframe telefona bir şey göndermez, ağa gitmez, ayar yazmaz; Android geri tuşu önizlemeyi kapatır', async ({ page }) => {
+  await telefon(page, { izin: { bildirim: 'granted' } });
+  const kayit = await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar', depo: { 'nzm.bildirim': SES_DEPO } });
+  await sonPlan(page);
+  const istek = kayit.api.length;
+  const depo = () => page.evaluate(() => JSON.stringify(Object.entries(localStorage).sort()));
+  const once = await depo();
+
+  await page.getByRole('button', { name: /^Ontwerp/ }).click();
+  expect((await cagrilar(page, 'geriYakala')).at(-1).arg).toEqual({ acik: true });
+  const t1 = page.frameLocator('#to-serit iframe >> nth=0');
+  await expect(t1.locator('.vakitler li:not([hidden])')).toHaveCount(7);
+  await expect(t1.locator('.v-zil').first()).toBeVisible();                     // ziller uygulamadaki gibi
+  await page.clock.runFor(2000);
+
+  for (const f of page.frames().filter((x) => x.url().includes('onizleme='))) {
+    expect(await f.evaluate(() => window.__yerel.cagrilar)).toEqual([]);
+  }
+  expect(kayit.api.length).toBe(istek);
+  expect(await depo()).toBe(once);
+
+  await page.evaluate(() => document.dispatchEvent(new Event('camiGeri')));     // CamiPlugin: geri tuşu
+  await expect(page.locator('#tema-on')).toBeHidden();
+  await expect.poll(async () => (await cagrilar(page, 'geriYakala')).at(-1).arg.acik).toBe(false);
 });
 
 test('izin telefondan geri alındıysa bildirimler kapalı görünür', async ({ page }) => {

@@ -401,20 +401,63 @@ test.describe('tema renkleri', () => {
 // ---------------- Tema 1 (data-stil="liste"; kullanıcı isteği, 07-11-2026; 08-11-2026'dan beri Tema 1 ve varsayılan) ----------------
 // Üstte caminin fotoğrafı, üstünde logo + ad, kalan süre, tarih ve kerahat; altta 7 vakitlik liste. Kemerli tasarım artık Tema 2 ('klasik').
 test.describe('Tema 1 (liste)', () => {
-  test('Ayarlar: Thema 1 (liste, varsayılan) / Thema 2 (kemer) seçilir, saklanır, ilk boyamadan önce uygulanır', async ({ page }) => {
+  test('Ayarlar: tema tam ekran canlı önizlemede kaydırılarak seçilir, saklanır, ilk boyamadan önce uygulanır', async ({ page }) => {
     await mobilAc(page, { zaman: an('16:00:00.500'), adres: '/mobil/#ayarlar', depo: { 'nzm.stil': null, 'nzm.tema': 'gunduz' } });
-    await expect(page.locator('#stil-secim button')).toHaveText(['Thema 1', 'Thema 2']);
+    const satir = page.getByRole('button', { name: /^Ontwerp/ });
     // hiç seçmeyen: Thema 1 = liste (kullanıcı isteği, 08-11-2026)
-    await expect(page.locator('#stil-secim [aria-pressed="true"]')).toHaveText('Thema 1');
+    await expect(satir).toContainText('Thema 1');
     await expect(page.locator('html')).toHaveAttribute('data-stil', 'liste');
     expect(await page.locator('meta[name="theme-color"]').getAttribute('content')).toBe('#0E0E0C');   // üstte caminin fotoğrafı (gökyüzü)
-    await page.getByRole('button', { name: 'Thema 2' }).click();
+
+    await satir.click();
+    const on = page.locator('#tema-on');
+    await expect(on).toBeVisible();
+    await expect(page.locator('#to-ad')).toHaveText('Thema 1');
+    await expect(page.locator('#to-sec')).toHaveText('Gekozen');
+    await expect(page.locator('#to-sec')).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Vorig thema' })).toBeDisabled();
+
+    // tam ekran ve canlı: her tema uygulamanın kendisi, sayaç işler
+    const boyut = await on.locator('iframe').first().boundingBox();
+    expect(boyut).toMatchObject({ x: 0, y: 0, width: page.viewportSize().width, height: page.viewportSize().height });
+    const t1 = page.frameLocator('#to-serit iframe >> nth=0'), t2 = page.frameLocator('#to-serit iframe >> nth=1');
+    await expect(t1.locator('.vakitler li:not([hidden])')).toHaveCount(7);
+    await expect(t2.locator('.vakitler li:not([hidden])')).toHaveCount(7);
+    await expect(t1.locator('html')).toHaveAttribute('data-stil', 'liste');
+    await expect(t2.locator('html')).not.toHaveAttribute('data-stil', /.*/);
+    const sayac = await t2.locator('.sayac').textContent();
+    await page.clock.runFor(3000);
+    await expect(t2.locator('.sayac')).not.toHaveText(sayac);
+
+    // kaydırınca sıradaki tema; kapatınca hiçbir şey değişmez
+    await page.locator('#to-serit').evaluate((el) => el.scrollTo({ left: el.clientWidth, behavior: 'auto' }));
+    await expect(page.locator('#to-ad')).toHaveText('Thema 2');
+    await expect(page.locator('#to-sec')).toHaveText('Kies dit thema');
+    await page.getByRole('button', { name: 'Sluiten' }).click();
+    await expect(on).toBeHidden();
+    await expect(page.locator('#to-serit iframe')).toHaveCount(0);
+    await expect(page.locator('html')).toHaveAttribute('data-stil', 'liste');
+    expect(await page.evaluate(() => localStorage.getItem('nzm.stil'))).toBe(null);
+
+    // ok düğmesiyle de geçilir; "Kies" kaydeder
+    await satir.click();
+    await page.getByRole('button', { name: 'Volgend thema' }).click();
+    await expect(page.locator('#to-ad')).toHaveText('Thema 2');
+    await page.getByRole('button', { name: 'Kies dit thema' }).click();
+    await expect(on).toBeHidden();
     expect(await page.evaluate(() => document.documentElement.hasAttribute('data-stil'))).toBe(false);
     expect(await page.evaluate(() => localStorage.getItem('nzm.stil'))).toBe('klasik');
+    await expect(satir).toContainText('Thema 2');
     await page.reload();
     expect(await page.evaluate(() => document.documentElement.hasAttribute('data-stil'))).toBe(false);
-    await expect(page.locator('#stil-secim [aria-pressed="true"]')).toHaveText('Thema 2');
-    await page.getByRole('button', { name: 'Thema 1' }).click();
+    await expect(satir).toContainText('Thema 2');
+
+    // geri Thema 1'e: önizleme seçili temada açılır
+    await satir.click();
+    await expect(page.locator('#to-ad')).toHaveText('Thema 2');
+    await page.getByRole('button', { name: 'Vorig thema' }).click();
+    await expect(page.locator('#to-ad')).toHaveText('Thema 1');
+    await page.getByRole('button', { name: 'Kies dit thema' }).click();
     await expect(page.locator('html')).toHaveAttribute('data-stil', 'liste');
     expect(await page.evaluate(() => localStorage.getItem('nzm.stil'))).toBe('liste');
     await page.reload();
