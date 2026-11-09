@@ -778,9 +778,22 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 }
 
 /* ================= Tema 3 (data-stil="cini"; kullanıcı isteği ve örnek resmi, 09-11-2026) =================
-   Hep koyu lacivert (açık/koyu seçimi yok). Üstte caminin fotoğrafı, alta doğru zemine karışır; üstünde logo ve ad, sıradaki namaza kalan süre
+   Koyu (lacivert) ve açık hali var (açık: kullanıcı isteği, 09-11-2026); seçim Tema 1 ve 2'deki gibi Ayarlar'dan. Üstte caminin fotoğrafı, alta doğru zemine karışır; üstünde logo ve ad, sıradaki namaza kalan süre
    (buzlu karolarda), kerahat. Altında oklu tarih (başka günlerin vakitleri) ve satır satır vakitler; sıradaki turuncu. Menü çubuğu da temaya özel. */
-:root[data-stil="cini"][data-tema] {
+:root[data-stil="cini"], :root[data-stil="cini"][data-tema="gunduz"] {
+  --ground: #EEF2F8; --ink: #14233D; --soft: #56667F; --line: #D8E0EB; --gold: #B0500A; --goldLine: rgba(176,80,10,.38);
+  --cobalt: #B0500A; --turq: #B0500A; --coral: #B3401C; --sun: #D96F0E; --sky1: #FFFFFF; --sky2: #E4EAF3; --card: #FFFFFF;
+  --rail: #E3E9F2; --railActive: rgba(201,74,16,.11); --nextRow: rgba(201,74,16,.09); --nextBorder: rgba(201,74,16,.4);
+  --tabBg: #FFFFFF; --patternOp: .05; --past: #56667F;
+  --segBg: #DEE5EF; --segOn: #FFFFFF; --segShadow: 0 1px 2px rgba(20,35,61,.18);
+  --navy: #1C2C47; --navyLine: transparent; --anahtarKapali: #B7C2D3;
+  --g-herkes: #14233D; --g-erkekler: #B0500A; --tablo-cizgi: #E3E9F2; --tablo-sutun: #EDF1F7; --saat-yazi: #5B6B85; --vakit-yazi: #B0500A;
+  --ustZemin: #141D2E;
+  --turuncu: linear-gradient(90deg, #DD7A0A, #C94A10);   /* beyaz yazı için koyu gecenin turuncusundan biraz koyu */
+  --vurgu: #B0500A; --isaret: #D96F0E; --menuSoluk: #5F6F89; --menuCizgi: #D8E0EB;
+  color-scheme: light;
+}
+:root[data-stil="cini"][data-tema="gece"] {
   --ground: #141D2E; --ink: #F2F5FA; --soft: #A3B2C9; --line: rgba(255,255,255,.09); --gold: #F5A623; --goldLine: rgba(245,166,35,.4);
   --cobalt: #F7B04A; --turq: #F5A623; --coral: #FF8F63; --sun: #F5A623; --sky1: #22304A; --sky2: #172338; --card: #233147;
   --rail: #0E1626; --railActive: rgba(245,166,35,.14); --nextRow: rgba(245,166,35,.14); --nextBorder: rgba(245,166,35,.45);
@@ -790,6 +803,7 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
   --g-herkes: #F2F5FA; --g-erkekler: #F7B04A; --tablo-cizgi: rgba(255,255,255,.07); --tablo-sutun: rgba(255,255,255,.05); --saat-yazi: #A3B2C9; --vakit-yazi: #F7B04A;
   --ustZemin: #141D2E;
   --turuncu: linear-gradient(90deg, #F0A024, #E2601A);
+  --vurgu: #F7B04A; --isaret: #F5A623; --menuSoluk: #8FA0BA; --menuCizgi: rgba(255,255,255,.07);
   color-scheme: dark;
 }
 .sayac-karo, .gun-gez { display: none; }
@@ -798,6 +812,8 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 :root[data-stil="cini"] .sekme-ana { isolation: isolate; --ust-pay: 286px; padding: 14px 18px 10px; }
 :root[data-stil="cini"] .sekme-ana::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: var(--bant-yuk, 320px); z-index: -1;
   background: linear-gradient(to bottom, rgba(20,29,46,.7), rgba(20,29,46,.08) 24%, rgba(20,29,46,0) 66%, #141D2E 100%), url(/mobil/cami-gece.jpg) center bottom / cover no-repeat, #141D2E; }
+/* açık hali: fotoğraf gece çekimi, yazılar üstünde beyaz kalır; sadece alt kenarı açık zemine karışır */
+:root[data-stil="cini"][data-tema="gunduz"] .sekme-ana::before { background: linear-gradient(to bottom, rgba(20,29,46,.7), rgba(20,29,46,.08) 24%, rgba(238,242,248,0) 80%, #EEF2F8 100%), url(/mobil/cami-gece.jpg) center bottom / cover no-repeat, #141D2E; }
 
 :root[data-stil="cini"] .ust img, :root[data-stil="cini"] .menu-logo { border-radius: 50%; background: #FBF7EE; padding: 3px; box-shadow: 0 0 0 1px rgba(245,166,35,.55); }
 :root[data-stil="cini"] .ust-ad { font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 600; font-size: 21px; line-height: 1.1; letter-spacing: .02em; text-transform: uppercase; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -818,7 +834,7 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 :root[data-stil="cini"] .kh-cumle { display: block; padding: 3px 12px; border-radius: 999px; background: rgba(14,22,38,.62); font-size: 14.5px; font-weight: 600; line-height: 1.3; color: #F7B04A; }   /* koyu kapsül: caminin ışıklı duvarında da okunsun */
 
 :root[data-stil="cini"] .gun-gez { display: flex; align-items: center; justify-content: space-between; gap: 4px; min-height: 52px; margin-bottom: 6px; border-bottom: 1px solid var(--line); }
-:root[data-stil="cini"] .gun-gez button { flex: 0 0 auto; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: none; color: #F7B04A; cursor: pointer; }
+:root[data-stil="cini"] .gun-gez button { flex: 0 0 auto; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: none; color: var(--vurgu); cursor: pointer; }
 :root[data-stil="cini"] .gun-gez button:disabled { opacity: .3; cursor: default; }
 :root[data-stil="cini"] .gun-gez svg { width: 20px; height: 20px; }
 :root[data-stil="cini"] .gun-yazi { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; text-align: center; }
@@ -832,18 +848,19 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 :root[data-stil="cini"] .v-ad { flex-shrink: 0; overflow: visible; font-size: 18px; font-weight: 600; color: var(--ink); }
 :root[data-stil="cini"] .v-ar { min-width: 0; overflow: hidden; white-space: nowrap; font-weight: 700; font-size: 17px; line-height: 1.2; color: var(--soft); }
 :root[data-stil="cini"] .v-simdi { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-:root[data-stil="cini"] .vakit.simdi::after { content: ""; position: absolute; left: 0; top: 13px; bottom: 13px; width: 4px; border-radius: 2px; background: #F5A623; }
+:root[data-stil="cini"] .vakit.simdi::after { content: ""; position: absolute; left: 0; top: 13px; bottom: 13px; width: 4px; border-radius: 2px; background: var(--isaret); }
 :root[data-stil="cini"] .v-saat { font-size: 25px; line-height: 1; letter-spacing: .01em; color: var(--ink); }
 :root[data-stil="cini"] .v-zil { margin: 0 -4px 0 -4px; }
-:root[data-stil="cini"] .v-zil[aria-pressed="true"] { color: #F5A623; }
+:root[data-stil="cini"] .v-zil[aria-pressed="true"] { color: var(--isaret); }
 :root[data-stil="cini"] .vakit.siradaki { background: var(--turuncu); box-shadow: 0 4px 14px rgba(226,96,26,.35); }
+:root[data-stil="cini"][data-tema="gunduz"] .vakit:not(.siradaki) { box-shadow: 0 1px 2px rgba(20,35,61,.07), 0 0 0 1px rgba(20,35,61,.05); }
 :root[data-stil="cini"] .vakit.siradaki .v-ad, :root[data-stil="cini"] .vakit.siradaki .v-ar, :root[data-stil="cini"] .vakit.siradaki .v-saat, :root[data-stil="cini"] .vakit.siradaki .v-zil { color: #FFFFFF; font-weight: 700; }
 @media (prefers-reduced-motion: reduce) { :root[data-stil="cini"] .kemer-ic { animation: none; } }
 
-/* menü çubuğu: koyu, seçili sekmenin simgesi turuncu kapsülde */
-:root[data-stil="cini"] .menu { border-top-color: rgba(255,255,255,.07); }
-:root[data-stil="cini"] .menu-oge { color: #8FA0BA; }
-:root[data-stil="cini"] .menu-oge[aria-current="page"] { color: #F7B04A; }
+/* menü çubuğu: temanın zemini, seçili sekmenin simgesi turuncu kapsülde */
+:root[data-stil="cini"] .menu { border-top-color: var(--menuCizgi); }
+:root[data-stil="cini"] .menu-oge { color: var(--menuSoluk); }
+:root[data-stil="cini"] .menu-oge[aria-current="page"] { color: var(--vurgu); }
 
 @media (max-width: 767px) {
   /* ekran yüksekliğine göre: satırlar en çok 60 px, artan yer fotoğrafa gider */

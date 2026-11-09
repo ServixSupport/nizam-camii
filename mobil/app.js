@@ -33,7 +33,7 @@ const durum = {
   tema: (() => { const t = oku(DEPO.tema); return ['oto', 'gunduz', 'gece'].includes(t) ? t : 'oto'; })(),
   // tasarım: 'liste' (Tema 1: caminin fotoğrafı ve büyük vakit listesi; varsayılan) veya 'klasik' (Tema 2: kemer).
   // Kullanıcı isteği (08-11-2026): eski "Tema 2" artık Tema 1 ve varsayılan; seçmeyenler de bunu görür.
-  // 'cini' (Tema 3, 09-11-2026): lacivert, karolu sayaç, oklu tarih; hep koyu.
+  // 'cini' (Tema 3, 09-11-2026): karolu sayaç, oklu tarih; koyu hali lacivert, açık hali de var.
   stil: onizleme || (['klasik', 'cini'].includes(oku(DEPO.stil)) ? oku(DEPO.stil) : 'liste'),
   diyanet: new Map(),      // 'GG.AA.YYYY' → gün
   aladhan: new Map(),      // 'YYYY-MM-DD' → gün
@@ -235,7 +235,6 @@ function metinleriYaz() {
     return b;
   }));
   $('#stil-ad').textContent = t[{ liste: 'stilListe', klasik: 'stilKlasik', cini: 'stilCini' }[durum.stil]];
-  $('#tema-ayar').hidden = durum.stil === 'cini';            // Tema 3 hep koyu
   const tema = $('#tema-secim');
   tema.replaceChildren(...[['oto', t.auto], ['gunduz', t.light], ['gece', t.dark]].map(([k, ad]) => {
     const b = document.createElement('button');
@@ -278,7 +277,7 @@ function temaSec(k) {
   $('#tema-secim [aria-pressed="true"]')?.focus();
 }
 function temaUygula(gunduz) {
-  const t = durum.stil === 'cini' ? 'gece' : durum.tema === 'oto' ? (gunduz ? 'gunduz' : 'gece') : durum.tema;   // Tema 3 hep koyu
+  const t = durum.tema === 'oto' ? (gunduz ? 'gunduz' : 'gece') : durum.tema;
   if (document.documentElement.dataset.tema !== t) {
     document.documentElement.dataset.tema = t;
     durumCubugu();

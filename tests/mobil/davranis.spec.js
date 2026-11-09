@@ -647,11 +647,11 @@ test.describe('Tema 1 (liste)', () => {
 });
 
 // ---------------- Tema 3 ('cini'; kullanıcının örnek resmine göre, 09-11-2026) ----------------
-// Lacivert, üstte caminin fotoğrafı; sıradaki namaza kalan süre karolarda, kerahat, oklu tarih, turuncu sıradaki satır, kendine özgü menü. Hep koyu.
+// Lacivert, üstte caminin fotoğrafı; sıradaki namaza kalan süre karolarda, kerahat, oklu tarih, turuncu sıradaki satır, kendine özgü menü. Koyu ve açık hali var.
 test.describe('Tema 3', () => {
   const ac = (page, saat, depo = {}) => mobilAc(page, { zaman: an(saat), depo: { 'nzm.stil': 'cini', 'nzm.dil': 'nl', ...depo } });
 
-  test('önizlemeden seçilir, saklanır; hep koyu, açık/koyu seçimi gizli; başka temaya dönünce eski seçim geçerli', async ({ page }) => {
+  test('önizlemeden seçilir, saklanır; açık/koyu seçimi burada da geçerli; başka temaya dönünce aynı seçim kalır', async ({ page }) => {
     await mobilAc(page, { zaman: an('12:00:00.500'), adres: '/mobil/#ayarlar', depo: { 'nzm.stil': null, 'nzm.tema': 'gunduz', 'nzm.dil': 'nl' } });
     await expect(page.locator('#tema-ayar')).toBeVisible();
     await page.getByRole('button', { name: /^Ontwerp/ }).click();
@@ -662,17 +662,17 @@ test.describe('Tema 3', () => {
     await expect(page.getByRole('button', { name: 'Volgend thema' })).toBeDisabled();
     const t3 = page.frameLocator('#to-serit iframe >> nth=2');
     await expect(t3.locator('html')).toHaveAttribute('data-stil', 'cini');
-    await expect(t3.locator('html')).toHaveAttribute('data-tema', 'gece');     // gündüz seçili olsa da
+    await expect(t3.locator('html')).toHaveAttribute('data-tema', 'gunduz');   // önizleme, seçili açık/koyu ile
     await page.getByRole('button', { name: 'Kies dit thema' }).click();
     await expect(page.locator('html')).toHaveAttribute('data-stil', 'cini');
-    await expect(page.locator('html')).toHaveAttribute('data-tema', 'gece');
+    await expect(page.locator('html')).toHaveAttribute('data-tema', 'gunduz');
     expect(await page.evaluate(() => localStorage.getItem('nzm.stil'))).toBe('cini');
-    expect(await page.evaluate(() => localStorage.getItem('nzm.tema'))).toBe('gunduz');   // ayar silinmez
-    await expect(page.locator('#tema-ayar')).toBeHidden();
+    expect(await page.evaluate(() => localStorage.getItem('nzm.tema'))).toBe('gunduz');
+    await expect(page.locator('#tema-ayar')).toBeVisible();
     await expect(page.locator('#stil-ad')).toHaveText('Thema 3');
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('data-stil', 'cini');
-    await expect(page.locator('html')).toHaveAttribute('data-tema', 'gece');
+    await expect(page.locator('html')).toHaveAttribute('data-tema', 'gunduz');
 
     await page.getByRole('button', { name: /^Ontwerp/ }).click();
     await expect(page.locator('#to-ad')).toHaveText('Thema 3');
@@ -685,6 +685,35 @@ test.describe('Tema 3', () => {
     await page.clock.runFor(1000);
     await expect(page.locator('html')).toHaveAttribute('data-tema', 'gunduz');
     await expect(page.locator('#tema-ayar')).toBeVisible();
+  });
+
+  test('açık hali: açık zemin, beyaz satırlar, turuncu sıradaki; fotoğrafın üstündeki yazılar beyaz kalır', async ({ page }) => {
+    await ac(page, '16:00:00.500', { 'nzm.tema': 'gunduz' });
+    await expect(page.locator('html')).toHaveAttribute('data-tema', 'gunduz');
+    await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(238, 242, 248)');
+    const imsak = page.locator('.vakit[data-key="Imsak"]');
+    await expect(imsak).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+    await expect(imsak.locator('.v-ad')).toHaveCSS('color', 'rgb(20, 35, 61)');
+    await expect(page.locator('.kalan-etiket')).toHaveCSS('color', 'rgb(255, 255, 255)');
+    await expect(page.locator('.sayac-karo b').first()).toHaveCSS('color', 'rgb(255, 255, 255)');
+    await expect(page.getByRole('button', { name: 'Volgende dag' })).toHaveCSS('color', 'rgb(176, 80, 10)');
+    await expect(page.locator('.vakit.siradaki .v-ad')).toHaveCSS('color', 'rgb(255, 255, 255)');
+    expect(await page.locator('.vakit.siradaki').evaluate((el) => getComputedStyle(el).backgroundImage)).toContain('linear-gradient');
+    expect(await page.locator('meta[name="theme-color"]').getAttribute('content')).toBe('#141D2E');   // tarayıcı çubuğu fotoğrafın üstüyle aynı
+  });
+
+  for (const [saat, beklenen] of [['12:00:00.500', 'gunduz'], ['21:30:00.500', 'gece']]) {
+    test(`otomatik seçimde ${saat.slice(0, 5)}: ${beklenen}`, async ({ page }) => {
+      await ac(page, saat);
+      await expect(page.locator('html')).toHaveAttribute('data-tema', beklenen);
+    });
+  }
+
+  test('Koyu seçilince gündüz de koyu (eski görünüm)', async ({ page }) => {
+    await ac(page, '12:00:00.500', { 'nzm.tema': 'gece' });
+    await page.clock.runFor(1000);
+    await expect(page.locator('html')).toHaveAttribute('data-tema', 'gece');
+    await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(20, 29, 46)');
   });
 
   test('ana ekran sırayla: logo ve ad, sıradaki namaza kalan süre karolarda, kerahat, oklu tarih, 7 vakit; kaymadan sığar', async ({ page }) => {

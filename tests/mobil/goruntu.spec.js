@@ -32,10 +32,16 @@ const DURUMLAR = [
   { ad: '24-ana-liste-gece-nl', zaman: `${GUN}T21:30:00.500+01:00`, dil: 'nl', stil: 'liste' },
   { ad: '25-ayarlar-liste-gece-en', zaman: `${GUN}T21:30:00.500+01:00`, dil: 'en', hash: '#ayarlar', stil: 'liste', bildirim: true },
   // Tema 3 (09-11-2026): lacivert, karolu sayaç, oklu tarih
-  { ad: '26-ana-tema3-tr', zaman: `${GUN}T12:00:00.500+01:00`, dil: 'tr', stil: 'cini' },
-  { ad: '27-ana-tema3-ziller-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', stil: 'cini', bildirim: true },
-  { ad: '28-ayarlar-tema3-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', hash: '#ayarlar', stil: 'cini', bildirim: true },
-  { ad: '29-programlar-tema3-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#programlar', stil: 'cini', icerik: true },
+  { ad: '26-ana-tema3-tr', zaman: `${GUN}T12:00:00.500+01:00`, dil: 'tr', stil: 'cini', tema: 'gece' },
+  { ad: '27-ana-tema3-ziller-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', stil: 'cini', tema: 'gece', bildirim: true },
+  { ad: '28-ayarlar-tema3-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', hash: '#ayarlar', stil: 'cini', tema: 'gece', bildirim: true },
+  { ad: '29-programlar-tema3-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#programlar', stil: 'cini', tema: 'gece', icerik: true },
+  // Tema 3'ün açık hali (09-11-2026)
+  { ad: '30-ana-tema3-acik-tr', zaman: `${GUN}T12:00:00.500+01:00`, dil: 'tr', stil: 'cini', tema: 'gunduz' },
+  { ad: '31-ana-tema3-acik-ziller-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', stil: 'cini', tema: 'gunduz', bildirim: true },
+  { ad: '32-ayarlar-tema3-acik-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', hash: '#ayarlar', stil: 'cini', tema: 'gunduz', bildirim: true },
+  { ad: '33-programlar-tema3-acik-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#programlar', stil: 'cini', tema: 'gunduz', icerik: true },
+  { ad: '34-faaliyetler-tema3-acik-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', hash: '#faaliyetler', stil: 'cini', tema: 'gunduz', icerik: true },
   // iPhone: Apple yükleme düğmesine izin vermez; Ayarlar'da adım adım "Ana Ekrana Ekle" (06-11-2026)
   { ad: '22-ayarlar-iphone-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#ayarlar', ios: true },
 ];
@@ -51,7 +57,7 @@ for (const d of DURUMLAR) {
   test(d.ad, async ({ page }) => {
     if (d.bildirim) await bildirimKur(page, { zaman: d.zaman, onceden: true });
     if (d.ios) await page.addInitScript(() => Object.defineProperty(Navigator.prototype, 'userAgent', { get: () => 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1' }));
-    const depo = { 'nzm.dil': d.dil, ...(d.stil ? { 'nzm.stil': d.stil } : {}), ...(d.bildirim ? { 'nzm.bildirim': BILDIRIM_ACIK } : {}) };
+    const depo = { 'nzm.dil': d.dil, ...(d.stil ? { 'nzm.stil': d.stil } : {}), ...(d.tema ? { 'nzm.tema': d.tema } : {}), ...(d.bildirim ? { 'nzm.bildirim': BILDIRIM_ACIK } : {}) };
     await mobilAc(page, { zaman: d.zaman, adres: '/mobil/' + (d.hash || ''), depo, icerik: d.icerik ? icerikHazirla(d) : undefined });
     if (d.bildirim) await expect(page.locator('.v-zil[aria-pressed="true"]')).toHaveCount(5);
     await page.clock.runFor(50);

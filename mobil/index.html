@@ -31,7 +31,7 @@
     var oz = new URLSearchParams(location.search).get('onizleme');   // tam ekran tema önizlemesi (tema-onizleme.js)
     var s = oz === 'liste' || oz === 'klasik' || oz === 'cini' ? oz : localStorage.getItem('nzm.stil');
     if (s !== 'klasik') document.documentElement.setAttribute('data-stil', s === 'cini' ? 'cini' : 'liste');   // Tema 1 (liste) varsayılan
-    var t = s === 'cini' ? 'gece' : localStorage.getItem('nzm.tema');   // Tema 3 hep koyu
+    var t = localStorage.getItem('nzm.tema');
     if (t !== 'gunduz' && t !== 'gece') {
       var h = +new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Amsterdam', hour: '2-digit', hourCycle: 'h23' }).format(new Date());
       t = (h >= 7 && h < 18) ? 'gunduz' : 'gece';
@@ -195,7 +195,7 @@
           <span class="ayar-deger" id="stil-ad"></span>
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
         </button>
-        <div class="tema-ayar" id="tema-ayar">   <!-- Tema 3 hep koyu: orada gizli -->
+        <div class="tema-ayar" id="tema-ayar">
           <span class="ayar-ad" data-t="theme"></span>
           <div class="secenekler" role="group" data-t-aria="theme" id="tema-secim"></div>
           <span class="ayar-not" data-t="autoHint"></span>
