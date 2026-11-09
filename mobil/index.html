@@ -29,8 +29,9 @@
       document.querySelector('meta[name="apple-mobile-web-app-title"]').setAttribute('content', ad);
     }
     var oz = new URLSearchParams(location.search).get('onizleme');   // tam ekran tema önizlemesi (tema-onizleme.js)
-    if ((oz === 'liste' || oz === 'klasik' ? oz : localStorage.getItem('nzm.stil')) !== 'klasik') document.documentElement.setAttribute('data-stil', 'liste');   // Tema 1 (liste) varsayılan
-    var t = localStorage.getItem('nzm.tema');
+    var s = oz === 'liste' || oz === 'klasik' || oz === 'cini' ? oz : localStorage.getItem('nzm.stil');
+    if (s !== 'klasik') document.documentElement.setAttribute('data-stil', s === 'cini' ? 'cini' : 'liste');   // Tema 1 (liste) varsayılan
+    var t = s === 'cini' ? 'gece' : localStorage.getItem('nzm.tema');   // Tema 3 hep koyu
     if (t !== 'gunduz' && t !== 'gece') {
       var h = +new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Amsterdam', hour: '2-digit', hourCycle: 'h23' }).format(new Date());
       t = (h >= 7 && h < 18) ? 'gunduz' : 'gece';
@@ -108,6 +109,7 @@
           <span class="sira-etiket"></span>   <!-- Tema 2: "Vaktin çıkmasına" (app.js ciz) -->
           <span class="kalan-etiket">&nbsp;</span>
           <span class="sayac">–:––:––</span>
+          <span class="sayac-karo" role="timer"><b>––</b><i aria-hidden="true">:</i><b>––</b><i aria-hidden="true">:</i><b>––</b></span>   <!-- Tema 3: karolarda (app.js karoCiz) -->
           <span class="kalan-kisa" data-t="kalanSure"></span>
           <span class="sira"><span class="sira-ad">&nbsp;</span><span class="sira-saat"></span></span>
           <span class="sira-ar" lang="ar" dir="rtl"></span>
@@ -122,6 +124,11 @@
         <h1 class="baslik-ad" data-t="camiTam"></h1>
         <span class="baslik-alt">Ookmeerweg 206 · Amsterdam</span>
       </header>
+      <div class="gun-gez" role="group" data-t-aria="gunGez">   <!-- Tema 3: oklu tarih, başka günlerin vakitleri (app.js gunGezCiz) -->
+        <button type="button" id="gun-onceki" data-t-aria="gunOnceki"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <div class="gun-yazi" role="status"><span id="gun-miladi"></span><span id="gun-hicri"></span></div>
+        <button type="button" id="gun-sonraki" data-t-aria="gunSonraki"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
       <ul class="vakitler" data-t-aria="vakitler"></ul>
       <p class="durum-mesaj" role="status" hidden></p>
       <div class="kartlar">
@@ -188,9 +195,11 @@
           <span class="ayar-deger" id="stil-ad"></span>
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
         </button>
-        <span class="ayar-ad" data-t="theme"></span>
-        <div class="secenekler" role="group" data-t-aria="theme" id="tema-secim"></div>
-        <span class="ayar-not" data-t="autoHint"></span>
+        <div class="tema-ayar" id="tema-ayar">   <!-- Tema 3 hep koyu: orada gizli -->
+          <span class="ayar-ad" data-t="theme"></span>
+          <div class="secenekler" role="group" data-t-aria="theme" id="tema-secim"></div>
+          <span class="ayar-not" data-t="autoHint"></span>
+        </div>
       </div>
     </section>
 

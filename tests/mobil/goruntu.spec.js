@@ -31,6 +31,11 @@ const DURUMLAR = [
   { ad: '23-ana-liste-gunduz-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', stil: 'liste' },
   { ad: '24-ana-liste-gece-nl', zaman: `${GUN}T21:30:00.500+01:00`, dil: 'nl', stil: 'liste' },
   { ad: '25-ayarlar-liste-gece-en', zaman: `${GUN}T21:30:00.500+01:00`, dil: 'en', hash: '#ayarlar', stil: 'liste', bildirim: true },
+  // Tema 3 (09-11-2026): lacivert, karolu sayaç, oklu tarih
+  { ad: '26-ana-tema3-tr', zaman: `${GUN}T12:00:00.500+01:00`, dil: 'tr', stil: 'cini' },
+  { ad: '27-ana-tema3-ziller-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', stil: 'cini', bildirim: true },
+  { ad: '28-ayarlar-tema3-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', hash: '#ayarlar', stil: 'cini', bildirim: true },
+  { ad: '29-programlar-tema3-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#programlar', stil: 'cini', icerik: true },
   // iPhone: Apple yükleme düğmesine izin vermez; Ayarlar'da adım adım "Ana Ekrana Ekle" (06-11-2026)
   { ad: '22-ayarlar-iphone-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#ayarlar', ios: true },
 ];

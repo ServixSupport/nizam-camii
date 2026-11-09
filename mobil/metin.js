@@ -35,7 +35,7 @@ export const METIN = {
     prTitle: 'Programlar', prSub: 'Her hafta düzenli dersler ve sohbetler',
     prEmpty: 'Henüz program eklenmedi.', prEmptySub: 'Haftalık dersler ve sohbetler eklendiğinde burada görünür.',
     // Ayarlar
-    title: 'Ayarlar', lang: 'DİL', look: 'TEMA VE GÖRÜNÜM', theme: 'Açık / koyu', stil: 'Tasarım', stilKlasik: 'Tema 2', stilListe: 'Tema 1',
+    title: 'Ayarlar', lang: 'DİL', look: 'TEMA VE GÖRÜNÜM', theme: 'Açık / koyu', stil: 'Tasarım', stilKlasik: 'Tema 2', stilListe: 'Tema 1', stilCini: 'Tema 3', gunGez: 'Tarih', gunOnceki: 'Önceki gün', gunSonraki: 'Sonraki gün',
     // Tema 2: sıradaki vakit kartı ve kerahat (süre hocaya danışılacak: zaman.js KERAHAT_DK)
     kalanSure: 'kalan süre', vaktinCikmasina: 'Vaktin çıkmasına', namazina: (ad) => `${ad} namazına`, kerahatOnce: (s) => `Kerahat vaktine ${s} kaldı`, kerahatIcinde: 'Kerahat vakti',
     auto: 'Otomatik', light: 'Açık', dark: 'Koyu', autoHint: 'Güneş doğunca açık, Akşam vaktinde koyu tema.',
@@ -61,7 +61,7 @@ export const METIN = {
     evEmpty: 'Nog geen komende activiteiten.', evEmptySub: 'Zodra de moskee een activiteit toevoegt, zie je die hier.',
     prTitle: 'Programma’s', prSub: 'Wekelijkse lessen en bijeenkomsten',
     prEmpty: 'Nog geen programma’s.', prEmptySub: 'Wekelijkse lessen en bijeenkomsten verschijnen hier zodra ze zijn toegevoegd.',
-    title: 'Instellingen', lang: 'TAAL', look: 'THEMA EN WEERGAVE', theme: 'Licht / donker', stil: 'Ontwerp', stilKlasik: 'Thema 2', stilListe: 'Thema 1',
+    title: 'Instellingen', lang: 'TAAL', look: 'THEMA EN WEERGAVE', theme: 'Licht / donker', stil: 'Ontwerp', stilKlasik: 'Thema 2', stilListe: 'Thema 1', stilCini: 'Thema 3', gunGez: 'Datum', gunOnceki: 'Vorige dag', gunSonraki: 'Volgende dag',
     kalanSure: 'resterend', vaktinCikmasina: 'Gebedstijd eindigt over', namazina: (ad) => `${ad} begint over`, kerahatOnce: (s) => `Nog ${s} tot de kerahat-tijd`, kerahatIcinde: 'Kerahat-tijd',
     auto: 'Automatisch', light: 'Licht', dark: 'Donker', autoHint: 'Licht vanaf zonsopgang, donker vanaf maghrib.',
     mosque: 'MOSKEE', source: 'Gebedstijden: Diyanet', harita: 'Openen in kaart',
@@ -86,7 +86,7 @@ export const METIN = {
     evEmpty: 'No upcoming activities yet.', evEmptySub: 'New activities from the mosque will appear here.',
     prTitle: 'Programs', prSub: 'Weekly lessons and gatherings',
     prEmpty: 'No programs yet.', prEmptySub: 'Weekly lessons and gatherings will appear here once they are added.',
-    title: 'Settings', lang: 'LANGUAGE', look: 'THEME & APPEARANCE', theme: 'Light / dark', stil: 'Design', stilKlasik: 'Theme 2', stilListe: 'Theme 1',
+    title: 'Settings', lang: 'LANGUAGE', look: 'THEME & APPEARANCE', theme: 'Light / dark', stil: 'Design', stilKlasik: 'Theme 2', stilListe: 'Theme 1', stilCini: 'Theme 3', gunGez: 'Date', gunOnceki: 'Previous day', gunSonraki: 'Next day',
     kalanSure: 'remaining', vaktinCikmasina: 'Prayer time ends in', namazina: (ad) => `${ad} begins in`, kerahatOnce: (s) => `${s} until kerahat time`, kerahatIcinde: 'Kerahat time',
     auto: 'Automatic', light: 'Light', dark: 'Dark', autoHint: 'Light from sunrise, dark from maghrib.',
     mosque: 'MOSQUE', source: 'Prayer times: Diyanet', harita: 'Open in maps',

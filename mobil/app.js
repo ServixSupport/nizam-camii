@@ -33,7 +33,8 @@ const durum = {
   tema: (() => { const t = oku(DEPO.tema); return ['oto', 'gunduz', 'gece'].includes(t) ? t : 'oto'; })(),
   // tasarım: 'liste' (Tema 1: caminin fotoğrafı ve büyük vakit listesi; varsayılan) veya 'klasik' (Tema 2: kemer).
   // Kullanıcı isteği (08-11-2026): eski "Tema 2" artık Tema 1 ve varsayılan; seçmeyenler de bunu görür.
-  stil: onizleme || (oku(DEPO.stil) === 'klasik' ? 'klasik' : 'liste'),
+  // 'cini' (Tema 3, 09-11-2026): lacivert, karolu sayaç, oklu tarih; hep koyu.
+  stil: onizleme || (['klasik', 'cini'].includes(oku(DEPO.stil)) ? oku(DEPO.stil) : 'liste'),
   diyanet: new Map(),      // 'GG.AA.YYYY' → gün
   aladhan: new Map(),      // 'YYYY-MM-DD' → gün
   veriVar: false,
@@ -202,6 +203,7 @@ function yenile() {
 function olaylariKur(zorla) {
   const bugun = amsGun(Date.now());
   if (!zorla && bugun === durum.gun) return;
+  if (bugun !== durum.gun) _gunKayma = 0;                    // yeni gün: Tema 3'ün tarihi bugüne döner
   durum.gun = bugun;
   durum.olay = {
     dun: gunOlaylari(gunVerisi(gunEkle(bugun, -1)), gunEkle(bugun, -1)),
@@ -232,7 +234,8 @@ function metinleriYaz() {
     b.addEventListener('click', () => dilSec(k));
     return b;
   }));
-  $('#stil-ad').textContent = durum.stil === 'liste' ? t.stilListe : t.stilKlasik;
+  $('#stil-ad').textContent = t[{ liste: 'stilListe', klasik: 'stilKlasik', cini: 'stilCini' }[durum.stil]];
+  $('#tema-ayar').hidden = durum.stil === 'cini';            // Tema 3 hep koyu
   const tema = $('#tema-secim');
   tema.replaceChildren(...[['oto', t.auto], ['gunduz', t.light], ['gece', t.dark]].map(([k, ad]) => {
     const b = document.createElement('button');
@@ -241,7 +244,7 @@ function metinleriYaz() {
     b.addEventListener('click', () => temaSec(k));
     return b;
   }));
-  _tarihImza = ''; _satirImza = '';
+  _tarihImza = ''; _satirImza = ''; _gunImza = '';
   bld.ciz();
 }
 
@@ -263,8 +266,9 @@ function durumCubugu() {
 }
 function stilSec(k) {
   durum.stil = k; yaz(DEPO.stil, k);
-  if (k === 'liste') document.documentElement.dataset.stil = 'liste';
-  else document.documentElement.removeAttribute('data-stil');
+  if (k === 'klasik') document.documentElement.removeAttribute('data-stil');
+  else document.documentElement.dataset.stil = k;
+  _gunKayma = 0;
   durumCubugu();
   metinleriYaz(); ciz(); anaSigdir();
 }
@@ -274,7 +278,7 @@ function temaSec(k) {
   $('#tema-secim [aria-pressed="true"]')?.focus();
 }
 function temaUygula(gunduz) {
-  const t = durum.tema === 'oto' ? (gunduz ? 'gunduz' : 'gece') : durum.tema;
+  const t = durum.stil === 'cini' ? 'gece' : durum.tema === 'oto' ? (gunduz ? 'gunduz' : 'gece') : durum.tema;   // Tema 3 hep koyu
   if (document.documentElement.dataset.tema !== t) {
     document.documentElement.dataset.tema = t;
     durumCubugu();
@@ -291,6 +295,7 @@ function aktifSekme() {
 }
 function sekmeGoster() {
   const { sekme, menu } = aktifSekme();
+  _gunKayma = 0;                                             // Tema 3: ana ekrana dönünce bugün
   for (const s of $$('main > .sekme')) s.hidden = s.dataset.sekme !== sekme;
   for (const a of $$('.menu-oge')) {
     if (a.dataset.sekme === menu) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
@@ -450,6 +455,37 @@ function tarihCiz(simdi) {
   $('.tarih-kisa').textContent = $('.kart-tarih').textContent = g ? `${hicriYazi(g.hicri)} • ${miladiKisa}` : miladiKisa;
 }
 
+// ---------------- Tema 3: oklu tarih ----------------
+// Oklarla başka günlerin vakitlerine bakılır (eldeki veri kadar); sayaç hep bugünün. Sekme değişince ve yeni günde bugüne döner.
+let _gunKayma = 0;
+let _gunImza = '';
+const gunVar = (kayma) => olaylar(gunEkle(durum.gun, kayma)).length === VAKITLER.length;
+function gunGezCiz() {
+  const ymd = gunEkle(durum.gun, _gunKayma);
+  const imza = durum.dil + ymd + durum.diyanet.size;
+  if (imza === _gunImza) return;
+  _gunImza = imza;
+  const t = L();
+  const p = {};
+  for (const x of new Intl.DateTimeFormat(t.locale, { timeZone: AMS, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).formatToParts(new Date(`${ymd}T12:00:00Z`))) p[x.type] = x.value;
+  $('#gun-miladi').textContent = `${p.weekday.charAt(0).toLocaleUpperCase(t.locale)}${p.weekday.slice(1)} ${p.day} ${p.month} ${p.year}`;
+  const g = gunVerisi(ymd);
+  $('#gun-hicri').textContent = g ? hicriYazi(g.hicri) : ' ';
+  $('#gun-onceki').disabled = !gunVar(_gunKayma - 1);
+  $('#gun-sonraki').disabled = !gunVar(_gunKayma + 1);
+}
+for (const [id, adim] of [['#gun-onceki', -1], ['#gun-sonraki', 1]]) {
+  $(id).addEventListener('click', () => { _gunKayma += adim; ciz(); });
+}
+// sayaç karolarda: "1:26:57" → 01 26 57
+function karoCiz() {
+  const p = $('.sayac').textContent.split(':');
+  $$('.sayac-karo b').forEach((el, i) => {
+    const v = i === 0 && p[0].length === 1 && p[0] !== '–' ? `0${p[0]}` : p[i];
+    if (el.textContent !== v) el.textContent = v;
+  });
+}
+
 const cihazAmsterdam = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone === AMS; } catch { return true; } })();
 
 // ---------------- her saniye ----------------
@@ -457,6 +493,9 @@ function ciz() {
   const simdi = Date.now();
   olaylariKur(false);
   tarihCiz(simdi);
+
+  const cini = document.documentElement.dataset.stil === 'cini';
+  if (cini) gunGezCiz();
 
   const notEl = $('.ams-not');
   if (!cihazAmsterdam) {
@@ -476,6 +515,7 @@ function ciz() {
     $('.vakitler').replaceChildren(); _satirImza = '';
     kemerCiz(null);
     kerahatCiz(simdi, false);
+    if (cini) karoCiz();
     mesaj.hidden = false;
     mesaj.textContent = durum.hata ? t.hata : t.yukleniyor;
     return;
@@ -484,7 +524,7 @@ function ciz() {
 
   const d = anDurumu(simdi, durum.olay.bugun, durum.olay.yarin, durum.olay.dun);
   temaUygula(d.gunduz);
-  satirlariCiz(d.satirlar);
+  satirlariCiz(_gunKayma ? olaylar(gunEkle(durum.gun, _gunKayma)).map((e) => ({ ...e, durum: 'gelecek', simdi: false })) : d.satirlar);
   kemerCiz(d.kemer);
   if (d.siradaki) {
     $('.kalan-etiket').textContent = t.kalan(d.siradaki.key);
@@ -498,12 +538,13 @@ function ciz() {
   $('.sira-etiket').textContent = vs && vs.tur === 'giris' ? t.namazina(t.names[vs.vakit]) : t.vaktinCikmasina;
   if (vs) $('.sayac').textContent = geriSayim(vs.hedef - simdi);
   kerahatCiz(simdi, true);
+  if (cini) karoCiz();
 }
 
-// ---------------- Tema 1 (liste): kerahat (sadece İkindi vaktinde) ----------------
+// ---------------- Tema 1 (liste) ve Tema 3: kerahat (sadece İkindi vaktinde) ----------------
 function kerahatCiz(simdi, veriVar) {
   const el = $('.kh-cumle');
-  const k = veriVar && document.documentElement.dataset.stil === 'liste' ? kerahatDurumu(simdi, durum.olay.bugun) : null;
+  const k = veriVar && ['liste', 'cini'].includes(document.documentElement.dataset.stil) ? kerahatDurumu(simdi, durum.olay.bugun) : null;
   if (el.hidden !== !k) el.hidden = !k;
   if (!k) return;
   const t = L();
@@ -601,10 +642,13 @@ if (yerelAyar) { durumCubugu(); yerelAyar.hazirla(); }
 // belge içerikten uzun ölçülebiliyor (sistem çubuğu); o zaman kemer boşuna küçülüp sayfa yine kayıyordu.
 function bantYuksekligi() {
   const ana = $('.sekme-ana');
-  if (document.documentElement.dataset.stil !== 'liste') return;
+  const stil = document.documentElement.dataset.stil;
+  if (stil !== 'liste' && stil !== 'cini') return;
   const k = $('.kemer').getBoundingClientRect(), a = ana.getBoundingClientRect();
   if (!k.height) return;
-  const alt = tabletMi.matches ? k.bottom + 16 : $('.vakitler').getBoundingClientRect().top + 26;   // telefonda listenin yuvarlak köşelerine kadar
+  const alt = tabletMi.matches ? k.bottom + 16
+    : stil === 'cini' ? $('.gun-gez').getBoundingClientRect().top + 16       // Tema 3: tarihin üstünde zemine karışır
+      : $('.vakitler').getBoundingClientRect().top + 26;                     // Tema 1: listenin yuvarlak köşelerine kadar
   ana.style.setProperty('--bant-yuk', `${Math.round(alt - a.top)}px`);
 }
 function anaSigdir() {
@@ -617,6 +661,14 @@ function anaSigdir() {
     return;
   }
   const ekran = Math.min(window.innerHeight, kok.clientHeight);
+  if (kok.dataset.stil === 'cini') {                             // Tema 3: yükseklikler CSS'te (--ekran); fazla yer fotoğrafa gider
+    kemer.style.setProperty('--k', '1');
+    kok.style.setProperty('--ekran', `${ekran}px`);
+    const sigiyor = $('main').offsetHeight <= ekran + 12;
+    kok.classList.toggle('kaydirma-yok', sigiyor);
+    if (sigiyor && window.scrollY) window.scrollTo(0, 0);
+    return;
+  }
   if (kok.dataset.stil === 'liste') {
     kemer.style.setProperty('--k', '1');
     const satirlar = $$('.vakitler > li:not([hidden])');

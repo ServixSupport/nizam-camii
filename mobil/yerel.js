@@ -3,12 +3,12 @@
 const C = typeof window !== 'undefined' ? window.Capacitor : undefined;
 
 /**
- * Tam ekran tema önizlemesi (tema-onizleme.js): uygulamanın kendisi iframe'de, ?onizleme=liste|klasik.
+ * Tam ekran tema önizlemesi (tema-onizleme.js): uygulamanın kendisi iframe'de, ?onizleme=liste|klasik|cini.
  * Sadece gösterir: ağa gitmez, ayar yazmaz, telefona hiçbir şey göndermez (bu yüzden yerelMi burada false).
  */
 export const onizleme = (() => {
   const s = typeof location !== 'undefined' ? new URLSearchParams(location.search).get('onizleme') : null;
-  return s === 'liste' || s === 'klasik' ? s : null;
+  return s === 'liste' || s === 'klasik' || s === 'cini' ? s : null;
 })();
 
 export const yerelMi = !onizleme && !!(C && typeof C.isNativePlatform === 'function' && C.isNativePlatform());

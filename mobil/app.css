@@ -232,6 +232,7 @@ main {
 .ayar-kart { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 16px; border-radius: 20px; background: var(--card); border: 1px solid var(--line); }
 .ayar-ad { font-weight: 600; font-size: 14.5px; }
 .ayar-not { font-size: 13px; line-height: 1.4; color: var(--soft); }
+.tema-ayar { display: flex; flex-direction: column; gap: 10px; }
 .ayar-satir { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 0; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
 .ayar-satir .ayar-ad { flex: 1; }
 .ayar-deger { font-size: 14.5px; font-weight: 600; color: var(--soft); }
@@ -756,10 +757,11 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 .to-slayt iframe { display: block; width: 100%; height: 100%; border: 0; pointer-events: none; }
 .to-kapat { flex: 0 0 auto; width: 40px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: none; color: #fff; cursor: pointer; }
 .to-kapat svg { width: 20px; height: 20px; }
-/* telefonda alt menünün yerine oturur: menüyle aynı yükseklik, listeyi örtmez; ekranın üstünde önizlemeyi örten bir şey olmaz */
+/* telefonda en altta: önizlenen ekran (menüsü dahil) bu çubuğun üstünde biter (.to-slayt), hiçbir yeri örtülmez */
 .to-alt { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: calc(58px + env(safe-area-inset-bottom));
   padding: 6px calc(12px + env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) calc(6px + env(safe-area-inset-left)); background: #121212; }
 .to-gez { display: flex; align-items: center; flex: 0 0 auto; margin-right: auto; }
+@media (max-width: 767px) { .to-slayt { height: calc(100% - 58px - env(safe-area-inset-bottom)); } }
 .to-gez button { width: 40px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: none; color: #fff; cursor: pointer; }
 .to-gez button:disabled { opacity: .3; cursor: default; }
 .to-gez svg { width: 22px; height: 22px; }
@@ -773,4 +775,130 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 }
 @media (min-width: 768px) {
   .to-alt { left: 50%; right: auto; bottom: calc(20px + env(safe-area-inset-bottom)); transform: translateX(-50%); min-width: 400px; min-height: 60px; padding: 8px 10px; border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,.45); }
+}
+
+/* ================= Tema 3 (data-stil="cini"; kullanıcı isteği ve örnek resmi, 09-11-2026) =================
+   Hep koyu lacivert (açık/koyu seçimi yok). Üstte caminin fotoğrafı, alta doğru zemine karışır; üstünde logo ve ad, sıradaki namaza kalan süre
+   (buzlu karolarda), kerahat. Altında oklu tarih (başka günlerin vakitleri) ve satır satır vakitler; sıradaki turuncu. Menü çubuğu da temaya özel. */
+:root[data-stil="cini"][data-tema] {
+  --ground: #141D2E; --ink: #F2F5FA; --soft: #A3B2C9; --line: rgba(255,255,255,.09); --gold: #F5A623; --goldLine: rgba(245,166,35,.4);
+  --cobalt: #F7B04A; --turq: #F5A623; --coral: #FF8F63; --sun: #F5A623; --sky1: #22304A; --sky2: #172338; --card: #233147;
+  --rail: #0E1626; --railActive: rgba(245,166,35,.14); --nextRow: rgba(245,166,35,.14); --nextBorder: rgba(245,166,35,.45);
+  --tabBg: #0E1626; --patternOp: .05; --past: #A3B2C9;
+  --segBg: rgba(255,255,255,.07); --segOn: #33435E; --segShadow: 0 1px 2px rgba(0,0,0,.4);
+  --navy: #233147; --navyLine: rgba(255,255,255,.1); --anahtarKapali: #3A4A63;
+  --g-herkes: #F2F5FA; --g-erkekler: #F7B04A; --tablo-cizgi: rgba(255,255,255,.07); --tablo-sutun: rgba(255,255,255,.05); --saat-yazi: #A3B2C9; --vakit-yazi: #F7B04A;
+  --ustZemin: #141D2E;
+  --turuncu: linear-gradient(90deg, #F0A024, #E2601A);
+  color-scheme: dark;
+}
+.sayac-karo, .gun-gez { display: none; }
+:root[data-stil="cini"] .desen, :root[data-stil="cini"] .tarih-satir, :root[data-stil="cini"] .kemer-svg, :root[data-stil="cini"] .sayac, :root[data-stil="cini"] .sira, :root[data-stil="cini"] .sira-ar, :root[data-stil="cini"] .kalan-kisa { display: none; }
+
+:root[data-stil="cini"] .sekme-ana { isolation: isolate; --ust-pay: 286px; padding: 14px 18px 10px; }
+:root[data-stil="cini"] .sekme-ana::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: var(--bant-yuk, 320px); z-index: -1;
+  background: linear-gradient(to bottom, rgba(20,29,46,.7), rgba(20,29,46,.08) 24%, rgba(20,29,46,0) 66%, #141D2E 100%), url(/mobil/cami-gece.jpg) center bottom / cover no-repeat, #141D2E; }
+
+:root[data-stil="cini"] .ust img, :root[data-stil="cini"] .menu-logo { border-radius: 50%; background: #FBF7EE; padding: 3px; box-shadow: 0 0 0 1px rgba(245,166,35,.55); }
+:root[data-stil="cini"] .ust-ad { font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 600; font-size: 21px; line-height: 1.1; letter-spacing: .02em; text-transform: uppercase; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:root[data-stil="cini"] .ust-ad b { color: #F7B04A; }
+:root[data-stil="cini"] .ust-alt { color: rgba(255,255,255,.86); }
+:root[data-stil="cini"] .ust-ad, :root[data-stil="cini"] .ust-alt, :root[data-stil="cini"] .ams-not, :root[data-stil="cini"] .kalan-etiket, :root[data-stil="cini"] .kh-cumle { text-shadow: 0 1px 2px #000, 0 0 12px rgba(0,0,0,.75); }
+:root[data-stil="cini"] .ams-not { color: #FFFFFF; opacity: .85; }
+
+:root[data-stil="cini"] .sol { display: flex; flex-direction: column; justify-content: center; flex: 1 1 auto; }
+:root[data-stil="cini"] .kemer { width: auto; height: auto; margin: 0; }
+:root[data-stil="cini"] .kemer-ic { position: relative; top: auto; align-items: center; gap: 10px; padding: 8px 0 18px; color: #FFFFFF; animation: nzRise .6s both; }
+:root[data-stil="cini"] .kalan-etiket { font-size: 19px; font-weight: 700; letter-spacing: .07em; color: #FFFFFF; }
+:root[data-stil="cini"] .sayac-karo { display: flex; align-items: center; justify-content: center; gap: 8px; }
+:root[data-stil="cini"] .sayac-karo b { display: flex; align-items: center; justify-content: center; width: 76px; height: 70px; border-radius: 14px; background: rgba(255,255,255,.17); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.16), 0 4px 14px rgba(0,0,0,.28);
+  font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 500; font-size: 42px; line-height: 1; font-variant-numeric: lining-nums tabular-nums; }
+:root[data-stil="cini"] .sayac-karo i { font-style: normal; font-weight: 600; font-size: 26px; color: rgba(255,255,255,.75); }
+:root[data-stil="cini"] .kh-cumle { display: block; padding: 3px 12px; border-radius: 999px; background: rgba(14,22,38,.62); font-size: 14.5px; font-weight: 600; line-height: 1.3; color: #F7B04A; }   /* koyu kapsül: caminin ışıklı duvarında da okunsun */
+
+:root[data-stil="cini"] .gun-gez { display: flex; align-items: center; justify-content: space-between; gap: 4px; min-height: 52px; margin-bottom: 6px; border-bottom: 1px solid var(--line); }
+:root[data-stil="cini"] .gun-gez button { flex: 0 0 auto; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: none; color: #F7B04A; cursor: pointer; }
+:root[data-stil="cini"] .gun-gez button:disabled { opacity: .3; cursor: default; }
+:root[data-stil="cini"] .gun-gez svg { width: 20px; height: 20px; }
+:root[data-stil="cini"] .gun-yazi { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; text-align: center; }
+:root[data-stil="cini"] #gun-miladi { font-size: 15px; font-weight: 700; color: var(--ink); }
+:root[data-stil="cini"] #gun-hicri { font-size: 12.5px; color: var(--soft); }
+
+:root[data-stil="cini"] .vakitler { margin: 0; gap: 6px; }
+:root[data-stil="cini"] .vakit { position: relative; height: var(--satir, 56px); gap: 10px; padding: 0 8px 0 16px; border-radius: 12px; background: var(--card); box-shadow: none; }
+:root[data-stil="cini"] .v-ikon { display: none; }
+:root[data-stil="cini"] .v-metin { flex: 1; min-width: 0; align-items: baseline; gap: 8px; }
+:root[data-stil="cini"] .v-ad { flex-shrink: 0; overflow: visible; font-size: 18px; font-weight: 600; color: var(--ink); }
+:root[data-stil="cini"] .v-ar { min-width: 0; overflow: hidden; white-space: nowrap; font-weight: 700; font-size: 17px; line-height: 1.2; color: var(--soft); }
+:root[data-stil="cini"] .v-simdi { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+:root[data-stil="cini"] .vakit.simdi::after { content: ""; position: absolute; left: 0; top: 13px; bottom: 13px; width: 4px; border-radius: 2px; background: #F5A623; }
+:root[data-stil="cini"] .v-saat { font-size: 25px; line-height: 1; letter-spacing: .01em; color: var(--ink); }
+:root[data-stil="cini"] .v-zil { margin: 0 -4px 0 -4px; }
+:root[data-stil="cini"] .v-zil[aria-pressed="true"] { color: #F5A623; }
+:root[data-stil="cini"] .vakit.siradaki { background: var(--turuncu); box-shadow: 0 4px 14px rgba(226,96,26,.35); }
+:root[data-stil="cini"] .vakit.siradaki .v-ad, :root[data-stil="cini"] .vakit.siradaki .v-ar, :root[data-stil="cini"] .vakit.siradaki .v-saat, :root[data-stil="cini"] .vakit.siradaki .v-zil { color: #FFFFFF; font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { :root[data-stil="cini"] .kemer-ic { animation: none; } }
+
+/* menü çubuğu: koyu, seçili sekmenin simgesi turuncu kapsülde */
+:root[data-stil="cini"] .menu { border-top-color: rgba(255,255,255,.07); }
+:root[data-stil="cini"] .menu-oge { color: #8FA0BA; }
+:root[data-stil="cini"] .menu-oge[aria-current="page"] { color: #F7B04A; }
+
+@media (max-width: 767px) {
+  /* ekran yüksekliğine göre: satırlar en çok 60 px, artan yer fotoğrafa gider */
+  :root[data-stil="cini"] .sekme-ana { min-height: calc(var(--ekran, 100vh) - 58px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
+  :root[data-stil="cini"] .vakitler { --satir: clamp(44px, calc((var(--ekran, 100vh) - 58px - var(--ust-pay) - 58px - 36px - 10px) / 7), 60px); }
+  :root[data-stil="cini"] .sol { min-height: 0; }
+  :root[data-stil="cini"] .menu-oge { gap: 2px; }
+  :root[data-stil="cini"] .menu-oge svg { box-sizing: content-box; width: 22px; height: 22px; padding: 2px 16px; border-radius: 13px; }
+  :root[data-stil="cini"] .menu-oge[aria-current="page"] svg { background: var(--turuncu); color: #FFFFFF; }
+}
+@media (max-width: 767px) and (max-height: 700px) {
+  :root[data-stil="cini"] .sekme-ana { --ust-pay: 208px; padding-top: 10px; }
+  :root[data-stil="cini"] .kemer-ic { gap: 6px; padding: 4px 0 8px; }
+  :root[data-stil="cini"] .kalan-etiket { font-size: 16px; }
+  :root[data-stil="cini"] .sayac-karo b { width: 60px; height: 54px; font-size: 32px; border-radius: 12px; }
+  :root[data-stil="cini"] .sayac-karo i { font-size: 20px; }
+  :root[data-stil="cini"] .kh-cumle { font-size: 13px; }
+  :root[data-stil="cini"] .gun-gez { min-height: 46px; margin-bottom: 4px; }
+  :root[data-stil="cini"] .v-ad { font-size: 16.5px; }
+  :root[data-stil="cini"] .v-saat { font-size: 22px; }
+}
+
+@media (min-width: 768px) {
+  :root[data-stil="cini"] .sekme-ana { row-gap: 22px; }
+  :root[data-stil="cini"] .sol { align-items: stretch; }
+  :root[data-stil="cini"] .kemer { width: 100%; margin: 0; }
+  :root[data-stil="cini"] .kemer-ic { gap: 18px; padding: 0; }
+  :root[data-stil="cini"] .kalan-etiket { font-size: 24px; }
+  :root[data-stil="cini"] .sayac-karo { gap: 12px; }
+  :root[data-stil="cini"] .sayac-karo b { width: 122px; height: 112px; border-radius: 20px; font-size: 68px; }
+  :root[data-stil="cini"] .sayac-karo i { font-size: 40px; }
+  :root[data-stil="cini"] .kh-cumle { font-size: 19px; }
+  :root[data-stil="cini"] .sag { gap: 12px; }
+  :root[data-stil="cini"] .baslik-ad { color: var(--ink); }
+  :root[data-stil="cini"] .gun-gez { margin-bottom: 0; }
+  :root[data-stil="cini"] #gun-miladi { font-size: 17px; }
+  :root[data-stil="cini"] #gun-hicri { font-size: 14px; }
+  :root[data-stil="cini"] .vakitler { display: flex; flex-direction: column; margin: 0; gap: 8px; }
+  :root[data-stil="cini"] .vakit { --satir: 56px; height: var(--satir); padding: 0 12px 0 20px; }
+  :root[data-stil="cini"] .v-metin { flex-wrap: nowrap; align-items: baseline; }
+  :root[data-stil="cini"] .v-ad { font-size: 21px; }
+  :root[data-stil="cini"] .v-ar { flex-basis: auto; font-size: 21px; }
+  :root[data-stil="cini"] .v-saat { font-size: 28px; }
+  :root[data-stil="cini"] .menu-oge[aria-current="page"] { background: var(--turuncu); color: #FFFFFF; }
+}
+@media (min-width: 768px) and (orientation: portrait) {
+  :root[data-stil="cini"] .kemer-ic { min-height: 380px; justify-content: center; }
+}
+/* yatay tablet: solda tam boy fotoğraf, üstünde sayaç; sağda tarih ve liste */
+@media (min-width: 1000px) and (orientation: landscape) {
+  :root[data-stil="cini"] .sekme-ana::before { display: none; }
+  :root[data-stil="cini"] .sol { position: relative; isolation: isolate; margin: -30px 0 -30px -36px; padding: 0 24px 34%; justify-content: center; background: #141D2E; }
+  :root[data-stil="cini"] .sol::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; aspect-ratio: 1200 / 940; z-index: -1;
+    background: url(/mobil/cami-gece.jpg) center / cover no-repeat;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 34%); mask-image: linear-gradient(to bottom, transparent, #000 34%); }
+  :root[data-stil="cini"] .sayac-karo b { width: 112px; height: 104px; font-size: 62px; }
+  :root[data-stil="cini"] .vakit { --satir: 50px; }
 }

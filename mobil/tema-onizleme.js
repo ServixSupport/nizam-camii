@@ -1,12 +1,12 @@
 // Ayarlar'da tema seçimi: tam ekran canlı önizleme (kullanıcı isteği, 09-11-2026).
-// Her tema, uygulamanın kendisi olarak iframe'de açılır (?onizleme=liste|klasik; yerel.js): saat ve sayaç işler, gerçekte nasılsa öyle görünür.
+// Her tema, uygulamanın kendisi olarak iframe'de açılır (?onizleme=liste|klasik|cini; yerel.js): saat ve sayaç işler, gerçekte nasılsa öyle görünür.
 // Parmakla sağa sola kaydırılır. "Bu temayı seç" kaydeder; kapatınca hiçbir şey değişmez.
-const STILLER = ['liste', 'klasik'];
+const STILLER = ['liste', 'klasik', 'cini'];
 
 /**
  * @param {object} o
  * @param {Function} o.L        geçerli dilin metinleri
- * @param {Function} o.mevcut   seçili tema: 'liste' | 'klasik'
+ * @param {Function} o.mevcut   seçili tema: 'liste' | 'klasik' | 'cini'
  * @param {Function} o.sec      temayı kaydeder ve uygular
  * @param {object} [o.telefon]  Android mağaza uygulamasında eklenti (geri tuşu önizlemeyi kapatsın)
  */
@@ -16,7 +16,7 @@ export function temaOnizleme({ L, mevcut, sec, telefon = null }) {
   const serit = $('#to-serit');
   let sira = 0;
 
-  const ad = (k) => (k === 'liste' ? L().stilListe : L().stilKlasik);
+  const ad = (k) => L()[{ liste: 'stilListe', klasik: 'stilKlasik', cini: 'stilCini' }[k]];
 
   function ciz() {
     const t = L();

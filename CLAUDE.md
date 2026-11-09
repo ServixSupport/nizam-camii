@@ -26,7 +26,7 @@
 | `mobil/sw.js`, `manifest.webmanifest`, `ikon-*.png` | PWA (Faz C). Uygulama dosyası değişince: `cd tests && node araclar/sw-surum.mjs` (yoksa telefonlar eski sürümde kalır; test yakalar). |
 | `veri/dogrula.js` | İçerik doğrulama: API, panel ve testler aynı dosyayı kullanır. |
 | `api/bildirim/` | Faz D bildirimleri: `anahtar.js` (hazır mı + açık VAPID anahtarı), `abone.js` (kaydet/sil), `planla.js` (günlük cron), `gonder.js` (QStash çağırır), `deneme.js` (Ayarlar'daki "Deneme bildirimi": 1 dk sonra aynı yoldan). Mantık `api/_lib/bildirim.js`, servisler `api/_lib/bildirim-servis.js`. |
-| `mobil/tema-onizleme.js` | Ayarlar'da tema seçimi: tam ekran canlı önizleme (09-11-2026). Her tema uygulamanın kendisi olarak iframe'de (`?onizleme=liste\|klasik`; `yerel.js` `onizleme`): sağa sola kaydırılır, sadece "Bu temayı seç" kaydeder. iframe ağa gitmez, ayar yazmaz, telefon eklentisine dokunmaz. Android geri tuşu önizlemeyi kapatır (`CamiPlugin.geriYakala`, `camiGeri` olayı). |
+| `mobil/tema-onizleme.js` | Ayarlar'da tema seçimi: tam ekran canlı önizleme (09-11-2026). Her tema uygulamanın kendisi olarak iframe'de (`?onizleme=liste\|klasik\|cini`; `yerel.js` `onizleme`): sağa sola kaydırılır, sadece "Bu temayı seç" kaydeder. iframe ağa gitmez, ayar yazmaz, telefon eklentisine dokunmaz. Android geri tuşu önizlemeyi kapatır (`CamiPlugin.geriYakala`, `camiGeri` olayı). |
 | `mobil/bildirim.js` | Uygulamada bildirim ayarları ve ana ekrandaki ziller. İzin sadece dokununca istenir. "Ses" açılır listesi (telefonun sesi, Ezan 1 … 7; 08-11-2026; satır seçer, ▶ seçmeden dinletir, 09-11-2026) sadece Android mağaza uygulamasında. Vakitten önce (`onceVakitler`) ve vakit girince (`vakitler`) ayrı vakit seçimi. |
 | `mobil/yerel.js`, `yerel-plan.js`, `yerel-ayar.js` | Mağaza uygulaması köprüsü: telefona verilen plan (vakitler, bildirimler, sessiz dönemler) ve Ayarlar'daki "Durum çubuğu", "Sessize alma", "Kilit ekranı". Tarayıcıda hiçbir şey yapmaz. Bildirim metinleri `mobil/bildirim-metin.js` (sunucu da kullanır). |
 | `app/` | Mağaza uygulaması (Capacitor 8; Android + iOS). Ayrıntı: `app/README.md`, mağaza metinleri: `app/MAGAZA.md`. Vercel'e yüklenmez. |
@@ -38,7 +38,7 @@
 - Temmuz'dan kalan eski dosyalar `_eski-temmuz/` içinde; git'e ve Vercel'e girmez.
 - `core.autocrlf=false`: dosyalar GitHub'dakiyle bayt bayt aynı kalır (`index.html` 359.624 bayt).
 - Renk temaları (Yeşil, Turkuaz, Bordo) kullanıcı isteğiyle kaldırıldı (06-11-2026). Alt sistem çubuğu artık temaya göre (önceden hep lacivert).
-- Uygulamada iki tema (07-11-2026); ayarlarda **Tema 1 / Tema 2** (NL Thema, EN Theme). İkisinin de gündüz/gece hali var.
+- Uygulamada üç tema; ayarlarda **Tema 1 / Tema 2 / Tema 3** (NL Thema, EN Theme). Tema 1 ve 2'nin gündüz/gece hali var, Tema 3 hep koyu.
   - **08-11-2026'dan beri numaralar yer değiştirdi (kullanıcı isteği):** Tema 1 = fotoğraflı liste (varsayılan), Tema 2 = kemer.
     - Depo: `nzm.stil` `'klasik'` ise kemer; yoksa veya `'liste'` ise liste. Testlerde `mobilAc` varsayılan olarak `'klasik'` yazar (eski testler kemeri dener); varsayılanı denemek için `'nzm.stil': null`.
   - Tema 2: kemer, lacivert (eski "Klasik").
@@ -58,6 +58,7 @@
     - Gece hali yeşil değil: koyu temaların nötr renkleri (#121212 zemin, #1E1E1E kart, altın vurgu).
     - Kerahat: sadece İkindi vaktinde (kullanıcı isteği 08-11-2026; Sabah'ta gösterilmez). İkindi girince kerahate kalan süre, kerahat girince sadece "Kerahat vakti" (`zaman.js` `kerahatDurumu`, `KERAHAT_DK = 45`). Süreyi hoca onaylamalı; öğle öncesi (istiva) yok. Telefonda yazı satırları arası 12 px (08-11-2026).
   - Geçmiş vakitler hiçbir temada soluk/gri değil.
+  - Tema 3 (kullanıcının örnek resmine göre, 09-11-2026; `nzm.stil=cini`, `html[data-stil="cini"]`): lacivert, **hep koyu** (Ayarlar'da açık/koyu seçimi gizli; kayıtlı seçim silinmez). Üstte caminin fotoğrafı, alta doğru zemine karışır; üstünde logo + ad, sıradaki namaza kalan süre (`kalan-etiket`, buzlu karolarda `sayac-karo`), kerahat (Tema 1'deki kural). Altında oklu tarih (`gun-gez`: başka günlerin vakitleri, eldeki veri kadar; sayaç hep bugünün; sekme değişince ve yeni günde bugüne döner), vakit satırları (sıradaki turuncu, şimdiki solda çizgi). Menü çubuğu temaya özel (seçili simge turuncu kapsülde; tablette seçili sekme turuncu). Telefonda yükseklikler CSS'te (`--ekran`, satır en çok 60 px, artan yer fotoğrafa).
 - Uygulamanın Ayarlar sayfası gruplu (kullanıcı isteği, 08-11-2026; Android ayar kılavuzu ve Muslim Pro'ya bakıldı): Dil → Tema ve görünüm → Bildirimler ve ses (ana anahtar; "Vakit girince" kartı: anahtar, ses, vakitler; "Vakitten önce" kartı: dakika, vakitler; deneme; panel; sessize alma) → Cami. Kapalı kartın ayrıntıları görünmez. Sunucuda da `onceVakitler` var (eski kayıtlarda `vakitler` geçerli).
 - Uygulama ve /admin'in yazı tipleri TV'dekiyle aynı (07-11-2026): Inter (yazı), Oswald (saatler, başlıklar), Amiri (Arapça). `mobil/fonts/`, OFL; Oswald dosyaları TV'nin `index.html`'inde gömülü olanlar.
 
