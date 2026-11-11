@@ -512,7 +512,8 @@ function ciz() {
   olaylariKur(false);
   tarihCiz(simdi);
 
-  const oklu = ['liste', 'cini'].includes(document.documentElement.dataset.stil);   // Tema 1 ve 3: oklu tarih, karolu sayaç
+  const oklu = ['liste', 'cini'].includes(document.documentElement.dataset.stil);   // Tema 1 ve 3: oklu tarih
+  const cini = document.documentElement.dataset.stil === 'cini';                    // Tema 3: sayaç karolarda
   if (oklu) gunGezCiz();
 
   const notEl = $('.ams-not');
@@ -533,7 +534,7 @@ function ciz() {
     $('.vakitler').replaceChildren(); _satirImza = '';
     kemerCiz(null);
     kerahatCiz(simdi, false);
-    if (oklu) karoCiz();
+    if (cini) karoCiz();
     mesaj.hidden = false;
     mesaj.textContent = durum.hata ? t.hata : t.yukleniyor;
     return;
@@ -556,7 +557,7 @@ function ciz() {
   $('.sira-etiket').textContent = vs && vs.tur === 'giris' ? t.namazina(t.names[vs.vakit]) : t.vaktinCikmasina;
   if (vs) $('.sayac').textContent = geriSayim(vs.hedef - simdi);
   kerahatCiz(simdi, true);
-  if (oklu) karoCiz();
+  if (cini) karoCiz();
 }
 
 // ---------------- Tema 1 (liste) ve Tema 3: kerahat (sadece İkindi vaktinde) ----------------
@@ -664,10 +665,10 @@ function bantYuksekligi() {
   if (stil !== 'liste' && stil !== 'cini') return;
   const k = $('.kemer').getBoundingClientRect(), a = ana.getBoundingClientRect();
   if (!k.height) return;
-  const tarih = $('.gun-gez').getBoundingClientRect().top;
-  const alt = tabletMi.matches ? k.bottom + 16
-    : stil === 'cini' ? tarih          // Tema 3: fotoğraf tarihin üstünde zemine karışır; tarihin arkası düz zemin (kullanıcı isteği, 11-11-2026)
-      : tarih + 26;                    // Tema 1: yaprağın (tarih + liste) yuvarlak köşelerine kadar
+  const tarih = $('.gun-gez').getBoundingClientRect();
+  const alt = stil === 'cini' ? tarih.bottom     // Tema 3: tarih de fotoğrafın üstünde, fotoğraf tarihin altında biter (kullanıcı isteği, 11-11-2026)
+    : tabletMi.matches ? k.bottom + 16
+      : tarih.top + 26;                          // Tema 1: yaprağın (tarih + liste) yuvarlak köşelerine kadar
   ana.style.setProperty('--bant-yuk', `${Math.round(alt - a.top)}px`);
 }
 function anaSigdir() {
