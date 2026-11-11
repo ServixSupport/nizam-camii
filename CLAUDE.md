@@ -39,14 +39,13 @@
 - `core.autocrlf=false`: dosyalar GitHub'dakiyle bayt bayt aynı kalır (`index.html` 359.624 bayt).
 - Renk temaları (Yeşil, Turkuaz, Bordo) kullanıcı isteğiyle kaldırıldı (06-11-2026). Alt sistem çubuğu artık temaya göre (önceden hep lacivert).
 - Uygulamada üç tema; ayarlarda **Tema 1 / Tema 2 / Tema 3** (NL Thema, EN Theme). Üçünün de gündüz/gece hali var (Ayarlar'da Otomatik/Açık/Koyu).
-  - **08-11-2026'dan beri numaralar yer değiştirdi (kullanıcı isteği):** Tema 1 = fotoğraflı liste (varsayılan), Tema 2 = kemer.
-    - Depo: `nzm.stil` `'klasik'` ise kemer; yoksa veya `'liste'` ise liste. Testlerde `mobilAc` varsayılan olarak `'klasik'` yazar (eski testler kemeri dener); varsayılanı denemek için `'nzm.stil': null`.
+  - **08-11-2026'dan beri numaralar yer değiştirdi (kullanıcı isteği):** Tema 1 = liste, Tema 2 = kemer. **11-11-2026'dan beri varsayılan Tema 3** (kullanıcı isteği; hiç seçmeyenler de Tema 3 görür).
+    - Depo: `nzm.stil` `'klasik'` ise kemer, `'liste'` ise liste; yoksa veya `'cini'` ise Tema 3. Testlerde `mobilAc` varsayılan olarak `'klasik'` yazar (eski testler kemeri dener); varsayılanı denemek için `'nzm.stil': null`.
   - Tema 2: kemer, lacivert (eski "Klasik").
   - Tema 1 (`nzm.stil=liste`, `html[data-stil="liste"]`; eski "Liste"nin yerine): kullanıcının örnek resmine göre; logonun renkleri. Telefonda logo 34 px (08-11-2026; önce 52, sonra 40).
-    - 08-11-2026'dan beri yeşil bant ve kutu (kart) yok. Üstte caminin fotoğrafı, olduğu gibi (`mobil/cami-gece.jpg`, kullanıcının verdiği; karartma yok).
-      - Telefonda fotoğraf ekran genişliğinde. Altı listenin hemen arkasında (10 px; liste 08-11-2026 4 px aşağı alındı, fotoğraf yerinde): bütün cami listenin üstünde görünür, gökyüzünün üstü kesilir ("çoğu gökyüzü" olmasın). Yazılar logo ile liste arasında dikey ortada. Bandın yüksekliği JS'ten `--bant-yuk`; tarayıcı çubuğu `--ustZemin`.
-      - Yatay tablette solda tam boy panel.
-    - Fotoğrafın üstünde: logo + ad; ortada sırayla "Vaktin çıkmasına" (beyaz), kalan süre (sarı), tek satır tarih "17 Jumada al-Awwal 1448 • 28 okt 2026" (yılın arkasında H/AH yok, kullanıcı isteği; beyaz), kerahat cümlesi (sarı). Vakit adı ve Arapça adı gösterilmez.
+    - 11-11-2026'dan beri fotoğraf yok (kullanıcı isteği): üstte yeşil desenli bant (`--bant` #1F4D2B, `--desen`: kemerli temadaki yıldız deseni, altın çizgi). Bandın yüksekliği JS'ten `--bant-yuk` (yaprağın köşelerine kadar); tarayıcı çubuğu `--ustZemin` (bandın rengi). Yatay tablette solda tam boy yeşil panel.
+    - Bandın üstünde: logo + ad; ortada Tema 3'teki gibi büyük harfle "VAKTİN ÇIKMASINA" (beyaz), kalan süre karolarda (`sayac-karo`), kerahat koyu kapsülde (sarı). Vakit adı ve Arapça adı gösterilmez.
+    - Tarih Tema 3'teki yerde: bandın altında, yaprağın üstünde, oklu (`gun-gez`; başka günlerin vakitleri). Arkasında H/AH yok.
     - Sayaç (`zaman.js` `vakitSonu`, kullanıcı isteği):
       - İmsak → Sabah namazı (listedeki Sabah satırı, Güneş − 60): "Sabah namazına".
       - Sabah namazından sonra Güneş'e kadar: "Vaktin çıkmasına".
@@ -54,12 +53,13 @@
       - Diğer vakitlerde vaktin bitişine "Vaktin çıkmasına"; Yatsı ertesi İmsak'ta çıkar.
       - NL/EN: "Fadjr begint over", "Gebedstijd eindigt over"; "Dhuhr begins in", "Prayer time ends in".
       - Kemerli temanın (Tema 2) sayacı değişmedi (sıradaki vakte).
-    - Altta liste: telefonda kenardan kenara yaprak, üst köşeler yuvarlak, alt düz (zeminle ve menüyle birleşir); İmsak ve Güneş dahil 7 vakit (büyük adlar).
-    - Gece hali yeşil değil: koyu temaların nötr renkleri (#121212 zemin, #1E1E1E kart, altın vurgu).
+    - Altta yaprak: telefonda kenardan kenara, üst köşeler yuvarlak, alt düz (zeminle ve menüyle birleşir); üstte tarih, altında İmsak ve Güneş dahil 7 vakit (büyük adlar).
+    - Gece hali: zemin #1F1F1F (kullanıcının verdiği renk, 11-11-2026: "çok siyah"), kart #2A2A2A, bant koyu yeşil (#183D23), altın vurgu.
     - Kerahat: sadece İkindi vaktinde (kullanıcı isteği 08-11-2026; Sabah'ta gösterilmez). İkindi girince kerahate kalan süre, kerahat girince sadece "Kerahat vakti" (`zaman.js` `kerahatDurumu`, `KERAHAT_DK = 45`). Süreyi hoca onaylamalı; öğle öncesi (istiva) yok. Telefonda yazı satırları arası 12 px (08-11-2026).
   - Geçmiş vakitler hiçbir temada soluk/gri değil.
-  - Tema 3 (kullanıcının örnek resmine göre, 09-11-2026; `nzm.stil=cini`, `html[data-stil="cini"]`): koyu hali lacivert, açık hali kullanıcı isteğiyle eklendi (09-11-2026; açık gri-mavi zemin, beyaz satırlar). Seçim diğer temalardaki gibi; Otomatik'te gündüz açık, akşam koyu. Fotoğraf iki halde de aynı gece çekimi, üstündeki yazılar beyaz. Üstte caminin fotoğrafı, alta doğru zemine karışır; üstünde logo + ad, sıradaki namaza kalan süre (`kalan-etiket`, buzlu karolarda `sayac-karo`), kerahat (Tema 1'deki kural). Altında oklu tarih (`gun-gez`: başka günlerin vakitleri, eldeki veri kadar; sayaç hep bugünün; sekme değişince ve yeni günde bugüne döner), vakit satırları (sıradaki turuncu, şimdiki solda çizgi). Menü çubuğu temaya özel (seçili simge turuncu kapsülde; tablette seçili sekme turuncu). Telefonda yükseklikler CSS'te (`--ekran`, satır en çok 60 px, artan yer fotoğrafa).
+  - Tema 3 (kullanıcının örnek resmine göre, 09-11-2026; `nzm.stil=cini`, `html[data-stil="cini"]`): koyu hali lacivert, açık hali kullanıcı isteğiyle eklendi (09-11-2026; açık gri-mavi zemin, beyaz satırlar). Seçim diğer temalardaki gibi; Otomatik'te gündüz açık, akşam koyu. Fotoğraf iki halde de aynı gece çekimi, üstündeki yazılar beyaz. Üstte caminin fotoğrafı, alta doğru zemine karışır ve tarihin üstünde biter (tarihin arkası düz zemin; tarih vurgu renginde, 11-11-2026); üstünde sadece logo (cami adı gizli, başlık ekran okuyucu için kalır; 11-11-2026), sıradaki namaza kalan süre (`kalan-etiket`, buzlu karolarda `sayac-karo`), kerahat (Tema 1'deki kural). Altında oklu tarih (`gun-gez`: başka günlerin vakitleri, eldeki veri kadar; sayaç hep bugünün; sekme değişince ve yeni günde bugüne döner), vakit satırları (sıradaki turuncu, şimdiki solda çizgi). Menü çubuğu temaya özel (seçili simge turuncu kapsülde; tablette seçili sekme turuncu). Telefonda yükseklikler CSS'te (`--ekran`, satır en çok 60 px, artan yer fotoğrafa).
 - Uygulamanın Ayarlar sayfası gruplu (kullanıcı isteği, 08-11-2026; Android ayar kılavuzu ve Muslim Pro'ya bakıldı): Dil → Tema ve görünüm → Bildirimler ve ses (ana anahtar; "Vakit girince" kartı: anahtar, ses, vakitler; "Vakitten önce" kartı: dakika, vakitler; deneme; panel; sessize alma) → Cami. Kapalı kartın ayrıntıları görünmez. Sunucuda da `onceVakitler` var (eski kayıtlarda `vakitler` geçerli).
+  - Açıklama yazıları görünmez (kullanıcı isteği, 11-11-2026): ayarın adının arkasında yuvarlak "?" düğmesi (`.ipucu`, `aria-controls` → `.ipucu-not`); dokununca açıklama ayarın altında açılır, tekrar dokununca veya Esc ile kapanır. Durum yazıları (izin, "Son: …") görünür kalır.
 - Uygulama ve /admin'in yazı tipleri TV'dekiyle aynı (07-11-2026): Inter (yazı), Oswald (saatler, başlıklar), Amiri (Arapça). `mobil/fonts/`, OFL; Oswald dosyaları TV'nin `index.html`'inde gömülü olanlar.
 
 **Yükleme (S1, 24-10-2026):** `git push` Claude yapar, kullanıcı GitHub sitesinden yüklemez.

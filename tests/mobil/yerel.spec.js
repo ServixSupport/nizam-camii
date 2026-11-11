@@ -268,7 +268,7 @@ test('sessize alma: ayar, "Niet storen" izni, süre, nasıl ve hangi namazlar', 
     .toEqual({ aan: true, dakika: 45, vakitler: ['Dhuhr', 'Asr', 'Maghrib', 'Isha'], mod: 'titresim' });
 
   // telefonun ayarlarından izin verip dönünce uyarı kalkar
-  await bolum.getByRole('button', { name: 'Stil' }).click();
+  await bolum.getByRole('button', { name: 'Stil', exact: true }).click();
   await expect(page.locator('#sessiz-mesaj')).toBeVisible();
   await page.evaluate(() => { window.__yerel.izin.sessiz = true; document.dispatchEvent(new Event('visibilitychange')); });
   await expect(page.locator('#sessiz-mesaj')).toBeHidden();
@@ -298,7 +298,7 @@ test('tema: sistem çubukları açık temada koyu simgeli, koyu temada açık', 
   await telefon(page, { izin: { bildirim: 'granted' } });
   await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar', depo: { 'nzm.tema': 'gunduz' } });
   await expect.poll(async () => (await cagrilar(page, 'cubuklar')).at(-1)?.arg).toEqual({ koyu: false, zemin: '#F6F1E7' });
-  await page.getByRole('button', { name: 'Donker' }).click();
+  await page.getByRole('button', { name: 'Donker', exact: true }).click();
   await expect.poll(async () => (await cagrilar(page, 'cubuklar')).at(-1)?.arg).toEqual({ koyu: true, zemin: '#0C1834' });
 });
 

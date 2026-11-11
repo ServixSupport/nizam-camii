@@ -31,10 +31,9 @@ const pad = (n) => String(n).padStart(2, '0');
 const durum = {
   dil: (() => { const d = oku(DEPO.dil); return METIN[d] ? d : VARSAYILAN_DIL; })(),
   tema: (() => { const t = oku(DEPO.tema); return ['oto', 'gunduz', 'gece'].includes(t) ? t : 'oto'; })(),
-  // tasarım: 'liste' (Tema 1: caminin fotoğrafı ve büyük vakit listesi; varsayılan) veya 'klasik' (Tema 2: kemer).
-  // Kullanıcı isteği (08-11-2026): eski "Tema 2" artık Tema 1 ve varsayılan; seçmeyenler de bunu görür.
-  // 'cini' (Tema 3, 09-11-2026): karolu sayaç, oklu tarih; koyu hali lacivert, açık hali de var.
-  stil: onizleme || (['klasik', 'cini'].includes(oku(DEPO.stil)) ? oku(DEPO.stil) : 'liste'),
+  // tasarım: 'liste' (Tema 1: yeşil desenli bant ve büyük vakit listesi), 'klasik' (Tema 2: kemer),
+  // 'cini' (Tema 3, 09-11-2026: caminin fotoğrafı, karolu sayaç, oklu tarih). Kullanıcı isteği (11-11-2026): Tema 3 varsayılan; seçmeyenler de bunu görür.
+  stil: onizleme || (['klasik', 'liste'].includes(oku(DEPO.stil)) ? oku(DEPO.stil) : 'cini'),
   diyanet: new Map(),      // 'GG.AA.YYYY' → gün
   aladhan: new Map(),      // 'YYYY-MM-DD' → gün
   veriVar: false,
@@ -214,6 +213,25 @@ function olaylariKur(zorla) {
   _tarihImza = '';
 }
 
+// ---------------- Ayarlar: açıklamalar "?" düğmesinin arkasında (kullanıcı isteği, 11-11-2026) ----------------
+// Dokununca açıklama ayarın altında açılır; tekrar dokununca, Esc ile ya da başka bir "?" açılınca kapanır.
+function ipucuKapat(haric) {
+  for (const b of $$('.ipucu[aria-expanded="true"]')) {
+    if (b === haric) continue;
+    b.setAttribute('aria-expanded', 'false');
+    $(`#${b.getAttribute('aria-controls')}`).hidden = true;
+  }
+}
+for (const b of $$('.ipucu')) {
+  b.addEventListener('click', () => {
+    const ac = b.getAttribute('aria-expanded') !== 'true';
+    ipucuKapat(b);
+    b.setAttribute('aria-expanded', String(ac));
+    $(`#${b.getAttribute('aria-controls')}`).hidden = !ac;
+  });
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') ipucuKapat(null); });
+
 // ---------------- dil ----------------
 function metinleriYaz() {
   const t = L();
@@ -225,6 +243,7 @@ function metinleriYaz() {
   if (yerelAyar) yerelAyar.ciz();
   for (const el of $$('[data-t-aria]')) el.setAttribute('aria-label', t[el.dataset.tAria]);
   for (const el of $$('[data-t-alt]')) el.setAttribute('alt', t[el.dataset.tAlt]);
+  for (const b of $$('.ipucu')) b.setAttribute('aria-label', `${t.uitleg}: ${$(`#${b.dataset.ipAd}`).textContent}`);
 
   const dil = $('#dil-secim');
   dil.replaceChildren(...DILLER.map(([k, ad]) => {
@@ -451,10 +470,10 @@ function tarihCiz(simdi) {
   const k = {};
   for (const x of new Intl.DateTimeFormat(t.locale, { timeZone: AMS, day: 'numeric', month: 'short', year: 'numeric' }).formatToParts(new Date(simdi))) k[x.type] = x.value;
   const miladiKisa = `${k.day} ${String(k.month).replace(/\.$/, '')} ${k.year}`;
-  $('.tarih-kisa').textContent = $('.kart-tarih').textContent = g ? `${hicriYazi(g.hicri)} • ${miladiKisa}` : miladiKisa;
+  $('.tarih-kisa').textContent = g ? `${hicriYazi(g.hicri)} • ${miladiKisa}` : miladiKisa;
 }
 
-// ---------------- Tema 3: oklu tarih ----------------
+// ---------------- Tema 1 ve 3: oklu tarih ----------------
 // Oklarla başka günlerin vakitlerine bakılır (eldeki veri kadar); sayaç hep bugünün. Sekme değişince ve yeni günde bugüne döner.
 let _gunKayma = 0;
 let _gunImza = '';
@@ -493,8 +512,8 @@ function ciz() {
   olaylariKur(false);
   tarihCiz(simdi);
 
-  const cini = document.documentElement.dataset.stil === 'cini';
-  if (cini) gunGezCiz();
+  const oklu = ['liste', 'cini'].includes(document.documentElement.dataset.stil);   // Tema 1 ve 3: oklu tarih, karolu sayaç
+  if (oklu) gunGezCiz();
 
   const notEl = $('.ams-not');
   if (!cihazAmsterdam) {
@@ -514,7 +533,7 @@ function ciz() {
     $('.vakitler').replaceChildren(); _satirImza = '';
     kemerCiz(null);
     kerahatCiz(simdi, false);
-    if (cini) karoCiz();
+    if (oklu) karoCiz();
     mesaj.hidden = false;
     mesaj.textContent = durum.hata ? t.hata : t.yukleniyor;
     return;
@@ -537,7 +556,7 @@ function ciz() {
   $('.sira-etiket').textContent = vs && vs.tur === 'giris' ? t.namazina(t.names[vs.vakit]) : t.vaktinCikmasina;
   if (vs) $('.sayac').textContent = geriSayim(vs.hedef - simdi);
   kerahatCiz(simdi, true);
-  if (cini) karoCiz();
+  if (oklu) karoCiz();
 }
 
 // ---------------- Tema 1 (liste) ve Tema 3: kerahat (sadece İkindi vaktinde) ----------------
@@ -645,9 +664,10 @@ function bantYuksekligi() {
   if (stil !== 'liste' && stil !== 'cini') return;
   const k = $('.kemer').getBoundingClientRect(), a = ana.getBoundingClientRect();
   if (!k.height) return;
+  const tarih = $('.gun-gez').getBoundingClientRect().top;
   const alt = tabletMi.matches ? k.bottom + 16
-    : stil === 'cini' ? $('.gun-gez').getBoundingClientRect().top + 16       // Tema 3: tarihin üstünde zemine karışır
-      : $('.vakitler').getBoundingClientRect().top + 26;                     // Tema 1: listenin yuvarlak köşelerine kadar
+    : stil === 'cini' ? tarih          // Tema 3: fotoğraf tarihin üstünde zemine karışır; tarihin arkası düz zemin (kullanıcı isteği, 11-11-2026)
+      : tarih + 26;                    // Tema 1: yaprağın (tarih + liste) yuvarlak köşelerine kadar
   ana.style.setProperty('--bant-yuk', `${Math.round(alt - a.top)}px`);
 }
 function anaSigdir() {
@@ -674,7 +694,7 @@ function anaSigdir() {
     const n = satirlar.length || VAKITLER.length;
     const h = satirlar.length ? satirlar[0].offsetHeight : 64;
     const geri = $('main').offsetHeight - n * h;                 // satırlar dışındaki her şey
-    const yeni = Math.min(84, Math.max(50, Math.floor((ekran - geri - 2) / n)));
+    const yeni = Math.min(84, Math.max(46, Math.floor((ekran - geri - 2) / n)));
     kok.style.setProperty('--satir', `${yeni}px`);
     const sigiyor = geri + n * yeni <= ekran + 12;
     kok.classList.toggle('kaydirma-yok', sigiyor);

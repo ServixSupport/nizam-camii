@@ -12,7 +12,7 @@ const PAY_MS = 2000;
 export async function mobilAc(page, o) {
   const T = new Date(o.zaman).getTime();
   if (Number.isNaN(T)) throw new Error('geçersiz zaman: ' + o.zaman);
-  // Tasarım: 08-11-2026'dan beri varsayılan Tema 1 = 'liste'. Eski testler kemerli tasarımı (Tema 2, 'klasik') test eder:
+  // Tasarım: 11-11-2026'dan beri varsayılan Tema 3 = 'cini'. Eski testler kemerli tasarımı (Tema 2, 'klasik') test eder:
   // depo'da 'nzm.stil' yoksa 'klasik' yazılır. Varsayılanı denemek için 'nzm.stil': null (anahtar silinir).
   const depo = { 'nzm.stil': 'klasik', ...(o.depo || {}) };
   await page.addInitScript((depo) => {

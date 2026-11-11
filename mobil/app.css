@@ -60,7 +60,7 @@
   color-scheme: dark;
 }
 
-/* ---------- Tema 2 (data-stil="liste"; kullanıcı isteği, 07/08-11-2026): üstte caminin gece fotoğrafı (logo, ad; ortada
+/* ---------- Tema 1 (data-stil="liste"; kullanıcı isteği, 07/08/11-11-2026): üstte yeşil desenli bant (11-11-2026'dan beri fotoğraf yerine; logo, ad; ortada
    "Vaktin çıkmasına", kalan süre, tarih, kerahat), altında 7 vakitlik liste. Gündüz: krem zemin. Gece: koyu temaların nötr renkleri. ---------- */
 :root[data-stil="liste"], :root[data-stil="liste"][data-tema="gunduz"] {
   --ground: #FBF9F4; --ink: #17321D; --soft: #55625A; --line: #E7E0D0; --gold: #946F25; --goldLine: rgba(160,124,51,.42);
@@ -72,20 +72,23 @@
   --g-herkes: #17321D; --g-erkekler: #235A2C; --tablo-cizgi: #EAE1CD; --tablo-sutun: #EFE8D8; --saat-yazi: #5E6B60; --vakit-yazi: #8E6A2A;
   --kahramanAltin: #E6C47A;
   --listeGolge: 0 10px 26px rgba(23,50,29,.08);
-  --ustZemin: #0E0E0C;
+  --ustZemin: #1F4D2B; --bant: #1F4D2B; --vurgu: #235A2C;
+  --desen: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cg fill='none' stroke='%23E6C47A' stroke-opacity='.24'%3E%3Crect x='14' y='14' width='20' height='20'/%3E%3Crect x='14' y='14' width='20' height='20' transform='rotate(45 24 24)'/%3E%3Cpath d='M0 24h10M38 24h10M24 0v10M24 38v10'/%3E%3C/g%3E%3C/svg%3E");
   color-scheme: light;
 }
+/* gece: kullanıcının verdiği renk (#1F1F1F; 11-11-2026: "çok siyah") */
 :root[data-stil="liste"][data-tema="gece"] {
-  --ground: #121212; --ink: #F2F2F2; --soft: #A3A3A3; --line: rgba(255,255,255,.09); --gold: #E0BD70; --goldLine: rgba(224,189,112,.3);
-  --cobalt: #E0BD70; --turq: #E0BD70; --coral: #F08B6E; --sun: #E8B95C; --card: #1E1E1E;
-  --rail: #0E0E0E; --railActive: rgba(255,255,255,.08); --nextRow: rgba(224,189,112,.12); --nextBorder: rgba(224,189,112,.42);
-  --tabBg: rgba(18,18,18,.96); --patternOp: .06; --past: #A3A3A3;
-  --segBg: rgba(255,255,255,.08); --segOn: #2C2C2E; --segShadow: 0 1px 2px rgba(0,0,0,.4);
-  --navy: #2A2A2A; --navyLine: rgba(255,255,255,.10); --anahtarKapali: #3A3A3C;
+  --ground: #1F1F1F; --ink: #F2F2F2; --soft: #A3A3A3; --line: rgba(255,255,255,.09); --gold: #E0BD70; --goldLine: rgba(224,189,112,.3);
+  --cobalt: #E0BD70; --turq: #E0BD70; --coral: #F08B6E; --sun: #E8B95C; --card: #2A2A2A;
+  --rail: #1A1A1A; --railActive: rgba(255,255,255,.08); --nextRow: rgba(224,189,112,.12); --nextBorder: rgba(224,189,112,.42);
+  --tabBg: rgba(31,31,31,.97); --patternOp: .06; --past: #A3A3A3;
+  --segBg: rgba(255,255,255,.08); --segOn: #38383A; --segShadow: 0 1px 2px rgba(0,0,0,.4);
+  --navy: #333333; --navyLine: rgba(255,255,255,.10); --anahtarKapali: #48484A;
   --g-herkes: #F2F2F2; --g-erkekler: #E0BD70; --tablo-cizgi: rgba(255,255,255,.07); --tablo-sutun: rgba(255,255,255,.05); --saat-yazi: #A3A3A3; --vakit-yazi: #E0BD70;
   --kahramanAltin: #E0BD70;
   --listeGolge: none;
-  --ustZemin: #0E0E0C;
+  --ustZemin: #183D23; --bant: #183D23; --vurgu: #E0BD70;
+  --desen: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cg fill='none' stroke='%23E0BD70' stroke-opacity='.18'%3E%3Crect x='14' y='14' width='20' height='20'/%3E%3Crect x='14' y='14' width='20' height='20' transform='rotate(45 24 24)'/%3E%3Cpath d='M0 24h10M38 24h10M24 0v10M24 38v10'/%3E%3C/g%3E%3C/svg%3E");
   color-scheme: dark;
 }
 
@@ -231,6 +234,20 @@ main {
 .segment button[aria-pressed="true"] { background: var(--segOn); box-shadow: var(--segShadow); }
 .ayar-kart { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 16px; border-radius: 20px; background: var(--card); border: 1px solid var(--line); }
 .ayar-ad { font-weight: 600; font-size: 14.5px; }
+/* açıklamalar "?" düğmesinin arkasında (kullanıcı isteği, 11-11-2026; app.js ipucu) */
+.ad-ip { display: flex; align-items: center; gap: 2px; min-width: 0; }
+.ad-ip > span { flex: 0 1 auto; min-width: 0; }
+.b-satir > .ad-ip { flex: 1; }
+.b-yan > .ad-ip { flex: 0 0 auto; }
+.ipucu { flex: 0 0 auto; width: 44px; height: 44px; margin: -12px -14px -12px -8px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 50%;
+  background: none; color: var(--soft); font: inherit; cursor: pointer; }
+.ipucu span { width: 19px; height: 19px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1.5px solid currentColor;
+  font-size: 11.5px; font-weight: 700; line-height: 1; }
+.ipucu[aria-expanded="true"] span { background: var(--cobalt); border-color: var(--cobalt); color: var(--card); }
+.ipucu-not { display: block; padding: 10px 12px; border-radius: 12px; background: var(--rail); color: var(--ink); line-height: 1.45; }
+.ipucu-not[hidden] { display: none; }
+.b-satir:has(> .ipucu-not:not([hidden])) { flex-wrap: wrap; }
+.b-satir > .ipucu-not { flex: 1 0 100%; }
 .ayar-not { font-size: 13px; line-height: 1.4; color: var(--soft); }
 .tema-ayar { display: flex; flex-direction: column; gap: 10px; }
 .ayar-satir { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 0; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
@@ -614,11 +631,11 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 .b-deneme:disabled { opacity: .6; }
 .b-mesaj.bilgi { color: var(--soft); }
 
-/* ================= Tema 2 (data-stil="liste"): ana ekran ================= */
-/* Kullanıcı isteği (08-11-2026): yeşil bant ve kutu yok. Üstte caminin fotoğrafı; üstünde logo ve ad, ortada
-   "Vaktin çıkmasına" (beyaz), kalan süre (sarı), tarih (beyaz), kerahat cümlesi (sarı). Fotoğraf olduğu gibi (karartma yok). */
+/* ================= Tema 1 (data-stil="liste"): ana ekran ================= */
+/* Kullanıcı isteği (11-11-2026): fotoğraf yerine yeşil desenli bant; yazılar Tema 3'teki gibi (büyük harfle "Vaktin çıkmasına",
+   karolarda kalan süre, kapsülde kerahat); tarih bandın altında, Tema 3'teki yerde (oklu). */
 /* Tema 1'de (Klasik) görünmeyen parçalar */
-.sira-etiket, .kalan-kisa, .kh-cumle, .tarih-kisa, .kart-tarih { display: none; }
+.sira-etiket, .kalan-kisa, .kh-cumle, .tarih-kisa { display: none; }
 .ust-ad b { font-weight: inherit; }
 
 :root[data-stil="liste"] .sekme-ana { isolation: isolate; }
@@ -632,23 +649,19 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 
 /* ortada, kutusuz: "Vaktin çıkmasına", kalan süre, tarih, kerahat */
 :root[data-stil="liste"] .kemer-svg, :root[data-stil="liste"] .kalan-etiket, :root[data-stil="liste"] .sira,
-:root[data-stil="liste"] .sira-ar, :root[data-stil="liste"] .kalan-kisa { display: none; }
+:root[data-stil="liste"] .sira-ar, :root[data-stil="liste"] .kalan-kisa, :root[data-stil="liste"] .sayac { display: none; }
 :root[data-stil="liste"] .kemer { width: auto; height: auto; margin: 0; }
 :root[data-stil="liste"] .kemer-ic { position: relative; top: auto; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-  gap: 6px; padding: 14px 0 0; text-align: center; color: #FFFFFF; animation: nzRise .6s both; }
-:root[data-stil="liste"] .kemer-ic > *, :root[data-stil="liste"] .ust-ad, :root[data-stil="liste"] .ams-not { text-shadow: 0 1px 2px #000, 0 0 5px rgba(0,0,0,.9), 0 0 16px rgba(0,0,0,.85); }   /* yazılar caminin aydınlık duvarında da okunsun */
-:root[data-stil="liste"] .sira-etiket { display: block; font-size: 17px; font-weight: 600; letter-spacing: .01em; color: #FFFFFF; }
-:root[data-stil="liste"] .sayac { font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 500; font-size: 58px; line-height: 1; letter-spacing: .01em;
-  color: var(--kahramanAltin); font-variant-numeric: tabular-nums; }
-:root[data-stil="liste"] .kart-tarih { display: block; font-size: 14.5px; font-weight: 500; color: #FFFFFF; white-space: nowrap; }
-:root[data-stil="liste"] .kh-cumle { display: block; font-size: 14.5px; font-weight: 600; line-height: 1.3; color: var(--kahramanAltin); }
+  gap: 10px; padding: 14px 0 0; text-align: center; color: #FFFFFF; animation: nzRise .6s both; }
+:root[data-stil="liste"] .sira-etiket { display: block; font-size: 19px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #FFFFFF; }
+:root[data-stil="liste"] .kh-cumle { display: block; padding: 3px 12px; border-radius: 999px; background: rgba(0,0,0,.24); font-size: 14.5px; font-weight: 600; line-height: 1.3; color: var(--kahramanAltin); }
 :root[data-stil="liste"] .kh-cumle[hidden] { display: none; }
 :root[data-stil="liste"] .ams-not { color: #FFFFFF; opacity: .85; }
 
-/* caminin fotoğrafı: üstten listenin üst köşelerine kadar; yüksekliği JS yazar (app.js bantYuksekligi, --bant-yuk). Yatay tablette solda (aşağıda). */
+/* yeşil desenli bant: üstten yaprağın (tarih + liste) üst köşelerine kadar; yüksekliği JS yazar (app.js bantYuksekligi, --bant-yuk). Yatay tablette solda (aşağıda). */
 @media not all and (min-width: 1000px) and (orientation: landscape) {
   :root[data-stil="liste"] .sekme-ana::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: var(--bant-yuk, 320px); z-index: -1;
-    background: url(/mobil/cami-gece.jpg) center bottom / cover no-repeat, var(--ustZemin); }
+    background: var(--desen) center top / 48px 48px repeat, var(--bant); }
 }
 
 /* vakitler: tek kartta 7 satır; her vaktin simgesi, ad ve Arapça ad (büyük), saat, zil. Sıradaki vurgulu; geçmiş vakitler soluk değil */
@@ -692,24 +705,22 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
   :root[data-stil="liste"] .ust, :root[data-stil="liste"] .sol, :root[data-stil="liste"] .sag { display: contents; }
   :root[data-stil="liste"] .ust img { grid-column: 1; grid-row: 1; width: 34px; height: 34px; align-self: center; }   /* logo küçük (kullanıcı isteği, 08-11-2026; önce 52, sonra 40) */
   :root[data-stil="liste"] .ust-yazi { grid-column: 2; grid-row: 1; align-self: center; }
-  :root[data-stil="liste"] .ams-not, :root[data-stil="liste"] .kemer,
+  :root[data-stil="liste"] .ams-not, :root[data-stil="liste"] .kemer, :root[data-stil="liste"] .gun-gez,
   :root[data-stil="liste"] .vakitler, :root[data-stil="liste"] .durum-mesaj { grid-column: 1 / -1; }
   /* fotoğraf (1200 × 940) telefonun genişliğinde; altı listenin hemen arkasında (10 px), cami listenin üstünde bütünüyle görünür,
      üstteki gökyüzünün bir kısmı kesilir (kullanıcı isteği, 08-11-2026: "çoğu gökyüzü, fotoğrafı yukarı al").
      Liste 4 px daha aşağıda (kullanıcı isteği, 08-11-2026); fotoğraf yerinde kalır (bant listenin 26 px altında biter, fotoğrafın altı bandın 16 px üstünde).
      Yazılar logo ile liste arasında dikey ortada. Listenin üstü = 14 + 34 (logo) + yazı alanı + 22 ≈ %61 vw + 4 (logo küçülünce yazı alanı büyüdü: liste yerinde kaldı) */
-  :root[data-stil="liste"] .sekme-ana::before { background: url(/mobil/cami-gece.jpg) center bottom 16px / 100% auto no-repeat, var(--ustZemin); }
-  :root[data-stil="liste"] .kemer-ic { min-height: calc(61vw - 66px); justify-content: center; gap: 12px; padding: 6px 0; }   /* satırlar arası ferah (kullanıcı isteği, 08-11-2026; önce 5) */
-  /* liste: yaprak; üst köşeler yuvarlak, alt düz (zeminle ve menüyle birleşir), kenardan kenara */
-  :root[data-stil="liste"] .vakitler { margin: 22px -18px 0; padding: 12px 18px 8px; border: 0; border-radius: 26px 26px 0 0; background: var(--ground); box-shadow: none; }
+  :root[data-stil="liste"] .kemer-ic { min-height: calc(61vw - 66px); justify-content: center; gap: 10px; padding: 6px 0; }   /* satırlar arası ferah (kullanıcı isteği, 08-11-2026; önce 5) */
+  /* yaprak: tarih ve liste; üst köşeler yuvarlak, alt düz (zeminle ve menüyle birleşir), kenardan kenara */
+  :root[data-stil="liste"] .vakitler { margin: 0 -18px; padding: 4px 18px 8px; border: 0; border-radius: 0; background: var(--ground); box-shadow: none; }
   :root[data-stil="liste"] .menu { border-top-color: var(--line); }
 }
 /* kısa telefon ekranı: yazılar biraz küçük; yazı alanı yazılar kadar (fotoğrafın gökyüzü daha çok kesilir) */
 @media (max-width: 767px) and (max-height: 700px) {
   :root[data-stil="liste"] .kemer-ic { min-height: 0; gap: 6px; padding: 8px 0; }
-  :root[data-stil="liste"] .sira-etiket { font-size: 15px; }
-  :root[data-stil="liste"] .sayac { font-size: 46px; }
-  :root[data-stil="liste"] .kart-tarih, :root[data-stil="liste"] .kh-cumle { font-size: 13px; }
+  :root[data-stil="liste"] .sira-etiket { font-size: 16px; }
+  :root[data-stil="liste"] .kh-cumle { font-size: 13px; }
   :root[data-stil="liste"] .v-ad { font-size: 18px; }
 }
 
@@ -719,8 +730,7 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
   :root[data-stil="liste"] .kemer { width: 100%; margin: 0; }
   :root[data-stil="liste"] .kemer-ic { gap: 10px; padding: 0; }
   :root[data-stil="liste"] .sira-etiket { font-size: 24px; }
-  :root[data-stil="liste"] .sayac { font-size: 92px; }
-  :root[data-stil="liste"] .kart-tarih, :root[data-stil="liste"] .kh-cumle { font-size: 19px; }
+  :root[data-stil="liste"] .kh-cumle { font-size: 19px; }
   :root[data-stil="liste"] .vakitler { display: flex; flex-direction: column; margin: 0; padding: 6px 12px; }
   :root[data-stil="liste"] .vakit { --satir: 64px; height: var(--satir); padding: 0 12px 0 14px; background: transparent; border: 0; border-radius: 16px; box-shadow: none; }
   :root[data-stil="liste"] .vakit.siradaki { background: var(--nextRow); box-shadow: inset 0 0 0 1px var(--nextBorder); }
@@ -729,19 +739,16 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
   :root[data-stil="liste"] .v-ar { flex-basis: auto; font-size: 22px; }
   :root[data-stil="liste"] .v-ikon, :root[data-stil="liste"] .v-ikon:empty { display: flex; width: 28px; }
 }
-/* dikey tablet: fotoğraf üstte (yazılar üstünde); cami adı fotoğrafın altında, listenin üstünde */
+/* dikey tablet: bant üstte (yazılar üstünde); cami adı bandın altında, tarih ve listenin üstünde */
 @media (min-width: 768px) and (orientation: portrait) {
   :root[data-stil="liste"] .sekme-ana { row-gap: 22px; }
   :root[data-stil="liste"] .sol { padding-bottom: 6px; }
   :root[data-stil="liste"] .kemer-ic { min-height: 400px; justify-content: center; }
 }
-/* yatay tablet: solda tam boy fotoğraf (altta bütün cami, üstü gökyüzüne karışır), üstünde yazılar; sağda liste */
+/* yatay tablet: solda tam boy yeşil desenli panel, üstünde yazılar; sağda tarih ve liste */
 @media (min-width: 1000px) and (orientation: landscape) {
-  :root[data-stil="liste"] .sol { position: relative; isolation: isolate; margin: -30px 0 -30px -36px; padding: 0 24px 50%; justify-content: center; background: var(--ustZemin); }
-  :root[data-stil="liste"] .sol::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; aspect-ratio: 1200 / 940; z-index: -1;
-    background: url(/mobil/cami-gece.jpg) center / cover no-repeat;
-    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 24%); mask-image: linear-gradient(to bottom, transparent, #000 24%); }
-  :root[data-stil="liste"] .sayac { font-size: 84px; }
+  :root[data-stil="liste"] .sol { position: relative; isolation: isolate; margin: -30px 0 -30px -36px; padding: 0 24px; justify-content: center;
+    background: var(--desen) center top / 48px 48px repeat, var(--bant); }
   :root[data-stil="liste"] .vakit { --satir: 60px; }
   :root[data-stil="liste"] .zilli .vakit { padding: 0 10px; }
 }
@@ -821,25 +828,28 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 :root[data-stil="cini"] .ust-alt { color: rgba(255,255,255,.86); }
 :root[data-stil="cini"] .ust-ad, :root[data-stil="cini"] .ust-alt, :root[data-stil="cini"] .ams-not, :root[data-stil="cini"] .kalan-etiket, :root[data-stil="cini"] .kh-cumle { text-shadow: 0 1px 2px #000, 0 0 12px rgba(0,0,0,.75); }
 :root[data-stil="cini"] .ams-not { color: #FFFFFF; opacity: .85; }
+/* cami adı görünmez, sadece logo (kullanıcı isteği, 11-11-2026); başlık ekran okuyucu için kalır */
+:root[data-stil="cini"] .ust-yazi, :root[data-stil="cini"] .baslik { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 :root[data-stil="cini"] .sol { display: flex; flex-direction: column; justify-content: center; flex: 1 1 auto; }
 :root[data-stil="cini"] .kemer { width: auto; height: auto; margin: 0; }
 :root[data-stil="cini"] .kemer-ic { position: relative; top: auto; align-items: center; gap: 10px; padding: 8px 0 18px; color: #FFFFFF; animation: nzRise .6s both; }
 :root[data-stil="cini"] .kalan-etiket { font-size: 19px; font-weight: 700; letter-spacing: .07em; color: #FFFFFF; }
-:root[data-stil="cini"] .sayac-karo { display: flex; align-items: center; justify-content: center; gap: 8px; }
-:root[data-stil="cini"] .sayac-karo b { display: flex; align-items: center; justify-content: center; width: 76px; height: 70px; border-radius: 14px; background: rgba(255,255,255,.17); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+:root[data-stil] .sayac-karo { display: flex; align-items: center; justify-content: center; gap: 8px; }
+:root[data-stil] .sayac-karo b { display: flex; align-items: center; justify-content: center; width: 76px; height: 70px; border-radius: 14px; background: rgba(255,255,255,.17); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.16), 0 4px 14px rgba(0,0,0,.28);
   font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 500; font-size: 42px; line-height: 1; font-variant-numeric: lining-nums tabular-nums; }
-:root[data-stil="cini"] .sayac-karo i { font-style: normal; font-weight: 600; font-size: 26px; color: rgba(255,255,255,.75); }
+:root[data-stil] .sayac-karo i { font-style: normal; font-weight: 600; font-size: 26px; color: rgba(255,255,255,.75); }
 :root[data-stil="cini"] .kh-cumle { display: block; padding: 3px 12px; border-radius: 999px; background: rgba(14,22,38,.62); font-size: 14.5px; font-weight: 600; line-height: 1.3; color: #F7B04A; }   /* koyu kapsül: caminin ışıklı duvarında da okunsun */
 
-:root[data-stil="cini"] .gun-gez { display: flex; align-items: center; justify-content: space-between; gap: 4px; min-height: 52px; margin-bottom: 6px; border-bottom: 1px solid var(--line); }
-:root[data-stil="cini"] .gun-gez button { flex: 0 0 auto; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: none; color: var(--vurgu); cursor: pointer; }
-:root[data-stil="cini"] .gun-gez button:disabled { opacity: .3; cursor: default; }
-:root[data-stil="cini"] .gun-gez svg { width: 20px; height: 20px; }
-:root[data-stil="cini"] .gun-yazi { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; text-align: center; }
-:root[data-stil="cini"] #gun-miladi { font-size: 15px; font-weight: 700; color: var(--ink); }
-:root[data-stil="cini"] #gun-hicri { font-size: 12.5px; color: var(--soft); }
+:root[data-stil] .gun-gez { display: flex; align-items: center; justify-content: space-between; gap: 4px; min-height: 52px; margin-bottom: 6px; border-bottom: 1px solid var(--line); }
+:root[data-stil] .gun-gez button { flex: 0 0 auto; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: none; color: var(--vurgu); cursor: pointer; }
+:root[data-stil] .gun-gez button:disabled { opacity: .3; cursor: default; }
+:root[data-stil] .gun-gez svg { width: 20px; height: 20px; }
+:root[data-stil] .gun-yazi { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; text-align: center; }
+:root[data-stil] #gun-miladi { font-size: 15px; font-weight: 700; color: var(--ink); }
+:root[data-stil="cini"] #gun-miladi { color: var(--vurgu); }   /* Tema 3: tarih vurgu renginde (kullanıcı isteği, 11-11-2026) */
+:root[data-stil] #gun-hicri { font-size: 12.5px; color: var(--soft); }
 
 :root[data-stil="cini"] .vakitler { margin: 0; gap: 6px; }
 :root[data-stil="cini"] .vakit { position: relative; height: var(--satir, 56px); gap: 10px; padding: 0 8px 0 16px; border-radius: 12px; background: var(--card); box-shadow: none; }
@@ -875,10 +885,10 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
   :root[data-stil="cini"] .sekme-ana { --ust-pay: 208px; padding-top: 10px; }
   :root[data-stil="cini"] .kemer-ic { gap: 6px; padding: 4px 0 8px; }
   :root[data-stil="cini"] .kalan-etiket { font-size: 16px; }
-  :root[data-stil="cini"] .sayac-karo b { width: 60px; height: 54px; font-size: 32px; border-radius: 12px; }
-  :root[data-stil="cini"] .sayac-karo i { font-size: 20px; }
+  :root[data-stil] .sayac-karo b { width: 60px; height: 54px; font-size: 32px; border-radius: 12px; }
+  :root[data-stil] .sayac-karo i { font-size: 20px; }
   :root[data-stil="cini"] .kh-cumle { font-size: 13px; }
-  :root[data-stil="cini"] .gun-gez { min-height: 46px; margin-bottom: 4px; }
+  :root[data-stil] .gun-gez { min-height: 46px; margin-bottom: 4px; }
   :root[data-stil="cini"] .v-ad { font-size: 16.5px; }
   :root[data-stil="cini"] .v-saat { font-size: 22px; }
 }
@@ -889,15 +899,15 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
   :root[data-stil="cini"] .kemer { width: 100%; margin: 0; }
   :root[data-stil="cini"] .kemer-ic { gap: 18px; padding: 0; }
   :root[data-stil="cini"] .kalan-etiket { font-size: 24px; }
-  :root[data-stil="cini"] .sayac-karo { gap: 12px; }
-  :root[data-stil="cini"] .sayac-karo b { width: 122px; height: 112px; border-radius: 20px; font-size: 68px; }
-  :root[data-stil="cini"] .sayac-karo i { font-size: 40px; }
+  :root[data-stil] .sayac-karo { gap: 12px; }
+  :root[data-stil] .sayac-karo b { width: 122px; height: 112px; border-radius: 20px; font-size: 68px; }
+  :root[data-stil] .sayac-karo i { font-size: 40px; }
   :root[data-stil="cini"] .kh-cumle { font-size: 19px; }
   :root[data-stil="cini"] .sag { gap: 12px; }
   :root[data-stil="cini"] .baslik-ad { color: var(--ink); }
-  :root[data-stil="cini"] .gun-gez { margin-bottom: 0; }
-  :root[data-stil="cini"] #gun-miladi { font-size: 17px; }
-  :root[data-stil="cini"] #gun-hicri { font-size: 14px; }
+  :root[data-stil] .gun-gez { margin-bottom: 0; }
+  :root[data-stil] #gun-miladi { font-size: 17px; }
+  :root[data-stil] #gun-hicri { font-size: 14px; }
   :root[data-stil="cini"] .vakitler { display: flex; flex-direction: column; margin: 0; gap: 8px; }
   :root[data-stil="cini"] .vakit { --satir: 56px; height: var(--satir); padding: 0 12px 0 20px; }
   :root[data-stil="cini"] .v-metin { flex-wrap: nowrap; align-items: baseline; }
@@ -916,6 +926,17 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
   :root[data-stil="cini"] .sol::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; aspect-ratio: 1200 / 940; z-index: -1;
     background: url(/mobil/cami-gece.jpg) center / cover no-repeat;
     -webkit-mask-image: linear-gradient(to bottom, transparent, #000 34%); mask-image: linear-gradient(to bottom, transparent, #000 34%); }
-  :root[data-stil="cini"] .sayac-karo b { width: 112px; height: 104px; font-size: 62px; }
+  :root[data-stil] .sayac-karo b { width: 112px; height: 104px; font-size: 62px; }
   :root[data-stil="cini"] .vakit { --satir: 50px; }
+}
+
+/* ================= Tema 1: tarih ve karolar (11-11-2026; ortak kurallar Tema 3 bölümünde) ================= */
+:root[data-stil="liste"] .kemer-ic .sayac-karo b { color: #FFFFFF; }
+@media (max-width: 767px) {
+  /* yaprağın üstü: tarih (oklu); altında liste. Üst köşeler yuvarlak, kenardan kenara; tarihin altında ince çizgi */
+  :root[data-stil="liste"] .gun-gez { margin: 22px -18px 0; padding: 8px 12px 2px; border: 0; border-radius: 26px 26px 0 0;
+    background: linear-gradient(var(--line), var(--line)) 18px 100% / calc(100% - 36px) 1px no-repeat, var(--ground); }
+}
+@media (max-width: 767px) and (max-height: 700px) {
+  :root[data-stil="liste"] .gun-gez { margin-top: 12px; padding-top: 4px; }
 }

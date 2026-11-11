@@ -180,12 +180,12 @@ test.describe('ayarlar', () => {
     await mobilAc(page, { zaman: an('16:00:00.500'), adres: '/mobil/#ayarlar' });
     expect(await tema(page)).toBe('gunduz');
     await expect(page.locator('#tema-secim button[aria-pressed="true"]')).toHaveText('Automatisch');
-    await page.getByRole('button', { name: 'Donker' }).click();
+    await page.getByRole('button', { name: 'Donker', exact: true }).click();
     expect(await tema(page)).toBe('gece');
     expect(await page.evaluate(() => localStorage.getItem('nzm.tema'))).toBe('gece');
     await page.reload();
     expect(await tema(page)).toBe('gece');
-    await page.getByRole('button', { name: 'Licht' }).click();
+    await page.getByRole('button', { name: 'Licht', exact: true }).click();
     expect(await tema(page)).toBe('gunduz');
   });
 
@@ -303,8 +303,8 @@ test('Android ve iPhone: sistem çubuğunun arkası temanın zemin rengi (açık
       expect(r.kok, `${cihaz} ${tema}`).toBe(zemin);
       expect(r.govde, `${cihaz} ${tema}`).toBe(zemin);
       expect(r.kaplar, `${cihaz}: sayfa zemini ekranı kaplar`).toBe(true);
-      // Tema 1 (liste, varsayılan): kök ve gövde aynı zemin, ekranı kaplar
-      await page.evaluate(() => localStorage.removeItem('nzm.stil'));
+      // Tema 1 (liste): kök ve gövde aynı zemin, ekranı kaplar
+      await page.evaluate(() => localStorage.setItem('nzm.stil', 'liste'));
       await page.reload();
       await expect(page.locator('html')).toHaveAttribute('data-stil', 'liste');
       const l = await page.evaluate(() => ({
@@ -367,7 +367,7 @@ test.describe('tema renkleri', () => {
     expect(await page.evaluate(() => document.documentElement.hasAttribute('data-renk'))).toBe(false);   // eski seçim etkisiz
     const ustCubuk = () => page.locator('meta[name="theme-color"]').getAttribute('content');
     expect(await ustCubuk()).toBe('#F6F1E7');
-    await page.getByRole('button', { name: 'Donker' }).click();
+    await page.getByRole('button', { name: 'Donker', exact: true }).click();
     expect(await ustCubuk()).toBe('#0C1834');
   });
 
@@ -402,12 +402,11 @@ test.describe('tema renkleri', () => {
 // Üstte caminin fotoğrafı, üstünde logo + ad, kalan süre, tarih ve kerahat; altta 7 vakitlik liste. Kemerli tasarım artık Tema 2 ('klasik').
 test.describe('Tema 1 (liste)', () => {
   test('Ayarlar: tema tam ekran canlı önizlemede kaydırılarak seçilir, saklanır, ilk boyamadan önce uygulanır', async ({ page }) => {
-    await mobilAc(page, { zaman: an('16:00:00.500'), adres: '/mobil/#ayarlar', depo: { 'nzm.stil': null, 'nzm.tema': 'gunduz' } });
+    await mobilAc(page, { zaman: an('16:00:00.500'), adres: '/mobil/#ayarlar', depo: { 'nzm.stil': 'liste', 'nzm.tema': 'gunduz' } });
     const satir = page.getByRole('button', { name: /^Ontwerp/ });
-    // hiç seçmeyen: Thema 1 = liste (kullanıcı isteği, 08-11-2026)
     await expect(satir).toContainText('Thema 1');
     await expect(page.locator('html')).toHaveAttribute('data-stil', 'liste');
-    expect(await page.locator('meta[name="theme-color"]').getAttribute('content')).toBe('#0E0E0C');   // üstte caminin fotoğrafı (gökyüzü)
+    expect(await page.locator('meta[name="theme-color"]').getAttribute('content')).toBe('#1F4D2B');   // üstte yeşil bant ()
 
     await satir.click();
     const on = page.locator('#tema-on');
@@ -438,7 +437,7 @@ test.describe('Tema 1 (liste)', () => {
     await expect(on).toBeHidden();
     await expect(page.locator('#to-serit iframe')).toHaveCount(0);
     await expect(page.locator('html')).toHaveAttribute('data-stil', 'liste');
-    expect(await page.evaluate(() => localStorage.getItem('nzm.stil'))).toBe(null);
+    expect(await page.evaluate(() => localStorage.getItem('nzm.stil'))).toBe('liste');
 
     // ok düğmesiyle de geçilir; "Kies" kaydeder
     await satir.click();
@@ -465,73 +464,65 @@ test.describe('Tema 1 (liste)', () => {
     expect(await page.evaluate(() => document.documentElement.dataset.stil)).toBe('liste');
   });
 
-  test('ana ekran: üstte caminin fotoğrafı (yeşil bant ve kutu yok), üstünde logo + ad; ortada "Vaktin çıkmasına" (beyaz), kalan süre (sarı), tarih (beyaz), kerahat (sarı); altta üstü yuvarlak yaprakta 7 vakit', async ({ page }) => {
+  test('ana ekran: yeşil desenli bant (fotoğraf yok), üstünde logo + ad, büyük harfle "Vaktin çıkmasına", karolarda kalan süre, kapsülde kerahat; altında yaprak: oklu tarih ve 7 vakit', async ({ page }) => {
     await mobilAc(page, { zaman: an('16:00:00.500'), depo: { 'nzm.stil': 'liste', 'nzm.dil': 'tr', 'nzm.tema': 'gunduz' } });
-    await expect(page.locator('.kemer-svg')).toBeHidden();
-    for (const s of ['.tarih-satir', '.sira', '.sira-ar', '.kalan-kisa', '.kalan-etiket']) await expect(page.locator(s)).toBeHidden();
+    for (const s of ['.kemer-svg', '.tarih-satir', '.sira', '.sira-ar', '.kalan-kisa', '.kalan-etiket', '.sayac']) await expect(page.locator(s)).toBeHidden();
     await expect(page.locator('.sira-etiket')).toHaveText('Vaktin çıkmasına');
-    await expect(page.locator('.sayac')).toHaveText('1:26:59');                // İkindi vakti Akşam'da çıkar
-    await expect(page.locator('.kart-tarih')).toHaveText('17 Jumada al-Awwal 1448 • 28 Eki 2026');   // yılın arkasında "H" yok (kullanıcı isteği, 08-11-2026)
+    await expect(page.locator('.sira-etiket')).toHaveCSS('text-transform', 'uppercase');    // Tema 3'teki gibi (kullanıcı isteği, 11-11-2026)
+    await expect(page.locator('.sayac-karo b')).toHaveText(['01', '26', '59']);            // İkindi vakti Akşam'da çıkar
     await expect(page.locator('.kh-cumle')).toHaveText('Kerahat vaktine 0:41:59 kaldı');
-    const st = (s, ps = null) => page.locator(s).evaluate((e, ps) => { const c = getComputedStyle(e, ps); return { bg: c.backgroundImage, renk: c.color, cerceve: c.borderTopWidth, ust: c.borderTopLeftRadius, alt: c.borderBottomLeftRadius, zemin: c.backgroundColor }; }, ps);
-    // kutu yok: yazıların arkasında zemin, çerçeve, resim yok
-    const ic = await st('.kemer-ic');
-    expect(ic.bg).toBe('none');
-    expect(ic.zemin).toBe('rgba(0, 0, 0, 0)');
-    expect(ic.cerceve).toBe('0px');
-    expect((await st('.sira-etiket')).renk).toBe('rgb(255, 255, 255)');     // beyaz
-    expect((await st('.sayac')).renk).toBe('rgb(230, 196, 122)');           // sarı
-    expect((await st('.kart-tarih')).renk).toBe('rgb(255, 255, 255)');      // beyaz
-    expect((await st('.kh-cumle')).renk).toBe('rgb(230, 196, 122)');        // sarı
-    expect((await st('.ust-ad')).renk).toBe('rgb(255, 255, 255)');
+    await expect(page.locator('#gun-miladi')).toHaveText('Çarşamba 28 Ekim 2026');
+    await expect(page.locator('#gun-hicri')).toHaveText('17 Jumada al-Awwal 1448');
+    const st = (s, ps = null) => page.locator(s).first().evaluate((e, ps) => { const c = getComputedStyle(e, ps); return { bg: c.backgroundImage, renk: c.color, zemin: c.backgroundColor, ust: c.borderTopLeftRadius, yuk: parseFloat(c.height), bas: e.getBoundingClientRect().top + parseFloat(c.top || 0) }; }, ps);
+    // bant: yeşil ve desenli; fotoğraf yok (kullanıcı isteği, 11-11-2026)
+    const bant = await st('.sekme-ana', '::before');
+    expect(bant.zemin).toBe('rgb(31, 77, 43)');
+    expect(bant.bg).toContain('data:image/svg+xml');
+    expect(bant.bg).not.toContain('cami-gece');
+    expect(await page.locator('meta[name="theme-color"]').getAttribute('content')).toBe('#1F4D2B');
+    expect((await st('.sira-etiket')).renk).toBe('rgb(255, 255, 255)');
+    expect((await st('.sayac-karo b')).renk).toBe('rgb(255, 255, 255)');
+    const kh = await st('.kh-cumle');
+    expect(kh.renk).toBe('rgb(230, 196, 122)');                                // sarı, koyu kapsülde
+    expect(kh.zemin).not.toBe('rgba(0, 0, 0, 0)');
     const k = async (s) => page.locator(s).boundingBox();
-    const [logo, ad, etiket, sayac, tarih, cumle, liste] = await Promise.all(
-      ['.ust img', '.ust-ad', '.sira-etiket', '.sayac', '.kart-tarih', '.kh-cumle', '.vakitler'].map(k));
+    const [logo, ad, etiket, karo, cumle, tarih, liste] = await Promise.all(['.ust img', '.ust-ad', '.sira-etiket', '.sayac-karo', '.kh-cumle', '.gun-gez', '.vakitler'].map(k));
     expect(ad.x).toBeGreaterThan(logo.x + logo.width);
-    expect(logo.width).toBe(34);                                              // logo küçük (kullanıcı isteği, 08-11-2026; önce 52, sonra 40)
-    // ortalı ve sırayla: Vaktin çıkmasına, kalan süre, tarih, kerahat
-    for (const b of [etiket, sayac, tarih, cumle]) expect(Math.abs(b.x + b.width / 2 - 195)).toBeLessThan(2);
-    expect(etiket.y).toBeGreaterThan(logo.y + logo.height);
-    expect(sayac.y).toBeGreaterThanOrEqual(etiket.y + etiket.height - 2);
-    expect(tarih.y).toBeGreaterThanOrEqual(sayac.y + sayac.height - 2);
-    expect(cumle.y).toBeGreaterThanOrEqual(tarih.y + tarih.height - 2);
-    expect(tarih.height).toBeLessThan(24);                                     // tek satır
-    // yazılar logo ile liste arasında dikey ortada (kullanıcı isteği, 08-11-2026)
-    const ust = logo.y + logo.height, alt = liste.y - 22;
-    expect(Math.abs((etiket.y + cumle.y + cumle.height) / 2 - (ust + alt) / 2)).toBeLessThan(10);
-    // fotoğraf: üstten listenin yuvarlak köşelerine kadar; telefonun genişliğinde (1200 × 940 → 390 × 305).
-    // Altı listenin 10 px altında: bütün cami listenin üstünde görünür, gökyüzünün üstü kesilir ("çoğu gökyüzü" olmasın).
-    // Liste 4 px aşağıda (kullanıcı isteği, 08-11-2026), fotoğraf yerinde: margin 22 px, fotoğrafın altı bandın 16 px üstünde
-    const bant = await page.locator('.sekme-ana').evaluate((e) => { const c = getComputedStyle(e, '::before'); return { bg: c.backgroundImage, boyut: c.backgroundSize, konum: c.backgroundPositionY, yuk: parseFloat(c.height), ust: e.getBoundingClientRect().top }; });
-    expect(bant.bg).toContain('/mobil/cami-gece.jpg');
-    expect(bant.boyut).toContain('100% auto');
-    expect(bant.konum).toMatch(/16px/);
-    expect(await page.locator('.vakitler').evaluate((e) => getComputedStyle(e).marginTop)).toBe('22px');
-    expect(bant.ust).toBe(0);
-    expect(Math.abs(bant.ust + bant.yuk - (liste.y + 26))).toBeLessThan(2);
-    const foto = 390 * 940 / 1200, gorunen = liste.y + 10;                // fotoğrafın listenin üstünde kalan kısmı
-    expect(gorunen).toBeLessThan(foto);                                       // gökyüzünün üstü kesik
-    expect(gorunen / foto).toBeGreaterThan(0.72);                             // minareler dahil bütün cami (bina ~%40, minare şerefeleri ~%30)
-    // liste yaprağı: kenardan kenara, üst köşeler yuvarlak, alt düz
-    const yaprak = await st('.vakitler');
-    expect(yaprak.ust).toBe('26px');
-    expect(yaprak.alt).toBe('0px');
-    expect(liste.x).toBe(0);
-    expect(liste.width).toBe(390);
+    expect(logo.width).toBe(34);
+    for (const b of [etiket, karo, cumle]) expect(Math.abs(b.x + b.width / 2 - 195)).toBeLessThan(2);
+    for (const [a, b] of [[logo, etiket], [etiket, karo], [karo, cumle], [cumle, tarih], [tarih, liste]]) expect(a.y + a.height).toBeLessThanOrEqual(b.y + 1);
+    // yaprak: üstte tarih (Tema 3'teki yerde), altında liste; kenardan kenara, üst köşeler yuvarlak; bant köşelerin arkasında biter
+    for (const b of [tarih, liste]) { expect(b.x).toBe(0); expect(b.width).toBe(390); }
+    expect((await st('.gun-gez')).ust).toBe('26px');
+    expect((await st('.gun-gez')).zemin).toBe('rgb(251, 249, 244)');          // yaprağın zemini
+    expect((await st('.vakitler')).ust).toBe('0px');
+    expect(Math.abs(bant.bas + bant.yuk - (tarih.y + 26))).toBeLessThan(2);
     await expect(page.locator('.vakit:not([hidden]) .v-ad')).toHaveText(['İmsak', 'Sabah', 'Güneş', 'Öğle', 'İkindi', 'Akşam', 'Yatsı']);
     await expect(page.locator('.vakit.siradaki .v-ad')).toHaveText('Akşam');
     expect(parseFloat(await page.locator('.v-ad').first().evaluate((e) => getComputedStyle(e).fontSize))).toBeGreaterThanOrEqual(20);   // büyük adlar
-    // her vaktin simgesi var
     for (const v of await page.locator('.vakit .v-ikon').all()) {
       expect(await v.evaluate((e) => getComputedStyle(e, '::before').maskImage || getComputedStyle(e, '::before').webkitMaskImage)).toMatch(/^url\(/);
     }
-    // TV'deki yazı tipleri
-    expect(await page.locator('.sayac').evaluate((e) => getComputedStyle(e).fontFamily)).toMatch(/^"?Oswald/);
+    expect(await page.locator('.sayac-karo b').first().evaluate((e) => getComputedStyle(e).fontFamily)).toMatch(/^"?Oswald/);
     expect(await page.locator('.v-ad').first().evaluate((e) => getComputedStyle(e).fontFamily)).toMatch(/^"?Inter/);
     await page.waitForFunction(() => document.documentElement.classList.contains('kaydirma-yok'));
     const sonSatir = await k('.vakit[data-key="Isha"]');
     const menu = await k('.menu');
     expect(sonSatir.y + sonSatir.height).toBeLessThanOrEqual(menu.y + 1);       // Yatsı menünün üstünde, kaydırmadan görünür
+    // oklarla başka gün; sayaç bugünün
+    await page.getByRole('button', { name: 'Sonraki gün' }).click();
+    await expect(page.locator('#gun-miladi')).toHaveText('Perşembe 29 Ekim 2026');
+    await expect(page.locator('.vakit.siradaki')).toHaveCount(0);
+    await page.clock.runFor(1000);
+    await expect(page.locator('.sayac-karo b')).toHaveText(['01', '26', '58']);
+  });
+
+  test('kısa telefon (360 × 640): 7 vakit kaydırmadan sığar', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 640 });
+    await mobilAc(page, { zaman: an('16:00:00.500'), depo: { 'nzm.stil': 'liste', 'nzm.dil': 'nl', 'nzm.tema': 'gunduz' } });
+    await page.waitForFunction(() => document.documentElement.classList.contains('kaydirma-yok'));
+    const [isha, menu] = await Promise.all([page.locator('.vakit[data-key="Isha"]').boundingBox(), page.locator('.menu').boundingBox()]);
+    expect(isha.y + isha.height).toBeLessThanOrEqual(menu.y + 1);
   });
 
   test('"Vaktin çıkmasına": sayaç vaktin bitişine; İmsak → Sabah namazı "Sabah namazına", Güneş → Öğle "Öğle namazına"; Thema 2 (kemer) değişmedi', async ({ page }) => {
@@ -572,15 +563,16 @@ test.describe('Tema 1 (liste)', () => {
     await expect(etiket).toBeHidden();
   });
 
-  test('gece: koyu temaların nötr renkleri; üstte yine caminin fotoğrafı', async ({ page }) => {
+  test('gece: zemin kullanıcının verdiği renk (#1F1F1F, 11-11-2026), bant koyu yeşil ve desenli', async ({ page }) => {
     await mobilAc(page, { zaman: an('21:30:00.500'), depo: { 'nzm.stil': 'liste', 'nzm.dil': 'nl', 'nzm.tema': 'gece' } });
-    await expect(page.locator('.kart-tarih')).toHaveText('17 Jumada al-Awwal 1448 • 28 okt 2026');
-    const renk = (s, o) => page.locator(s).evaluate((e, o) => getComputedStyle(e, o.ps)[o.ozellik], o);
-    expect(await renk('body', { ps: null, ozellik: 'backgroundColor' })).toBe('rgb(18, 18, 18)');
-    expect(await renk('.sekme-ana', { ps: '::before', ozellik: 'backgroundImage' })).toContain('/mobil/cami-gece.jpg');
-    expect(await renk('.vakitler', { ps: null, ozellik: 'backgroundColor' })).toBe('rgb(18, 18, 18)');
-    expect(await renk('.sayac', { ps: null, ozellik: 'color' })).toBe('rgb(224, 189, 112)');
-    expect(await page.locator('meta[name="theme-color"]').getAttribute('content')).toBe('#0E0E0C');
+    await expect(page.locator('#gun-miladi')).toHaveText('Woensdag 28 oktober 2026');
+    const renk = (s, o) => page.locator(s).first().evaluate((e, o) => getComputedStyle(e, o.ps)[o.ozellik], o);
+    expect(await renk('body', { ps: null, ozellik: 'backgroundColor' })).toBe('rgb(31, 31, 31)');
+    expect(await renk('.sekme-ana', { ps: '::before', ozellik: 'backgroundColor' })).toBe('rgb(24, 61, 35)');
+    expect(await renk('.sekme-ana', { ps: '::before', ozellik: 'backgroundImage' })).toContain('data:image/svg+xml');
+    expect(await renk('.vakitler', { ps: null, ozellik: 'backgroundColor' })).toBe('rgb(31, 31, 31)');
+    expect(await renk('.sayac-karo b', { ps: null, ozellik: 'color' })).toBe('rgb(255, 255, 255)');
+    expect(await page.locator('meta[name="theme-color"]').getAttribute('content')).toBe('#183D23');
   });
 
   test('kerahat: sadece İkindi vaktinde tek cümle (kerahate ya da bitişine kalan süre); Sabah vaktinde, başka zaman ve Thema 2\'de (kemer) yok', async ({ page }) => {
@@ -651,8 +643,25 @@ test.describe('Tema 1 (liste)', () => {
 test.describe('Tema 3', () => {
   const ac = (page, saat, depo = {}) => mobilAc(page, { zaman: an(saat), depo: { 'nzm.stil': 'cini', 'nzm.dil': 'nl', ...depo } });
 
+  test('varsayılan tema (hiç seçmeyen): Tema 3 (kullanıcı isteği, 11-11-2026); depoya bir şey yazılmaz', async ({ page }) => {
+    await mobilAc(page, { zaman: an('12:00:00.500'), adres: '/mobil/#ayarlar', depo: { 'nzm.stil': null, 'nzm.dil': 'nl' } });
+    await expect(page.locator('html')).toHaveAttribute('data-stil', 'cini');
+    await expect(page.getByRole('button', { name: /^Ontwerp/ })).toContainText('Thema 3');
+    expect(await page.evaluate(() => localStorage.getItem('nzm.stil'))).toBe(null);
+  });
+
+  for (const [tema, renk] of [['gunduz', 'rgb(176, 80, 10)'], ['gece', 'rgb(247, 176, 74)']]) {
+    test(`tarihin arkasında fotoğraf yok, tarih vurgu renginde (${tema}; kullanıcı isteği, 11-11-2026)`, async ({ page }) => {
+      await ac(page, '16:00:00.500', { 'nzm.tema': tema });
+      const tarih = await page.locator('.gun-gez').boundingBox();
+      const fotoAlt = await page.locator('.sekme-ana').evaluate((e) => { const c = getComputedStyle(e, '::before'); return e.getBoundingClientRect().top + parseFloat(c.top) + parseFloat(c.height); });
+      expect(fotoAlt).toBeLessThanOrEqual(tarih.y + 1);
+      await expect(page.locator('#gun-miladi')).toHaveCSS('color', renk);
+    });
+  }
+
   test('önizlemeden seçilir, saklanır; açık/koyu seçimi burada da geçerli; başka temaya dönünce aynı seçim kalır', async ({ page }) => {
-    await mobilAc(page, { zaman: an('12:00:00.500'), adres: '/mobil/#ayarlar', depo: { 'nzm.stil': null, 'nzm.tema': 'gunduz', 'nzm.dil': 'nl' } });
+    await mobilAc(page, { zaman: an('12:00:00.500'), adres: '/mobil/#ayarlar', depo: { 'nzm.stil': 'liste', 'nzm.tema': 'gunduz', 'nzm.dil': 'nl' } });
     await expect(page.locator('#tema-ayar')).toBeVisible();
     await page.getByRole('button', { name: /^Ontwerp/ }).click();
     await page.getByRole('button', { name: 'Volgend thema' }).click();
@@ -718,7 +727,10 @@ test.describe('Tema 3', () => {
 
   test('ana ekran sırayla: logo ve ad, sıradaki namaza kalan süre karolarda, kerahat, oklu tarih, 7 vakit; kaymadan sığar', async ({ page }) => {
     await ac(page, '16:00:00.500');
-    await expect(page.locator('.ust-ad')).toBeVisible();
+    // cami adı görünmez, sadece logo (kullanıcı isteği, 11-11-2026); başlık ekran okuyucu için kalır
+    await expect(page.locator('.ust img')).toBeVisible();
+    expect((await page.locator('.ust-yazi').boundingBox()).width).toBeLessThanOrEqual(1);
+    await expect(page.getByRole('heading', { level: 1, name: 'Nizam-ı Alem Süleymaniye' })).toHaveCount(1);
     await expect(page.locator('.kalan-etiket')).toHaveText('NOG TOT MAGHRIB');
     await expect(page.locator('.sayac-karo b')).toHaveText(['01', '26', '59']);
     await expect(page.locator('.sayac')).toBeHidden();
@@ -785,9 +797,56 @@ test.describe('Tema 3', () => {
     await expect(miladi).toHaveText('Woensdag 28 oktober 2026');
   });
 
-  test('tarih okları ve karolar sadece Tema 3\'te', async ({ page }) => {
-    await ac(page, '16:00:00.500', { 'nzm.stil': 'liste' });
+  test('tarih okları ve karolar Tema 1 ve 3\'te; Tema 2\'de (kemer) yok', async ({ page }) => {
+    await ac(page, '16:00:00.500', { 'nzm.stil': 'klasik' });
     await expect(page.locator('.gun-gez')).toBeHidden();
     await expect(page.locator('.sayac-karo')).toBeHidden();
+  });
+});
+
+// ---------------- Ayarlar: açıklamalar "?" düğmesinin arkasında (kullanıcı isteği, 11-11-2026) ----------------
+test.describe('Ayarlar: açıklamalar', () => {
+  const ac = (page, dil = 'nl') => mobilAc(page, { zaman: an('16:00:00.500'), adres: '/mobil/#ayarlar', depo: { 'nzm.dil': dil, 'nzm.tema': 'gunduz' } });
+
+  test('açıklama görünmez; "?" ayarın adının hemen arkasında, dokununca açıklama altında açılır; tekrar dokununca ve Esc ile kapanır', async ({ page }) => {
+    await ac(page);
+    const not = page.locator('#ip-tema');
+    const dugme = page.getByRole('button', { name: 'Uitleg: Licht / donker' });
+    await expect(not).toBeHidden();
+    await expect(page.getByText('Licht vanaf zonsopgang')).toBeHidden();
+    await expect(dugme).toHaveAttribute('aria-expanded', 'false');
+    await expect(dugme).toHaveAttribute('aria-controls', 'ip-tema');
+    await expect(dugme).toHaveText('?');
+    const [ad, d] = await Promise.all([page.locator('#tema-ad').boundingBox(), dugme.boundingBox()]);
+    expect(d.x - (ad.x + ad.width)).toBeGreaterThanOrEqual(-8);                    // adın arkasında (dokunma alanı adın üstüne biraz taşar)
+    expect(d.x - (ad.x + ad.width)).toBeLessThan(10);
+    expect(Math.abs(d.y + d.height / 2 - (ad.y + ad.height / 2))).toBeLessThan(3);
+    expect(Math.min(d.width, d.height)).toBeGreaterThanOrEqual(44);                // dokunma alanı
+
+    await dugme.click();
+    await expect(not).toBeVisible();
+    await expect(not).toHaveText('Licht vanaf zonsopgang, donker vanaf maghrib.');
+    await expect(dugme).toHaveAttribute('aria-expanded', 'true');
+    const [n, secenek] = await Promise.all([not.boundingBox(), page.locator('#tema-secim').boundingBox()]);
+    expect(n.y).toBeGreaterThanOrEqual(ad.y + ad.height - 1);                      // adın altında, seçeneklerin üstünde
+    expect(n.y + n.height).toBeLessThanOrEqual(secenek.y + 1);
+
+    await dugme.click();
+    await expect(not).toBeHidden();
+    await expect(dugme).toHaveAttribute('aria-expanded', 'false');
+    await dugme.click();
+    await page.keyboard.press('Escape');
+    await expect(not).toBeHidden();
+    await expect(dugme).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('her açıklamanın "?" düğmesi var, hepsi kapalı başlar; görünür açıklama yazısı kalmaz (kaynak satırı hariç); düğmenin adı dile göre', async ({ page }) => {
+    await ac(page);
+    const notlar = await page.locator('.ipucu-not').evaluateAll((els) => els.map((e) => ({ id: e.id, kapali: e.hidden, dugme: !!document.querySelector(`.ipucu[aria-controls="${e.id}"]`) })));
+    expect(notlar.map((x) => x.id)).toEqual(['ip-tema', 'ip-ses', 'ip-sayac', 'ip-sessiz', 'ip-widget']);
+    for (const x of notlar) expect(x, x.id).toMatchObject({ kapali: true, dugme: true });
+    await expect(page.locator('#s-ayarlar .ayar-not:visible')).toHaveText(['Gebedstijden: Diyanet']);
+    await page.getByRole('button', { name: 'Türkçe' }).click();
+    await expect(page.getByRole('button', { name: 'Açıklama: Açık / koyu' })).toBeVisible();
   });
 });
