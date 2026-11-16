@@ -128,6 +128,7 @@
      - Her kayıt kendi bildirim kanalında (`vakit_ezan_N`; `res/raw`'daki dosyalar sırayla taranır). Ezan sadece beş vakitte vakit girince; önceden hatırlatma telefonun sesiyle. Tarayıcıda (Web Push) ve iPhone'da yok. Hoca dinlemeli.
      - Aynı vakitte sessize alma da açıksa telefon ezan bitince susar (`yerel-plan.js` `EZAN_SN = 35`; en uzun kayıt 30 sn).
      - Son sessize alma denemesi ve sonucu telefonda saklanır (`Planlayici` `sessizSon`), Ayarlar'da "Son: 8 Kas 06:41 · telefon sessize alındı" (veya "zaten sessizdeydi", "Rahatsız Etmeyin açıktı" …).
+     - "Rahatsız Etmeyin" erişimi Titreşim'de de istenir (16-11-2026): kullanıcının Samsung'unda izin yokken titreşime alınamadı ("izinYok"). Titreşim modunda sonuç "titreşime alınamadı" yazılır.
    - **Bildirim panelindeki tablo** (08-11-2026, kullanıcının örneğine göre): üst satır, ince çizgi, 7 eşit sütun (ad üstte, saat altta, `sans-serif-condensed`); sıradaki kırmızı ve kalın; sabit yükseklik + autoSize. Soldaki uygulama simgesi Android 12+ sistemin çerçevesi: uygulama küçültemez.
    - Uygulamada (Tema 1) şimdiki vakit "ŞİMDİ" yazısıyla değil, satırın solunda yeşil çizgiyle (yazı ekran okuyucu için kalır); adlar hiç kısalmaz.
 

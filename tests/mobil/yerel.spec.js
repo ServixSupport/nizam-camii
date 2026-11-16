@@ -254,9 +254,10 @@ test('sessize alma: ayar, "Niet storen" izni, süre, nasıl ve hangi namazlar', 
   expect(p.sessizMod).toBe('sessiz');
   expect(p.sessiz[0]).toMatchObject({ bas: an('2026-10-28T17:27:00+01:00'), bit: an('2026-10-28T17:57:00+01:00'), baslik: 'Telefoon op stil' });
 
-  // titreşim izin istemez; 45 dk; Sabah hariç
+  // titreşim: bazı telefonlar (Samsung) burada da izin ister (16-11-2026); 45 dk; Sabah hariç
   await bolum.getByRole('button', { name: 'Trillen' }).click();
-  await expect(page.locator('#sessiz-mesaj')).toBeHidden();
+  await expect(page.locator('#sessiz-mesaj')).toHaveText('Sommige telefoons (zoals Samsung) vragen ook voor trillen toegang tot “Niet storen”. Geef de app die toegang.');
+  await expect(page.getByRole('button', { name: 'Toestaan' })).toBeVisible();
   await bolum.getByRole('button', { name: '45 min' }).click();
   await bolum.getByRole('button', { name: 'Fadjr' }).click();
   await page.clock.runFor(1000);
@@ -269,9 +270,21 @@ test('sessize alma: ayar, "Niet storen" izni, süre, nasıl ve hangi namazlar', 
 
   // telefonun ayarlarından izin verip dönünce uyarı kalkar
   await bolum.getByRole('button', { name: 'Stil', exact: true }).click();
-  await expect(page.locator('#sessiz-mesaj')).toBeVisible();
+  await expect(page.locator('#sessiz-mesaj')).toHaveText('Geef de app toegang tot “Niet storen”, zodat hij je telefoon op stil kan zetten.');
   await page.evaluate(() => { window.__yerel.izin.sessiz = true; document.dispatchEvent(new Event('visibilitychange')); });
   await expect(page.locator('#sessiz-mesaj')).toBeHidden();
+  await bolum.getByRole('button', { name: 'Trillen' }).click();
+  await expect(page.locator('#sessiz-mesaj')).toBeHidden();
+});
+
+test('sessize alma: titreşimde izin yoksa sonuç "titreşime alınamadı" (Samsung, 16-11-2026)', async ({ page }) => {
+  const titresimAcik = JSON.stringify({ aan: true, dakika: 30, vakitler: ['Dhuhr'], mod: 'titresim' });
+  await telefon(page, { izin: { bildirim: 'granted', sessiz: false, sessizSon: { an: new Date('2026-11-16T12:30:00+01:00').getTime(), sonuc: 'izinYok' } } });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar', depo: { 'nzm.sessiz': titresimAcik, 'nzm.dil': 'tr' } });
+  await expect(page.locator('#sessiz-son')).toHaveText('Son: 16 Kas 12:30 · izin olmadığı için titreşime alınamadı');
+  await expect(page.locator('#sessiz-mesaj')).toHaveText('Bazı telefonlar (ör. Samsung) titreşim için de “Rahatsız Etmeyin” erişimi ister. Uygulamaya bu erişimi verin.');
+  await page.getByRole('button', { name: 'İzin ver' }).click();
+  expect(await cagrilar(page, 'sessizIzniAc')).toHaveLength(1);
 });
 
 test('sessize alma: son deneme ve sonucu görünür (telefonda ne oldu; kullanıcı isteği, 08-11-2026)', async ({ page }) => {
