@@ -75,7 +75,9 @@ cd android && ./gradlew.bat testDebugUnitTest assembleDebug   # deneme APK
 - Emülatörler: `cami` (Android 16) ve `cami161` (Android 16.1).
   - Başlatma: `sdk/emulator/emulator.exe -avd cami161`.
   - Ortam değişkeni: `ANDROID_AVD_HOME=C:\Users\Altun\android\avd`.
-- Simgeler ve açılış ekranı: `cd tests && node araclar/app-simgeler.mjs`.
+- Simgeler ve açılış ekranı: `cd tests && node araclar/app-simge-ezan.mjs && node araclar/app-simgeler.mjs`.
+  - 19-11-2026'dan beri uygulama simgesinde gül yerine ezanı çağrıştıran ses dalgaları (kullanıcı isteği). Kaynak `app/simge/ikon-ezan-*.png`, `mobil/ikon-512.png`'den üretilir.
+  - Uygulamanın içindeki logo (temalar) ve web uygulamasının (PWA) simgeleri değişmedi.
 
 ## GitHub Actions
 

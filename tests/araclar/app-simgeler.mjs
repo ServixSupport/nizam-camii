@@ -1,4 +1,4 @@
-// Mağaza uygulamasının simgeleri ve açılış ekranı, web uygulamasının simgelerinden (mobil/ikon-*.png).
+// Mağaza uygulamasının simgeleri ve açılış ekranı, app/simge/ikon-ezan-*.png'den (önce: app-simge-ezan.mjs).
 // Kullanım: cd tests && node araclar/app-simgeler.mjs
 //   - Android: mipmap-*/ic_launcher*.png, drawable*/splash.png, values/ic_launcher_background.xml
 //   - iOS: Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png, Splash.imageset/*
@@ -11,7 +11,8 @@ import { chromium } from '@playwright/test';
 const KOK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const RES = path.join(KOK, 'app/android/app/src/main/res');
 const IOS = path.join(KOK, 'app/ios/App/App/Assets.xcassets');
-const veri = (f) => 'data:image/png;base64,' + fs.readFileSync(path.join(KOK, 'mobil', f)).toString('base64');
+// 19-11-2026'dan beri gülsüz, ses dalgalı simge (app/simge, araclar/app-simge-ezan.mjs); uygulamanın içindeki logo aynı
+const veri = (f) => 'data:image/png;base64,' + fs.readFileSync(path.join(KOK, 'app/simge', f)).toString('base64');
 
 const tarayici = await chromium.launch();
 const sayfa = await tarayici.newPage();
@@ -19,7 +20,7 @@ await sayfa.setContent('<canvas></canvas>');
 await sayfa.evaluate(async ([maskable, ikon]) => {
   const yukle = (src) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.src = src; });
   window.__r = { maskable: await yukle(maskable), ikon: await yukle(ikon) };
-}, [veri('ikon-maskable-512.png'), veri('ikon-512.png')]);
+}, [veri('ikon-ezan-maskable-512.png'), veri('ikon-ezan-512.png')]);
 
 /** g × y tuval; resim `olcek` oranında ortada; zemin rengi; daire kırpma isteğe bağlı */
 async function ciz(dosya, { g, y = g, resim, olcek = 1, zemin = null, daire = false }) {
