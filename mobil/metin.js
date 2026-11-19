@@ -191,7 +191,7 @@ const BILDIRIM = {
     notifSes: 'Ses', notifSesTelefon: 'Telefonun varsayılan sesi',
     notifSesDinle: (ad) => `${ad} dinle`, notifSesDurdur: (ad) => `${ad} durdur`,
     temaOnizleme: 'Tema önizlemesi', temaSecDugme: 'Bu temayı seç', temaSecili: 'Seçili', temaOnceki: 'Önceki tema', temaSonraki: 'Sonraki tema', kapat: 'Kapat', uitleg: 'Açıklama',
-    notifSesNot: 'Ezan sadece beş vakit namazda okunur. Durdurmak için bildirim ekranını aşağı çekin veya bildirime dokunun.',
+    notifSesNot: 'Her namaz için ayrı ses seçebilirsiniz; ▶ ile seçmeden önce dinleyin. Ezan sadece beş vakit namazda okunur. Durdurmak için bildirim ekranını aşağı çekin veya bildirime dokunun.',
   },
   nl: {
     notif: 'MELDINGEN EN GELUID', notifMaster: 'Meldingen voor gebedstijden', notifBefore: 'Herinner me vooraf',
@@ -207,7 +207,7 @@ const BILDIRIM = {
     notifSes: 'Geluid', notifSesTelefon: 'Standaard telefoonmelding',
     notifSesDinle: (ad) => `Luister naar ${ad}`, notifSesDurdur: (ad) => `${ad} stoppen`,
     temaOnizleme: 'Themavoorbeeld', temaSecDugme: 'Kies dit thema', temaSecili: 'Gekozen', temaOnceki: 'Vorig thema', temaSonraki: 'Volgend thema', kapat: 'Sluiten', uitleg: 'Uitleg',
-    notifSesNot: 'De adhan klinkt alleen bij de vijf gebeden. Trek het meldingenscherm omlaag of tik op de melding om te stoppen.',
+    notifSesNot: 'Je kiest per gebed een eigen geluid; met ▶ luister je eerst. De adhan klinkt alleen bij de vijf gebeden. Trek het meldingenscherm omlaag of tik op de melding om te stoppen.',
   },
   en: {
     notif: 'NOTIFICATIONS & SOUND', notifMaster: 'Prayer time notifications', notifBefore: 'Remind me before',
@@ -223,7 +223,7 @@ const BILDIRIM = {
     notifSes: 'Sound', notifSesTelefon: 'Default phone sound',
     notifSesDinle: (ad) => `Listen to ${ad}`, notifSesDurdur: (ad) => `Stop ${ad}`,
     temaOnizleme: 'Theme preview', temaSecDugme: 'Use this theme', temaSecili: 'Selected', temaOnceki: 'Previous theme', temaSonraki: 'Next theme', kapat: 'Close', uitleg: 'More info',
-    notifSesNot: 'The adhan only plays for the five daily prayers. Pull down the notification shade or tap the notification to stop it.',
+    notifSesNot: 'Choose a sound for each prayer; tap ▶ to listen first. The adhan only plays for the five daily prayers. Pull down the notification shade or tap the notification to stop it.',
   },
 };
 for (const d of Object.keys(BILDIRIM)) Object.assign(METIN[d], BILDIRIM[d]);
@@ -231,13 +231,13 @@ for (const d of Object.keys(BILDIRIM)) Object.assign(METIN[d], BILDIRIM[d]);
 // ---------------- Mağaza uygulaması: durum çubuğu, sessize alma, kilit ekranı (06-11-2026) ----------------
 const YEREL = {
   tr: {
-    sayacAlt: 'Sıradaki vakit', kanalVakit: 'Namaz vakitleri', kanalSayac: 'Vakitler paneli', kanalSessiz: 'Sessize alma',
+    sayacAlt: 'Sıradaki vakit', kanalVakit: 'Namaz vakitleri', kanalSayac: 'Vakitler paneli', kanalTablo: 'Vakit tablosu', kanalSessiz: 'Sessize alma',
     sayacAna: 'Vakitler ve geri sayım',
-    sayacNot: 'Bildirim panelinde bugünün vakitleri ve sıradaki vakte kalan süre durur. Vakte 30 dakika kala üstteki cami simgesinde kalan dakika görünür.',
+    sayacNot: 'Bildirim panelinde bugünün vakitleri ve sıradaki vakte kalan süre durur. Üstteki cami simgesi sadece vakte 30 dakika kala görünür ve içinde kalan dakika yazar; vakit girince kalkar.',
     kalanKisa: (k) => ({ Imsak: "İmsak'a", Fajr: "Sabah'a", Sunrise: "Güneş'e", Dhuhr: "Öğle'ye", Asr: "İkindi'ye", Maghrib: "Akşam'a", Isha: "Yatsı'ya" })[k],
     sessizKisa: (saat) => `Sessiz · bitiş ${saat}`,
     sessizAna: 'Namaz vaktinde telefonu sessize al', sessizSure: 'Ne kadar süre',
-    sessizNasil: 'Nasıl', sessizModAd: { sessiz: 'Sessiz', titresim: 'Titreşim' }, sessizHangi: 'Hangi namazlar',
+    sessizNasil: 'Nasıl', sessizModAd: { sessiz: 'Sessiz', titresim: 'Titreşim' }, sessizHangi: 'Hangi namazlar ve ne kadar süre', sessizSureAd: (ad) => `${ad}: ne kadar süre`,
     sessizNot: 'Vakit girince telefon sessize alınır, süre bitince eski haline döner. Ezan okunacaksa telefon ezan bitince sessize alınır. Bu arada sesi kendiniz açarsanız dokunulmaz.',
     sessizIzin: 'Telefonu sessize alabilmek için uygulamaya “Rahatsız Etmeyin” erişimi verin.',
     sessizIzinTitresim: 'Bazı telefonlar (ör. Samsung) titreşim için de “Rahatsız Etmeyin” erişimi ister. Uygulamaya bu erişimi verin.',
@@ -253,14 +253,14 @@ const YEREL = {
     widgetNot: 'Kilit ekranına basılı tutun, “Özelleştir”e dokunun ve Süleymaniye widget’ını ekleyin. Sıradaki vakte kalan süre orada görünür.',
   },
   nl: {
-    sayacAlt: 'Volgende gebedstijd', kanalVakit: 'Gebedstijden', kanalSayac: 'Gebedstijden-widget', kanalSessiz: 'Op stil zetten',
+    sayacAlt: 'Volgende gebedstijd', kanalVakit: 'Gebedstijden', kanalSayac: 'Gebedstijden-widget', kanalTablo: 'Gebedstijden-tabel', kanalSessiz: 'Op stil zetten',
     sayacAna: 'Gebedstijden en aftellen',
-    sayacNot: 'In je meldingenscherm staan de gebedstijden van vandaag en de tijd tot het volgende gebed. Vanaf 30 minuten ervoor staat het aantal minuten in het moskee-icoon bovenin.',
+    sayacNot: 'In je meldingenscherm staan de gebedstijden van vandaag en de tijd tot het volgende gebed. Het moskee-icoon bovenin verschijnt alleen in de 30 minuten voor een gebed, met het aantal minuten erin; als de gebedstijd begint, verdwijnt het.',
     kalanKisa: (k) => `${METIN.nl.names[k]} over`,
     kisaAd: { Sunrise: 'Zon' },                               // bildirim panelindeki tabloda (kullanıcı isteği, 07-11-2026)
     sessizKisa: (saat) => `Op stil tot ${saat}`,
     sessizAna: 'Telefoon op stil bij gebedstijd', sessizSure: 'Hoe lang',
-    sessizNasil: 'Hoe', sessizModAd: { sessiz: 'Stil', titresim: 'Trillen' }, sessizHangi: 'Bij welke gebeden',
+    sessizNasil: 'Hoe', sessizModAd: { sessiz: 'Stil', titresim: 'Trillen' }, sessizHangi: 'Bij welke gebeden en hoe lang', sessizSureAd: (ad) => `${ad}: hoe lang`,
     sessizNot: 'Bij het begin van de gebedstijd gaat je telefoon op stil en daarna terug zoals hij was. Klinkt er een adhan, dan gaat de telefoon pas na de adhan op stil. Zet je zelf het geluid weer aan, dan blijft dat zo.',
     sessizIzin: 'Geef de app toegang tot “Niet storen”, zodat hij je telefoon op stil kan zetten.',
     sessizIzinTitresim: 'Sommige telefoons (zoals Samsung) vragen ook voor trillen toegang tot “Niet storen”. Geef de app die toegang.',
@@ -276,13 +276,13 @@ const YEREL = {
     widgetNot: 'Houd je vergrendelscherm ingedrukt, tik op “Pas aan” en voeg de widget Süleymaniye toe. Daar zie je hoe lang het nog duurt tot het volgende gebed.',
   },
   en: {
-    sayacAlt: 'Next prayer time', kanalVakit: 'Prayer times', kanalSayac: 'Prayer times widget', kanalSessiz: 'Silencing',
+    sayacAlt: 'Next prayer time', kanalVakit: 'Prayer times', kanalSayac: 'Prayer times widget', kanalTablo: 'Prayer times table', kanalSessiz: 'Silencing',
     sayacAna: 'Prayer times and countdown',
-    sayacNot: 'Your notification shade shows today’s prayer times and the time until the next prayer. From 30 minutes before, the minutes appear in the mosque icon at the top.',
+    sayacNot: 'Your notification shade shows today’s prayer times and the time until the next prayer. The mosque icon at the top only appears in the 30 minutes before a prayer, with the minutes left inside; it disappears when the prayer time begins.',
     kalanKisa: (k) => `${METIN.en.names[k]} in`,
     sessizKisa: (saat) => `Silent until ${saat}`,
     sessizAna: 'Silence phone at prayer time', sessizSure: 'How long',
-    sessizNasil: 'How', sessizModAd: { sessiz: 'Silent', titresim: 'Vibrate' }, sessizHangi: 'Which prayers',
+    sessizNasil: 'How', sessizModAd: { sessiz: 'Silent', titresim: 'Vibrate' }, sessizHangi: 'Which prayers and for how long', sessizSureAd: (ad) => `${ad}: how long`,
     sessizNot: 'When the prayer time begins your phone is silenced, and afterwards it goes back to how it was. If an adhan plays, the phone is silenced after the adhan. If you turn the sound on yourself, it stays on.',
     sessizIzin: 'Give the app “Do Not Disturb” access so it can silence your phone.',
     sessizIzinTitresim: 'Some phones (such as Samsung) also need “Do Not Disturb” access for vibrate. Give the app this access.',

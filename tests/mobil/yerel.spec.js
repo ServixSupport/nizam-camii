@@ -110,49 +110,60 @@ test('bildirimler telefonda kurulur (sunucu ve Web Push yok); deneme bildirimi h
 
 const SES_DEPO = JSON.stringify({ aan: true, once: 15, giris: true, vakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] });
 
-test('vakit girince ses (Android): açılır liste, standart telefon sesi ve Ezan 1 … 7; plan ve deneme bildirimi seçilen sesle', async ({ page }) => {
+test('vakit girince ses (Android): her namaz için ayrı (19-11-2026); açılır liste, telefon sesi ve Ezan 1 … 7; plan ve deneme bildirimi seçilen sesle', async ({ page }) => {
   await telefon(page, { izin: { bildirim: 'granted' } });
   await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar', depo: { 'nzm.bildirim': SES_DEPO } });
   const satir = page.locator('#b-ses-satir');
   await expect(satir).toBeVisible();
-  const sec = page.getByRole('button', { name: /^Geluid/ });
-  const liste = page.locator('#b-ses-liste');
-  await expect(sec).toHaveText('Standaard telefoonmelding');                  // varsayılan
-  await expect(sec).toHaveAttribute('aria-expanded', 'false');
+  await expect(satir.locator('.b-ses-vakit')).toHaveText(['Fadjr', 'Dhoehr', 'Asr', 'Maghrib', 'Isha']);
+  const aksam = page.locator('#b-ses-Maghrib'), sabah = page.locator('#b-ses-Fajr');
+  const liste = page.locator('#b-ses-liste-Maghrib');
+  await expect(aksam).toHaveText('Standaard telefoonmelding');                // varsayılan
+  await expect(aksam).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.getByRole('button', { name: 'Maghrib Standaard telefoonmelding' })).toBeVisible();   // ad: namaz + ses
   await expect(liste).toBeHidden();
-  await expect(satir.locator('.ayar-not')).toContainText('Trek het meldingenscherm omlaag of tik op de melding om te stoppen');
+  await expect(satir.locator('.ayar-not')).toContainText('Je kiest per gebed een eigen geluid');
 
-  await sec.click();
-  await expect(sec).toHaveAttribute('aria-expanded', 'true');
+  await aksam.click();
+  await expect(aksam).toHaveAttribute('aria-expanded', 'true');
   await expect(liste.locator('.b-ses-sec')).toHaveText(['Standaard telefoonmelding', 'Ezan 1', 'Ezan 2', 'Ezan 3', 'Ezan 4', 'Ezan 5', 'Ezan 6', 'Ezan 7']);
   await expect(liste.getByRole('button', { name: 'Standaard telefoonmelding', exact: true })).toHaveAttribute('aria-pressed', 'true');
-
   await liste.getByRole('button', { name: 'Ezan 5', exact: true }).click();
   await expect(liste).toBeHidden();                                           // seçince kapanır
-  await expect(sec).toHaveText('Ezan 5');
-  await page.clock.runFor(1000);
-  let p = await sonPlan(page, (x) => x.bildirimler.some((b) => b.ses === 'ezan-5'));
-  expect(p.bildirimler.find((b) => b.etiket === '2026-10-28-Maghrib' && b.ses)).toMatchObject({ an: an('2026-10-28T17:27:00+01:00'), ses: 'ezan-5' });
-  expect(JSON.parse(await page.evaluate(() => localStorage.getItem('nzm.bildirim'))).ses).toBe('ezan-5');
-  await page.getByRole('button', { name: 'Testmelding sturen' }).click();
-  expect((await cagrilar(page, 'deneme')).at(-1).arg.ses).toBe('ezan-5');     // ezanı dinlemek için
+  await expect(aksam).toHaveText('Ezan 5');
+  await expect(sabah).toHaveText('Standaard telefoonmelding');                // diğer namazlar değişmez
 
-  await sec.click();
-  await liste.getByRole('button', { name: 'Ezan 2', exact: true }).click();
+  await sabah.click();
+  await page.locator('#b-ses-liste-Fajr').getByRole('button', { name: 'Ezan 6', exact: true }).click();
+  await expect(sabah).toHaveText('Ezan 6');
   await page.clock.runFor(1000);
-  p = await sonPlan(page, (x) => x.bildirimler.some((b) => b.ses === 'ezan-2'));
-  expect(p.bildirimler.some((b) => b.ses === 'ezan-5')).toBe(false);
+  const p = await sonPlan(page, (x) => x.bildirimler.some((b) => b.ses === 'ezan-6'));
+  expect(p.bildirimler.find((b) => b.etiket === '2026-10-28-Maghrib' && b.ses)).toMatchObject({ an: an('2026-10-28T17:27:00+01:00'), ses: 'ezan-5' });
+  expect(p.bildirimler.find((b) => b.etiket === '2026-10-29-Fajr' && b.ses)).toMatchObject({ ses: 'ezan-6' });
+  expect(p.bildirimler.filter((b) => /-(Dhuhr|Asr|Isha)$/.test(b.etiket)).some((b) => 'ses' in b)).toBe(false);
+  expect(JSON.parse(await page.evaluate(() => localStorage.getItem('nzm.bildirim'))).sesler)
+    .toEqual({ Fajr: 'ezan-6', Dhuhr: 'telefon', Asr: 'telefon', Maghrib: 'ezan-5', Isha: 'telefon' });
+  await page.getByRole('button', { name: 'Testmelding sturen' }).click();
+  expect((await cagrilar(page, 'deneme')).at(-1).arg.ses).toBe('ezan-6');     // en son seçilen sesle
+
+  // vakit girince bildirilmeyen namazın satırı görünmez
+  await page.locator('#b-vakitler').getByRole('button', { name: 'Isha' }).click();
+  await expect(page.locator('#b-ses-Isha')).toBeHidden();
+  await expect(aksam).toBeVisible();
+
   await page.reload();
-  await expect(sec).toHaveText('Ezan 2');
+  await expect(aksam).toHaveText('Ezan 5');
+  await expect(sabah).toHaveText('Ezan 6');
   await page.getByRole('button', { name: 'Türkçe' }).click();
-  await page.locator('#b-ses').click();
+  await expect(satir.locator('.b-ses-vakit').first()).toHaveText('Sabah');
+  await aksam.click();
   await expect(liste.locator('.b-ses-sec').first()).toHaveText('Telefonun varsayılan sesi');
 });
 
 test('ses listesi: seçmeden önce dinlenir (▶); dinlemek seçimi değiştirmez; bitince, kapanınca ve sekme değişince susar', async ({ page }) => {
   await telefon(page, { izin: { bildirim: 'granted' } });
   await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar', depo: { 'nzm.bildirim': SES_DEPO } });
-  const sec = page.getByRole('button', { name: /^Geluid/ });
+  const sec = page.locator('#b-ses-Maghrib');
   await sec.click();
   const dinle = (ad) => page.getByRole('button', { name: `Luister naar ${ad}`, exact: true });
   const durdur = (ad) => page.getByRole('button', { name: `${ad} stoppen`, exact: true });
@@ -161,7 +172,7 @@ test('ses listesi: seçmeden önce dinlenir (▶); dinlemek seçimi değiştirme
   expect((await cagrilar(page, 'sesDinle')).at(-1).arg).toEqual({ ses: 'ezan-3' });
   await expect(durdur('Ezan 3')).toBeVisible();
   await expect(sec).toHaveText('Standaard telefoonmelding');                  // dinlemek seçmek değil
-  expect(JSON.parse(await page.evaluate(() => localStorage.getItem('nzm.bildirim'))).ses).toBeUndefined();
+  expect(JSON.parse(await page.evaluate(() => localStorage.getItem('nzm.bildirim'))).sesler).toBeUndefined();
 
   // başka kayda geçince öncekinin düğmesi geri gelir; ses bitince ▶ geri gelir
   await dinle('Ezan 1').click();
@@ -190,17 +201,33 @@ test('ses listesi: seçmeden önce dinlenir (▶); dinlemek seçimi değiştirme
   await expect.poll(async () => (await cagrilar(page, 'sesDurdur')).length).toBe(3);
   await expect(sec).toHaveText('Ezan 4');
 
-  // sekme değişince susar
+  // başka namazın listesi açılınca öncekisi kapanır ve susar
   await sec.click();
+  await dinle('Ezan 5').click();
+  await page.locator('#b-ses-Isha').click();
+  await expect.poll(async () => (await cagrilar(page, 'sesDurdur')).length).toBe(4);
+  await expect(page.locator('#b-ses-liste-Maghrib')).toBeHidden();
+  await expect(page.locator('#b-ses-liste-Isha')).toBeVisible();
+
+  // sekme değişince susar
   await dinle('Ezan 2').click();
   await page.evaluate(() => { location.hash = '#ana'; });
-  await expect.poll(async () => (await cagrilar(page, 'sesDurdur')).length).toBe(4);
+  await expect.poll(async () => (await cagrilar(page, 'sesDurdur')).length).toBe(5);
 });
 
 test('eski ses ayarı (kısa/uzun ezan) telefonun sesine döner', async ({ page }) => {
   await telefon(page, { izin: { bildirim: 'granted' } });
   await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar', depo: { 'nzm.bildirim': JSON.stringify({ aan: true, once: 15, giris: true, vakitler: ['Maghrib'], ses: 'ezan-uzun' }) } });
-  await expect(page.locator('#b-ses')).toHaveText('Standaard telefoonmelding');
+  await expect(page.locator('#b-ses-Maghrib')).toHaveText('Standaard telefoonmelding');
+});
+
+test('eski kayıttaki tek ses (her namaz ayrı olmadan önce) bütün namazlara geçer', async ({ page }) => {
+  await telefon(page, { izin: { bildirim: 'granted' } });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar', depo: { 'nzm.bildirim': JSON.stringify({ aan: true, once: 15, giris: true, vakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'], ses: 'ezan-3' }) } });
+  await expect(page.locator('#b-sesler .b-sec button')).toHaveText(['Ezan 3', 'Ezan 3', 'Ezan 3', 'Ezan 3', 'Ezan 3']);
+  await page.clock.runFor(1000);
+  const p = await sonPlan(page, (x) => x.bildirimler.length > 0);
+  expect(p.bildirimler.find((b) => b.etiket === '2026-10-28-Maghrib' && b.ses).ses).toBe('ezan-3');
 });
 
 test('tema önizlemesi: iframe telefona bir şey göndermez, ağa gitmez, ayar yazmaz; Android geri tuşu önizlemeyi kapatır', async ({ page }) => {
@@ -241,9 +268,12 @@ test('sessize alma: ayar, "Niet storen" izni, süre, nasıl ve hangi namazlar', 
   const bolum = page.locator('#sessiz-ayar');
   const anahtar = page.getByRole('switch', { name: 'Telefoon op stil bij gebedstijd' });
   await expect(anahtar).toHaveAttribute('aria-checked', 'false');
-  await expect(bolum.locator('#sessiz-sure button')).toHaveText(['15 min', '20 min', '30 min', '45 min', '60 min']);
   await expect(bolum.locator('#sessiz-mod button')).toHaveText(['Stil', 'Trillen']);
   await expect(bolum.locator('#sessiz-vakitler button')).toHaveText(['Fadjr', 'Dhoehr', 'Asr', 'Maghrib', 'Isha']);
+  // her namazın kendi süresi (kullanıcı isteği, 19-11-2026); hepsi 30 dk başlar
+  const sure = (ad) => bolum.getByRole('combobox', { name: `${ad}: hoe lang` });
+  await expect(sure('Maghrib').locator('option')).toHaveText(['15 min', '20 min', '30 min', '45 min', '60 min']);
+  for (const ad of ['Fadjr', 'Dhoehr', 'Asr', 'Maghrib', 'Isha']) await expect(sure(ad)).toHaveValue('30');
 
   await anahtar.click();
   await expect(page.locator('#sessiz-mesaj')).toHaveText('Geef de app toegang tot “Niet storen”, zodat hij je telefoon op stil kan zetten.');
@@ -258,15 +288,23 @@ test('sessize alma: ayar, "Niet storen" izni, süre, nasıl ve hangi namazlar', 
   await bolum.getByRole('button', { name: 'Trillen' }).click();
   await expect(page.locator('#sessiz-mesaj')).toHaveText('Sommige telefoons (zoals Samsung) vragen ook voor trillen toegang tot “Niet storen”. Geef de app die toegang.');
   await expect(page.getByRole('button', { name: 'Toestaan' })).toBeVisible();
-  await bolum.getByRole('button', { name: '45 min' }).click();
+  await sure('Maghrib').selectOption('45');
+  await sure('Dhoehr').selectOption('15');
   await bolum.getByRole('button', { name: 'Fadjr' }).click();
+  await expect(sure('Fadjr')).toBeDisabled();                                 // kapalı namazın süresi seçilmez
   await page.clock.runFor(1000);
   p = await sonPlan(page, (x) => x.sessizMod === 'titresim' && x.sessiz[0] && x.sessiz[0].bit - x.sessiz[0].bas === 45 * 60000);
   expect(p.sessiz[0].baslik).toBe('Telefoon op trillen');
+  const ogle = p.vakitler.find((v) => v.vakit === 'Dhuhr').an;
+  expect(p.sessiz.find((s) => s.bas === ogle).bit - ogle).toBe(15 * 60000);
   const sabahlar = p.vakitler.filter((v) => v.vakit === 'Fajr').map((v) => v.an);
   expect(p.sessiz.some((s) => sabahlar.includes(s.bas))).toBe(false);
   expect(JSON.parse(await page.evaluate(() => localStorage.getItem('nzm.sessiz'))))
-    .toEqual({ aan: true, dakika: 45, vakitler: ['Dhuhr', 'Asr', 'Maghrib', 'Isha'], mod: 'titresim' });
+    .toEqual({ aan: true, dakikalar: { Fajr: 30, Dhuhr: 15, Asr: 30, Maghrib: 45, Isha: 30 }, vakitler: ['Dhuhr', 'Asr', 'Maghrib', 'Isha'], mod: 'titresim' });
+  // eski kayıt (tek süre) bütün namazlara geçer
+  await page.evaluate(() => localStorage.setItem('nzm.sessiz', JSON.stringify({ aan: true, dakika: 20, vakitler: ['Maghrib'], mod: 'sessiz' })));
+  await page.reload();
+  for (const ad of ['Fadjr', 'Dhoehr', 'Asr', 'Maghrib', 'Isha']) await expect(sure(ad)).toHaveValue('20');
 
   // telefonun ayarlarından izin verip dönünce uyarı kalkar
   await bolum.getByRole('button', { name: 'Stil', exact: true }).click();

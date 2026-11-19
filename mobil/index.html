@@ -220,17 +220,15 @@
             <button type="button" class="anahtar" role="switch" aria-checked="true" aria-labelledby="b-giris-ad" id="b-giris"><span aria-hidden="true"></span></button>
           </div>
           <div id="b-giris-detay">
-            <div class="b-satir dikey" id="b-ses-satir" hidden>   <!-- ses: sadece Android mağaza uygulaması (bildirim.js) -->
-              <div class="b-yan">
-                <span class="ad-ip"><span class="b-ad" id="b-ses-ad" data-t="notifSes"></span><button type="button" class="ipucu" aria-expanded="false" aria-controls="ip-ses" data-ip-ad="b-ses-ad"><span aria-hidden="true">?</span></button></span>
-                <span class="b-sec"><button type="button" id="b-ses" aria-labelledby="b-ses-ad b-ses" aria-expanded="false" aria-controls="b-ses-liste"></button></span>
-              </div>
-              <span class="ayar-not ipucu-not" id="ip-ses" data-t="notifSesNot" hidden></span>
-              <div class="b-ses-liste" id="b-ses-liste" role="group" aria-labelledby="b-ses-ad" hidden></div>   <!-- seçmeden önce dinlenir (▶) -->
-            </div>
             <div class="b-satir dikey">
               <span class="b-ad" id="b-vakit-ad" data-t="notifWhich"></span>
               <div class="b-vakitler" role="group" aria-labelledby="b-vakit-ad" id="b-vakitler"></div>
+            </div>
+            <!-- ses: sadece Android mağaza uygulaması; her namaz ayrı (bildirim.js, 19-11-2026), seçmeden önce dinlenir (▶) -->
+            <div class="b-satir dikey" id="b-ses-satir" hidden>
+              <span class="ad-ip"><span class="b-ad" id="b-ses-ad" data-t="notifSes"></span><button type="button" class="ipucu" aria-expanded="false" aria-controls="ip-ses" data-ip-ad="b-ses-ad"><span aria-hidden="true">?</span></button></span>
+              <span class="ayar-not ipucu-not" id="ip-ses" data-t="notifSesNot" hidden></span>
+              <div class="b-sesler" id="b-sesler" role="group" aria-labelledby="b-ses-ad"></div>
             </div>
           </div>
         </div>
@@ -284,16 +282,13 @@
         </div>
         <div class="b-secenekler" id="sessiz-secenekler">
           <div class="b-satir dikey">
-            <span class="b-ad" id="sessiz-sure-ad" data-t="sessizSure"></span>
-            <div class="b-once" role="group" aria-labelledby="sessiz-sure-ad" id="sessiz-sure"></div>
-          </div>
-          <div class="b-satir dikey">
             <span class="b-ad" id="sessiz-mod-ad" data-t="sessizNasil"></span>
             <div class="b-once" role="group" aria-labelledby="sessiz-mod-ad" id="sessiz-mod"></div>
           </div>
+          <!-- her namaz ayrı: açık/kapalı ve süre (yerel-ayar.js, kullanıcı isteği 19-11-2026) -->
           <div class="b-satir dikey">
             <span class="b-ad" id="sessiz-vakit-ad" data-t="sessizHangi"></span>
-            <div class="b-vakitler" role="group" aria-labelledby="sessiz-vakit-ad" id="sessiz-vakitler"></div>
+            <div class="b-namazlar" role="group" aria-labelledby="sessiz-vakit-ad" id="sessiz-vakitler"></div>
           </div>
         </div>
       </div>

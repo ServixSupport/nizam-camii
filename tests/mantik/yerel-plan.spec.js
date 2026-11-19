@@ -72,9 +72,47 @@ test('vakit girince ezan (kullanıcı isteği, 08-11-2026): sadece beş vakit na
     expect(plan({ bildirim: { aan: true, once: 15, giris: true, vakitler: hepsi, ses } }).bildirimler.some((b) => 'ses' in b)).toBe(false);
   }
   // Android bildirim kanallarının adları (telefonun ayarlarında görünür)
-  expect(plan().kanallar).toEqual({ vakit: 'Gebedstijden', sayac: 'Gebedstijden-widget', sessiz: 'Op stil zetten' });
+  expect(plan().kanallar).toEqual({ vakit: 'Gebedstijden', sayac: 'Gebedstijden-widget', tablo: 'Gebedstijden-tabel', sessiz: 'Op stil zetten' });
   // bilinmeyen ses (eski sürümlerin ezan-kisa'sı): telefonun sesi
   expect(plan({ bildirim: { aan: true, once: 0, giris: true, vakitler: ['Maghrib'], ses: 'ezan-kisa' } }).bildirimler.some((b) => 'ses' in b)).toBe(false);
+});
+
+test('her namaz için ayrı ses (kullanıcı isteği, 19-11-2026): sesler[vakit]; eski kayıtta tek ses hepsine', () => {
+  const sesler = { Fajr: 'ezan-6', Dhuhr: 'telefon', Asr: 'ezan-2', Maghrib: 'ezan-5', Isha: 'telefon' };
+  const p = plan({ bildirim: { aan: true, once: 15, giris: true, vakitler: ['Imsak', 'Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'], sesler } });
+  const ses = (etiket) => p.bildirimler.find((b) => b.etiket === etiket && b.baslik.includes('is begonnen')).ses;
+  expect(ses('2026-10-28-Maghrib')).toBe('ezan-5');
+  expect(ses('2026-10-29-Fajr')).toBe('ezan-6');
+  expect(ses('2026-10-29-Asr')).toBe('ezan-2');
+  expect(ses('2026-10-29-Dhuhr')).toBeUndefined();                           // telefonun sesi
+  expect(ses('2026-10-28-Isha')).toBeUndefined();
+  expect(ses('2026-10-29-Imsak')).toBeUndefined();                           // İmsak hep telefonun sesiyle
+  // sessize alma: ezan okunan namazda ezan bitince, okunmayanda vakit girince başlar
+  const sessiz = { aan: true, dakikalar: { Fajr: 30, Dhuhr: 30, Asr: 30, Maghrib: 30, Isha: 30 }, vakitler: ['Maghrib', 'Isha'], mod: 'sessiz' };
+  const s = plan({ sessiz, bildirim: { aan: true, once: 0, giris: true, vakitler: ['Maghrib', 'Isha'], sesler } }).sessiz;
+  const aksam = an('2026-10-28T17:27:00+01:00');
+  expect(s[0].bas).toBe(aksam + 35000);
+  const yatsi = p.vakitler.find((v) => v.vakit === 'Isha').an;
+  expect(s.find((x) => x.bit === yatsi + 30 * 60000).bas).toBe(yatsi);
+});
+
+test('her namaz için ayrı sessiz kalma süresi (kullanıcı isteği, 19-11-2026): dakikalar[vakit]; eski kayıtta tek süre', () => {
+  const sessiz = { aan: true, dakikalar: { Fajr: 20, Dhuhr: 15, Asr: 30, Maghrib: 45, Isha: 60 }, vakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'], mod: 'titresim' };
+  const p = plan({ sessiz });
+  const sure = (vakit, gun = 0) => {
+    const v = p.vakitler.filter((x) => x.vakit === vakit)[gun].an;
+    return (p.sessiz.find((x) => x.bas === v).bit - v) / 60000;
+  };
+  expect(sure('Maghrib')).toBe(45);
+  expect(sure('Isha')).toBe(60);
+  expect(sure('Fajr')).toBe(20);
+  expect(sure('Dhuhr')).toBe(15);
+  expect(sure('Asr')).toBe(30);
+  expect(p.sessiz[0].kisa).toBe('Op stil tot 18:12');                        // Akşam 17:27 + 45
+  // eski kayıt: tek "dakika" hepsine
+  const eski = plan({ sessiz: { aan: true, dakika: 20, vakitler: ['Maghrib'], mod: 'sessiz' } }).sessiz;
+  expect(eski.every((x) => x.bit - x.bas === 20 * 60000)).toBe(true);
+  expect(SESSIZ_VARSAYILAN.dakikalar).toEqual({ Fajr: 30, Dhuhr: 30, Asr: 30, Maghrib: 30, Isha: 30 });
 });
 
 test('vakitten önce ve vakit girince ayrı vakitler (kullanıcı isteği, 08-11-2026)', () => {

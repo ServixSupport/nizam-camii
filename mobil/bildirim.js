@@ -6,16 +6,19 @@
 // - Mağaza uygulamasında (yerel) sunucu ve Web Push yok: bildirimleri telefon kendisi kurar (yerel-plan.js),
 //   ayar değişince app.js planı telefona yeniden gönderir (planDegisti).
 import { VAKITLER } from './zaman.js';
-import { DENEME, SESLER } from './bildirim-metin.js';
+import { DENEME, NAMAZ, SESLER } from './bildirim-metin.js';
 
 const DEPO = 'nzm.bildirim';
 const ONCE = [0, 5, 10, 15, 30];
 // Vakit girince ses (SESLER, kullanıcı isteği 08-11-2026): sadece Android mağaza uygulaması. Ezan sadece beş vakit namazda çalar.
+// Her namaz için ayrı ses (kullanıcı isteği, 19-11-2026): sesler { Fajr: 'ezan-6', … }; eski kayıtlarda tek "ses" (hepsine geçer).
 // Tarayıcı bildirimlerinde (Web Push) ses seçilemez; iPhone'da henüz yok.
+const hepsi = (ses) => Object.fromEntries(NAMAZ.map((k) => [k, ses]));
 const VARSAYILAN = {
   aan: false, once: 15, giris: true, vakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'],   // tasarımdaki başlangıç
   onceVakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'],                                  // vakitten önce ayrı seçilir
-  ses: 'telefon',
+  sesler: hepsi('telefon'),
+  sonSes: '',                                                                                  // deneme bildirimi en son seçilen sesle
   endpoint: '', esitleme: 0, sunucu: null,
 };
 const GUN = 24 * 60 * 60 * 1000;
@@ -36,7 +39,11 @@ function oku() {
     // eski kayıtlarda tek liste vardı: ikisi aynı başlar
     a.onceVakitler = Array.isArray(v.onceVakitler) ? VAKITLER.filter((k) => v.onceVakitler.includes(k)) : [...a.vakitler];
     a.giris = a.giris !== false;
-    if (!SESLER.includes(a.ses)) a.ses = VARSAYILAN.ses;
+    const eski = SESLER.includes(v.ses) ? v.ses : 'telefon';
+    const kayitli = v.sesler && typeof v.sesler === 'object' ? v.sesler : {};
+    a.sesler = Object.fromEntries(NAMAZ.map((k) => [k, SESLER.includes(kayitli[k]) ? kayitli[k] : eski]));
+    delete a.ses;
+    if (!SESLER.includes(a.sonSes)) a.sonSes = '';
     return a;
   } catch { return { ...VARSAYILAN }; }
 }
@@ -73,14 +80,16 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
   let mesgul = false;
   let _zaman = 0;
   let kuruldu = false;
-  let sesAcik = false;      // ses listesi açık mı
+  let sesAcik = null;       // hangi namazın ses listesi açık (null: hiçbiri)
   let calan = null;         // şu an dinlenen ses
   let dinlemeNo = 0;
 
   const destek = () => (yerel ? 'tamam' : 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window ? 'tamam'
     : iosMu() && !kuruluMu() ? 'ios' : 'yok');
   const yaz = (parca) => { ayar = { ...ayar, ...parca }; sakla(ayar); };
-  const ses = () => (sesSecimi ? ayar.ses : 'telefon');
+  const sesler = () => (sesSecimi ? { ...ayar.sesler } : hepsi('telefon'));
+  /** Deneme bildirimi: en son seçilen ses; yoksa ilk seçili namazın sesi. */
+  const denemeSesi = () => (!sesSecimi ? 'telefon' : ayar.sonSes || ayar.sesler[NAMAZ.find((k) => ayar.vakitler.includes(k)) || NAMAZ[0]]);
 
   // service worker hazır değilse sonsuza kadar beklemesin (10 sn sonra hata mesajı)
   function hazirKayit() {
@@ -206,7 +215,7 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     try {
       if (yerel) {
         // deneme bildirimi seçilen sesle gelir (ezanı dinlemek için de)
-        await yerel.deneme({ ...(DENEME[dil()] || DENEME.nl), ses: ses() });
+        await yerel.deneme({ ...(DENEME[dil()] || DENEME.nl), ses: denemeSesi() });
         bildir(t.notifTestSentYerel);
         return;
       }
@@ -308,9 +317,10 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     }
     if (no === dinlemeNo) { calan = null; sesCiz(); }
   }
-  function sesListesi(acik) {
-    sesAcik = acik;
-    if (!acik) dinlemeDurdur();
+  /** k: açılacak namazın listesi; null: hepsi kapanır */
+  function sesListesi(k) {
+    if (sesAcik !== k) dinlemeDurdur();
+    sesAcik = k;
     sesCiz();
   }
 
@@ -321,7 +331,7 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     if (kuruldu) return;
     kuruldu = true;
     $('#b-ana').addEventListener('click', () => (ayar.aan ? kapat() : ac()));
-    $('#b-giris').addEventListener('click', () => { if (sesSecimi) sesListesi(false); ayarla({ giris: !ayar.giris }); });
+    $('#b-giris').addEventListener('click', () => { if (sesSecimi) sesListesi(null); ayarla({ giris: !ayar.giris }); });
     $('#b-deneme').addEventListener('click', deneme);
     $('#b-once').replaceChildren(...ONCE.map((n) => {
       const b = document.createElement('button');
@@ -330,22 +340,39 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
       return b;
     }));
     if (sesSecimi) {
-      $('#b-ses').addEventListener('click', () => sesListesi(!sesAcik));
-      $('#b-ses-liste').replaceChildren(...SESLER.map((s) => {
-        const oge = document.createElement('div');
-        oge.className = 'b-ses-oge'; oge.dataset.ses = s;
-        oge.innerHTML = '<button type="button" class="b-ses-sec"><span class="b-radyo" aria-hidden="true"></span><span></span></button>'
-          + '<button type="button" class="b-ses-dinle"></button>';
-        oge.firstElementChild.addEventListener('click', () => { ayarla({ ses: s }); sesListesi(false); $('#b-ses').focus(); });
-        oge.lastElementChild.addEventListener('click', () => dinle(s));
-        return oge;
+      // her namaz kendi satırında: ad, seçili ses (açılır liste), listede ▶ ile dinleme (kullanıcı isteği, 19-11-2026)
+      $('#b-sesler').replaceChildren(...NAMAZ.map((k) => {
+        const satir = document.createElement('div');
+        satir.className = 'b-ses-namaz'; satir.dataset.key = k;
+        satir.innerHTML = `<div class="b-yan"><span class="b-ad b-ses-vakit" id="b-ses-ad-${k}"></span>`
+          + `<span class="b-sec"><button type="button" id="b-ses-${k}" aria-labelledby="b-ses-ad-${k} b-ses-${k}" aria-expanded="false" aria-controls="b-ses-liste-${k}"></button></span></div>`
+          + `<div class="b-ses-liste" id="b-ses-liste-${k}" role="group" aria-labelledby="b-ses-ad-${k}" hidden></div>`;
+        const dugme = satir.querySelector('button');
+        dugme.addEventListener('click', () => sesListesi(sesAcik === k ? null : k));
+        satir.lastElementChild.replaceChildren(...SESLER.map((s) => {
+          const oge = document.createElement('div');
+          oge.className = 'b-ses-oge'; oge.dataset.ses = s;
+          oge.innerHTML = '<button type="button" class="b-ses-sec"><span class="b-radyo" aria-hidden="true"></span><span></span></button>'
+            + '<button type="button" class="b-ses-dinle"></button>';
+          oge.firstElementChild.addEventListener('click', () => {
+            ayarla({ sesler: { ...ayar.sesler, [k]: s }, sonSes: s });
+            sesListesi(null);
+            dugme.focus();
+          });
+          oge.lastElementChild.addEventListener('click', () => dinle(s));
+          return oge;
+        }));
+        return satir;
       }));
-      window.addEventListener('hashchange', () => sesListesi(false));
+      window.addEventListener('hashchange', () => sesListesi(null));
     }
     const vakitDugmeleri = (kap, alan) => kap.replaceChildren(...VAKITLER.map((k) => {
       const b = document.createElement('button');
       b.type = 'button'; b.dataset.key = k;
-      b.addEventListener('click', () => ayarla({ [alan]: cevir(ayar[alan], k) }));
+      b.addEventListener('click', () => {
+        if (sesSecimi && alan === 'vakitler' && sesAcik === k) sesListesi(null);   // kaldırılan namazın listesi kapanır
+        ayarla({ [alan]: cevir(ayar[alan], k) });
+      });
       return b;
     }));
     vakitDugmeleri($('#b-vakitler'), 'vakitler');
@@ -355,18 +382,27 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
   const sesAdi = (s) => (s === 'telefon' ? L().notifSesTelefon : `Ezan ${s.slice(5)}`);
   function sesCiz() {
     const t = L();
-    const b = $('#b-ses');
-    b.textContent = sesAdi(ayar.ses);
-    b.setAttribute('aria-expanded', String(sesAcik));
-    b.parentElement.classList.toggle('acik', sesAcik);
-    $('#b-ses-liste').hidden = !sesAcik;
-    for (const oge of $('#b-ses-liste').children) {
-      const s = oge.dataset.ses, ad = sesAdi(s), caliyor = s === calan;
-      oge.firstElementChild.setAttribute('aria-pressed', String(s === ayar.ses));
-      oge.firstElementChild.lastElementChild.textContent = ad;
-      const d = oge.lastElementChild;
-      if (d.dataset.on !== String(caliyor)) { d.innerHTML = caliyor ? DURDUR : DINLE; d.dataset.on = String(caliyor); }
-      d.setAttribute('aria-label', (caliyor ? t.notifSesDurdur : t.notifSesDinle)(ad));
+    // sadece vakit girince bildirilen namazların satırı görünür
+    $('#b-ses-satir').hidden = !NAMAZ.some((k) => ayar.vakitler.includes(k));
+    for (const satir of $('#b-sesler').children) {
+      const k = satir.dataset.key, acik = sesAcik === k;
+      satir.hidden = !ayar.vakitler.includes(k);
+      satir.querySelector('.b-ses-vakit').textContent = t.names[k];
+      const b = satir.querySelector('.b-sec button');
+      b.textContent = sesAdi(ayar.sesler[k]);
+      b.setAttribute('aria-expanded', String(acik));
+      b.parentElement.classList.toggle('acik', acik);
+      const liste = satir.lastElementChild;
+      liste.hidden = !acik;
+      if (!acik) continue;
+      for (const oge of liste.children) {
+        const s = oge.dataset.ses, ad = sesAdi(s), caliyor = s === calan;
+        oge.firstElementChild.setAttribute('aria-pressed', String(s === ayar.sesler[k]));
+        oge.firstElementChild.lastElementChild.textContent = ad;
+        const d = oge.lastElementChild;
+        if (d.dataset.on !== String(caliyor)) { d.innerHTML = caliyor ? DURDUR : DINLE; d.dataset.on = String(caliyor); }
+        d.setAttribute('aria-label', (caliyor ? t.notifSesDurdur : t.notifSesDinle)(ad));
+      }
     }
   }
 
@@ -391,8 +427,8 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     // kapalı bölümün ayrıntıları görünmez: sayfa kısa kalır
     $('#b-giris-detay').hidden = !ayar.giris;
     $('#b-once-vakit-satir').hidden = !ayar.once;
-    $('#b-ses-satir').hidden = !sesSecimi;
     if (sesSecimi) sesCiz();
+    else $('#b-ses-satir').hidden = true;
     for (const [kap, liste] of [[$('#b-vakitler'), ayar.vakitler], [$('#b-once-vakitler'), ayar.onceVakitler]]) {
       for (const b of kap.children) {
         const on = liste.includes(b.dataset.key);
@@ -429,6 +465,6 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     /** dil değişti: açıksa bildirimler yeni dilde gelsin */
     dilDegisti() { ciz(); if (ayar.aan) { if (yerel) planDegisti(); else esitleSonra(); } },
     /** plana giden ayarlar (mağaza uygulaması) */
-    ayar: () => ({ aan: ayar.aan, once: ayar.once, giris: ayar.giris, vakitler: [...ayar.vakitler], onceVakitler: [...ayar.onceVakitler], ses: ses() }),
+    ayar: () => ({ aan: ayar.aan, once: ayar.once, giris: ayar.giris, vakitler: [...ayar.vakitler], onceVakitler: [...ayar.onceVakitler], sesler: sesler() }),
   };
 }

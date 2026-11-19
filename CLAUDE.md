@@ -129,6 +129,11 @@
      - Aynı vakitte sessize alma da açıksa telefon ezan bitince susar (`yerel-plan.js` `EZAN_SN = 35`; en uzun kayıt 30 sn).
      - Son sessize alma denemesi ve sonucu telefonda saklanır (`Planlayici` `sessizSon`), Ayarlar'da "Son: 8 Kas 06:41 · telefon sessize alındı" (veya "zaten sessizdeydi", "Rahatsız Etmeyin açıktı" …).
      - "Rahatsız Etmeyin" erişimi Titreşim'de de istenir (16-11-2026): kullanıcının Samsung'unda izin yokken titreşime alınamadı ("izinYok"). Titreşim modunda sonuç "titreşime alınamadı" yazılır.
+     - **Her namaz ayrı** (kullanıcı isteği, 19-11-2026):
+       - Ses: `nzm.bildirim.sesler` `{ Fajr: 'ezan-6', … }`. Ayarlar'da "Hangi vakitler"in altında her seçili namazın kendi satırı ve açılır listesi (▶ dinleme aynı). Deneme bildirimi en son seçilen sesle (`sonSes`).
+       - Sessize alma süresi: `nzm.sessiz.dakikalar` `{ Fajr: 30, … }`. Her namaz satırında açık/kapalı düğmesi ve süre seçimi (`<select>`, 15–60 dk).
+       - Eski kayıtlardaki tek `ses` / `dakika` bütün namazlara geçer (`yerel-plan.js` `namazSesi`, `sessizSuresi`). Java tarafı değişmedi: plan zaten bildirim ve dönem başına.
+     - **Üst çubuktaki cami simgesi** (kullanıcı isteği, 19-11-2026): sadece vakte 30 dk kala (kalan dakikayla). Diğer zamanlar panel simgesiz kanalda (`vakitler_sakin`, IMPORTANCE_MIN; bildirim ekranında altta, katlanmış). Vakit girince panel bir kez sesli uyarır, `SES_SURE` (40 sn) sonra sessizce simgesiz kanala geçer (`PlanMantigi.panelKanali`).
    - **Bildirim panelindeki tablo** (08-11-2026, kullanıcının örneğine göre): üst satır, ince çizgi, 7 eşit sütun (ad üstte, saat altta, `sans-serif-condensed`); sıradaki kırmızı ve kalın; sabit yükseklik + autoSize. Soldaki uygulama simgesi Android 12+ sistemin çerçevesi: uygulama küçültemez.
    - Uygulamada (Tema 1) şimdiki vakit "ŞİMDİ" yazısıyla değil, satırın solunda yeşil çizgiyle (yazı ekran okuyucu için kalır); adlar hiç kısalmaz.
 

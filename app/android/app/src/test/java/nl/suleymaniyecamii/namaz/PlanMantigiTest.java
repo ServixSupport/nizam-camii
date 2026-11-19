@@ -94,6 +94,18 @@ public class PlanMantigiTest {
     }
 
     @Test
+    public void panelKanali_simgeSadeceVaktenOnceki30Dakikada() {
+        // kullanıcı isteği (19-11-2026): vakit girince üst çubuktaki cami simgesi kalkar
+        assertEquals("vakitler", PlanMantigi.panelKanali(false, null, 30));
+        assertEquals("vakitler", PlanMantigi.panelKanali(false, null, 1));
+        assertEquals("vakitler_sakin", PlanMantigi.panelKanali(false, null, 0));
+        // vakit girince bir kez sesli (vakit veya ezan kanalı), SES_SURE sonra sessizce simgesiz kanala
+        assertEquals("vakit_ezan_3", PlanMantigi.panelKanali(true, "vakit_ezan_3", 0));
+        assertEquals("vakit", PlanMantigi.panelKanali(true, "vakit", 0));
+        assertTrue(PlanMantigi.SES_SURE > 30_000L);                       // en uzun ezan kaydı 30 sn
+    }
+
+    @Test
     public void tabloGunu_vaktiIcerenGun() throws Exception {
         JSONObject p = new JSONObject("{\"gunler\":[{\"ymd\":\"a\",\"vakitler\":[{\"an\":1},{\"an\":2}]},"
             + "{\"ymd\":\"b\",\"vakitler\":[{\"an\":3}]}]}");

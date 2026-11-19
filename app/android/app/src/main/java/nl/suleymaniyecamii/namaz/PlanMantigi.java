@@ -21,6 +21,15 @@ final class PlanMantigi {
 
     /** Vakit bildirimi kanalı; her ezan kaydı kendi kanalında (Android'de kanalın sesi sonradan değişmez). */
     static final String KANAL_VAKIT = "vakit";
+    /** Panel (vakit tablosu), vakte 30 dk kala: üst çubukta cami simgesi ve kalan dakika. */
+    static final String KANAL_SAYAC = "vakitler";
+    /**
+     * Panel, diğer zamanlar: en düşük önem, üst çubukta simge yok; tablo bildirim ekranında durur
+     * (kullanıcı isteği, 19-11-2026: simge sadece vakitten önceki 30 dakikada, vakit girince kalkar).
+     */
+    static final String KANAL_TABLO = "vakitler_sakin";
+    /** Vakit girince panel bir kez sesli uyarır (ezan en çok 30 sn); bu kadar sonra sessizce yenilenir ve simge kalkar. */
+    static final long SES_SURE = 40_000L;
 
     private PlanMantigi() {}
 
@@ -72,6 +81,15 @@ final class PlanMantigi {
         long kalan = an - simdi;
         if (kalan <= 0 || kalan > SIMGE_PENCERE) return 0;
         return (int) ((kalan + 59_999) / 60_000);
+    }
+
+    /**
+     * Panelin kanalı: sesli uyarıda vakit (veya ezan) kanalı; vakte 30 dk kala simgeli kanal;
+     * diğer zamanlar simgesiz kanal (üst çubukta cami simgesi görünmez).
+     */
+    static String panelKanali(boolean sesli, String sesKanali, int simgeDakikasi) {
+        if (sesli) return sesKanali;
+        return simgeDakikasi > 0 ? KANAL_SAYAC : KANAL_TABLO;
     }
 
     /** Bildirim panelindeki tablo: bu vakti içeren gün (plan.gunler), yoksa null. */

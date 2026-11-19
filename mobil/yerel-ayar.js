@@ -2,7 +2,7 @@
 // (Android; iPhone buna izin vermez), kilit ekranı widget'ı (iPhone, sadece açıklama).
 // Tarayıcıda (web uygulaması) bu bölümler hiç görünmez; app.js bu modülü sadece mağaza uygulamasında kurar.
 import { NAMAZ } from './bildirim-metin.js';
-import { SESSIZ_DK, SESSIZ_VARSAYILAN } from './yerel-plan.js';
+import { SESSIZ_DK, SESSIZ_VARSAYILAN, SESSIZ_DK_VARSAYILAN } from './yerel-plan.js';
 
 const DEPO_SAYAC = 'nzm.sayac';            // 'acik' | 'kapali' (ilk açılışta açık)
 const DEPO_SORULDU = 'nzm.sayacSoruldu';   // bildirim izni ilk açılışta bir kez sorulur
@@ -16,14 +16,17 @@ const yaz = (k, v) => { try { localStorage.setItem(k, v); } catch { /* dolu veya
 function sessizOku() {
   try {
     const v = JSON.parse(oku(DEPO_SESSIZ) || 'null');
-    if (!v || typeof v !== 'object') return { ...SESSIZ_VARSAYILAN };
+    if (!v || typeof v !== 'object') return { ...SESSIZ_VARSAYILAN, dakikalar: { ...SESSIZ_VARSAYILAN.dakikalar } };
+    // her namaz için ayrı süre (kullanıcı isteği, 19-11-2026); eski kayıtlarda tek "dakika" hepsine geçer
+    const eski = SESSIZ_DK.includes(v.dakika) ? v.dakika : SESSIZ_DK_VARSAYILAN;
+    const kayitli = v.dakikalar && typeof v.dakikalar === 'object' ? v.dakikalar : {};
     return {
       aan: v.aan === true,
-      dakika: SESSIZ_DK.includes(v.dakika) ? v.dakika : SESSIZ_VARSAYILAN.dakika,
+      dakikalar: Object.fromEntries(NAMAZ.map((k) => [k, SESSIZ_DK.includes(kayitli[k]) ? kayitli[k] : eski])),
       vakitler: NAMAZ.filter((k) => Array.isArray(v.vakitler) && v.vakitler.includes(k)),
       mod: v.mod === 'titresim' ? 'titresim' : 'sessiz',
     };
-  } catch { return { ...SESSIZ_VARSAYILAN }; }
+  } catch { return { ...SESSIZ_VARSAYILAN, dakikalar: { ...SESSIZ_VARSAYILAN.dakikalar } }; }
 }
 
 /**
@@ -99,10 +102,24 @@ export function yerelAyarlar({ L, cami, platform, planDegisti, bildirimAcik }) {
     $('#sessiz-anahtar').addEventListener('click', () => sessizYaz({ aan: !sessiz.aan }));
     $('#sessiz-izin').addEventListener('click', () => cami.sessizIzniAc().catch(() => {}));
     $('#tam-alarm-dugme').addEventListener('click', () => cami.tamAlarmIzniAc().catch(() => {}));
-    secenekler($('#sessiz-sure'), SESSIZ_DK, (n) => sessizYaz({ dakika: n }));
     secenekler($('#sessiz-mod'), ['sessiz', 'titresim'], (m) => sessizYaz({ mod: m }));
-    secenekler($('#sessiz-vakitler'), NAMAZ, (k) => sessizYaz({
-      vakitler: sessiz.vakitler.includes(k) ? sessiz.vakitler.filter((x) => x !== k) : NAMAZ.filter((x) => x === k || sessiz.vakitler.includes(x)),
+    // her namaz kendi satırında: açık/kapalı (dokununca) ve ne kadar süre (açılır seçim)
+    $('#sessiz-vakitler').replaceChildren(...NAMAZ.map((k) => {
+      const satir = document.createElement('div');
+      satir.className = 'b-namaz'; satir.dataset.deger = k;
+      const b = document.createElement('button');
+      b.type = 'button'; b.dataset.deger = k;
+      b.addEventListener('click', () => sessizYaz({
+        vakitler: sessiz.vakitler.includes(k) ? sessiz.vakitler.filter((x) => x !== k) : NAMAZ.filter((x) => x === k || sessiz.vakitler.includes(x)),
+      }));
+      const sec = document.createElement('select');
+      sec.append(...SESSIZ_DK.map((n) => Object.assign(document.createElement('option'), { value: String(n) })));
+      sec.addEventListener('change', () => sessizYaz({ dakikalar: { ...sessiz.dakikalar, [k]: +sec.value } }));
+      const kap = document.createElement('span');
+      kap.className = 'b-sec';
+      kap.append(sec);
+      satir.append(b, kap);
+      return satir;
     }));
   }
 
@@ -140,19 +157,22 @@ export function yerelAyarlar({ L, cami, platform, planDegisti, bildirimAcik }) {
     $('#sessiz-mesaj').hidden = !izinGerek;
     $('#sessiz-mesaj').textContent = izinGerek ? (titresim ? t.sessizIzinTitresim : t.sessizIzin) : '';
     $('#sessiz-izin-satir').hidden = !izinGerek;
-    for (const b of $('#sessiz-sure').children) {
-      b.textContent = `${b.dataset.deger} ${t.notifMin}`;
-      b.setAttribute('aria-pressed', String(+b.dataset.deger === sessiz.dakika));
-    }
     for (const b of $('#sessiz-mod').children) {
       b.textContent = t.sessizModAd[b.dataset.deger];
       b.setAttribute('aria-pressed', String(b.dataset.deger === sessiz.mod));
     }
-    for (const b of $('#sessiz-vakitler').children) {
-      const on = sessiz.vakitler.includes(b.dataset.deger);
+    for (const satir of $('#sessiz-vakitler').children) {
+      const k = satir.dataset.deger, on = sessiz.vakitler.includes(k);
+      const b = satir.querySelector('button');
       b.innerHTML = on ? TIK : '';
-      b.append(t.names[b.dataset.deger]);
+      b.append(t.names[k]);
       b.setAttribute('aria-pressed', String(on));
+      const sec = satir.querySelector('select');
+      for (const o of sec.options) o.textContent = `${o.value} ${t.notifMin}`;
+      sec.value = String(sessiz.dakikalar[k]);
+      sec.disabled = !on;
+      sec.setAttribute('aria-label', t.sessizSureAd(t.names[k]));
+      satir.classList.toggle('kapali', !on);
     }
     // tam zamanında olsun: Android 12+ "Alarmlar ve hatırlatıcılar" izni (yoksa birkaç dakika gecikebilir)
     $('#tam-alarm').hidden = izin.tamAlarm || !(sayacEtkin() || sessiz.aan || bildirimAcik());

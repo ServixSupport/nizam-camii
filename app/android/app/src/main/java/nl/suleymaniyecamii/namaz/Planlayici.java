@@ -28,7 +28,8 @@ import org.json.JSONObject;
 /**
  * Planı telefonda uygular; uygulama kapalıyken alarmlarla (VakitAlici) çalışır:
  *  - bildirim panelinde vakit tablosu ve sıradaki vakte geri sayım; vakte 30 dk kala üst çubuktaki
- *    cami simgesinde kalan dakika (kullanıcı isteği, 07-11-2026),
+ *    cami simgesinde kalan dakika (kullanıcı isteği, 07-11-2026); diğer zamanlar üst çubukta simge yok
+ *    (kullanıcı isteği, 19-11-2026: vakit girince simge kalkar),
  *  - namaz vakti bildirimleri (bir vakit için tek bildirim: "X dk kala"nın yerini "vakit girdi" alır),
  *  - namaz vaktinde sessize alma ve süre bitince eski haline döndürme.
  * Her çalıştırmada bir sonraki olay için tek bir alarm kurulur.
@@ -46,7 +47,8 @@ final class Planlayici {
     static final long UYARI_SURE = 15 * 60_000L;
 
     static final String KANAL_VAKIT = PlanMantigi.KANAL_VAKIT;
-    static final String KANAL_SAYAC = "vakitler";
+    static final String KANAL_SAYAC = PlanMantigi.KANAL_SAYAC;
+    static final String KANAL_TABLO = PlanMantigi.KANAL_TABLO;
     private static final String ESKI_KANAL_SAYAC = "sayac";
     static final String KANAL_SESSIZ = "sessiz";
     private static final int ID_SAYAC = 1;
@@ -100,6 +102,11 @@ final class Planlayici {
         sessizIsle(c, plan, son, simdi);
         sayacGoster(c, plan, simdi, yeniUyari != null);
         long alarm = PlanMantigi.sonrakiAlarm(plan, simdi);
+        // panel vakit girince sesli uyardı: ezan bitince sessizce yenilensin (üst çubuktaki simge kalkar)
+        if (yeniUyari != null) {
+            long sessizce = simdi + PlanMantigi.SES_SURE;
+            if (alarm == 0 || sessizce < alarm) alarm = sessizce;
+        }
         JSONObject u = uyari(p, simdi);
         if (u != null) {
             long bitis = u.optLong("an") + UYARI_SURE;               // uyarı yazısı panelden kalksın
@@ -121,6 +128,12 @@ final class Planlayici {
         sayac.setSound(null, null);
         sayac.enableVibration(false);
         nm.deleteNotificationChannel(ESKI_KANAL_SAYAC);
+        // vakte 30 dakikadan fazla varken: en düşük önem, üst çubukta simge yok (kullanıcı isteği, 19-11-2026)
+        NotificationChannel tablo = new NotificationChannel(KANAL_TABLO, adi(ad, "tablo", c.getString(R.string.kanal_tablo)), NotificationManager.IMPORTANCE_MIN);
+        tablo.setShowBadge(false);
+        tablo.setSound(null, null);
+        tablo.enableVibration(false);
+        nm.createNotificationChannel(tablo);
         NotificationChannel sessiz = new NotificationChannel(KANAL_SESSIZ, adi(ad, "sessiz", c.getString(R.string.kanal_sessiz)), NotificationManager.IMPORTANCE_LOW);
         sessiz.setShowBadge(false);
         // aynı kimlikle yeniden oluşturmak sadece adı günceller (kullanıcının seçtiği ses vb. korunur)
@@ -249,10 +262,11 @@ final class Planlayici {
             if (s.getId() == ID_BILDIRIM && s.getTag() != null && !"deneme".equals(s.getTag())) nmx.cancel(s.getTag(), ID_BILDIRIM);
         }
         boolean sesli = uyar && u != null;
-        // vakte 30 dk kala: üst çubuktaki cami simgesinin içinde kalan dakika
+        // vakte 30 dk kala: üst çubuktaki cami simgesinin içinde kalan dakika; diğer zamanlar üst çubukta simge yok
         int dk = PlanMantigi.simgeDakikasi(an, simdi);
         // sesli uyarı vakit bildiriminin sesiyle (ezan seçildiyse ezan); sonraki sessiz yenileme sesi durdurur
-        NotificationCompat.Builder b = new NotificationCompat.Builder(c, sesli ? kanalIcin(c, u.optString("ses")) : KANAL_SAYAC)
+        String kanal = PlanMantigi.panelKanali(sesli, sesli ? kanalIcin(c, u.optString("ses")) : null, dk);
+        NotificationCompat.Builder b = new NotificationCompat.Builder(c, kanal)
             .setColor(ContextCompat.getColor(c, R.color.cami_yesil))
             .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(kucuk)
@@ -264,7 +278,7 @@ final class Planlayici {
             .setOngoing(true)
             .setOnlyAlertOnce(!sesli)
             .setSilent(!sesli)
-            .setPriority(sesli ? NotificationCompat.PRIORITY_HIGH : NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(sesli ? NotificationCompat.PRIORITY_HIGH : dk > 0 ? NotificationCompat.PRIORITY_DEFAULT : NotificationCompat.PRIORITY_MIN)
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setGroup(GRUP_PANEL)
