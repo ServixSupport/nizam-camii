@@ -22,13 +22,16 @@ export const EZAN_SN = 35;
 const ezanMi = (ses) => ses !== 'telefon' && SESLER.includes(ses);
 /** O namazın sesi: sesler[vakit] (her namaz ayrı, 19-11-2026); eski kayıtlarda tek ses. */
 export const namazSesi = (bildirim, k) => (bildirim.sesler && bildirim.sesler[k]) || bildirim.ses || 'telefon';
+/** O vakitte kaç dakika önce hatırlatılır: onceDk[vakit] (her vakit ayrı, 19-11-2026); eski kayıtlarda tek "once". */
+export const onceDakikasi = (bildirim, k) => (bildirim.onceDk && bildirim.onceDk[k]) || bildirim.once || 0;
 /** O namazda sessiz kalma süresi (dk): dakikalar[vakit] (her namaz ayrı, 19-11-2026); eski kayıtlarda tek süre. */
 export const sessizSuresi = (sessiz, k) => (sessiz.dakikalar && sessiz.dakikalar[k]) || sessiz.dakika || SESSIZ_DK_VARSAYILAN;
 
 /**
  * @param {object} o
  * @param {Array<{ymd: string, hicri?: string, olaylar: Array<{key: string, ms: number, saat: string}>}>} o.gunler  bugünden itibaren
- * @param {{aan: boolean, once: number, giris: boolean, vakitler: string[], onceVakitler?: string[], sesler?: object, ses?: string}} o.bildirim
+ * @param {{aan: boolean, once: number, onceDk?: object, giris: boolean, vakitler: string[], onceVakitler?: string[], sesler?: object, ses?: string}} o.bildirim
+ *        onceDk: { Fajr: 15, Isha: 30, … } her vakit kaç dakika önce (19-11-2026); yoksa tek "once".
  *        vakitler: vakit girince bildirilenler; onceVakitler: önceden hatırlatılanlar (yoksa vakitler).
  *        sesler: { Fajr: 'ezan-6', Dhuhr: 'telefon', … } her namaz ayrı ('telefon' veya 'ezan-1' …; vakit girince, sadece beş vakit
  *        namazda; önceden hatırlatma ve İmsak/Güneş telefonun sesiyle). Eski kayıtlarda tek "ses".
@@ -50,9 +53,10 @@ export function yerelPlan({ gunler, bildirim, sessiz, sayac, dil, t, simdi }) {
         // aynı vaktin bildirimleri aynı etiketle birbirinin yerini alır ("15 dk kala"nın yerine "vakit girdi")
         const ortak = { tarih: g.ymd, vakit: e.key, saat: e.saat };
         const etiket = `${g.ymd}-${e.key}`;
-        if (bildirim.once && (bildirim.onceVakitler || bildirim.vakitler).includes(e.key)) {
-          const an = e.ms - bildirim.once * 60000;
-          if (an > simdi) bildirimler.push({ an, etiket, ...bildirimMetni(dil, { ...ortak, tur: `once-${bildirim.once}` }) });
+        const dk = onceDakikasi(bildirim, e.key);
+        if (dk && (bildirim.onceVakitler || bildirim.vakitler).includes(e.key)) {
+          const an = e.ms - dk * 60000;
+          if (an > simdi) bildirimler.push({ an, etiket, ...bildirimMetni(dil, { ...ortak, tur: `once-${dk}` }) });
         }
         if (bildirim.giris && bildirim.vakitler.includes(e.key) && e.ms > simdi) {
           const ses = namazSesi(bildirim, e.key);

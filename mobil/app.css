@@ -551,10 +551,26 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 .b-vakitler button[aria-pressed="true"] { background: var(--railActive); color: var(--cobalt); border-color: var(--cobalt); }
 .b-vakitler svg { width: 13px; height: 13px; }
 /* her namaz ayrı (kullanıcı isteği, 19-11-2026): ses (vakit girince) ve sessiz kalma süresi */
-.b-sesler { display: flex; flex-direction: column; gap: 8px; }
-.b-ses-namaz { display: flex; flex-direction: column; gap: 8px; }
-.b-ses-namaz[hidden] { display: none; }
-.b-ses-vakit { min-width: 60px; }
+/* Namaz vakti bildirimleri: ayri sayfa (#bildirimler), her vakit kendi satirinda (kullanici istegi, 19-11-2026) */
+.b-git { flex-direction: row; align-items: center; gap: 12px; padding: 14px 12px 14px 16px; min-height: 64px; color: var(--ink); text-decoration: none; }
+.b-git-metin { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.b-git-alt { font-size: 13.5px; color: var(--soft); }
+.b-git svg { flex: 0 0 auto; width: 20px; height: 20px; color: var(--soft); }
+.b-vliste { padding: 2px 0; }
+.b-vsatir { display: flex; flex-direction: column; gap: 10px; padding: 10px 12px 10px 16px; box-shadow: inset 0 -1px 0 var(--line); }
+.b-vsatir:last-child { box-shadow: none; }
+.b-vsatir-ust { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.b-vsatir-metin { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.b-vsatir-ad { font-weight: 700; font-size: 15.5px; }
+.b-vsatir-alt { font-size: 13px; color: var(--soft); }
+.b-vsatir-alt[hidden], .b-vsatir-is[hidden] { display: none; }
+.b-vsatir-is { flex: 0 0 auto; display: flex; align-items: center; }
+.b-sesdegis { min-height: 44px; padding: 0 6px; border: 0; background: none; color: var(--cobalt); font: inherit; font-size: 14px; font-weight: 700;
+  text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.b-dk { height: 40px; padding: 0 30px 0 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; appearance: none; -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--soft) 50%), linear-gradient(135deg, var(--soft) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%; background-size: 5px 5px; background-repeat: no-repeat; }
 .b-namazlar { display: flex; flex-direction: column; gap: 8px; }
 .b-namaz { display: flex; align-items: center; gap: 10px; }
 .b-namaz > button { flex: 0 0 auto; min-width: 128px; height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--soft);

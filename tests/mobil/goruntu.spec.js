@@ -42,6 +42,9 @@ const DURUMLAR = [
   { ad: '32-ayarlar-tema3-acik-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', hash: '#ayarlar', stil: 'cini', tema: 'gunduz', bildirim: true },
   { ad: '33-programlar-tema3-acik-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#programlar', stil: 'cini', tema: 'gunduz', icerik: true },
   { ad: '34-faaliyetler-tema3-acik-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', hash: '#faaliyetler', stil: 'cini', tema: 'gunduz', icerik: true },
+  // namaz vakti bildirimleri ayrı sayfada, her vakit kendi satırında (kullanıcı isteği, 19-11-2026)
+  { ad: '35-bildirimler-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#bildirimler', bildirim: true },
+  { ad: '36-bildirimler-tema3-gece-nl', zaman: `${GUN}T21:30:00.500+01:00`, dil: 'nl', hash: '#bildirimler', stil: 'cini', tema: 'gece', bildirim: true },
   // iPhone: Apple yükleme düğmesine izin vermez; Ayarlar'da adım adım "Ana Ekrana Ekle" (06-11-2026)
   { ad: '22-ayarlar-iphone-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#ayarlar', ios: true },
 ];

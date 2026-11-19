@@ -84,6 +84,13 @@ test.describe('anlar ve metinler', () => {
     expect(istiyorMu(ayri, an('Isha', 'once-15'))).toBe(false);
     expect(istiyorMu(ayri, an('Isha', 'giris'))).toBe(true);
     expect(istiyorMu(ayri, an('Maghrib', 'giris'))).toBe(false);
+    // her vakit ayrı dakika (19-11-2026): onceDk; olmayan vakitte tek "once"
+    const dk = { vakitler: ['Isha'], onceVakitler: ['Maghrib', 'Isha'], once: 15, onceDk: { Maghrib: 30, Isha: 5 }, giris: true };
+    expect(istiyorMu(dk, an('Maghrib', 'once-30'))).toBe(true);
+    expect(istiyorMu(dk, an('Maghrib', 'once-15'))).toBe(false);
+    expect(istiyorMu(dk, an('Isha', 'once-5'))).toBe(true);
+    expect(istiyorMu({ ...dk, onceDk: { Maghrib: 30 } }, an('Isha', 'once-15'))).toBe(true);
+    expect(istiyorMu({ ...dk, onceDk: { Isha: 7 } }, an('Isha', 'once-15'))).toBe(true);   // geçersiz değer: tek "once"
   });
 });
 
@@ -97,6 +104,16 @@ test.describe('abonelik doğrulama', () => {
     expect(d.abone.onceVakitler).toEqual(['Fajr', 'Isha']);    // eski uygulama göndermez: vakitler ile aynı
     expect(aboneDogrula(aboneGovdesi(abonelik, { vakitler: ['Isha'], onceVakitler: ['Asr'] })).abone.onceVakitler).toEqual(['Asr']);
     expect(VARSAYILAN).toEqual({ once: 15, giris: true, vakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] });
+  });
+
+  test('her vakit ayrı dakika (onceDk, 19-11-2026): saklanır; bozuksa reddedilir', () => {
+    const { abonelik } = testAboneligi();
+    const d = aboneDogrula({ ...aboneGovdesi(abonelik, {}), onceDk: { Isha: 5, Fajr: 30, Imsak: 15 } });
+    expect(d.gecerli).toBe(true);
+    expect(d.abone.onceDk).toEqual({ Imsak: 15, Fajr: 30, Isha: 5 });
+    for (const onceDk of [{ Isha: 7 }, { Gece: 15 }, [15], null, 'x']) {
+      expect(aboneDogrula({ ...aboneGovdesi(abonelik, {}), onceDk }).gecerli, JSON.stringify(onceDk)).toBe(false);
+    }
   });
 
   test('push servisi dışındaki adresler reddedilir (sunucu keyfi adrese istek atmaz)', () => {

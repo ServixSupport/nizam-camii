@@ -855,7 +855,7 @@ test.describe('Ayarlar: açıklamalar', () => {
   test('her açıklamanın "?" düğmesi var, hepsi kapalı başlar; görünür açıklama yazısı kalmaz (kaynak satırı hariç); düğmenin adı dile göre', async ({ page }) => {
     await ac(page);
     const notlar = await page.locator('.ipucu-not').evaluateAll((els) => els.map((e) => ({ id: e.id, kapali: e.hidden, dugme: !!document.querySelector(`.ipucu[aria-controls="${e.id}"]`) })));
-    expect(notlar.map((x) => x.id)).toEqual(['ip-tema', 'ip-ses', 'ip-sayac', 'ip-sessiz', 'ip-widget']);
+    expect(notlar.map((x) => x.id)).toEqual(['ip-tema', 'ip-sayac', 'ip-sessiz', 'ip-widget', 'ip-ses']);   // ses: bildirim sayfasında (19-11-2026)
     for (const x of notlar) expect(x, x.id).toMatchObject({ kapali: true, dugme: true });
     await expect(page.locator('#s-ayarlar .ayar-not:visible')).toHaveText(['Gebedstijden: Diyanet']);
     await page.getByRole('button', { name: 'Türkçe' }).click();

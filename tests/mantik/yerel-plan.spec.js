@@ -115,6 +115,14 @@ test('her namaz için ayrı sessiz kalma süresi (kullanıcı isteği, 19-11-202
   expect(SESSIZ_VARSAYILAN.dakikalar).toEqual({ Fajr: 30, Dhuhr: 30, Asr: 30, Maghrib: 30, Isha: 30 });
 });
 
+test('vakitten önce: her vakit ayrı dakika (onceDk, 19-11-2026); olmayan vakitte tek "once"', () => {
+  const p = plan({ bildirim: { aan: true, once: 15, onceDk: { Maghrib: 30, Isha: 5 }, giris: false, vakitler: [], onceVakitler: ['Maghrib', 'Isha', 'Fajr'] } });
+  const once = (etiket) => p.bildirimler.find((b) => b.etiket === etiket);
+  expect(once('2026-10-28-Maghrib')).toMatchObject({ an: an('2026-10-28T16:57:00+01:00'), baslik: 'Nog 30 minuten tot Maghrib' });
+  expect(once('2026-10-28-Isha').baslik).toBe('Nog 5 minuten tot Isha');
+  expect(once('2026-10-29-Fajr').baslik).toMatch(/^Nog 15 minuten tot /);
+});
+
 test('vakitten önce ve vakit girince ayrı vakitler (kullanıcı isteği, 08-11-2026)', () => {
   const p = plan({ bildirim: { aan: true, once: 15, giris: true, vakitler: ['Isha'], onceVakitler: ['Maghrib'] } });
   const bugun = p.bildirimler.filter((b) => b.etiket.startsWith('2026-10-28'));

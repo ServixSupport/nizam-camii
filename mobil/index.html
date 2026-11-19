@@ -200,51 +200,14 @@
       </div>
     </section>
 
-    <!-- Bildirimler ve ses: tek grup (kullanıcı isteği, 08-11-2026). Başlık burada; alttaki bölümler (panel, sessiz …) aynı grubun kartları. -->
+    <!-- Bildirimler ve ses: tek grup (kullanıcı isteği, 08-11-2026). Namaz vakti bildirimleri ayrı sayfada (#bildirimler,
+         kullanıcı isteği 19-11-2026: her vakit kendi satırında); burada o sayfaya giden satır. Alttaki bölümler (panel, sessiz …) aynı grubun kartları. -->
     <section class="ayar" id="bildirim-ayar" hidden>
       <h2 class="ayar-baslik" data-t="notif"></h2>
-      <div class="b-kart">
-        <div class="b-satir">
-          <span class="b-ana-ad" id="b-ana-ad" data-t="notifMaster"></span>
-          <button type="button" class="anahtar" role="switch" aria-checked="false" aria-labelledby="b-ana-ad" id="b-ana"><span aria-hidden="true"></span></button>
-        </div>
-        <p class="b-mesaj" id="b-mesaj" role="status" hidden></p>
-      </div>
-      <div class="b-secenekler" id="b-secenekler">
-        <!-- vakit girince -->
-        <div class="b-kart">
-          <div class="b-satir">
-            <span class="b-ana-ad" id="b-giris-ad" data-t="notifAtTime"></span>
-            <button type="button" class="anahtar" role="switch" aria-checked="true" aria-labelledby="b-giris-ad" id="b-giris"><span aria-hidden="true"></span></button>
-          </div>
-          <div id="b-giris-detay">
-            <div class="b-satir dikey">
-              <span class="b-ad" id="b-vakit-ad" data-t="notifWhich"></span>
-              <div class="b-vakitler" role="group" aria-labelledby="b-vakit-ad" id="b-vakitler"></div>
-            </div>
-            <!-- ses: sadece Android mağaza uygulaması; her namaz ayrı (bildirim.js, 19-11-2026), seçmeden önce dinlenir (▶) -->
-            <div class="b-satir dikey" id="b-ses-satir" hidden>
-              <span class="ad-ip"><span class="b-ad" id="b-ses-ad" data-t="notifSes"></span><button type="button" class="ipucu" aria-expanded="false" aria-controls="ip-ses" data-ip-ad="b-ses-ad"><span aria-hidden="true">?</span></button></span>
-              <span class="ayar-not ipucu-not" id="ip-ses" data-t="notifSesNot" hidden></span>
-              <div class="b-sesler" id="b-sesler" role="group" aria-labelledby="b-ses-ad"></div>
-            </div>
-          </div>
-        </div>
-        <!-- vakitten önce -->
-        <div class="b-kart">
-          <div class="b-satir dikey">
-            <span class="b-ana-ad" id="b-once-ad" data-t="notifBefore"></span>
-            <div class="b-once" role="group" aria-labelledby="b-once-ad" id="b-once"></div>
-          </div>
-          <div class="b-satir dikey" id="b-once-vakit-satir">
-            <span class="b-ad" id="b-once-vakit-ad" data-t="notifWhich"></span>
-            <div class="b-vakitler" role="group" aria-labelledby="b-once-vakit-ad" id="b-once-vakitler"></div>
-          </div>
-        </div>
-        <div id="b-deneme-satir" hidden>
-          <button type="button" class="dugme b-deneme" id="b-deneme" data-t="notifTest"></button>
-        </div>
-      </div>
+      <a class="b-kart b-git" href="#bildirimler" id="b-git">
+        <span class="b-git-metin"><span class="b-ana-ad" data-t="notifMaster"></span><span class="b-git-alt" id="b-git-alt"></span></span>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </a>
     </section>
 
     <!-- Mağaza uygulaması (yerel-ayar.js); tarayıcıda gizli kalır -->
@@ -332,6 +295,37 @@
         </span>
       </section>
     </section>
+  </section>
+
+  <!-- ===== NAMAZ VAKTİ BİLDİRİMLERİ (#bildirimler; kullanıcı isteği 19-11-2026, örnek: başka bir uygulamanın ayarları) =====
+       Her vakit kendi satırında: vakit girince (anahtar, ses) ve vakitten önce (anahtar, kaç dakika). bildirim.js çizer. -->
+  <section class="sekme sayfa bildirimler" id="s-bildirimler" data-sekme="bildirimler" hidden>
+    <a class="geri" href="#ayarlar">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      <span data-t="tabSettings"></span>
+    </a>
+    <div class="sayfa-bas"><h1 data-t="notifMaster"></h1></div>
+    <div class="b-kart">
+      <div class="b-satir">
+        <span class="b-ana-ad" id="b-ana-ad" data-t="notifMaster"></span>
+        <button type="button" class="anahtar" role="switch" aria-checked="false" aria-labelledby="b-ana-ad" id="b-ana"><span aria-hidden="true"></span></button>
+      </div>
+      <p class="b-mesaj" id="b-mesaj" role="status" hidden></p>
+    </div>
+    <div class="b-secenekler" id="b-secenekler">
+      <section class="ayar">
+        <h2 class="ayar-baslik" id="b-giris-ad"><span class="ad-ip"><span id="b-giris-baslik" data-t="notifGirisBaslik"></span><button type="button" class="ipucu" aria-expanded="false" aria-controls="ip-ses" data-ip-ad="b-giris-baslik"><span aria-hidden="true">?</span></button></span></h2>
+        <p class="ayar-not ipucu-not" id="ip-ses" data-t="notifSesNot" hidden></p>
+        <div class="b-kart b-vliste" id="b-giris-liste" role="group" aria-labelledby="b-giris-baslik"></div>
+      </section>
+      <section class="ayar">
+        <h2 class="ayar-baslik" id="b-once-baslik" data-t="notifOnceBaslik"></h2>
+        <div class="b-kart b-vliste" id="b-once-liste" role="group" aria-labelledby="b-once-baslik"></div>
+      </section>
+      <div id="b-deneme-satir" hidden>
+        <button type="button" class="dugme b-deneme" id="b-deneme" data-t="notifTest"></button>
+      </div>
+    </div>
   </section>
 </main>
 

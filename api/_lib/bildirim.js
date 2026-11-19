@@ -48,6 +48,13 @@ export function aboneDogrula(g) {
   // vakitten önce hatırlatılacak vakitler ayrı seçilir (yoksa: vakitler; eski uygulama sürümleri göndermez)
   const onceListe = g.onceVakitler === undefined ? g.vakitler : g.onceVakitler;
   if (!Array.isArray(onceListe) || onceListe.length > VAKITLER.length || !onceListe.every((v) => VAKITLER.includes(v))) return hata('önce vakitleri geçersiz');
+  // her vakit için ayrı dakika (19-11-2026; eski sürümler göndermez: tek "once")
+  let onceDk;
+  if (g.onceDk !== undefined) {
+    if (!g.onceDk || typeof g.onceDk !== 'object' || Array.isArray(g.onceDk)) return hata('önce dakikaları geçersiz');
+    if (!Object.entries(g.onceDk).every(([k, n]) => VAKITLER.includes(k) && ONCE.includes(n))) return hata('önce dakikaları geçersiz');
+    onceDk = Object.fromEntries(VAKITLER.filter((k) => k in g.onceDk).map((k) => [k, g.onceDk[k]]));
+  }
   return {
     gecerli: true,
     abone: {
@@ -56,6 +63,7 @@ export function aboneDogrula(g) {
       vakitler: VAKITLER.filter((v) => g.vakitler.includes(v)),
       onceVakitler: VAKITLER.filter((v) => onceListe.includes(v)),
       once: g.once,
+      ...(onceDk ? { onceDk } : {}),
       giris: g.giris,
     },
   };
@@ -102,7 +110,9 @@ export function istiyorMu(abone, an) {
   // eski kayıtlarda onceVakitler yok: tek liste geçerli
   const liste = an.tur === 'giris' || !Array.isArray(abone.onceVakitler) ? abone.vakitler : abone.onceVakitler;
   if (!Array.isArray(liste) || !liste.includes(an.vakit)) return false;
-  return an.tur === 'giris' ? abone.giris === true : abone.once === Number(an.tur.slice(5));
+  if (an.tur === 'giris') return abone.giris === true;
+  const dk = abone.onceDk && ONCE.includes(abone.onceDk[an.vakit]) ? abone.onceDk[an.vakit] : abone.once;
+  return dk === Number(an.tur.slice(5));
 }
 
 /** Telefona giden içerik (service worker gösterir). Aynı vaktin bildirimleri aynı etiketle birbirinin yerini alır. */

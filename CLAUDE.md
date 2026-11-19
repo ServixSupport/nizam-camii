@@ -63,6 +63,11 @@
 - Programlar sekmesi (kullanıcı isteği, 19-11-2026): Faaliyetler gibi alt alta liste, gün seçici ve tablette haftalık tablo yok.
   - Her program bir kez; sıradaki oturumuna göre sıralı (bugünkü bittiyse sonraki gün; `ekranlar.js` `sonrakiOturum`).
   - Kemerde o günün tarihi. Altında günler ("Her Pazartesi", "Pzt – Per", "Çar, Cmt"; `gunlerYazisi`), saat, yer, hoca, açıklama, grup. Detay sayfası yok.
+- **Namaz vakti bildirimleri ayrı sayfada** (`#bildirimler`, kullanıcı isteği 19-11-2026; örnek: başka bir uygulamanın ayarları). Ayarlar'da sadece o sayfaya giden satır ("Açık · 5 vakit").
+  - Sayfada: ana anahtar; "Vakit girince" (7 vakit, her biri anahtar + Android'de "Sesi değiştir" ve seçili ses); "Vakitten önce hatırlat" (7 vakit, anahtar + kaç dakika: 5/10/15/30, `onceDk`); deneme.
+  - `giris` artık hep `true` (vakitler boşsa vakit girince bildirim yok). Eski kayıtta `giris: false` → vakitler boş, `once: 0` → önce listesi boş.
+  - Sunucu (Web Push) de `onceDk`'yı saklar ve kullanır (`api/_lib/bildirim.js`); yoksa tek `once`.
+  - Önceden hatırlatma hep telefonun sesiyle (ezan sadece vakit girince).
 - Uygulamanın Ayarlar sayfası gruplu (kullanıcı isteği, 08-11-2026; Android ayar kılavuzu ve Muslim Pro'ya bakıldı): Dil → Tema ve görünüm → Bildirimler ve ses (ana anahtar; "Vakit girince" kartı: anahtar, ses, vakitler; "Vakitten önce" kartı: dakika, vakitler; deneme; panel; sessize alma) → Cami. Kapalı kartın ayrıntıları görünmez. Sunucuda da `onceVakitler` var (eski kayıtlarda `vakitler` geçerli).
   - Açıklama yazıları görünmez (kullanıcı isteği, 11-11-2026): ayarın adının arkasında yuvarlak "?" düğmesi (`.ipucu`, `aria-controls` → `.ipucu-not`); dokununca açıklama ayarın altında açılır, tekrar dokununca veya Esc ile kapanır. Durum yazıları (izin, "Son: …") görünür kalır.
 - Uygulama ve /admin'in yazı tipleri TV'dekiyle aynı (07-11-2026): Inter (yazı), Oswald (saatler, başlıklar), Amiri (Arapça). `mobil/fonts/`, OFL; Oswald dosyaları TV'nin `index.html`'inde gömülü olanlar.

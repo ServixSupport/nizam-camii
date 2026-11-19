@@ -9,14 +9,18 @@ import { VAKITLER } from './zaman.js';
 import { DENEME, NAMAZ, SESLER } from './bildirim-metin.js';
 
 const DEPO = 'nzm.bildirim';
-const ONCE = [0, 5, 10, 15, 30];
+/** Vakitten önce kaç dakika (sunucuyla aynı seçenekler); her vakit ayrı (kullanıcı isteği, 19-11-2026). */
+const ONCE_DK = [5, 10, 15, 30];
 // Vakit girince ses (SESLER, kullanıcı isteği 08-11-2026): sadece Android mağaza uygulaması. Ezan sadece beş vakit namazda çalar.
 // Her namaz için ayrı ses (kullanıcı isteği, 19-11-2026): sesler { Fajr: 'ezan-6', … }; eski kayıtlarda tek "ses" (hepsine geçer).
 // Tarayıcı bildirimlerinde (Web Push) ses seçilemez; iPhone'da henüz yok.
 const hepsi = (ses) => Object.fromEntries(NAMAZ.map((k) => [k, ses]));
+// Ayarlar ayrı sayfada (#bildirimler; kullanıcı isteği 19-11-2026): her vakit kendi satırında, vakit girince (anahtar, ses)
+// ve vakitten önce (anahtar, kaç dakika). "giris" artık hep açık (vakitler boşsa vakit girince bildirim yok); "once" son seçilen dakika.
 const VARSAYILAN = {
   aan: false, once: 15, giris: true, vakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'],   // tasarımdaki başlangıç
   onceVakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'],                                  // vakitten önce ayrı seçilir
+  onceDk: Object.fromEntries(VAKITLER.map((k) => [k, 15])),                                    // her vakit ayrı dakika
   sesler: hepsi('telefon'),
   sonSes: '',                                                                                  // deneme bildirimi en son seçilen sesle
   endpoint: '', esitleme: 0, sunucu: null,
@@ -25,7 +29,6 @@ const GUN = 24 * 60 * 60 * 1000;
 
 const ZIL = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>';
 const ZIL_KAPALI = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/><path d="M3 3l18 18"/></svg>';
-const TIK = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const DINLE = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6a.6.6 0 0 0 .9.5l11-6.8a.6.6 0 0 0 0-1l-11-6.8a.6.6 0 0 0-.9.5z"/></svg>';
 const DURDUR = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><rect x="6.5" y="6.5" width="11" height="11" rx="1.6"/></svg>';
 
@@ -34,11 +37,17 @@ function oku() {
     const v = JSON.parse(localStorage.getItem(DEPO) || 'null');
     if (!v || typeof v !== 'object') return { ...VARSAYILAN };
     const a = { ...VARSAYILAN, ...v };
-    if (!ONCE.includes(a.once)) a.once = VARSAYILAN.once;
+    const eskiOnce = [0, ...ONCE_DK].includes(v.once) ? v.once : VARSAYILAN.once;
     a.vakitler = VAKITLER.filter((k) => Array.isArray(a.vakitler) && a.vakitler.includes(k));
     // eski kayıtlarda tek liste vardı: ikisi aynı başlar
     a.onceVakitler = Array.isArray(v.onceVakitler) ? VAKITLER.filter((k) => v.onceVakitler.includes(k)) : [...a.vakitler];
-    a.giris = a.giris !== false;
+    // eski kayıtlar: "vakit girince" ve "önce" tek anahtarla kapatılırdı (19-11-2026'dan beri her vakit ayrı)
+    if (v.giris === false) a.vakitler = [];
+    if (eskiOnce === 0) a.onceVakitler = [];
+    a.giris = true;
+    a.once = eskiOnce || VARSAYILAN.once;
+    const dk = v.onceDk && typeof v.onceDk === 'object' ? v.onceDk : {};
+    a.onceDk = Object.fromEntries(VAKITLER.map((k) => [k, ONCE_DK.includes(dk[k]) ? dk[k] : a.once]));
     const eski = SESLER.includes(v.ses) ? v.ses : 'telefon';
     const kayitli = v.sesler && typeof v.sesler === 'object' ? v.sesler : {};
     a.sesler = Object.fromEntries(NAMAZ.map((k) => [k, SESLER.includes(kayitli[k]) ? kayitli[k] : eski]));
@@ -113,7 +122,7 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
   async function kaydet(sub) {
     const r = await fetch('/api/bildirim/abone', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ abonelik: sub.toJSON(), dil: dil(), vakitler: ayar.vakitler, onceVakitler: ayar.onceVakitler, once: ayar.once, giris: ayar.giris }),
+      body: JSON.stringify({ abonelik: sub.toJSON(), dil: dil(), vakitler: ayar.vakitler, onceVakitler: ayar.onceVakitler, once: ayar.once, onceDk: ayar.onceDk, giris: true }),
     });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     yaz({ endpoint: sub.endpoint, esitleme: Date.now() });
@@ -244,7 +253,7 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
   }
 
   /** Bu vakit için herhangi bir bildirim (vakit girince veya önceden) var mı? */
-  const seciliMi = (k) => (ayar.giris && ayar.vakitler.includes(k)) || (ayar.once > 0 && ayar.onceVakitler.includes(k));
+  const seciliMi = (k) => ayar.vakitler.includes(k) || ayar.onceVakitler.includes(k);
 
   /** Ana ekrandaki zil: o vaktin bildirimlerini (vakit girince ve önceden) aç/kapat. Bildirimler kapalıysa açar (izin penceresi). */
   function zil(key) {
@@ -254,14 +263,14 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     if (ayar.aan) {
       const vardi = seciliMi(key);
       if (vardi) ayarla({ vakitler: ayar.vakitler.filter((k) => k !== key), onceVakitler: ayar.onceVakitler.filter((k) => k !== key) });
-      else ayarla({ vakitler: ekle(ayar.vakitler), onceVakitler: ekle(ayar.onceVakitler), giris: ayar.giris || !ayar.once });
+      else ayarla({ vakitler: ekle(ayar.vakitler), onceVakitler: ekle(ayar.onceVakitler) });
       bildir((vardi ? t.zilKapali : t.zilAcik)(t.names[key]));
       return;
     }
     yaz({ vakitler: ekle(ayar.vakitler), onceVakitler: ekle(ayar.onceVakitler) });
     if (destek() !== 'tamam') {
       mesaj = destek() === 'ios' ? 'notifIos' : 'notifUnsupported';
-      location.hash = '#ayarlar';
+      location.hash = '#bildirimler';
       ciz();
       return;
     }
@@ -331,69 +340,102 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     if (kuruldu) return;
     kuruldu = true;
     $('#b-ana').addEventListener('click', () => (ayar.aan ? kapat() : ac()));
-    $('#b-giris').addEventListener('click', () => { if (sesSecimi) sesListesi(null); ayarla({ giris: !ayar.giris }); });
     $('#b-deneme').addEventListener('click', deneme);
-    $('#b-once').replaceChildren(...ONCE.map((n) => {
-      const b = document.createElement('button');
-      b.type = 'button'; b.dataset.once = String(n);
-      b.addEventListener('click', () => ayarla({ once: n }));
-      return b;
-    }));
-    if (sesSecimi) {
-      // her namaz kendi satırında: ad, seçili ses (açılır liste), listede ▶ ile dinleme (kullanıcı isteği, 19-11-2026)
-      $('#b-sesler').replaceChildren(...NAMAZ.map((k) => {
-        const satir = document.createElement('div');
-        satir.className = 'b-ses-namaz'; satir.dataset.key = k;
-        satir.innerHTML = `<div class="b-yan"><span class="b-ad b-ses-vakit" id="b-ses-ad-${k}"></span>`
-          + `<span class="b-sec"><button type="button" id="b-ses-${k}" aria-labelledby="b-ses-ad-${k} b-ses-${k}" aria-expanded="false" aria-controls="b-ses-liste-${k}"></button></span></div>`
-          + `<div class="b-ses-liste" id="b-ses-liste-${k}" role="group" aria-labelledby="b-ses-ad-${k}" hidden></div>`;
-        const dugme = satir.querySelector('button');
-        dugme.addEventListener('click', () => sesListesi(sesAcik === k ? null : k));
-        satir.lastElementChild.replaceChildren(...SESLER.map((s) => {
-          const oge = document.createElement('div');
-          oge.className = 'b-ses-oge'; oge.dataset.ses = s;
-          oge.innerHTML = '<button type="button" class="b-ses-sec"><span class="b-radyo" aria-hidden="true"></span><span></span></button>'
-            + '<button type="button" class="b-ses-dinle"></button>';
-          oge.firstElementChild.addEventListener('click', () => {
-            ayarla({ sesler: { ...ayar.sesler, [k]: s }, sonSes: s });
-            sesListesi(null);
-            dugme.focus();
-          });
-          oge.lastElementChild.addEventListener('click', () => dinle(s));
-          return oge;
-        }));
-        return satir;
+    // her vakit kendi satırında: vakit girince (anahtar, ses) ve vakitten önce (anahtar, dakika)
+    $('#b-giris-liste').replaceChildren(...VAKITLER.map((k) => satirKur('giris', k)));
+    $('#b-once-liste').replaceChildren(...VAKITLER.map((k) => satirKur('once', k)));
+    if (sesSecimi) window.addEventListener('hashchange', () => sesListesi(null));
+  }
+
+  function satirKur(tur, k) {
+    const satir = document.createElement('div');
+    satir.className = 'b-vsatir'; satir.dataset.key = k; satir.dataset.tur = tur;
+    satir.innerHTML = `<div class="b-vsatir-ust"><span class="b-vsatir-metin"><span class="b-vsatir-ad" id="b-${tur}-ad-${k}"></span>`
+      + '<span class="b-vsatir-alt"></span></span><span class="b-vsatir-is"></span>'
+      + '<button type="button" class="anahtar" role="switch" aria-checked="false"><span aria-hidden="true"></span></button></div>';
+    const alan = tur === 'giris' ? 'vakitler' : 'onceVakitler';
+    satir.querySelector('.anahtar').addEventListener('click', () => {
+      if (sesSecimi && tur === 'giris' && sesAcik === k) sesListesi(null);
+      ayarla({ [alan]: cevir(ayar[alan], k) });
+    });
+    const is = satir.querySelector('.b-vsatir-is');
+    if (tur === 'once') {
+      const sec = document.createElement('select');
+      sec.className = 'b-dk';
+      sec.append(...ONCE_DK.map((n) => Object.assign(document.createElement('option'), { value: String(n) })));
+      sec.addEventListener('change', () => ayarla({ onceDk: { ...ayar.onceDk, [k]: +sec.value }, once: +sec.value }));
+      is.append(sec);
+    } else if (sesSecimi && NAMAZ.includes(k)) {
+      // ses: "Sesi değiştir" listeyi satırın altında açar; satır seçer, ▶ seçmeden dinletir
+      const dugme = document.createElement('button');
+      dugme.type = 'button'; dugme.className = 'b-sesdegis'; dugme.id = `b-ses-${k}`;
+      dugme.setAttribute('aria-expanded', 'false'); dugme.setAttribute('aria-controls', `b-ses-liste-${k}`);
+      dugme.addEventListener('click', () => sesListesi(sesAcik === k ? null : k));
+      is.append(dugme);
+      const liste = document.createElement('div');
+      liste.className = 'b-ses-liste'; liste.id = `b-ses-liste-${k}`; liste.hidden = true;
+      liste.setAttribute('role', 'group'); liste.setAttribute('aria-labelledby', `b-giris-ad-${k}`);
+      liste.replaceChildren(...SESLER.map((sx) => {
+        const oge = document.createElement('div');
+        oge.className = 'b-ses-oge'; oge.dataset.ses = sx;
+        oge.innerHTML = '<button type="button" class="b-ses-sec"><span class="b-radyo" aria-hidden="true"></span><span></span></button>'
+          + '<button type="button" class="b-ses-dinle"></button>';
+        oge.firstElementChild.addEventListener('click', () => {
+          ayarla({ sesler: { ...ayar.sesler, [k]: sx }, sonSes: sx });
+          sesListesi(null);
+          dugme.focus();
+        });
+        oge.lastElementChild.addEventListener('click', () => dinle(sx));
+        return oge;
       }));
-      window.addEventListener('hashchange', () => sesListesi(null));
+      satir.append(liste);
     }
-    const vakitDugmeleri = (kap, alan) => kap.replaceChildren(...VAKITLER.map((k) => {
-      const b = document.createElement('button');
-      b.type = 'button'; b.dataset.key = k;
-      b.addEventListener('click', () => {
-        if (sesSecimi && alan === 'vakitler' && sesAcik === k) sesListesi(null);   // kaldırılan namazın listesi kapanır
-        ayarla({ [alan]: cevir(ayar[alan], k) });
-      });
-      return b;
-    }));
-    vakitDugmeleri($('#b-vakitler'), 'vakitler');
-    vakitDugmeleri($('#b-once-vakitler'), 'onceVakitler');
+    return satir;
   }
 
   const sesAdi = (s) => (s === 'telefon' ? L().notifSesTelefon : `Ezan ${s.slice(5)}`);
-  function sesCiz() {
+
+  function satirCiz(satir) {
     const t = L();
-    // sadece vakit girince bildirilen namazların satırı görünür
-    $('#b-ses-satir').hidden = !NAMAZ.some((k) => ayar.vakitler.includes(k));
-    for (const satir of $('#b-sesler').children) {
-      const k = satir.dataset.key, acik = sesAcik === k;
-      satir.hidden = !ayar.vakitler.includes(k);
-      satir.querySelector('.b-ses-vakit').textContent = t.names[k];
-      const b = satir.querySelector('.b-sec button');
-      b.textContent = sesAdi(ayar.sesler[k]);
-      b.setAttribute('aria-expanded', String(acik));
-      b.parentElement.classList.toggle('acik', acik);
-      const liste = satir.lastElementChild;
+    const k = satir.dataset.key, tur = satir.dataset.tur;
+    const on = (tur === 'giris' ? ayar.vakitler : ayar.onceVakitler).includes(k);
+    satir.querySelector('.b-vsatir-ad').textContent = t.names[k];
+    const anahtar = satir.querySelector('.anahtar');
+    anahtar.setAttribute('aria-checked', String(on));
+    anahtar.setAttribute('aria-label', `${tur === 'giris' ? t.notifAtTime : t.notifBefore}: ${t.names[k]}`);
+    satir.classList.toggle('kapali', !on);
+    const alt = satir.querySelector('.b-vsatir-alt');
+    const is = satir.querySelector('.b-vsatir-is');
+    if (tur === 'once') {
+      const sec = is.querySelector('select');
+      for (const o of sec.options) o.textContent = t.onceDk(+o.value);
+      sec.value = String(ayar.onceDk[k]);
+      sec.setAttribute('aria-label', `${t.names[k]}: ${t.notifBefore}`);
+      is.hidden = !on;
+      alt.hidden = true;
+      return;
+    }
+    const namaz = NAMAZ.includes(k);
+    alt.textContent = sesSecimi ? (namaz ? sesAdi(ayar.sesler[k]) : t.notifSesTelefon) : '';
+    alt.hidden = !sesSecimi || !on;
+    const dugme = is.querySelector('button');
+    is.hidden = !on || !dugme;
+    if (dugme) {
+      dugme.textContent = t.sesDegistir;
+      dugme.setAttribute('aria-label', `${t.names[k]}: ${t.sesDegistir}`);
+      dugme.setAttribute('aria-expanded', String(sesAcik === k));
+    }
+  }
+
+  /** Açık ses listesi (bir namazın): seçili ses ve ▶ / ■ */
+  function sesCiz() {
+    if (!sesSecimi || !kuruldu) return;
+    const t = L();
+    for (const liste of document.querySelectorAll('#b-giris-liste .b-ses-liste')) {
+      const k = liste.closest('.b-vsatir').dataset.key, acik = sesAcik === k;
       liste.hidden = !acik;
+      const dugme = $(`#b-ses-${k}`);
+      if (dugme) dugme.setAttribute('aria-expanded', String(acik));
       if (!acik) continue;
       for (const oge of liste.children) {
         const s = oge.dataset.ses, ad = sesAdi(s), caliyor = s === calan;
@@ -411,32 +453,23 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     zilleriCiz();
     if (!bolum) return;
     bolum.hidden = !sunucu.aktif;
+    // ayrı sayfa (#bildirimler): sunucu yoksa içerik yok
+    for (const e of document.querySelectorAll('#s-bildirimler > .b-kart, #s-bildirimler > .b-secenekler')) e.hidden = !sunucu.aktif;
     if (!sunucu.aktif) return;
     kur();
     const t = L();
+    const sayi = VAKITLER.filter(seciliMi).length;
+    $('#b-git-alt').textContent = ayar.aan ? `${t.notifAcik} · ${t.vakitSay(sayi)}` : t.notifOff;
     const ana = $('#b-ana');
     ana.setAttribute('aria-checked', String(ayar.aan));
     ana.setAttribute('aria-busy', String(mesgul));
-    $('#b-giris').setAttribute('aria-checked', String(ayar.giris));
     $('#b-secenekler').classList.toggle('soluk', !ayar.aan);
-    for (const b of $('#b-once').children) {
-      const n = +b.dataset.once;
-      b.textContent = n ? `${n} ${t.notifMin}` : t.notifOff;
-      b.setAttribute('aria-pressed', String(n === ayar.once));
-    }
-    // kapalı bölümün ayrıntıları görünmez: sayfa kısa kalır
-    $('#b-giris-detay').hidden = !ayar.giris;
-    $('#b-once-vakit-satir').hidden = !ayar.once;
-    if (sesSecimi) sesCiz();
-    else $('#b-ses-satir').hidden = true;
-    for (const [kap, liste] of [[$('#b-vakitler'), ayar.vakitler], [$('#b-once-vakitler'), ayar.onceVakitler]]) {
-      for (const b of kap.children) {
-        const on = liste.includes(b.dataset.key);
-        b.innerHTML = on ? TIK : '';
-        b.append(t.names[b.dataset.key]);
-        b.setAttribute('aria-pressed', String(on));
-      }
-    }
+    for (const satir of $('#b-giris-liste').children) satirCiz(satir);
+    for (const satir of $('#b-once-liste').children) satirCiz(satir);
+    sesCiz();
+    // ses açıklaması sadece ses seçilebilen yerde (Android mağaza uygulaması)
+    const ip = document.querySelector('#b-giris-ad .ipucu');
+    if (ip) ip.hidden = !sesSecimi;
     const m = $('#b-mesaj');
     const yazi = mesgul ? t.notifBusy : mesaj ? t[mesaj] : '';
     m.hidden = !yazi;
@@ -465,6 +498,6 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     /** dil değişti: açıksa bildirimler yeni dilde gelsin */
     dilDegisti() { ciz(); if (ayar.aan) { if (yerel) planDegisti(); else esitleSonra(); } },
     /** plana giden ayarlar (mağaza uygulaması) */
-    ayar: () => ({ aan: ayar.aan, once: ayar.once, giris: ayar.giris, vakitler: [...ayar.vakitler], onceVakitler: [...ayar.onceVakitler], sesler: sesler() }),
+    ayar: () => ({ aan: ayar.aan, once: ayar.once, onceDk: { ...ayar.onceDk }, giris: true, vakitler: [...ayar.vakitler], onceVakitler: [...ayar.onceVakitler], sesler: sesler() }),
   };
 }

@@ -1,4 +1,4 @@
-// Faz D — bildirimler (uygulama): Ayarlar'daki bölüm ve ana ekrandaki ziller.
+// Faz D — bildirimler (uygulama): ayrı sayfa (#bildirimler; 19-11-2026'dan beri her vakit kendi satırında) ve ana ekrandaki ziller.
 // /api/bildirim/* gerçek fonksiyonlar (sahte Upstash/QStash); tarayıcının push servisi taklit.
 import { test, expect, devices } from '@playwright/test';
 import { mobilAc } from '../yardimci/mobil.js';
@@ -8,7 +8,11 @@ import { mockla } from '../yardimci/tv.js';
 const ZAMAN = '2026-10-28T10:00:00.500+01:00';
 const ana = (page) => page.getByRole('switch', { name: 'Meldingen voor gebedstijden' });
 const zil = (page, ad) => page.locator(`.vakitler li[data-key="${ad}"] .v-zil`);
-const basili = async (loc) => (await loc.locator('[aria-pressed="true"]').allTextContents()).map((s) => s.trim());
+// her vakit kendi satırında: anahtar ve (vakitten önce) dakika seçimi
+const giris = (page, ad) => page.locator('#b-giris-liste').getByRole('switch', { name: `Melding bij begin gebedstijd: ${ad}` });
+const once = (page, ad) => page.locator('#b-once-liste').getByRole('switch', { name: `Herinner me vooraf: ${ad}` });
+const onceDk = (page, ad) => page.locator('#b-once-liste').getByRole('combobox', { name: `${ad}: Herinner me vooraf` });
+const acik = (page, liste) => page.locator(`${liste} .b-vsatir:not(.kapali) .b-vsatir-ad`).allTextContents();
 
 test('sunucu kurulmamışsa bildirim bölümü ve ziller hiç görünmez', async ({ page }) => {
   await bildirimKur(page, { zaman: ZAMAN, aktif: false });
@@ -17,50 +21,71 @@ test('sunucu kurulmamışsa bildirim bölümü ve ziller hiç görünmez', async
   await page.goto('/mobil/#ayarlar');
   await expect(page.locator('#s-ayarlar h1')).toBeVisible();
   await expect(page.locator('#bildirim-ayar')).toBeHidden();
+  await page.goto('/mobil/#bildirimler');
+  await expect(page.locator('#b-ana')).toBeHidden();
 });
 
-test('tasarımdaki başlangıç ayarı; sayfa açılınca izin İSTENMEZ', async ({ page }) => {
+test('tasarımdaki başlangıç ayarı, ayrı sayfada her vakit kendi satırında; sayfa açılınca izin İSTENMEZ', async ({ page }) => {
   const b = await bildirimKur(page, { zaman: ZAMAN });
   await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar' });
   await expect(page.locator('#bildirim-ayar')).toBeVisible();
   await expect(page.locator('#bildirim-ayar h2')).toHaveText('MELDINGEN EN GELUID');
+  // Ayarlar'da sadece ayrı sayfaya giden satır (kullanıcı isteği, 19-11-2026)
+  await expect(page.locator('#b-git')).toContainText('Meldingen voor gebedstijden');
+  await expect(page.locator('#b-git-alt')).toHaveText('Uit');
+  await page.locator('#b-git').click();
+  await expect(page).toHaveURL(/#bildirimler$/);
+  await expect(page.locator('#s-bildirimler h1')).toHaveText('Meldingen voor gebedstijden');
+  await expect(page.locator('.menu-oge[data-sekme="ayarlar"]')).toHaveAttribute('aria-current', 'page');
   await expect(ana(page)).toHaveAttribute('aria-checked', 'false');
-  expect(await basili(page.locator('#b-once'))).toEqual(['15 min']);
-  await expect(page.locator('#b-once button')).toHaveText(['Uit', '5 min', '10 min', '15 min', '30 min']);
-  await expect(page.getByRole('switch', { name: 'Melding bij begin gebedstijd' })).toHaveAttribute('aria-checked', 'true');
-  expect(await basili(page.locator('#b-vakitler'))).toEqual(['Fadjr', 'Dhoehr', 'Asr', 'Maghrib', 'Isha']);
-  expect(await basili(page.locator('#b-once-vakitler'))).toEqual(['Fadjr', 'Dhoehr', 'Asr', 'Maghrib', 'Isha']);   // vakitten önce ayrı seçilir
-  await expect(page.locator('#b-ses-satir')).toBeHidden();                  // tarayıcıda ses seçilemez
+  await expect(page.locator('#b-giris-liste .b-vsatir')).toHaveCount(7);
+  await expect(page.locator('#b-once-liste .b-vsatir')).toHaveCount(7);
+  expect(await acik(page, '#b-giris-liste')).toEqual(['Fadjr', 'Dhoehr', 'Asr', 'Maghrib', 'Isha']);
+  expect(await acik(page, '#b-once-liste')).toEqual(['Fadjr', 'Dhoehr', 'Asr', 'Maghrib', 'Isha']);   // vakitten önce ayrı seçilir
+  await expect(giris(page, 'Imsak')).toHaveAttribute('aria-checked', 'false');
+  await expect(onceDk(page, 'Isha')).toHaveValue('15');
+  await expect(onceDk(page, 'Isha').locator('option')).toHaveText(['5 min van tevoren', '10 min van tevoren', '15 min van tevoren', '30 min van tevoren']);
+  await expect(onceDk(page, 'Imsak')).toBeHidden();                         // kapalı vaktin dakikası görünmez
+  await expect(page.locator('#b-giris-liste .b-sesdegis')).toHaveCount(0); // tarayıcıda ses seçilemez
+  await expect(page.locator('#b-giris-ad .ipucu')).toBeHidden();
   await expect(page.locator('#b-secenekler')).toHaveClass(/soluk/);
-  await expect(page.locator('#bildirim-ayar')).not.toContainText('IP-adres');      // gizlilik notu kaldırıldı (kullanıcı isteği, 06-11-2026)
+  await expect(page.locator('#s-bildirimler')).not.toContainText('IP-adres');      // gizlilik notu kaldırıldı (kullanıcı isteği, 06-11-2026)
   expect(await page.evaluate(() => window.__test.izinSorulan)).toBe(0);
   expect(b.istekler.filter((i) => i.yol === '/api/bildirim/abone')).toHaveLength(0);
 });
 
 test('aç → izin bir kez, abonelik sunucuda; ayarlar ve dil değişince sunucu güncellenir; kapat → silinir', async ({ page }) => {
   const b = await bildirimKur(page, { zaman: ZAMAN });
-  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar' });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#bildirimler' });
   await ana(page).click();
   await expect(ana(page)).toHaveAttribute('aria-checked', 'true');
   await expect(page.locator('.bildirim')).toHaveText('Meldingen staan aan');
   expect(await page.evaluate(() => window.__test)).toMatchObject({ izinSorulan: 1, aboneOlunan: 1 });
   expect(b.kayitlar()).toEqual([expect.objectContaining({ abonelik: b.abonelik, dil: 'nl', vakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'], once: 15, giris: true })]);
+  expect(b.kayitlar()[0].onceDk).toEqual({ Imsak: 15, Fajr: 15, Sunrise: 15, Dhuhr: 15, Asr: 15, Maghrib: 15, Isha: 15 });
   await expect(page.locator('#b-secenekler')).not.toHaveClass(/soluk/);
   expect(b.ortam._.kuyrukta.length).toBeGreaterThan(35);                   // bugün + yarın zamanlandı
 
-  // seçimler: hemen değil, kısa bir beklemeden sonra tek istekle
-  await page.locator('#b-once').getByRole('button', { name: '5 min', exact: true }).click();
-  await page.locator('#b-vakitler').getByRole('button', { name: 'Imsak' }).click();
-  await page.locator('#b-once-vakitler').getByRole('button', { name: 'Isha' }).click();
-  await page.getByRole('switch', { name: 'Melding bij begin gebedstijd' }).click();
-  await expect(page.locator('#b-vakitler')).toBeHidden();                   // kapalı bölümün ayrıntıları görünmez
+  // her vakit ayrı (19-11-2026); hemen değil, kısa bir beklemeden sonra tek istekle
+  await onceDk(page, 'Isha').selectOption('5');
+  await giris(page, 'Imsak').click();
+  await once(page, 'Fadjr').click();
+  await giris(page, 'Asr').click();
+  await expect(onceDk(page, 'Fadjr')).toBeHidden();
   await page.clock.runFor(600);
-  await expect.poll(() => b.kayitlar()[0]).toMatchObject({ once: 5, giris: false, vakitler: ['Imsak', 'Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'], onceVakitler: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib'] });
+  await expect.poll(() => b.kayitlar()[0]).toMatchObject({ giris: true, vakitler: ['Imsak', 'Fajr', 'Dhuhr', 'Maghrib', 'Isha'], onceVakitler: ['Dhuhr', 'Asr', 'Maghrib', 'Isha'] });
+  expect(b.kayitlar()[0].onceDk).toMatchObject({ Isha: 5, Maghrib: 15 });
   expect(b.istekler.filter((i) => i.yol === '/api/bildirim/abone')).toHaveLength(2);
 
+  // Ayarlar'daki satırda özet; dil Ayarlar'da
+  await page.locator('#s-bildirimler .geri').click();
+  await expect(page).toHaveURL(/#ayarlar$/);
+  await expect(page.locator('#b-git-alt')).toHaveText('Aan · 6 gebedstijden');
   await page.getByRole('button', { name: 'Türkçe' }).click();
   await page.clock.runFor(600);
   await expect.poll(() => b.kayitlar()[0].dil).toBe('tr');
+  await expect(page.locator('#b-git-alt')).toHaveText('Açık · 6 vakit');
+  await page.locator('#b-git').click();
   await expect(page.getByRole('switch', { name: 'Namaz vakti bildirimleri' })).toHaveAttribute('aria-checked', 'true');
 
   await page.getByRole('switch', { name: 'Namaz vakti bildirimleri' }).click();
@@ -95,7 +120,7 @@ test('ana ekrandaki ziller: açıkken vakit açılıp kapanır; kapalıyken doku
 
 test('izin verilmezse açıklama çıkar, kapalı kalır', async ({ page }) => {
   const b = await bildirimKur(page, { zaman: ZAMAN, izinCevabi: 'denied' });
-  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar' });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#bildirimler' });
   await ana(page).click();
   await expect(page.locator('#b-mesaj')).toHaveText('Meldingen zijn niet toegestaan. Je kunt ze aanzetten in de instellingen van je telefoon.');
   await expect(ana(page)).toHaveAttribute('aria-checked', 'false');
@@ -104,7 +129,7 @@ test('izin verilmezse açıklama çıkar, kapalı kalır', async ({ page }) => {
 
 test('izin sonradan telefonun ayarlarından kaldırıldıysa: açılışta kapalı görünür', async ({ page }) => {
   await bildirimKur(page, { zaman: ZAMAN });
-  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar' });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#bildirimler' });
   await ana(page).click();
   await expect(ana(page)).toHaveAttribute('aria-checked', 'true');
   await page.evaluate(() => sessionStorage.setItem('__izin', 'denied'));
@@ -119,8 +144,8 @@ test('iPhone, Safari\'de (ana ekranda değil): açıklama gösterilir, izin soru
   await mockla(page);
   await page.goto('/mobil/');
   await expect(page.locator('.v-zil:visible')).toHaveCount(7);
-  await page.locator('.vakitler li[data-key="Maghrib"] .v-zil').click();    // zil → Ayarlar'daki açıklamaya gider
-  await expect(page).toHaveURL(/#ayarlar$/);
+  await page.locator('.vakitler li[data-key="Maghrib"] .v-zil').click();    // zil → bildirim sayfasındaki açıklamaya gider
+  await expect(page).toHaveURL(/#bildirimler$/);
   await expect(page.locator('#b-mesaj')).toContainText('Op de iPhone werken meldingen alleen als de app op het beginscherm staat');
   await expect(page.getByRole('switch', { name: 'Meldingen voor gebedstijden' })).toHaveAttribute('aria-checked', 'false');
   await context.close();
@@ -154,7 +179,7 @@ test('ziller varken vakit satırlarında yazılar üst üste binmez, kısalmaz (
 
 test('deneme bildirimi düğmesi: sadece bildirimler açıkken; 1 dk sonra QStash ile; çok sık basılamaz', async ({ page }) => {
   const b = await bildirimKur(page, { zaman: ZAMAN });
-  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar' });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#bildirimler' });
   const dugme = page.getByRole('button', { name: 'Testmelding sturen' });
   await expect(dugme).toBeHidden();
   await ana(page).click();
@@ -168,4 +193,13 @@ test('deneme bildirimi düğmesi: sadece bildirimler açıkken; 1 dk sonra QStas
   await dugme.click();
   await expect(page.locator('.bildirim')).toHaveText('Net verstuurd; probeer het over een paar minuten opnieuw');
   expect(b.ortam._.kuyrukta).toHaveLength(1);
+});
+
+test('eski kayıtlar: "vakit girince" veya "önce" kapalıysa o bölümde hiçbir vakit açık değil (19-11-2026)', async ({ page }) => {
+  await bildirimKur(page, { zaman: ZAMAN });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#bildirimler', depo: { 'nzm.bildirim': JSON.stringify({ aan: false, once: 0, giris: false, vakitler: ['Maghrib'], onceVakitler: ['Isha'] }) } });
+  expect(await acik(page, '#b-giris-liste')).toEqual([]);
+  expect(await acik(page, '#b-once-liste')).toEqual([]);
+  await once(page, 'Isha').click();
+  await expect(onceDk(page, 'Isha')).toHaveValue('15');                    // eski "kapalı" (0) yerine 15 dk
 });

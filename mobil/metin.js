@@ -194,6 +194,8 @@ const BILDIRIM = {
     notifSes: 'Ses', notifSesTelefon: 'Telefonun varsayılan sesi',
     notifSesDinle: (ad) => `${ad} dinle`, notifSesDurdur: (ad) => `${ad} durdur`,
     temaOnizleme: 'Tema önizlemesi', temaSecDugme: 'Bu temayı seç', temaSecili: 'Seçili', temaOnceki: 'Önceki tema', temaSonraki: 'Sonraki tema', kapat: 'Kapat', uitleg: 'Açıklama',
+    notifGirisBaslik: 'VAKİT GİRİNCE', notifOnceBaslik: 'VAKİTTEN ÖNCE HATIRLAT', sesDegistir: 'Sesi değiştir',
+    onceDk: (n) => `${n} dk önce`, notifAcik: 'Açık', vakitSay: (n) => `${n} vakit`,
     notifSesNot: 'Her namaz için ayrı ses seçebilirsiniz; ▶ ile seçmeden önce dinleyin. Ezan sadece beş vakit namazda okunur. Durdurmak için bildirim ekranını aşağı çekin veya bildirime dokunun.',
   },
   nl: {
@@ -210,6 +212,8 @@ const BILDIRIM = {
     notifSes: 'Geluid', notifSesTelefon: 'Standaard telefoonmelding',
     notifSesDinle: (ad) => `Luister naar ${ad}`, notifSesDurdur: (ad) => `${ad} stoppen`,
     temaOnizleme: 'Themavoorbeeld', temaSecDugme: 'Kies dit thema', temaSecili: 'Gekozen', temaOnceki: 'Vorig thema', temaSonraki: 'Volgend thema', kapat: 'Sluiten', uitleg: 'Uitleg',
+    notifGirisBaslik: 'BIJ BEGIN GEBEDSTIJD', notifOnceBaslik: 'HERINNERING VOORAF', sesDegistir: 'Geluid wijzigen',
+    onceDk: (n) => `${n} min van tevoren`, notifAcik: 'Aan', vakitSay: (n) => `${n} ${n === 1 ? 'gebedstijd' : 'gebedstijden'}`,
     notifSesNot: 'Je kiest per gebed een eigen geluid; met ▶ luister je eerst. De adhan klinkt alleen bij de vijf gebeden. Trek het meldingenscherm omlaag of tik op de melding om te stoppen.',
   },
   en: {
@@ -226,6 +230,8 @@ const BILDIRIM = {
     notifSes: 'Sound', notifSesTelefon: 'Default phone sound',
     notifSesDinle: (ad) => `Listen to ${ad}`, notifSesDurdur: (ad) => `Stop ${ad}`,
     temaOnizleme: 'Theme preview', temaSecDugme: 'Use this theme', temaSecili: 'Selected', temaOnceki: 'Previous theme', temaSonraki: 'Next theme', kapat: 'Close', uitleg: 'More info',
+    notifGirisBaslik: 'WHEN THE PRAYER TIME BEGINS', notifOnceBaslik: 'REMINDER BEFORE', sesDegistir: 'Change sound',
+    onceDk: (n) => `${n} min before`, notifAcik: 'On', vakitSay: (n) => `${n} ${n === 1 ? 'prayer time' : 'prayer times'}`,
     notifSesNot: 'Choose a sound for each prayer; tap ▶ to listen first. The adhan only plays for the five daily prayers. Pull down the notification shade or tap the notification to stop it.',
   },
 };
