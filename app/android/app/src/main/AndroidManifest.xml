@@ -36,6 +36,17 @@
             </intent-filter>
         </receiver>
 
+        <!-- Sessize alma başlarken/biterken birkaç ms süren ön plan hizmeti: Android 17'de arka plandaki uygulama
+             zil ayarını değiştiremez (SessizServis). Google Play'de "special use" açıklaması: app/MAGAZA.md -->
+        <service
+            android:name=".SessizServis"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Puts the phone on silent or vibrate at the start of each prayer time the user selected, and restores the previous ringer mode afterwards." />
+        </service>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -58,4 +69,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- namaz vaktinde sessize alma ("Rahatsız Etmeyin" erişimi; kullanıcı verir) -->
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <!-- sessize alma başlarken/biterken kısa ön plan hizmeti (Android 17; SessizServis) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 </manifest>

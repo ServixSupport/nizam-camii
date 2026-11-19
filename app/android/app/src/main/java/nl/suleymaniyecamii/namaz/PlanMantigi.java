@@ -128,6 +128,16 @@ final class PlanMantigi {
         return bas > son && bas <= simdi;
     }
 
+    /**
+     * Bu çalıştırmada telefonun zil ayarı değişecek mi? (sessize alma başlıyor veya bitiyor)
+     * Değişecekse Android 17'de ön plan hizmeti gerekir (SessizServis). durumVar: bizim başlattığımız dönem sürüyor.
+     */
+    static boolean sessizDegisimi(JSONObject plan, boolean durumVar, long son, long simdi) {
+        JSONObject donem = aktifSessiz(plan, simdi);
+        if (durumVar) return donem == null;
+        return donem != null && yeniBasladi(donem, son, simdi);
+    }
+
     /** Bir sonraki alarm: bildirim, sessiz başlangıç/bitiş, geri sayımın sıradaki vakti (açıksa). Yoksa 0. */
     static long sonrakiAlarm(JSONObject plan, long simdi) {
         long en = Long.MAX_VALUE;

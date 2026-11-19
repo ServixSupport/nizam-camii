@@ -110,11 +110,21 @@ Hiçbiri. Hükümet uygulaması değildir.
 
 ### İzinler
 
-Hepsi "normal" izindir; Play'de ayrıca beyan gerekmez:
+Bunlar "normal" izindir; Play'de ayrıca beyan gerekmez:
 - Bildirim.
 - `SCHEDULE_EXACT_ALARM`: kullanıcı kendisi açar. Kısıtlı olan `USE_EXACT_ALARM` kullanılmadı.
 - "Rahatsız Etmeyin" erişimi.
 - Telefon yeniden açılınca başlama.
+
+**Beyan gerekir: ön plan hizmeti `specialUse`** (`FOREGROUND_SERVICE_SPECIAL_USE`, 19-11-2026; `SessizServis`).
+- Neden: Android 17'den beri arka plandaki uygulama zil ayarını değiştiremez. Sessize alma başlarken ve biterken hizmet birkaç ms çalışır.
+- Play Console → Uygulama içeriği → Ön plan hizmetleri → "Özel kullanım" (Special use). Açıklama (İngilizce):
+
+```
+At the prayer times the user selected in the app, a short foreground service puts the phone on silent or vibrate (AudioManager.setRingerMode) and restores the previous ringer mode when the user-selected duration ends. Since Android 17, ringer mode changes from the background are ignored, so the change has to run in a foreground service. The service is started by the user's own exact alarm, runs for less than a second and then stops. It does not record or play audio, and it does not collect any data.
+```
+
+- İstenirse video: Ayarlar'da "Namaz vaktinde telefonu sessize al"ı açın, vakit girince telefonun titreşime/sessize geçtiğini gösterin.
 
 ## App Store Connect
 

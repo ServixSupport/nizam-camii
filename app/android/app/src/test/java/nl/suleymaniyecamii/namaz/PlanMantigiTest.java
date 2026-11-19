@@ -94,6 +94,18 @@ public class PlanMantigiTest {
     }
 
     @Test
+    public void sessizDegisimi_sadeceBaslarkenVeBiterken_onPlanHizmetiGerekir() throws Exception {
+        // Android 17: zil ayarı sadece ön plan hizmetiyle değişir (SessizServis); gereksiz yere başlatılmasın
+        JSONObject p = plan(false);                                     // sessiz: T+30 … T+60
+        assertFalse(PlanMantigi.sessizDegisimi(p, false, T, T + 29 * DK));
+        assertTrue(PlanMantigi.sessizDegisimi(p, false, T + 29 * DK, T + 30 * DK));     // başlıyor
+        assertFalse(PlanMantigi.sessizDegisimi(p, true, T + 30 * DK, T + 45 * DK));     // sürüyor
+        assertFalse(PlanMantigi.sessizDegisimi(p, false, T + 40 * DK, T + 45 * DK));    // ortasında açıldı: dokunulmaz
+        assertTrue(PlanMantigi.sessizDegisimi(p, true, T + 59 * DK, T + 60 * DK));      // bitiyor: eski haline
+        assertFalse(PlanMantigi.sessizDegisimi(p, false, T + 59 * DK, T + 60 * DK));    // zaten sessizdeydi (durum yok)
+    }
+
+    @Test
     public void panelKanali_simgeSadeceVaktenOnceki30Dakikada() {
         // kullanıcı isteği (19-11-2026): vakit girince üst çubuktaki cami simgesi kalkar
         assertEquals("vakitler", PlanMantigi.panelKanali(false, null, 30));

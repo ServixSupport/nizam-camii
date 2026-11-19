@@ -53,6 +53,8 @@ final class Planlayici {
     static final String KANAL_SESSIZ = "sessiz";
     private static final int ID_SAYAC = 1;
     private static final int ID_SESSIZ = 2;
+    /** SessizServis'in (kısa ön plan hizmeti) bildirimi; genelde hiç görünmez. */
+    static final int ID_SERVIS = 3;
     private static final int ID_BILDIRIM = 10;
     // her tür kendi grubunda: Android tabloyu ve vakit bildirimini tek bir "2 bildirim" grubunda toplamasın
     private static final String GRUP_PANEL = "nl.suleymaniyecamii.namaz.panel";
@@ -79,6 +81,41 @@ final class Planlayici {
         } catch (JSONException e) {
             return null;
         }
+    }
+
+    /**
+     * Alarm (veya açılış, saat değişimi) geldi. Sessize alma başlıyor veya bitiyorsa kısa bir ön plan hizmetiyle
+     * çalıştırılır: Android 17'den beri arka plandaki uygulama zil ayarını değiştiremez (SessizServis).
+     * Hizmet başlatılamazsa (ör. "Alarmlar ve hatırlatıcılar" izni yok) eskisi gibi doğrudan.
+     */
+    static void alarmGeldi(Context c) {
+        if (sessizDegisecek(c) && SessizServis.baslat(c)) return;
+        calistir(c);
+    }
+
+    private static synchronized boolean sessizDegisecek(Context c) {
+        SharedPreferences p = depo(c);
+        JSONObject plan = planOku(p);
+        if (plan == null) return false;
+        long simdi = System.currentTimeMillis() + 1000;
+        return PlanMantigi.sessizDegisimi(plan, p.contains(K_SESSIZ), p.getLong(K_SON, simdi), simdi);
+    }
+
+    /** SessizServis'in bildirimi: sessiz, ertelenmiş (hizmet birkaç ms sürer; Android 12+ göstermez). */
+    static android.app.Notification servisBildirimi(Context c) {
+        JSONObject plan = planOku(depo(c));
+        kanallar(c, plan);
+        JSONObject ad = plan == null ? null : plan.optJSONObject("kanallar");
+        return new NotificationCompat.Builder(c, KANAL_SESSIZ)
+            .setSmallIcon(R.drawable.ic_stat_sessiz)
+            .setColor(ContextCompat.getColor(c, R.color.cami_lacivert))
+            .setContentTitle(adi(ad, "sessiz", c.getString(R.string.kanal_sessiz)))
+            .setSilent(true)
+            .setOngoing(true)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_DEFERRED)
+            .setContentIntent(acilis(c))
+            .build();
     }
 
     /** Vakti gelenleri uygula, geri sayımı güncelle, sonraki alarmı kur. */

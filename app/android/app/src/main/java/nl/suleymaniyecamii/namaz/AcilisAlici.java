@@ -12,6 +12,6 @@ public class AcilisAlici extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Planlayici.calistir(context);
+        Planlayici.alarmGeldi(context);
     }
 }
