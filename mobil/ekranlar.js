@@ -1,9 +1,10 @@
 // Faaliyetler, faaliyet detayı, Programlar ve tabletteki ana ekran kartları (Faz B).
-// Tasarım: ontwerp/Mobil-Faaliyetler, Mobil-Programlar, Tablet-Programlar, Tablet-Ana-ekran.
+// Tasarım: ontwerp/Mobil-Faaliyetler, Tablet-Ana-ekran. Programlar 19-11-2026'dan beri Faaliyetler gibi liste (kullanıcı isteği).
 // Kullanıcı metinleri her zaman metin düğümü olarak eklenir (asla HTML olarak değil).
 import { amsGun, amsParcalar } from './zaman.js';
 import {
   metinSec, gorunurFaaliyetler, faaliyetBaslangic, faaliyetBitis, gununProgramlari, haftaGunleri, icsOlustur, saatYaz,
+  programGunde, programZamani,
 } from './icerik.js';
 
 const SVGNS = 'http://www.w3.org/2000/svg';
@@ -86,7 +87,7 @@ export function programSaatMetni(p, z, L) {
  *   L(), dil(), icerik(), simdi(), tablet(), olaylar(ymd), olaylarYaklasik(ymd), bildir(metin)
  */
 export function ekranlar(c) {
-  const durum = { fGrup: 'tumu', pGrup: 'tumu', pGun: null, pHafta: 0, pSecili: null };
+  const durum = { fGrup: 'tumu', pGrup: 'tumu' };
 
   const grupStil = (g) => ({ '--g': `var(--g-${g})`, '--gt': `var(--gt-${g})` });
   const grupEtiketi = (g) => h('span', { class: 'grup-etiket', style: grupStil(g) }, yildiz('elmas'), c.L().gruplar[g]);
@@ -220,161 +221,76 @@ export function ekranlar(c) {
         f.link ? h('a', { class: 'dugme cerceve', href: f.link, target: '_blank', rel: 'noopener noreferrer' }, ikon(IKON.disLink), L.dahaFazla) : null));
   }
 
-  // ---------- Programlar ----------
+  // ---------- Programlar: Faaliyetler gibi alt alta liste, gün seçmeden (kullanıcı isteği, 19-11-2026) ----------
+  // Telefonda ve tablette aynı. Her program bir kez, sıradaki oturumuna göre sıralı; kemerde o günün tarihi,
+  // altında hangi günler ve saat ("Her Pazartesi · Yatsı sonrası (≈ 19:35)"), yer, hoca, açıklama ve grup.
   function programlariCiz(ilk = false) {
-    document.getElementById('p-icerik').classList.toggle('ilk', ilk);
-    const L = c.L();
-    const programlar = c.icerik().programlar || [];
     const kap = document.getElementById('p-icerik');
-    const nav = document.getElementById('hafta-nav');
-    if (!programlar.length) { doldur(nav); doldur(kap, bosKart(L.prEmpty, L.prEmptySub)); return; }
-    if (c.tablet()) haftaTablosu(kap, nav, programlar); else gunListesi(kap, nav, programlar);
-  }
-
-  function gunListesi(kap, nav, programlar) {
+    kap.classList.toggle('ilk', ilk);
     const L = c.L(), dil = c.dil();
-    doldur(nav);
-    const bugun = amsGun(c.simdi());
-    const gunler = haftaGunleri(bugun);
-    if (!durum.pGun || !gunler.some((g) => g.ymd === durum.pGun)) durum.pGun = bugun;
-    const secili = gunler.find((g) => g.ymd === durum.pGun);
-    const ogeler = gununProgramlari(programlar, secili.ymd, secili.hg, c.olaylar(secili.ymd))
-      .filter(({ p }) => durum.pGrup === 'tumu' || p.grup === durum.pGrup);
-    const tp = tarihParca(secili.ymd, L.locale);
+    const programlar = c.icerik().programlar || [];
+    if (!programlar.length) { doldur(kap, bosKart(L.prEmpty, L.prEmptySub)); return; }
+    const simdi = c.simdi();
+    const liste = programlar
+      .filter((p) => durum.pGrup === 'tumu' || p.grup === durum.pGrup)
+      .map((p) => ({ p, s: sonrakiOturum(p, simdi) }))
+      .sort((a, b) => (a.s ? 0 : 1) - (b.s ? 0 : 1)
+        || (a.s && b.s ? a.s.ymd.localeCompare(b.s.ymd) || (a.s.zaman.bas ?? 9999) - (b.s.zaman.bas ?? 9999) : 0)
+        || metinSec(a.p.baslik, dil).localeCompare(metinSec(b.p.baslik, dil), L.locale));
+    const ul = h('ul', { class: 'f-liste' }, liste.map(({ p, s }, i) => {
+      const t = s ? tarihParca(s.ymd, L.locale) : null;
+      const yerHoca = [p.yer, p.hoca && `${L.hoca}: ${p.hoca}`].filter(Boolean).join(' · ');
+      const aciklama = metinSec(p.aciklama, dil);
+      return h('li', { class: 'f-oge p-oge', style: { 'animation-delay': `${(0.06 * i).toFixed(2)}s` } },
+        h('div', { class: 'p-kart', style: grupStil(p.grup) },
+          h('span', { class: 'tarih-kemer kucuk', 'aria-hidden': 'true' },
+            h('svg:svg', { viewBox: '0 0 48 60' }, h('svg:path', { d: 'M1.5 58.5 V28 A32 32 0 0 1 24 1.5 A32 32 0 0 1 46.5 28 V58.5 Z' })),
+            h('span', { class: 'tk-gun', metin: t ? t.gun : '–' }), h('span', { class: 'tk-ay', metin: t ? t.ayKisa : '' })),
+          h('span', { class: 'f-metin' },
+            h('span', { class: 'f-baslik', metin: metinSec(p.baslik, dil) }),
+            h('span', { class: 'f-meta', metin: `${gunlerYazisi(p.gunler, L)} · ${programSaatMetni(p, s ? s.zaman : programZamani(p, []), L)}` }),
+            t ? h('span', { class: 'gizli', metin: L.sonrakiOturum(`${ilkHarfBuyuk(t.haftaGunu, L.locale)} ${t.gun} ${t.ay}`) }) : null,
+            yerHoca ? h('span', { class: 'f-meta', metin: yerHoca }) : null,
+            aciklama ? h('span', { class: 'p-aciklama', metin: aciklama }) : null,
+            grupEtiketi(p.grup))));
+    }));
     doldur(kap,
       h('div', { class: 'suz-kap' }, grupSecici(durum.pGrup, (g) => { durum.pGrup = g; programlariCiz(); }, 'p-grup')),
-      h('div', { class: 'gun-secici', role: 'group', 'aria-label': L.gunSec }, gunler.map((g) => {
-        const t = tarihParca(g.ymd, L.locale);
-        return h('button', {
-          type: 'button', 'aria-pressed': String(g.ymd === secili.ymd), class: g.ymd === bugun ? 'bugun' : null,
-          'aria-label': `${ilkHarfBuyuk(t.haftaGunu, L.locale)} ${t.gun} ${t.ay}${g.ymd === bugun ? ` (${L.bugun})` : ''}`,
-          onclick: () => { durum.pGun = g.ymd; programlariCiz(); },
-        }, h('span', { metin: ilkHarfBuyuk(t.gunKisa, L.locale) }), h('i', { 'aria-hidden': 'true' }));
-      })),
-      h('div', { class: 'gun-baslik' },
-        h('h2', { metin: ilkHarfBuyuk(tp.haftaGunu, L.locale) + (secili.ymd === bugun ? ` · ${L.bugun}` : '') }),
-        h('span', { metin: L.programSay(ogeler.length) })),
-      ogeler.length
-        ? h('ol', { class: 'zaman-cizelgesi' }, ogeler.map(({ p, zaman }, i) => {
-          const [ust, alt] = zaman.vakteBagli
-            ? [zaman.bas == null ? L.vakitAdi[zaman.vakit] : `≈ ${saatYaz(zaman.bas)}`,
-              zaman.bas == null ? (zaman.fark > 0 ? L.sonrasiKisa : L.vaktindeKisa) : (zaman.fark > 0 ? L.sonrasi(L.vakitAdi[zaman.vakit]) : L.vakitte(L.vakitAdi[zaman.vakit]))]
-            : [saatYaz(zaman.bas), saatYaz(zaman.bit)];
-          return h('li', { style: { ...grupStil(p.grup), 'animation-delay': `${(0.06 * i).toFixed(2)}s` } },
-            h('div', { class: 'zc-saat' }, h('span', { class: 'zc-bas', metin: ust }), h('span', { class: 'zc-bit', metin: alt })),
-            h('div', { class: 'zc-cizgi', 'aria-hidden': 'true' }, yildiz('elmas')),
-            h('div', { class: 'zc-kart' },
-              h('span', { class: 'zc-baslik', metin: metinSec(p.baslik, dil) }),
-              [p.yer, p.hoca && `${L.hoca}: ${p.hoca}`].filter(Boolean).length
-                ? h('span', { class: 'zc-yer', metin: [p.yer, p.hoca && `${L.hoca}: ${p.hoca}`].filter(Boolean).join(' · ') }) : null,
-              metinSec(p.aciklama, dil) ? h('span', { class: 'zc-aciklama', metin: metinSec(p.aciklama, dil) }) : null,
-              h('span', { class: 'zc-grup', metin: L.gruplar[p.grup] })));
-        }))
-        : h('p', { class: 'bos-satir', metin: L.gunBos }));
+      liste.length ? ul : h('p', { class: 'bos-satir', metin: L.programGrupBos }));
   }
 
-  function haftaTablosu(kap, nav, programlar) {
-    const L = c.L(), dil = c.dil();
-    const simdi = c.simdi();
+  /** Programın sıradaki oturumu (bugünkü bittiyse sonraki): { ymd, zaman }; bir yıl içinde yoksa null. */
+  function sonrakiOturum(p, simdi) {
     const bugun = amsGun(simdi);
-    const gunler = haftaGunleri(gunEkleYmd(bugun, durum.pHafta * 7));
-    const ilk = tarihParca(gunler[0].ymd, L.locale), son = tarihParca(gunler[6].ymd, L.locale);
-    const aralik = ilk.ay === son.ay ? `${ilk.gun} – ${son.gun} ${son.ay}` : `${ilk.gun} ${ilk.ay} – ${son.gun} ${son.ay}`;
-    doldur(nav,
-      durum.pHafta !== 0 ? h('button', { type: 'button', class: 'hafta-bugun', onclick: () => { durum.pHafta = 0; programlariCiz(); }, metin: L.buHafta }) : null,
-      h('button', { type: 'button', class: 'yuvarlak', 'aria-label': L.oncekiHafta, disabled: durum.pHafta <= -8, onclick: () => { durum.pHafta--; programlariCiz(); } }, ikon(IKON.geri)),
-      h('span', { class: 'hafta-aralik', 'aria-live': 'polite', metin: aralik }),
-      h('button', { type: 'button', class: 'yuvarlak', 'aria-label': L.sonrakiHafta, disabled: durum.pHafta >= 8, onclick: () => { durum.pHafta++; programlariCiz(); } }, ikon(IKON.ok)));
-
-    // blok verileri
-    const bloklar = [];
-    for (const [i, g] of gunler.entries()) {
-      for (const { p, zaman } of gununProgramlari(programlar, g.ymd, g.hg, c.olaylarYaklasik(g.ymd))) {
-        if (zaman.bas == null) continue;
-        bloklar.push({ p, z: zaman, gun: i, ymd: g.ymd, kimlik: `${p.id}@${g.ymd}` });
-      }
+    const s0 = amsParcalar(simdi);
+    const simdiDk = s0.h * 60 + s0.mi;
+    for (let i = 0; i < 371; i++) {
+      const ymd = gunEkleYmd(bugun, i);
+      if (!programGunde(p, ymd, ((s0.hg - 1 + i) % 7) + 1)) continue;
+      const zaman = programZamani(p, c.olaylarYaklasik(ymd));
+      if (i === 0 && zaman.bit != null && zaman.bit <= simdiDk) continue;
+      return { ymd, zaman };
     }
-    const H = 58;
-    const BAS = Math.min(9, ...bloklar.map((b) => Math.floor(b.z.bas / 60)));
-    const BIT = Math.max(22, ...bloklar.map((b) => Math.ceil(b.z.bit / 60)));
-    const ust = (dk) => Math.round((dk / 60 - BAS) * H);
-
-    const ortaGun = gunler.some((g) => g.ymd === bugun) ? bugun : gunler[3].ymd;
-    const vakitler = c.olaylarYaklasik(ortaGun).filter((e) => ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].includes(e.key))
-      .map((e) => ({ ad: L.vakitAdi[e.key], dk: +e.saat.slice(0, 2) * 60 + +e.saat.slice(3) }))
-      .filter((v) => v.dk >= BAS * 60 && v.dk <= BIT * 60);
-
-    if (!durum.pSecili || !bloklar.some((b) => b.kimlik === durum.pSecili)) {
-      const p0 = amsParcalar(simdi);
-      const simdiDk = p0.h * 60 + p0.mi;
-      const sonraki = bloklar.filter((b) => b.ymd > bugun || (b.ymd === bugun && b.z.bit > simdiDk))
-        .sort((a, b) => a.ymd.localeCompare(b.ymd) || a.z.bas - b.z.bas)[0];
-      durum.pSecili = (sonraki || bloklar[0] || {}).kimlik || null;
-    }
-    const bugunSutun = gunler.findIndex((g) => g.ymd === bugun);
-
-    const govde = h('div', { class: 'ht-govde', style: { height: `${(BIT - BAS) * H}px` } });
-    for (let s = BAS; s <= BIT; s++) {
-      const yakin = vakitler.some((v) => Math.abs(v.dk / 60 - s) < 0.25);
-      govde.append(h('span', { class: 'ht-saat-cizgi', style: { top: `${(s - BAS) * H}px` } }));
-      govde.append(h('span', { class: 'ht-saat', 'aria-hidden': 'true', style: { top: `${s === BAS ? 4 : (s === BIT ? (s - BAS) * H - 16 : (s - BAS) * H - 7)}px`, opacity: yakin ? 0 : 1 }, metin: `${String(s).padStart(2, '0')}:00` }));
-    }
-    const alan = h('div', { class: 'ht-alan' });
-    for (let i = 1; i < 7; i++) alan.append(h('span', { class: 'ht-sutun', style: { left: `${(i * 100 / 7).toFixed(4)}%` } }));
-    if (bugunSutun >= 0) alan.append(h('span', { class: 'ht-bugun', style: { left: `${(bugunSutun * 100 / 7).toFixed(4)}%` } }));
-    for (const v of vakitler) alan.append(h('span', { class: 'ht-vakit', style: { top: `${ust(v.dk)}px` } }));
-    bloklar.forEach((b, i) => {
-      const secili = b.kimlik === durum.pSecili;
-      const uyar = durum.pGrup === 'tumu' || b.p.grup === durum.pGrup;
-      const t = tarihParca(b.ymd, L.locale);
-      alan.append(h('button', {
-        type: 'button', class: 'ht-blok' + (secili ? ' secili' : ''), 'aria-pressed': String(secili),
-        'aria-label': `${ilkHarfBuyuk(t.haftaGunu, L.locale)}, ${programSaatMetni(b.p, b.z, L)}, ${metinSec(b.p.baslik, dil)}, ${L.gruplar[b.p.grup]}`,
-        style: { ...grupStil(b.p.grup), left: `${(b.gun * 100 / 7).toFixed(4)}%`, top: `${ust(b.z.bas) + 2}px`, height: `${Math.max(30, ust(b.z.bit) - ust(b.z.bas) - 3)}px`, opacity: uyar ? 1 : 0.22, 'animation-delay': `${(0.03 * i).toFixed(2)}s` },
-        onclick: () => { durum.pSecili = b.kimlik; programlariCiz(); },
-      },
-      h('span', { class: 'htb-saat', metin: b.z.vakteBagli ? (b.z.fark > 0 ? L.sonrasi(L.vakitAdi[b.z.vakit]) : L.vakitte(L.vakitAdi[b.z.vakit])) : saatYaz(b.z.bas) }),
-      h('span', { class: 'htb-baslik', metin: metinSec(b.p.baslik, dil) })));
-    });
-    if (bugunSutun >= 0) {
-      const p = amsParcalar(simdi);
-      const dk = p.h * 60 + p.mi;
-      if (dk >= BAS * 60 && dk <= BIT * 60) {
-        alan.append(h('span', { class: 'ht-simdi', 'aria-hidden': 'true', style: { left: `${(bugunSutun * 100 / 7).toFixed(4)}%`, top: `${ust(dk)}px` } }));
-        alan.append(h('span', { class: 'ht-simdi-nokta', 'aria-hidden': 'true', style: { left: `calc(${(bugunSutun * 100 / 7).toFixed(4)}% - 4px)`, top: `${ust(dk) - 3}px` } }));
-      }
-    }
-    govde.append(alan);
-    for (const v of vakitler) govde.append(h('span', { class: 'ht-vakit-ad', style: { top: `${ust(v.dk) - 7}px` }, metin: v.ad }));
-
-    const secili = bloklar.find((b) => b.kimlik === durum.pSecili);
-    const ciplerKap = grupSecici(durum.pGrup, (g) => { durum.pGrup = g; programlariCiz(); }, 'p-grup');
-
-    doldur(kap,
-      h('div', { class: 'ht-ust' }, ciplerKap,
-        h('span', { class: 'ht-lejant' }, h('span', { class: 'kesik', 'aria-hidden': 'true' }), L.namazVakitleri)),
-      h('section', { class: 'hafta-tablosu', 'aria-label': L.tablo },
-        h('div', { class: 'ht-gunler' }, h('span', { class: 'ht-bosluk' }), gunler.map((g) => {
-          const t = tarihParca(g.ymd, L.locale);
-          return h('span', { class: 'ht-gun' }, h('span', { class: 'ht-gun-ic' + (g.ymd === bugun ? ' bugun' : '') },
-            h('span', { class: 'htg-kisa', metin: ilkHarfBuyuk(t.gunKisa, L.locale) }), h('span', { class: 'htg-no', metin: t.gun })));
-        })),
-        govde),
-      secili ? seciliKart(secili) : null);
+    return null;
   }
 
-  function seciliKart(b) {
-    const L = c.L(), dil = c.dil();
-    const t = tarihParca(b.ymd, L.locale);
-    return h('section', { class: 'secili-kart', 'aria-label': L.secili, 'aria-live': 'polite' },
-      h('div', { class: 'sk-tarih' },
-        h('span', { class: 'sk-gun', metin: ilkHarfBuyuk(t.gunKisa, L.locale).toLocaleUpperCase(L.locale) }),
-        h('span', { class: 'sk-no', metin: t.gun }), h('span', { class: 'sk-ay', metin: t.ayKisa })),
-      h('div', { class: 'sk-metin' },
-        h('span', { class: 'sk-grup', style: grupStil(b.p.grup) }, yildiz('elmas'), L.gruplar[b.p.grup]),
-        h('span', { class: 'sk-baslik', metin: metinSec(b.p.baslik, dil) }),
-        h('span', { class: 'sk-meta', metin: [ilkHarfBuyuk(t.haftaGunu, L.locale), programSaatMetni(b.p, b.z, L), b.p.yer, b.p.hoca && `${L.hoca}: ${b.p.hoca}`].filter(Boolean).join(' · ') }),
-        metinSec(b.p.aciklama, dil) ? h('span', { class: 'sk-aciklama', metin: metinSec(b.p.aciklama, dil) }) : null));
+  /** Programın günleri: "Her Pazartesi", "Pzt – Per", "Cmt, Paz", "Pzt – Çar, Cum", "Her gün" */
+  function gunlerYazisi(gunler, L) {
+    const g = [...new Set(gunler || [])].filter((x) => x >= 1 && x <= 7).sort((a, b) => a - b);
+    if (g.length === 7) return L.herGun;
+    const hafta = haftaGunleri(amsGun(c.simdi()));                 // Pazartesi … Pazar
+    const gun = (n) => tarihParca(hafta[n - 1].ymd, L.locale);
+    if (g.length === 1) return L.herHafta(gun(g[0]).haftaGunu);
+    const kisa = (n) => ilkHarfBuyuk(gun(n).gunKisa, L.locale);
+    const parca = [];
+    for (let i = 0; i < g.length;) {
+      let j = i;
+      while (j + 1 < g.length && g[j + 1] === g[j] + 1) j++;
+      if (j - i >= 2) parca.push(`${kisa(g[i])} – ${kisa(g[j])}`);
+      else for (let k = i; k <= j; k++) parca.push(kisa(g[k]));
+      i = j + 1;
+    }
+    return parca.join(', ');
   }
 
   // ---------- Ana ekran (tablet) kartları ----------

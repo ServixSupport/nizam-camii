@@ -87,58 +87,81 @@ test.describe('faaliyetler', () => {
 });
 
 test.describe('programlar', () => {
-  test('telefon: bugün seçili; gün seçici; vakte bağlı saat', async ({ page }) => {
+  // 19-11-2026: Faaliyetler gibi alt alta liste, gün seçmeden (kullanıcı isteği); telefonda ve tablette aynı
+  const SIRA = ['Kur’an kursu', 'Gençlik sohbeti', 'Hadis dersi', 'Cuma namazı ve hutbe', 'Hafta sonu Kur’an kursu', 'İlmihal dersi',
+    'Hafızlık hazırlık', 'Tefsir dersi', 'Hanımlar Kur’an dersi'];
+
+  test('bütün programlar alt alta, sıradaki oturuma göre; gün seçici yok', async ({ page }) => {
     await ac(page, { adres: '/mobil/#programlar' });
-    await expect(page.locator('.gun-secici button[aria-pressed="true"]')).toHaveText('Çar');
-    await expect(page.locator('.gun-baslik')).toContainText('Çarşamba · bugün');
-    await expect(page.locator('.gun-baslik')).toContainText('2 program');
-    await expect(page.locator('.zc-baslik')).toHaveText(['Kur’an kursu', 'Gençlik sohbeti']);
-
-    await page.getByRole('button', { name: 'Pazartesi 26 Ekim' }).click();
-    await expect(page.locator('.zc-baslik')).toHaveText(['Kur’an kursu', 'Tefsir dersi']);
-    const tefsir = page.locator('.zaman-cizelgesi li').nth(1);
-    await expect(tefsir.locator('.zc-bas')).toHaveText('≈ 19:35');                // 26-10 Yatsı 19:05 + 30
-    await expect(tefsir.locator('.zc-bit')).toHaveText('Yatsı sonrası');
-
-    await page.getByRole('button', { name: 'Cuma 30 Ekim' }).click();
-    await expect(page.locator('.zc-bas')).toHaveText(['≈ 12:29']);
-    await expect(page.locator('.zc-bit')).toHaveText(['Öğle vaktinde']);
-
-    await page.getByRole('button', { name: /Çarşamba 28 Ekim/ }).click();
-    await page.locator('#p-grup').selectOption('genclik');                      // telefonda da grup süzgeci
-    await expect(page.locator('.zc-baslik')).toHaveText(['Gençlik sohbeti']);
-    await expect(page.locator('.gun-baslik')).toContainText('1 program');
-    await page.locator('#p-grup').selectOption('tumu');
-    await expect(page.locator('.zc-baslik')).toHaveCount(2);
+    await expect(page.locator('.gun-secici')).toHaveCount(0);
+    await expect(page.locator('.p-oge .f-baslik')).toHaveText(SIRA);
+    const oge = (ad) => page.locator('.p-oge').filter({ has: page.locator('.f-baslik').getByText(ad, { exact: true }) });
+    // kemerde sıradaki günün tarihi
+    await expect(oge('Kur’an kursu').locator('.tk-gun')).toHaveText('28');
+    await expect(oge('Kur’an kursu').locator('.tk-ay')).toHaveText('EKİ');
+    await expect(oge('Tefsir dersi').locator('.tk-gun')).toHaveText('2');
+    await expect(oge('Tefsir dersi').locator('.tk-ay')).toHaveText('KAS');
+    // günler ve saat
+    await expect(oge('Kur’an kursu').locator('.f-meta').first()).toHaveText('Pzt – Per · 17:00 – 19:00');
+    await expect(oge('Gençlik sohbeti').locator('.f-meta').first()).toHaveText('Çar, Cmt · 19:30 – 21:00');
+    await expect(oge('Cuma namazı ve hutbe').locator('.f-meta').first()).toHaveText('Her Cuma · Öğle vaktinde (≈ 12:29)');
+    await expect(oge('Tefsir dersi').locator('.f-meta').first()).toHaveText(/^Her Pazartesi · Yatsı sonrası \(≈ \d\d:\d\d\)$/);
+    await expect(oge('Hafta sonu Kur’an kursu').locator('.f-meta').first()).toHaveText('Cmt, Paz · 10:00 – 13:00');
+    // yer, grup; ekran okuyucu için sıradaki tarih
+    await expect(oge('Kur’an kursu').locator('.f-meta').nth(1)).toHaveText('Sınıflar · 7–14 yaş');
+    await expect(oge('Kur’an kursu').locator('.grup-etiket')).toHaveText('Çocuklar');
+    await expect(oge('Tefsir dersi').locator('.gizli')).toHaveText('Sıradaki: Pazartesi 2 Kasım');
+    // link değil (detay sayfası yok)
+    await expect(page.locator('.p-oge a')).toHaveCount(0);
   });
+
+  test('bugünkü oturum bitince program sonraki gününe geçer', async ({ page }) => {
+    await ac(page, { adres: '/mobil/#programlar', zaman: '2026-10-28T19:01:00.500+01:00' });      // Kur'an kursu 19:00'da bitti
+    await expect(page.locator('.p-oge .f-baslik').first()).toHaveText('Gençlik sohbeti');
+    await expect(page.locator('.p-oge').first().locator('.tk-gun')).toHaveText('28');
+    await expect(page.locator('.p-oge .f-baslik').nth(1)).toHaveText('Kur’an kursu');
+    await expect(page.locator('.p-oge').nth(1).locator('.tk-gun')).toHaveText('29');
+  });
+
+  test('gruba göre süzme', async ({ page }) => {
+    await ac(page, { adres: '/mobil/#programlar' });
+    await page.locator('#p-grup').selectOption('erkekler');
+    await expect(page.locator('.p-oge .f-baslik')).toHaveText(['Hadis dersi', 'Tefsir dersi']);
+    await page.locator('#p-grup').selectOption('tumu');
+    await expect(page.locator('.p-oge')).toHaveCount(9);
+  });
+
+  test('grupta program yoksa', async ({ page }) => {
+    const ic = tasarimIcerik();
+    ic.programlar = ic.programlar.filter((p) => p.grup !== 'herkes');
+    await mobilAc(page, { zaman: ZAMAN, icerik: ic, depo: { 'nzm.dil': 'tr' }, adres: '/mobil/#programlar' });
+    await page.locator('#p-grup').selectOption('herkes');
+    await expect(page.locator('#p-icerik')).toContainText('Bu grupta program yok.');
+  });
+
+  for (const [dil, beklenen] of [
+    ['nl', { Koranles: 'Ma – Do · 17:00 – 19:00', Tafsirles: /^Elke maandag · Na Isha \(≈ \d\d:\d\d\)$/ }],
+    ['en', { 'Friday prayer and sermon': 'Every Friday · At Dhuhr (≈ 12:29)', 'Weekend Quran class': 'Sat, Sun · 10:00 – 13:00' }],
+  ]) {
+    test(`gün adları: ${dil}`, async ({ page }) => {
+      await ac(page, { adres: '/mobil/#programlar', depo: { 'nzm.dil': dil } });
+      for (const [ad, metin] of Object.entries(beklenen)) {
+        const oge = page.locator('.p-oge').filter({ has: page.locator('.f-baslik').getByText(ad, { exact: true }) });
+        await expect(oge.locator('.f-meta').first()).toHaveText(metin);
+      }
+    });
+  }
 
   test('içerik yoksa boş ekran', async ({ page }) => {
     await mobilAc(page, { zaman: ZAMAN, depo: { 'nzm.dil': 'tr' }, adres: '/mobil/#programlar' });
     await expect(page.locator('#p-icerik')).toContainText('Henüz program eklenmedi.');
   });
 
-  test('tablet: haftalık tablo, seçili program kartı, süzme, hafta ileri/geri', async ({ page }) => {
+  test('tablet: aynı liste (haftalık tablo yok)', async ({ page }) => {
     await page.setViewportSize({ width: 820, height: 1180 });
     await ac(page, { adres: '/mobil/#programlar' });
-    await expect(page.locator('.hafta-aralik')).toHaveText('26 Ekim – 1 Kasım');
-    await expect(page.locator('.ht-blok')).toHaveCount(14);                                 // 2+2+2+2+1+3+2
-    await expect(page.locator('.ht-gun-ic.bugun')).toContainText('28');
-    await expect(page.locator('.ht-vakit-ad')).toHaveText(['Öğle', 'İkindi', 'Akşam', 'Yatsı']);
-    await expect(page.locator('.ht-simdi')).toHaveCount(1);
-    await expect(page.locator('.secili-kart .sk-baslik')).toHaveText('Kur’an kursu');          // bugünün sıradaki programı
-    await page.locator('.ht-blok', { hasText: 'Cuma namazı' }).click();
-    await expect(page.locator('.secili-kart .sk-baslik')).toHaveText('Cuma namazı ve hutbe');
-    await expect(page.locator('.secili-kart .sk-meta')).toContainText('Öğle vaktinde (≈ 12:29)');
-
-    await page.locator('#p-grup').selectOption('hanimlar');
-    await expect(page.locator('.ht-blok', { hasText: 'İlmihal' })).toHaveCSS('opacity', '1');
-    await expect(page.locator('.ht-blok', { hasText: 'Hadis dersi' })).toHaveCSS('opacity', '0.22');
-
-    await page.getByRole('button', { name: 'Sonraki hafta' }).click();
-    await expect(page.locator('.hafta-aralik')).toHaveText('2 – 8 Kasım');
-    await expect(page.locator('.ht-simdi')).toHaveCount(0);
-    await page.getByRole('button', { name: 'Bu hafta' }).click();
-    await expect(page.locator('.hafta-aralik')).toHaveText('26 Ekim – 1 Kasım');
+    await expect(page.locator('.hafta-tablosu')).toHaveCount(0);
+    await expect(page.locator('.p-oge .f-baslik')).toHaveText(SIRA);
   });
 
   test('tablet ana ekran kartları: bugün camide, sıradaki faaliyet', async ({ page }) => {

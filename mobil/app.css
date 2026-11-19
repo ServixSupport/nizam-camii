@@ -328,7 +328,7 @@ main {
 .ay-baslik .cizgi { flex: 1; height: 1px; background: var(--goldLine); }
 .ilk .one-cikan { animation: nzRise .5s backwards; }
 .ilk .f-oge { animation: nzRise .5s backwards; }
-.f-oge a { display: flex; align-items: center; gap: 14px; padding: 12px; min-height: 76px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); }
+.f-oge a, .f-oge .p-kart { display: flex; align-items: center; gap: 14px; padding: 12px; min-height: 76px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); }
 .tarih-kemer.kucuk { width: 48px; height: 60px; padding-top: 19px; }
 .tarih-kemer.kucuk path { fill: none; stroke: var(--g); stroke-width: 1.5; }
 .tarih-kemer.kucuk .tk-gun { font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 600; font-size: 21px; line-height: 1; font-variant-numeric: lining-nums; }
@@ -353,32 +353,9 @@ main {
 .d-dugmeler { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 
 .pr-bas { display: flex; flex-direction: column; gap: 14px; }
-.p-icerik { display: flex; flex-direction: column; gap: 18px; }
-.pr-alt-tab, .hafta-nav:empty { display: none; }
-.gun-secici { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
-.gun-secici button { height: 60px; border-radius: 16px; border: 1px solid var(--line); background: var(--card); color: var(--ink);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; padding: 0; font-size: 13px; font-weight: 700; }
-.gun-secici button i { width: 5px; height: 5px; border-radius: 50%; }
-.gun-secici button.bugun i { background: var(--coral); }
-.gun-secici button[aria-pressed="true"] { background: var(--ink); color: var(--ground); border-color: var(--ink); }
-.gun-secici button[aria-pressed="true"].bugun i { background: #E8C27A; }
-.gun-baslik { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
-.gun-baslik h2 { margin: 0; font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 600; font-size: 24px; }
-.gun-baslik span { font-size: 13.5px; color: var(--soft); }
-.zaman-cizelgesi { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-.zaman-cizelgesi li { display: grid; grid-template-columns: 64px 22px minmax(0, 1fr); }
-.ilk .zaman-cizelgesi li { animation: nzRise .45s backwards; }
-.zc-saat { display: flex; flex-direction: column; align-items: flex-end; padding: 14px 4px 0 0; text-align: right; }
-.zc-bas { font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 600; font-size: 20px; line-height: 1; font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; }
-.zc-bit { font-size: 12px; color: var(--soft); margin-top: 4px; line-height: 1.25; }
-.zc-cizgi { position: relative; display: flex; justify-content: center; }
-.zc-cizgi::before { content: ""; position: absolute; top: 0; bottom: 0; width: 1px; background: var(--goldLine); }
-.zc-cizgi .elmas { position: relative; margin-top: 18px; width: 12px; height: 12px; color: var(--g); }
-.zc-kart { margin: 6px 0 12px; display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); }
-.zc-baslik { font-weight: 700; font-size: 16px; line-height: 1.25; }
-.zc-yer, .zc-aciklama { font-size: 13.5px; color: var(--soft); }
-.zc-aciklama { white-space: pre-line; }
-.zc-grup { align-self: flex-start; display: flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 999px; background: var(--gt); color: var(--g); font-size: 12px; font-weight: 700; }
+.p-icerik { display: flex; flex-direction: column; gap: 16px; }
+/* Programlar: Faaliyetler gibi alt alta liste, gün seçmeden (kullanıcı isteği, 19-11-2026). Kemerde sıradaki günün tarihi. */
+.p-aciklama { font-size: 13.5px; color: var(--soft); white-space: pre-line; overflow-wrap: anywhere; }
 
 .kart-liste, .kart-ic { position: relative; display: flex; flex-direction: column; gap: 10px; }
 .kb-satir { display: flex; gap: 12px; align-items: baseline; }
@@ -393,7 +370,7 @@ main {
   padding: 10px 16px; border-radius: 12px; background: var(--ink); color: var(--ground); font-size: 14px; font-weight: 600;
   transition: opacity .2s, transform .2s; pointer-events: none; }
 .bildirim.acik { opacity: 1; transform: translate(-50%, 0); }
-@media (prefers-reduced-motion: reduce) { .ilk .one-cikan, .ilk .f-oge, .ilk .zaman-cizelgesi li, .ilk .ht-blok, .bos { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .ilk .one-cikan, .ilk .f-oge, .bos { animation: none; } }
 
 /* ================= Faz C: yükleme kartı ve yeni sürüm çubuğu ================= */
 .kurulum { position: relative; display: flex; gap: 14px; padding: 16px; border-radius: 20px; background: var(--navy); border: 1px solid var(--navyLine); color: #F6F1E7; overflow: hidden; }
@@ -486,64 +463,6 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
   .ayar.grup-ici { margin-top: -16px; }
   .sayfa h1 { font-size: 40px; }
 
-  /* Programlar: haftalık tablo (Tablet-Programlar.dc.html) */
-  .programlar { max-width: 1060px; gap: 16px; padding: 26px 26px 24px 24px; }
-  .pr-bas { flex-direction: row; align-items: flex-end; justify-content: space-between; gap: 16px; }
-  .pr-alt-tel { display: none; }
-  .pr-alt-tab { display: block; }
-  .hafta-nav { display: flex; align-items: center; gap: 6px; }
-  .hafta-nav .yuvarlak { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--ink);
-    display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
-  .hafta-nav .yuvarlak svg { width: 18px; height: 18px; }
-  .hafta-nav .yuvarlak:disabled { opacity: .35; cursor: default; }
-  .hafta-aralik { min-width: 150px; text-align: center; font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 600; font-size: 18px; font-variant-numeric: lining-nums; }
-  .hafta-bugun { height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--cobalt); font-size: 13px; font-weight: 700; cursor: pointer; }
-  .p-icerik { gap: 16px; }
-  .ht-ust { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; }
-  .ht-lejant { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--soft); white-space: nowrap; }
-  .ht-lejant .kesik { width: 18px; border-top: 1.5px dashed var(--gold); }
-  .hafta-tablosu { position: relative; display: flex; flex-direction: column; border-radius: 22px; background: var(--card); border: 1px solid var(--line); overflow: hidden; }
-  .ht-gunler { display: flex; height: 52px; border-bottom: 1px solid var(--line); }
-  .ht-bosluk { flex: 0 0 46px; }
-  .ht-gun { flex: 1; display: flex; align-items: center; justify-content: center; min-width: 0; }
-  .ht-gun-ic { display: flex; align-items: baseline; gap: 5px; padding: 6px 10px; border-radius: 999px; }
-  .htg-kisa { font-size: 12px; font-weight: 700; color: var(--soft); }
-  .htg-no { font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 600; font-size: 19px; font-variant-numeric: lining-nums; }
-  .ht-gun-ic.bugun { background: var(--ink); }
-  .ht-gun-ic.bugun .htg-kisa { color: var(--ground); }
-  .ht-gun-ic.bugun .htg-no { color: var(--gold); }
-  .ht-govde { position: relative; }
-  .ht-saat-cizgi { position: absolute; left: 46px; right: 0; border-top: 1px solid var(--tablo-cizgi); }
-  .ht-saat { position: absolute; left: 0; width: 40px; text-align: right; font-size: 11px; font-variant-numeric: tabular-nums; color: var(--saat-yazi); }
-  .ht-alan { position: absolute; left: 46px; right: 0; top: 0; bottom: 0; }
-  .ht-sutun { position: absolute; top: 0; bottom: 0; border-left: 1px solid var(--tablo-sutun); }
-  .ht-bugun { position: absolute; top: 0; bottom: 0; width: 14.2857%; background: var(--railActive); opacity: .55; }
-  .ht-vakit { position: absolute; left: 0; right: 0; border-top: 1.5px dashed var(--goldLine); }
-  .ht-vakit-ad { position: absolute; left: 0; width: 42px; text-align: right; font-size: 10.5px; font-weight: 700; color: var(--vakit-yazi); background: var(--card); }
-  .ht-blok { position: absolute; width: calc(14.2857% - 6px); margin-left: 3px; padding: 5px 6px 5px 7px; border: 0; border-left: 3px solid var(--g);
-    border-radius: 12px 12px 4px 4px; background: var(--gt); color: var(--ink); font: inherit; text-align: left; display: flex; flex-direction: column; gap: 2px;
-    overflow: hidden; cursor: pointer; transition: opacity .2s, background .2s; }
-  .ilk .ht-blok { animation: nzRise .4s backwards; }
-  .ht-blok.secili { background: var(--g); color: var(--card); box-shadow: 0 6px 16px rgba(20,41,90,.22); }
-  :root[data-tema="gece"] .ht-blok.secili { color: #0C1834; }
-  .htb-saat { font-size: 10.5px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--soft); }
-  .ht-blok.secili .htb-saat { color: inherit; opacity: .82; }
-  .htb-baslik { font-size: 12px; font-weight: 700; line-height: 1.18; }
-  .ht-simdi { position: absolute; width: 14.2857%; border-top: 2px solid var(--coral); }
-  .ht-simdi-nokta { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: var(--coral); }
-  .secili-kart { position: relative; display: flex; align-items: center; gap: 18px; padding: 18px 20px; border-radius: 24px; background: var(--navy);
-    border: 1px solid var(--navyLine); color: #F6F1E7; overflow: hidden; }
-  .sk-tarih { flex: 0 0 auto; width: 70px; height: 92px; border-radius: 35px 35px 10px 10px; border: 1px solid rgba(232,194,122,.6);
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
-  .sk-gun { font-size: 11px; font-weight: 700; letter-spacing: .14em; color: #E8C27A; }
-  .sk-no { font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 600; font-size: 30px; line-height: 1; font-variant-numeric: lining-nums; }
-  .sk-ay { font-size: 11px; font-weight: 600; letter-spacing: .08em; color: #D4DBEA; }
-  .sk-metin { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
-  .sk-grup { align-self: flex-start; display: flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; background: #F6F1E7;
-    color: var(--g); font-size: 12px; font-weight: 700; }
-  :root[data-tema="gece"] .sk-grup { background: rgba(246,241,231,.12); }
-  .sk-baslik { font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 600; font-size: 26px; line-height: 1.1; }
-  .sk-meta, .sk-aciklama { font-size: 14.5px; color: #D4DBEA; }
   .detay { max-width: 760px; }
 }
 
