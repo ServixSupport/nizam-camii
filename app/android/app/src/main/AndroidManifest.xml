@@ -47,6 +47,31 @@
                 android:value="Puts the phone on silent or vibrate at the start of each prayer time the user selected, and restores the previous ringer mode afterwards." />
         </service>
 
+        <!-- Ana ekran widget'ları (19-11-2026; VakitWidget): her biri kendi boyutu; eklerken WidgetAyar açılır -->
+        <receiver android:name=".WidgetKucuk" android:exported="false" android:label="@string/widget_kucuk_ad">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_bilgi_kucuk" />
+        </receiver>
+        <receiver android:name=".WidgetSatir" android:exported="false" android:label="@string/widget_satir_ad">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_bilgi_satir" />
+        </receiver>
+        <receiver android:name=".WidgetOrta" android:exported="false" android:label="@string/widget_orta_ad">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_bilgi_orta" />
+        </receiver>
+        <receiver android:name=".WidgetListe" android:exported="false" android:label="@string/widget_liste_ad">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_bilgi_liste" />
+        </receiver>
+        <activity
+            android:name=".WidgetAyar"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter>
+        </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

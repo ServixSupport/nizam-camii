@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ana ekran widget'ı (orta; kullanıcı isteği, 19-11-2026). Hemen eklenir (siyah, otomatik yazı); renkler kalemle veya uzun basıp "Ayarlar"la (WidgetAyar). Android 11 ve öncesinde eklerken açılır. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="nl.suleymaniyecamii.namaz.WidgetAyar"
+    android:description="@string/widget_orta_aciklama"
+    android:initialLayout="@layout/widget_orta"
+    android:minHeight="110dp"
+    android:minResizeHeight="100dp"
+    android:minResizeWidth="200dp"
+    android:minWidth="250dp"
+    android:previewLayout="@layout/widget_orta"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellHeight="2"
+    android:targetCellWidth="4"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen"
+    android:widgetFeatures="reconfigurable|configuration_optional" />

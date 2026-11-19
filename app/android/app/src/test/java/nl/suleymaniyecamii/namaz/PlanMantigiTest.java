@@ -64,6 +64,9 @@ public class PlanMantigiTest {
         assertEquals(T + 60 * DK, PlanMantigi.sonrakiAlarm(p, T + 30 * DK));         // sessiz bitişi
         assertEquals(T + 90 * DK, PlanMantigi.sonrakiAlarm(p, T + 60 * DK));         // Yatsı'ya 30 dk kala simge
         assertEquals(0, PlanMantigi.sonrakiAlarm(plan(false), T + 60 * DK));         // sayaç kapalı: alarm yok
+        // ana ekranda widget varsa (19-11-2026) sayaç kapalı da olsa vakitte, ama dakika dakika değil
+        assertEquals(T + 120 * DK, PlanMantigi.sonrakiAlarm(plan(false), T + 60 * DK, true));
+        assertEquals(T + 120 * DK, PlanMantigi.sonrakiAlarm(plan(false), T + 100 * DK, true));
     }
 
     @Test

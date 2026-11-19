@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ana ekran widget'ı (kucuk; kullanıcı isteği, 19-11-2026). Hemen eklenir (siyah, otomatik yazı); renkler kalemle veya uzun basıp "Ayarlar"la (WidgetAyar). Android 11 ve öncesinde eklerken açılır. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="nl.suleymaniyecamii.namaz.WidgetAyar"
+    android:description="@string/widget_kucuk_aciklama"
+    android:initialLayout="@layout/widget_kucuk"
+    android:minHeight="110dp"
+    android:minResizeHeight="100dp"
+    android:minResizeWidth="100dp"
+    android:minWidth="110dp"
+    android:previewLayout="@layout/widget_kucuk"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellHeight="2"
+    android:targetCellWidth="2"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen"
+    android:widgetFeatures="reconfigurable|configuration_optional" />

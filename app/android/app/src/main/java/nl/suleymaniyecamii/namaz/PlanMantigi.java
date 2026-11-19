@@ -140,6 +140,11 @@ final class PlanMantigi {
 
     /** Bir sonraki alarm: bildirim, sessiz başlangıç/bitiş, geri sayımın sıradaki vakti (açıksa). Yoksa 0. */
     static long sonrakiAlarm(JSONObject plan, long simdi) {
+        return sonrakiAlarm(plan, simdi, false);
+    }
+
+    /** widget: ana ekranda widget var; geri sayım kapalı olsa da her vakitte (widget sıradakine geçsin). */
+    static long sonrakiAlarm(JSONObject plan, long simdi, boolean widget) {
         long en = Long.MAX_VALUE;
         JSONArray b = plan.optJSONArray("bildirimler");
         if (b != null) for (int i = 0; i < b.length(); i++) {
@@ -153,15 +158,18 @@ final class PlanMantigi {
             if (o.optLong("bas") > simdi) en = Math.min(en, o.optLong("bas"));
             if (o.optLong("bit") > simdi) en = Math.min(en, o.optLong("bit"));
         }
-        if (plan.optBoolean("sayac")) {
+        boolean sayac = plan.optBoolean("sayac");
+        if (sayac || widget) {
             JSONObject v = sonrakiVakit(plan, simdi);
             if (v != null) {
                 long an = v.optLong("an");
                 en = Math.min(en, an);
-                // simgedeki dakika: pencere başlangıcı ve pencerede her dakika değişimi
-                int dk = simgeDakikasi(an, simdi);
-                long degisim = dk > 0 ? an - (long) (dk - 1) * 60_000 : an - SIMGE_PENCERE;
-                if (degisim > simdi) en = Math.min(en, degisim);
+                if (sayac) {
+                    // simgedeki dakika: pencere başlangıcı ve pencerede her dakika değişimi
+                    int dk = simgeDakikasi(an, simdi);
+                    long degisim = dk > 0 ? an - (long) (dk - 1) * 60_000 : an - SIMGE_PENCERE;
+                    if (degisim > simdi) en = Math.min(en, degisim);
+                }
             }
         }
         return en == Long.MAX_VALUE ? 0 : en;

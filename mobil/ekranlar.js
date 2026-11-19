@@ -171,6 +171,9 @@ export function ekranlar(c) {
     const L = c.L(), dil = c.dil();
     const t = tarihParca(amsGun(faaliyetBaslangic(f)), L.locale);
     const resim = f.resim && f.resim.startsWith('https://') ? f.resim : '';
+    const dugmeler = h('div', { class: 'oc-dugmeler' },
+      h('button', { type: 'button', class: 'dugme altin', onclick: () => takvimeEkle(f) }, ikon(IKON.takvim), L.takvimeEkle),
+      h('button', { type: 'button', class: 'dugme cerceve kare', 'aria-label': L.paylas, onclick: () => paylas(f) }, ikon(IKON.paylas)));
     return h('article', { class: 'one-cikan' + (resim ? ' met-resim' : '') },
       h('svg:svg', { class: 'oc-desen', viewBox: '0 0 48 48', 'aria-hidden': 'true' },
         h('svg:g', { fill: 'none', stroke: '#E8C27A', 'stroke-width': 0.6 },
@@ -184,12 +187,11 @@ export function ekranlar(c) {
         h('span', { class: 'oc-etiket', metin: etiket }),
         h('h2', {}, h('a', { href: `#faaliyet/${f.id}`, metin: metinSec(f.baslik, dil) })),
         h('span', { class: 'oc-meta', metin: [faaliyetSaati(f, L), f.yer].filter(Boolean).join(' · ') }),
-        h('div', { class: 'oc-dugmeler' },
-          h('button', { type: 'button', class: 'dugme altin', onclick: () => takvimeEkle(f) }, ikon(IKON.takvim), L.takvimeEkle),
-          h('button', { type: 'button', class: 'dugme cerceve kare', 'aria-label': L.paylas, onclick: () => paylas(f) }, ikon(IKON.paylas)))),
-      // öne çıkan + resim: tarih | metin | resim (dar ekranda resim alta, kesilmeden)
+        resim ? null : dugmeler),
+      // öne çıkan + resim (kullanıcı isteği, 19-11-2026): tarih | ad ve saat | küçük resim sağda; düğmeler altta
       resim ? h('a', { class: 'oc-resim', href: `#faaliyet/${f.id}`, tabindex: '-1', 'aria-hidden': 'true' },
-        h('img', { src: resim, alt: '', loading: 'lazy', decoding: 'async' })) : null);
+        h('img', { src: resim, alt: '', loading: 'lazy', decoding: 'async' })) : null,
+      resim ? dugmeler : null);
   }
 
   function bosKart(baslik, alt) {

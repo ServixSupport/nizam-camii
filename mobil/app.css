@@ -310,12 +310,19 @@ main {
 .tarih-kemer.buyuk .tk-hg { font-size: 11px; color: #4E5B76; margin-top: 1px; }
 .oc-metin { position: relative; display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1 1 auto; }
 .one-cikan.met-resim .oc-desen { display: none; }
-.oc-resim { position: relative; flex: 0 1 auto; display: flex; align-items: center; justify-content: flex-end; max-width: 42%; }
+.oc-resim { position: relative; display: flex; align-items: center; justify-content: flex-end; }
 .oc-resim img { display: block; width: auto; height: auto; max-width: 100%; max-height: 190px; object-fit: contain; border-radius: 14px; box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+/* resimli (kullanicinin istegi, 19-11-2026): tarih | ad ve saat | resim sagda (telefonda kucuk); dugmeler altta */
+.one-cikan.met-resim { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; grid-template-areas: "tarih metin resim" "tarih dugme resim";
+  column-gap: 16px; row-gap: 8px; align-items: start; }
+.one-cikan.met-resim .tarih-kemer { grid-area: tarih; }
+.one-cikan.met-resim .oc-metin { grid-area: metin; }
+.one-cikan.met-resim .oc-resim { grid-area: resim; align-self: center; max-width: 260px; }
+.one-cikan.met-resim > .oc-dugmeler { grid-area: dugme; margin-top: 0; align-self: end; }
 @media (max-width: 559px) {
-  .one-cikan.met-resim { flex-wrap: wrap; }
-  .one-cikan.met-resim .oc-resim { order: 3; flex-basis: 100%; max-width: none; justify-content: center; margin-top: 2px; }
-  .one-cikan.met-resim .oc-resim img { max-height: 340px; }
+  .one-cikan.met-resim { grid-template-columns: 76px minmax(0, 1fr) 92px; grid-template-areas: "tarih metin resim" "dugme dugme dugme"; column-gap: 12px; row-gap: 14px; }
+  .one-cikan.met-resim .oc-resim { align-self: start; max-width: 92px; }
+  .one-cikan.met-resim .oc-resim img { max-height: 124px; border-radius: 10px; }
 }
 .oc-etiket { align-self: flex-start; font-size: 11px; font-weight: 700; letter-spacing: .12em; color: #E8C27A; }
 .one-cikan h2 { margin: 0; font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 600; font-size: 23px; line-height: 1.15; }

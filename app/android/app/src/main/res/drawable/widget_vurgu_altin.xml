@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget'ta sıradaki vaktin kapsülü (altin) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#E0B04A" />
+    <corners android:radius="12dp" />
+</shape>

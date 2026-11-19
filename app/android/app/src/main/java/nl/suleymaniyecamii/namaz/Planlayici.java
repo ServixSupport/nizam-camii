@@ -73,6 +73,11 @@ final class Planlayici {
         calistir(c);
     }
 
+    /** Telefona kaydedilen plan (widget'lar da kullanır); uygulama hiç açılmadıysa null. */
+    static JSONObject plan(Context c) {
+        return planOku(depo(c));
+    }
+
     private static JSONObject planOku(SharedPreferences p) {
         String s = p.getString(K_PLAN, null);
         if (s == null) return null;
@@ -138,7 +143,10 @@ final class Planlayici {
         if (yeniUyari != null) p.edit().putString(K_UYARI, yeniUyari.toString()).apply();
         sessizIsle(c, plan, son, simdi);
         sayacGoster(c, plan, simdi, yeniUyari != null);
-        long alarm = PlanMantigi.sonrakiAlarm(plan, simdi);
+        // ana ekran widget'ları (19-11-2026): her vakitte sıradakine geçer
+        boolean widget = VakitWidget.varMi(c);
+        if (widget) VakitWidget.hepsiniGuncelle(c, plan, simdi);
+        long alarm = PlanMantigi.sonrakiAlarm(plan, simdi, widget);
         // panel vakit girince sesli uyardı: ezan bitince sessizce yenilensin (üst çubuktaki simge kalkar)
         if (yeniUyari != null) {
             long sessizce = simdi + PlanMantigi.SES_SURE;

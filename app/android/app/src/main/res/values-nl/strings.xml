@@ -6,4 +6,13 @@
     <string name="kanal_sayac">Aftellen</string>
     <string name="kanal_tablo">Gebedstijden-tabel</string>
     <string name="kanal_sessiz">Op stil zetten</string>
+    <!-- ana ekran widget'ları (19-11-2026) -->
+    <string name="widget_kucuk_ad">Volgend gebed</string>
+    <string name="widget_kucuk_aciklama">Volgende gebedstijd en hoe lang nog</string>
+    <string name="widget_satir_ad">Gebedstijden (rij)</string>
+    <string name="widget_satir_aciklama">Alle gebedstijden naast elkaar</string>
+    <string name="widget_orta_ad">Aftellen en datum</string>
+    <string name="widget_orta_aciklama">Volgend gebed, aftellen, datum en Hidjri-datum</string>
+    <string name="widget_liste_ad">Gebedstijden (lijst)</string>
+    <string name="widget_liste_aciklama">Datum en alle gebedstijden onder elkaar</string>
 </resources>

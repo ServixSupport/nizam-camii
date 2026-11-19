@@ -253,7 +253,28 @@ test('tema önizlemesi: iframe telefona bir şey göndermez, ağa gitmez, ayar y
 
   await page.evaluate(() => document.dispatchEvent(new Event('camiGeri')));     // CamiPlugin: geri tuşu
   await expect(page.locator('#tema-on')).toBeHidden();
-  await expect.poll(async () => (await cagrilar(page, 'geriYakala')).at(-1).arg.acik).toBe(false);
+  await expect(page).toHaveURL(/#ayarlar$/);                                      // sadece önizleme kapandı
+  // Ayarlar'da kalındı: geri tuşu yine uygulamada (ana ekrana döner; 19-11-2026)
+  await expect.poll(async () => (await cagrilar(page, 'geriYakala')).at(-1).arg.acik).toBe(true);
+});
+
+test('Android geri tuşu (19-11-2026): faaliyet detayından listeye, sekmelerden ana ekrana, ana ekranda uygulama kapanır', async ({ page }) => {
+  await telefon(page, { izin: { bildirim: 'granted' } });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#faaliyet/f-kahvalti' });
+  const geri = () => page.evaluate(() => document.dispatchEvent(new Event('camiGeri')));
+  const son = async () => (await cagrilar(page, 'geriYakala')).at(-1).arg.acik;
+  await expect.poll(son).toBe(true);
+  await geri();
+  await expect(page).toHaveURL(/#faaliyetler$/);
+  await geri();
+  await expect(page).toHaveURL(/#ana$/);
+  await expect.poll(son).toBe(false);                                             // ana ekranda telefonun kendisi: uygulama kapanır
+  for (const s of ['#programlar', '#ayarlar']) {
+    await page.evaluate((h) => { location.hash = h; }, s);
+    await expect.poll(son).toBe(true);
+    await geri();
+    await expect(page).toHaveURL(/#ana$/);
+  }
 });
 
 test('izin telefondan geri alındıysa bildirimler kapalı görünür', async ({ page }) => {

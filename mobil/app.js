@@ -166,7 +166,7 @@ async function planGonder() {
 }
 
 // Ayarlar → Tema: tam ekran canlı önizleme; Android'de geri tuşu önizlemeyi kapatır
-const temaOn = temaOnizleme({ L, mevcut: () => durum.stil, sec: stilSec, telefon: yerelMi && platform === 'android' ? cami : null });
+const temaOn = temaOnizleme({ L, mevcut: () => durum.stil, sec: stilSec, telefon: yerelMi && platform === 'android' ? cami : null, geriGuncelle: () => geriGuncelle() });
 $('#stil-ac').addEventListener('click', temaOn.ac);
 
 const ekran = ekranlar({
@@ -310,6 +310,25 @@ function aktifSekme() {
   if (m) return { sekme: 'faaliyet', id: m[1], menu: 'faaliyetler' };
   const sekme = SEKMELER.includes(ad) ? ad : 'ana';
   return { sekme, id: null, menu: sekme };
+}
+
+// ---------------- Android geri tuşu (kullanıcı isteği, 19-11-2026) ----------------
+// Faaliyet detayından listeye, diğer sekmelerden ana ekrana; ana ekrandayken uygulama kapanır (telefonun kendisi).
+// Tema önizlemesi açıkken önizlemeyi kapatır (tema-onizleme.js).
+const geriTusu = yerelMi && platform === 'android';
+function geriGuncelle() {
+  if (!geriTusu) return;
+  const acik = !!document.querySelector('dialog[open]') || aktifSekme().sekme !== 'ana';
+  cami.geriYakala({ acik }).catch(() => {});
+}
+if (geriTusu) {
+  // capture: önizlemenin dinleyicisinden önce (önizleme açıksa sadece o kapansın)
+  document.addEventListener('camiGeri', () => {
+    if (document.querySelector('dialog[open]')) return;
+    const { sekme } = aktifSekme();
+    if (sekme === 'faaliyet') location.hash = '#faaliyetler';
+    else if (sekme !== 'ana') location.hash = '#ana';
+  }, { capture: true });
 }
 function sekmeGoster() {
   const { sekme, menu } = aktifSekme();
@@ -587,6 +606,8 @@ kemerKur();
 sekmeGoster();
 if (!yerelMi) durumCubugu();                                // tarayıcı çubuğu ilk açılışta da temanın rengi (gece dahil)
 window.addEventListener('hashchange', sekmeGoster);
+window.addEventListener('hashchange', geriGuncelle);
+geriGuncelle();
 tik();
 yenile().then(() => {
   if (!durum.veriVar) { durum.hata = true; ciz(); }

@@ -6,4 +6,13 @@
     <string name="kanal_sayac">Geri sayım</string>
     <string name="kanal_tablo">Vakit tablosu</string>
     <string name="kanal_sessiz">Sessize alma</string>
+    <!-- ana ekran widget'ları (19-11-2026) -->
+    <string name="widget_kucuk_ad">Sıradaki vakit</string>
+    <string name="widget_kucuk_aciklama">Sıradaki vakit ve kalan süre</string>
+    <string name="widget_satir_ad">Vakitler (satır)</string>
+    <string name="widget_satir_aciklama">Bütün vakitler yan yana</string>
+    <string name="widget_orta_ad">Geri sayım ve tarih</string>
+    <string name="widget_orta_aciklama">Sıradaki vakit, geri sayım, tarih ve hicri tarih</string>
+    <string name="widget_liste_ad">Vakitler (liste)</string>
+    <string name="widget_liste_aciklama">Tarih ve bütün vakitler alt alta</string>
 </resources>

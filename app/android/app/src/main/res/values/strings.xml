@@ -8,4 +8,13 @@
     <string name="kanal_sayac">Countdown</string>
     <string name="kanal_tablo">Prayer times table</string>
     <string name="kanal_sessiz">Silencing</string>
+    <!-- ana ekran widget'ları (19-11-2026) -->
+    <string name="widget_kucuk_ad">Next prayer</string>
+    <string name="widget_kucuk_aciklama">Next prayer time and time remaining</string>
+    <string name="widget_satir_ad">Prayer times (row)</string>
+    <string name="widget_satir_aciklama">All prayer times side by side</string>
+    <string name="widget_orta_ad">Countdown and date</string>
+    <string name="widget_orta_aciklama">Next prayer, countdown, date and Hijri date</string>
+    <string name="widget_liste_ad">Prayer times (list)</string>
+    <string name="widget_liste_aciklama">Date and all prayer times in a list</string>
 </resources>

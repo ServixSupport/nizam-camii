@@ -10,7 +10,7 @@ const STILLER = ['liste', 'klasik', 'cini'];
  * @param {Function} o.sec      temayı kaydeder ve uygular
  * @param {object} [o.telefon]  Android mağaza uygulamasında eklenti (geri tuşu önizlemeyi kapatsın)
  */
-export function temaOnizleme({ L, mevcut, sec, telefon = null }) {
+export function temaOnizleme({ L, mevcut, sec, telefon = null, geriGuncelle = null }) {
   const $ = (s) => document.querySelector(s);
   const pencere = $('#tema-on');
   const serit = $('#to-serit');
@@ -66,7 +66,9 @@ export function temaOnizleme({ L, mevcut, sec, telefon = null }) {
   // kapanış (düğme, Esc, telefonun geri tuşu): iframe'ler kaldırılır, saatleri boşuna işlemesin
   pencere.addEventListener('close', () => {
     serit.replaceChildren();
-    if (telefon) telefon.geriYakala({ acik: false }).catch(() => {});
+    // geri tuşu: Ayarlar'da kalındı, ana ekrana dönmeye devam etsin (app.js)
+    if (geriGuncelle) geriGuncelle();
+    else if (telefon) telefon.geriYakala({ acik: false }).catch(() => {});
   });
   document.addEventListener('camiGeri', () => { if (pencere.open) pencere.close(); });
   window.addEventListener('resize', () => { if (pencere.open) git(sira, false); });   // döndürünce aynı temada kalsın

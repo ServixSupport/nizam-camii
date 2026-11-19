@@ -179,15 +179,19 @@ test.describe('resimli faaliyet', () => {
   const resimli = () => { const ic = tasarimIcerik(); ic.faaliyetler[0].resim = RESIM; return ic; };
   const oran = async (loc) => { const k = await loc.boundingBox(); return k.width / k.height; };
 
-  test('öne çıkan + resim: telefonda resim metnin altında, kesilmeden', async ({ page }) => {
+  test('öne çıkan + resim: telefonda tarih | ad ve saat | küçük resim sağda, düğmeler altta (19-11-2026)', async ({ page }) => {
     await mobilAc(page, { zaman: ZAMAN, icerik: resimli(), depo: { 'nzm.dil': 'nl' }, adres: '/mobil/#faaliyetler' });
     const img = page.locator('.one-cikan .oc-resim img');
     await expect(img).toHaveAttribute('src', RESIM);
     await expect.poll(() => img.evaluate((e) => e.complete && e.naturalWidth)).toBe(600);
     const metin = await page.locator('.one-cikan .oc-metin').boundingBox();
+    const dugme = await page.locator('.one-cikan .oc-dugmeler').boundingBox();
     const r = await img.boundingBox();
-    expect(r.y).toBeGreaterThan(metin.y + metin.height - 1);                  // altta
-    expect(await oran(img)).toBeCloseTo(600 / 850, 2);                        // kesilmedi
+    expect(r.x).toBeGreaterThan(metin.x + metin.width - 1);                    // sağda
+    expect(r.y).toBeLessThan(metin.y + metin.height);                           // aynı satırda
+    expect(r.width).toBeLessThanOrEqual(92.5);                                  // küçük
+    expect(dugme.y).toBeGreaterThan(r.y + r.height - 1);                        // düğmeler altta
+    expect(await oran(img)).toBeCloseTo(600 / 850, 2);                          // kesilmedi
   });
 
   test('öne çıkan + resim: tablette tarih | metin | resim yan yana', async ({ page }) => {
