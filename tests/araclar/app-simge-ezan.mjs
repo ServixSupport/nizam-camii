@@ -31,19 +31,18 @@ const [duz, maskable] = await sayfa.evaluate(async (src) => {
   }
   x.putImageData(v, KUTU.x0, KUTU.y0);
 
-  // 2) ses dalgaları: ortada (kubbenin üstünde) iki yana yayılan üçer yay, logonun kırmızısı; ortada yeşil nokta
-  const KIRMIZI = '#D13027', YESIL = '#1F6B35';
-  const mx = 256, my = 214;
+  // 2) ses dalgaları minarelerin şerefesinden içeri doğru (kullanıcı isteği, 19-11-2026: ses minarelerden gelsin, nokta yok):
+  //    sol minareden sağa, sağ minareden sola üçer yay, logonun kırmızısı
+  const KIRMIZI = '#D13027';
+  const SOL = { x: 154, y: 226 }, SAG = { x: 354, y: 226 };   // minarelerin şerefesi (ikon-512'de ölçüldü)
   x.lineCap = 'round';
   x.strokeStyle = KIRMIZI;
-  const ac = (34 * Math.PI) / 180;
-  for (const [r, w] of [[30, 14], [52, 14], [74, 14]]) {
-    x.lineWidth = w;
-    x.beginPath(); x.arc(mx, my, r, -ac, ac); x.stroke();                     // sağ
-    x.beginPath(); x.arc(mx, my, r, Math.PI - ac, Math.PI + ac); x.stroke();   // sol
+  const ac = (36 * Math.PI) / 180;
+  for (const r of [30, 52, 74]) {
+    x.lineWidth = 14;
+    x.beginPath(); x.arc(SOL.x, SOL.y, r, -ac, ac); x.stroke();                     // sol minareden sağa
+    x.beginPath(); x.arc(SAG.x, SAG.y, r, Math.PI - ac, Math.PI + ac); x.stroke();   // sağ minareden sola
   }
-  x.fillStyle = YESIL;
-  x.beginPath(); x.arc(mx, my, 12, 0, Math.PI * 2); x.fill();
 
   // 3) maskable: aynı logo küçültülmüş (güvenli daire içinde), kenarlar zemin renginde
   const m = document.createElement('canvas');

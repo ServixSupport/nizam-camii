@@ -120,7 +120,7 @@
    - `mobil/` değişince uygulama kendiliğinden güncellenmez. Yeni sürüm için `app/README.md`: `www.mjs` → `cap sync` → `versionCode`'u artır → derle → mağazaya yükle.
    - Kullanıcı isteği (07-11-2026): **her değişiklikte mağaza uygulamasını hazırlama** (www/cap sync/derleme/emülatör yok). Kullanıcı Preview linkinde (tarayıcı, PWA) test eder; mağaza sürümüne kullanıcı "şimdi" deyince geçilir.
    - Uygulama kimliği `nl.suleymaniyecamii.namaz` değişmez.
-   - Uygulama simgesi (ana ekran, bildirimler, mağaza; kullanıcı isteği 19-11-2026): logodaki gül yerine ses dalgaları (ezanı çağrıştırır; hoparlör değil). `app/simge/`, `tests/araclar/app-simge-ezan.mjs` → `app-simgeler.mjs`. Temalardaki logo ve PWA simgeleri gülle kalır.
+   - Uygulama simgesi (ana ekran, bildirimler, mağaza; kullanıcı isteği 19-11-2026): logodaki gül yerine minarelerin şerefesinden içeri doğru ses dalgaları (ezan minareden gelir; hoparlör ve nokta yok). `app/simge/`, `tests/araclar/app-simge-ezan.mjs` → `app-simgeler.mjs`. Temalardaki logo ve PWA simgeleri gülle kalır.
    - iPhone'da sessize alma ve durum çubuğu simgesi yok (Apple izin vermez); bu ayarlar iPhone'da gizli.
    - **Ezan sesi** (08-11-2026, sadece Android): Ayarlar'da "Ses" açılır listesi: telefonun sesi veya Ezan 1 … 7 (`bildirim-metin.js` `SESLER`, `EZAN_SAYISI`).
      - Dosyalar kullanıcının `Ezan sesleri/` klasöründen `app/android/app/src/main/res/raw/ezan_1.mp3 … ezan_7.mp3` olarak kopyalandı: 1 = Ezan, 2 = Ezan 2, 3 = Ezan 3, 4 = Beautiful Azan, 5 = Duygusal Adhane, 6 = Ezan Salah fajr, 7 = Güzel Ezan Kısa.
