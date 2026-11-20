@@ -156,13 +156,13 @@
 
   <!-- ===== FAALİYETLER ===== -->
   <section class="sekme sayfa" id="s-faaliyetler" data-sekme="faaliyetler" hidden>
-    <!-- süzgeç: başlığın solunda, sadece simgeli kutu (kullanıcı isteği, 20-11-2026) -->
+    <!-- süzgeç: başlığın sağında, sadece simgeli kutu (kullanıcı isteği, 20-11-2026) -->
     <header class="sayfa-ust">
-      <div class="suz-kap" id="f-cipler"></div>
       <div class="sayfa-bas">
         <h1 data-t="evTitle"></h1>
         <p data-t="evSub"></p>
       </div>
+      <div class="suz-kap" id="f-cipler"></div>
     </header>
     <div class="f-icerik" id="f-icerik"></div>
   </section>
@@ -179,11 +179,11 @@
   <!-- ===== PROGRAMLAR (Faaliyetler gibi liste; kullanıcı isteği, 19-11-2026) ===== -->
   <section class="sekme sayfa programlar" id="s-programlar" data-sekme="programlar" hidden>
     <header class="sayfa-ust">
-      <div class="suz-kap" id="p-cipler"></div>
       <div class="sayfa-bas">
         <h1 data-t="prTitle"></h1>
         <p data-t="prSub"></p>
       </div>
+      <div class="suz-kap" id="p-cipler"></div>
     </header>
     <div class="p-icerik" id="p-icerik"></div>
   </section>
@@ -265,8 +265,8 @@
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
           </a>
           <span class="ayar-not" data-t="source"></span>
-          <!-- mağaza uygulamasında gizlilik bağlantısı (Apple ve Google ister); tarayıcıda gizli -->
-          <a class="gizlilik-link" id="gizlilik-link" href="https://nizam-camii.vercel.app/gizlilik/" target="_blank" rel="noopener" data-t="gizlilik" hidden></a>
+          <!-- mağaza uygulamasında gizlilik (Apple ve Google ister); uygulamanın içindeki sayfa (#gizlilik, 20-11-2026); tarayıcıda gizli -->
+          <a class="gizlilik-link" id="gizlilik-link" href="#gizlilik" data-t="gizlilik" hidden></a>
         </span>
       </div>
       <section class="kurulum" id="kurulum" data-t-aria="installTitle" hidden>
@@ -346,6 +346,16 @@
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- ===== GİZLİLİK (#gizlilik; kullanıcı isteği 20-11-2026: web sitesine gidilmez). gizlilik.js çizer ===== -->
+  <section class="sekme sayfa gizlilik" id="s-gizlilik" data-sekme="gizlilik" hidden>
+    <a class="geri" href="#ayarlar">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      <span data-t="tabSettings"></span>
+    </a>
+    <div class="sayfa-bas"><h1></h1></div>
+    <div class="gz-icerik"></div>
   </section>
 </main>
 

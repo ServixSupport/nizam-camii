@@ -128,7 +128,6 @@ export function yerelAyarlar({ L, cami, platform, planDegisti, bildirimAcik }) {
     $('#widget-ayar').hidden = platform !== 'ios';
     const gizlilik = $('#gizlilik-link');
     gizlilik.hidden = false;
-    gizlilik.href = `https://nizam-camii.vercel.app/gizlilik/#${({ tr: 'tr', nl: 'nl', en: 'en' })[document.documentElement.lang] || 'nl'}`;
     $('#sayac-ayar').hidden = !android;
     $('#sessiz-ayar').hidden = !android;
     $('#sessiz-kart').hidden = !android;                         // ayrı sayfa (#sessiz, 20-11-2026)

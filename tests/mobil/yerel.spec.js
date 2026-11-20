@@ -47,7 +47,14 @@ test('kurulum kartı yok, service worker kurulmaz; vakitler sunucunun tam adresi
   await expect(page.locator('#kurulum')).toBeHidden();
   expect(await page.evaluate(async () => (await navigator.serviceWorker.getRegistrations()).length)).toBe(0);
   // Apple ve Google: uygulamanın içinde gizlilik bağlantısı
-  await expect(page.getByRole('link', { name: 'Privacy' })).toHaveAttribute('href', 'https://nizam-camii.vercel.app/gizlilik/#nl');
+  // uygulamanın içinde ayrı sayfa; web sitesine gidilmez (kullanıcı isteği, 20-11-2026)
+  await expect(page.getByRole('link', { name: 'Privacy' })).toHaveAttribute('href', '#gizlilik');
+  await page.getByRole('link', { name: 'Privacy' }).click();
+  await expect(page.locator('#s-gizlilik h1')).toHaveText('Privacyverklaring');
+  await expect(page.locator('#s-gizlilik')).toContainText('Geen advertenties, geen statistieken en geen tracking.');
+  await expect(page.locator('.menu-oge[data-sekme="ayarlar"]')).toHaveAttribute('aria-current', 'page');
+  await page.locator('#s-gizlilik .geri').click();
+  await expect(page.locator('#s-ayarlar')).toBeVisible();
   expect(kayit.api.map((u) => u.href)).toContain('https://nizam-camii.vercel.app/api/vakit');
 });
 

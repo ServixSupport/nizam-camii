@@ -24,9 +24,9 @@ test.describe('faaliyetler', () => {
     await ac(page, { adres: '/mobil/#faaliyetler' });
     const secim = page.getByRole('combobox', { name: 'Gruba göre süz' });
     await expect(secim.locator('option')).toHaveText(['Tüm gruplar', 'Herkes', 'Erkekler', 'Hanımlar', 'Gençlik', 'Çocuklar']);
-    // başlığın solunda, sadece simgeli kutu (kullanıcı isteği, 20-11-2026)
-    const [kutu, baslik] = await Promise.all([page.locator('#s-faaliyetler .suz').boundingBox(), page.locator('#s-faaliyetler h1').boundingBox()]);
-    expect(kutu.x + kutu.width).toBeLessThanOrEqual(baslik.x);
+    // başlığın sağında, sadece simgeli kutu (kullanıcı isteği, 20-11-2026)
+    const [kutu, baslik] = await Promise.all([page.locator('#s-faaliyetler .suz').boundingBox(), page.locator('#s-faaliyetler .sayfa-bas').boundingBox()]);
+    expect(kutu.x).toBeGreaterThanOrEqual(baslik.x + baslik.width);
     expect(kutu.width).toBe(48);
     await expect(page.locator('#f-grup')).toHaveCSS('opacity', '0');           // seçim görünmez, kutuda sadece simge
     await secim.selectOption('genclik');
@@ -130,10 +130,10 @@ test.describe('programlar', () => {
 
   test('gruba göre süzme', async ({ page }) => {
     await ac(page, { adres: '/mobil/#programlar' });
-    // ay ve yıl başlıkları (kullanıcı isteği, 20-11-2026); süzgeç başlığın solunda
+    // ay ve yıl başlıkları (kullanıcı isteği, 20-11-2026); süzgeç başlığın sağında
     await expect(page.locator('#p-icerik .ay-baslik')).toHaveText(['EKİM 2026', 'KASIM 2026']);
-    const [kutu, baslik] = await Promise.all([page.locator('#s-programlar .suz').boundingBox(), page.locator('#s-programlar h1').boundingBox()]);
-    expect(kutu.x + kutu.width).toBeLessThanOrEqual(baslik.x);
+    const [kutu, baslik] = await Promise.all([page.locator('#s-programlar .suz').boundingBox(), page.locator('#s-programlar .sayfa-bas').boundingBox()]);
+    expect(kutu.x).toBeGreaterThanOrEqual(baslik.x + baslik.width);
     await page.locator('#p-grup').selectOption('erkekler');
     await expect(page.locator('.p-oge .f-baslik')).toHaveText(['Hadis dersi', 'Tefsir dersi']);
     await page.locator('#p-grup').selectOption('tumu');

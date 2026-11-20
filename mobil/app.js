@@ -8,6 +8,7 @@ import {
 import { METIN, DILLER, VARSAYILAN_DIL, ARAPCA } from './metin.js';
 import { ekranlar } from './ekranlar.js';
 import { bildirimler } from './bildirim.js';
+import { gizlilikCiz } from './gizlilik.js';
 import { yerelMi, platform, cami, apiAdresi, onizleme } from './yerel.js';
 import { yerelPlan, PLAN_GUN } from './yerel-plan.js';
 import { yerelAyarlar } from './yerel-ayar.js';
@@ -16,7 +17,7 @@ import { temaOnizleme } from './tema-onizleme.js';
 
 // TV'nin anahtarları (vakitler, nizam-tema, nizam-sayac) kullanılmaz; hepsi "nzm." ile başlar.
 const DEPO = { dil: 'nzm.dil', tema: 'nzm.tema', stil: 'nzm.stil', vakit: 'nzm.vakit', aladhan: 'nzm.aladhan', icerik: 'nzm.icerik' };
-const SEKMELER = ['ana', 'faaliyetler', 'programlar', 'ayarlar', 'bildirimler', 'sessiz'];
+const SEKMELER = ['ana', 'faaliyetler', 'programlar', 'ayarlar', 'bildirimler', 'sessiz', 'gizlilik'];
 const BOS_ICERIK = { guncelleme: null, faaliyetler: [], programlar: [] };
 const ICERIK_ARALIK = 2 * 60 * 1000;      // içerik en fazla 2 dakikada bir istenir (CDN de 2 dk tutar)
 const SVGNS = 'http://www.w3.org/2000/svg';
@@ -235,6 +236,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') ipucuKapat
 
 // ---------------- dil ----------------
 function metinleriYaz() {
+  gizlilikCiz($('#s-gizlilik'), durum.dil);
   const t = L();
   document.documentElement.lang = durum.dil;
   document.title = t.appAd;
@@ -293,13 +295,14 @@ function temaUygula() {
 }
 
 // ---------------- sekmeler ----------------
+const ALT_SAYFALAR = ['bildirimler', 'sessiz', 'gizlilik'];     // Ayarlar'ın alt sayfaları: geri tuşu Ayarlar'a döner
 function aktifSekme() {
   const ad = decodeURIComponent(location.hash.replace('#', ''));
   const m = ad.match(/^faaliyet\/(f-[a-z0-9]{4,12})$/);
   if (m) return { sekme: 'faaliyet', id: m[1], menu: 'faaliyetler' };
   const sekme = SEKMELER.includes(ad) ? ad : 'ana';
-  // namaz vakti bildirimleri (19-11-2026) ve sessize alma (20-11-2026) Ayarlar'ın alt sayfaları
-  return { sekme, id: null, menu: ['bildirimler', 'sessiz'].includes(sekme) ? 'ayarlar' : sekme };
+  // namaz vakti bildirimleri (19-11-2026), sessize alma ve gizlilik (20-11-2026) Ayarlar'ın alt sayfaları
+  return { sekme, id: null, menu: ALT_SAYFALAR.includes(sekme) ? 'ayarlar' : sekme };
 }
 
 // ---------------- Android geri tuşu (kullanıcı isteği, 19-11-2026) ----------------
@@ -317,7 +320,7 @@ if (geriTusu) {
     if (document.querySelector('dialog[open]')) return;
     const { sekme } = aktifSekme();
     if (sekme === 'faaliyet') location.hash = '#faaliyetler';
-    else if (sekme === 'bildirimler' || sekme === 'sessiz') location.hash = '#ayarlar';
+    else if (ALT_SAYFALAR.includes(sekme)) location.hash = '#ayarlar';
     else if (sekme !== 'ana') location.hash = '#ana';
   }, { capture: true });
 }

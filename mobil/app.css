@@ -284,7 +284,7 @@ main {
 .grup-etiket .elmas { width: 8px; height: 8px; }
 
 
-/* süzgeç: başlığın solunda, sadece simgeli kutu (kullanıcı isteği, 20-11-2026); seçim kutunun üstünde, görünmez */
+/* süzgeç: başlığın sağında, sadece simgeli kutu (kullanıcı isteği, 20-11-2026); seçim kutunun üstünde, görünmez */
 .sayfa-ust { display: flex; align-items: center; gap: 14px; }
 .sayfa-ust .sayfa-bas { flex: 1; min-width: 0; }
 .suz-kap { display: flex; flex: none; }
@@ -1138,3 +1138,10 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
   text-align: center; font-size: 15px; font-weight: 600; color: var(--gold); }
 :root[data-stil="zumrut"] .t4-kerahat.icinde { border-color: var(--gold); background: rgba(233,194,91,.1); }
 :root[data-stil="zumrut"] .t4-kerahat[hidden] { display: none; }
+
+/* Gizlilik sayfası (#gizlilik, 20-11-2026) */
+.gz-icerik { display: flex; flex-direction: column; gap: 8px; font-size: 15px; line-height: 1.55; color: var(--ink); }
+.gz-icerik p, .gz-icerik ul { margin: 0; }
+.gz-icerik ul { padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.gz-icerik h2 { margin: 12px 0 0; font-size: 16px; font-weight: 700; color: var(--ink); }
+.gz-icerik .gz-tarih { font-size: 13px; color: var(--soft); }
