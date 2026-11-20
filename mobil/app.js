@@ -11,6 +11,7 @@ import { bildirimler } from './bildirim.js';
 import { yerelMi, platform, cami, apiAdresi, onizleme } from './yerel.js';
 import { yerelPlan, PLAN_GUN } from './yerel-plan.js';
 import { yerelAyarlar } from './yerel-ayar.js';
+import { gokFazi, gokYayCiz, zumrutCiz } from './tema-ciz.js';
 import { temaOnizleme } from './tema-onizleme.js';
 
 // TV'nin anahtarları (vakitler, nizam-tema, nizam-sayac) kullanılmaz; hepsi "nzm." ile başlar.
@@ -30,10 +31,10 @@ const pad = (n) => String(n).padStart(2, '0');
 // ---------------- durum ----------------
 const durum = {
   dil: (() => { const d = oku(DEPO.dil); return METIN[d] ? d : VARSAYILAN_DIL; })(),
-  tema: (() => { const t = oku(DEPO.tema); return ['oto', 'gunduz', 'gece'].includes(t) ? t : 'oto'; })(),
   // tasarım: 'liste' (Tema 1: yeşil desenli bant ve büyük vakit listesi), 'klasik' (Tema 2: kemer),
   // 'cini' (Tema 3, 09-11-2026: caminin fotoğrafı, karolu sayaç, oklu tarih). Kullanıcı isteği (11-11-2026): Tema 3 varsayılan; seçmeyenler de bunu görür.
-  stil: onizleme || (['klasik', 'liste'].includes(oku(DEPO.stil)) ? oku(DEPO.stil) : 'cini'),
+  // 20-11-2026: Tema 2 (kemer) yerine 'gok' (gökyüzü, güneş yayı); 'zumrut' Tema 4. Eski 'klasik' kaydı Tema 2'ye geçer.
+  stil: onizleme || (() => { const s = oku(DEPO.stil); return s === 'klasik' ? 'gok' : ['liste', 'gok', 'zumrut'].includes(s) ? s : 'cini'; })(),
   diyanet: new Map(),      // 'GG.AA.YYYY' → gün
   aladhan: new Map(),      // 'YYYY-MM-DD' → gün
   veriVar: false,
@@ -253,15 +254,8 @@ function metinleriYaz() {
     b.addEventListener('click', () => dilSec(k));
     return b;
   }));
-  $('#stil-ad').textContent = t[{ liste: 'stilListe', klasik: 'stilKlasik', cini: 'stilCini' }[durum.stil]];
-  const tema = $('#tema-secim');
-  tema.replaceChildren(...[['oto', t.auto], ['gunduz', t.light], ['gece', t.dark]].map(([k, ad]) => {
-    const b = document.createElement('button');
-    b.type = 'button'; b.textContent = ad;
-    b.setAttribute('aria-pressed', String(k === durum.tema));
-    b.addEventListener('click', () => temaSec(k));
-    return b;
-  }));
+  $('#stil-ad').textContent = t[{ liste: 'stilListe', gok: 'stilGok', cini: 'stilCini', zumrut: 'stilZumrut' }[durum.stil]];
+  document.documentElement.style.setProperty('--t4Sonraki', JSON.stringify(t.t4Sonraki));   // Tema 4: "Sıradaki" rozeti (CSS)
   _tarihImza = ''; _satirImza = ''; _gunImza = '';
   bld.ciz();
 }
@@ -280,25 +274,20 @@ function durumCubugu() {
   const ust = stil.getPropertyValue('--ustZemin').trim() || zemin;
   if (ust) $('meta[name="theme-color"]').setAttribute('content', ust);
   // mağaza uygulaması: üst ve alt sistem çubuğu temaya göre (açık temada koyu simgeler, koyu temada açık)
-  if (yerelMi) cami.cubuklar({ koyu: document.documentElement.dataset.tema === 'gece', zemin }).catch(() => {});
+  if (yerelMi) cami.cubuklar({ koyu: ['gok', 'zumrut'].includes(document.documentElement.dataset.stil), zemin }).catch(() => {});
 }
 function stilSec(k) {
   durum.stil = k; yaz(DEPO.stil, k);
-  if (k === 'klasik') document.documentElement.removeAttribute('data-stil');
-  else document.documentElement.dataset.stil = k;
+  document.documentElement.dataset.stil = k;
   _gunKayma = 0;
   durumCubugu();
   metinleriYaz(); ciz(); anaSigdir();
 }
-function temaSec(k) {
-  durum.tema = k; yaz(DEPO.tema, k);
-  metinleriYaz(); ciz();
-  $('#tema-secim [aria-pressed="true"]')?.focus();
-}
-function temaUygula(gunduz) {
-  const t = durum.tema === 'oto' ? (gunduz ? 'gunduz' : 'gece') : durum.tema;
-  if (document.documentElement.dataset.tema !== t) {
-    document.documentElement.dataset.tema = t;
+// Sabit temalar (kullanıcı isteği, 20-11-2026): Otomatik / Açık / Koyu seçimi kaldırıldı; her tema kendi (açık) haliyle.
+// Koyu renkler CSS'te duruyor (data-tema="gece"): ileride ayrı, sabit tema olarak kullanılabilir.
+function temaUygula() {
+  if (document.documentElement.dataset.tema !== 'gunduz') {
+    document.documentElement.dataset.tema = 'gunduz';
     durumCubugu();
   }
 }
@@ -517,13 +506,6 @@ for (const [id, adim] of [['#gun-onceki', -1], ['#gun-sonraki', 1]]) {
   $(id).addEventListener('click', () => { _gunKayma += adim; ciz(); });
 }
 // sayaç karolarda: "1:26:57" → 01 26 57
-function karoCiz() {
-  const p = $('.sayac').textContent.split(':');
-  $$('.sayac-karo b').forEach((el, i) => {
-    const v = i === 0 && p[0].length === 1 && p[0] !== '–' ? `0${p[0]}` : p[i];
-    if (el.textContent !== v) el.textContent = v;
-  });
-}
 
 const cihazAmsterdam = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone === AMS; } catch { return true; } })();
 
@@ -533,9 +515,7 @@ function ciz() {
   olaylariKur(false);
   tarihCiz(simdi);
 
-  const oklu = ['liste', 'cini'].includes(document.documentElement.dataset.stil);   // Tema 1 ve 3: oklu tarih
-  const cini = document.documentElement.dataset.stil === 'cini';                    // Tema 3: sayaç karolarda
-  if (oklu) gunGezCiz();
+  gunGezCiz();   // bütün temalarda oklu tarih (20-11-2026)
 
   const notEl = $('.ams-not');
   if (!cihazAmsterdam) {
@@ -547,7 +527,7 @@ function ciz() {
   const t = L();
   const mesaj = $('.durum-mesaj');
   if (!durum.veriVar) {
-    temaUygula(amsParcalar(simdi).h >= 7 && amsParcalar(simdi).h < 18);
+    temaUygula();
     $('.kalan-etiket').textContent = ' ';
     $('.sira-etiket').textContent = t.vaktinCikmasina;
     $('.sayac').textContent = '–:––:––';
@@ -555,7 +535,6 @@ function ciz() {
     $('.vakitler').replaceChildren(); _satirImza = '';
     kemerCiz(null);
     kerahatCiz(simdi, false);
-    if (cini) karoCiz();
     mesaj.hidden = false;
     mesaj.textContent = durum.hata ? t.hata : t.yukleniyor;
     return;
@@ -563,7 +542,7 @@ function ciz() {
   mesaj.hidden = true;
 
   const d = anDurumu(simdi, durum.olay.bugun, durum.olay.yarin, durum.olay.dun);
-  temaUygula(d.gunduz);
+  temaUygula();
   satirlariCiz(_gunKayma ? olaylar(gunEkle(durum.gun, _gunKayma)).map((e) => ({ ...e, durum: 'gelecek', simdi: false })) : d.satirlar);
   kemerCiz(d.kemer);
   if (d.siradaki) {
@@ -573,18 +552,46 @@ function ciz() {
     $('.sira-saat').textContent = d.siradaki.saat;
     $('.sira-ar').textContent = ARAPCA[d.siradaki.key];
   }
-  // Tema 2: "Vaktin çıkmasına": sayaç içinde bulunulan vaktin bitişine; İmsak → Sabah namazı "Sabah namazına", Güneş → Öğle "Öğle namazına"
-  const vs = document.documentElement.dataset.stil === 'liste' ? vakitSonu(simdi, durum.olay.bugun, durum.olay.yarin) : null;
+  // Tema 1 ve Tema 3 (20-11-2026, örnek resme göre): "Vaktin çıkmasına": sayaç içinde bulunulan vaktin bitişine;
+  // İmsak → Sabah namazı "Sabah namazına", Güneş → Öğle "Öğle namazına". Tema 3'te altında sıradaki vakit ve saati.
+  const vs = ['liste', 'cini'].includes(document.documentElement.dataset.stil) ? vakitSonu(simdi, durum.olay.bugun, durum.olay.yarin) : null;
   $('.sira-etiket').textContent = vs && vs.tur === 'giris' ? t.namazina(t.names[vs.vakit]) : t.vaktinCikmasina;
   if (vs) $('.sayac').textContent = geriSayim(vs.hedef - simdi);
   kerahatCiz(simdi, true);
-  if (cini) karoCiz();
+  temaCiz(simdi, d, t);
+}
+
+// ---------------- Tema 2 (gök) ve Tema 4 (zümrüt): ana ekranın çizimleri (tema-ciz.js; 20-11-2026) ----------------
+let _yayImza = '';
+function temaCiz(simdi, d, t) {
+  const stil = document.documentElement.dataset.stil;
+  const o = durum.olay;
+  if (stil === 'gok') {
+    const faz = gokFazi(simdi, o.bugun);
+    if (document.documentElement.dataset.gok !== faz) { document.documentElement.dataset.gok = faz; durumCubugu(); }
+    $('.gok-saat').textContent = d.siradaki ? t.saatte(d.siradaki.saat) : '';
+    const imza = `${durum.dil}${durum.gun}${Math.floor(simdi / 60000)}`;          // güneş yavaş yürür: dakikada bir
+    if (imza !== _yayImza) {
+      _yayImza = imza;
+      gokYayCiz($('.gok-yay'), { bugun: o.bugun, dun: o.dun, yarin: o.yarin, simdi, siradaki: d.siradaki && d.siradaki.key, adlar: t.names });
+    }
+  } else if (stil === 'zumrut') {
+    const hepsi = [...(o.dun || []), ...o.bugun, ...(o.yarin || [])].sort((a, b) => a.ms - b.ms);
+    const onceki = hepsi.filter((e) => e.ms <= simdi).pop();
+    const sonraki = hepsi.find((e) => e.ms > simdi);
+    const p = amsParcalar(simdi);
+    zumrutCiz($('.t4'), {
+      bugun: o.bugun, simdi, onceki: onceki && onceki.ms, sonraki: sonraki && sonraki.ms, siradaki: d.siradaki && d.siradaki.key,
+      simdiAd: onceki ? t.names[onceki.key] : '', saat: `${pad(p.h)}:${pad(p.mi)}`, kalanYazi: geriSayim(d.kalan),
+      simdiEtiket: t.t4Simdi, kalanEtiket: t.kalanSure,
+    });
+  }
 }
 
 // ---------------- Tema 1 (liste) ve Tema 3: kerahat (sadece İkindi vaktinde) ----------------
 function kerahatCiz(simdi, veriVar) {
   const el = $('.kh-cumle');
-  const k = veriVar && ['liste', 'cini'].includes(document.documentElement.dataset.stil) ? kerahatDurumu(simdi, durum.olay.bugun) : null;
+  const k = veriVar && ['liste', 'gok', 'cini'].includes(document.documentElement.dataset.stil) ? kerahatDurumu(simdi, durum.olay.bugun) : null;
   if (el.hidden !== !k) el.hidden = !k;
   if (!k) return;
   const t = L();
@@ -689,7 +696,7 @@ function bantYuksekligi() {
   const k = $('.kemer').getBoundingClientRect(), a = ana.getBoundingClientRect();
   if (!k.height) return;
   const tarih = $('.gun-gez').getBoundingClientRect();
-  const alt = stil === 'cini' ? tarih.bottom     // Tema 3: tarih de fotoğrafın üstünde, fotoğraf tarihin altında biter (kullanıcı isteği, 11-11-2026)
+  const alt = stil === 'cini' ? $('.sol').getBoundingClientRect().bottom   // Tema 3: fotoğraf tarihin hemen üstünde biter (artan yer fotoğrafta; 20-11-2026)
     : tabletMi.matches ? k.bottom + 16
       : tarih.top + 26;                          // Tema 1: yaprağın (tarih + liste) yuvarlak köşelerine kadar
   ana.style.setProperty('--bant-yuk', `${Math.round(alt - a.top)}px`);
@@ -704,7 +711,7 @@ function anaSigdir() {
     return;
   }
   const ekran = Math.min(window.innerHeight, kok.clientHeight);
-  if (kok.dataset.stil === 'cini') {                             // Tema 3: yükseklikler CSS'te (--ekran); fazla yer fotoğrafa gider
+  if (['cini', 'gok', 'zumrut'].includes(kok.dataset.stil)) {   // Tema 2, 3, 4: yükseklikler CSS'te (--ekran)
     kemer.style.setProperty('--k', '1');
     kok.style.setProperty('--ekran', `${ekran}px`);
     const sigiyor = $('main').offsetHeight <= ekran + 12;

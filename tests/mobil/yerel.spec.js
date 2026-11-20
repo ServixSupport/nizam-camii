@@ -380,12 +380,15 @@ test('"Alarmlar ve hatırlatıcılar" izni yoksa uyarı ve ayar düğmesi', asyn
   expect(await cagrilar(page, 'tamAlarmIzniAc')).toHaveLength(1);
 });
 
-test('tema: sistem çubukları açık temada koyu simgeli, koyu temada açık', async ({ page }) => {
+test('tema: sistem çubukları temaya göre (Tema 2 ve 4 koyu zeminli: açık simgeler; Tema 1 ve 3: koyu simgeler; 20-11-2026)', async ({ page }) => {
   await telefon(page, { izin: { bildirim: 'granted' } });
-  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar', depo: { 'nzm.tema': 'gunduz' } });
-  await expect.poll(async () => (await cagrilar(page, 'cubuklar')).at(-1)?.arg).toEqual({ koyu: false, zemin: '#F6F1E7' });
-  await page.getByRole('button', { name: 'Donker', exact: true }).click();
-  await expect.poll(async () => (await cagrilar(page, 'cubuklar')).at(-1)?.arg).toEqual({ koyu: true, zemin: '#0C1834' });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar', depo: { 'nzm.stil': 'gok' } });
+  await expect.poll(async () => (await cagrilar(page, 'cubuklar')).at(-1)?.arg?.koyu).toBe(true);
+  for (const [stil, koyu] of [['zumrut', true], ['cini', false], ['liste', false]]) {
+    await page.evaluate((s) => localStorage.setItem('nzm.stil', s), stil);
+    await page.reload();
+    await expect.poll(async () => (await cagrilar(page, 'cubuklar')).at(-1)?.arg?.koyu, stil).toBe(koyu);
+  }
 });
 
 test('iPhone: sessize alma ve durum çubuğu yok (Apple izin vermez), kilit ekranı widget açıklaması var; izin kendiliğinden sorulmaz', async ({ page }) => {

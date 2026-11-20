@@ -1,7 +1,7 @@
 // Ayarlar'da tema seçimi: tam ekran canlı önizleme (kullanıcı isteği, 09-11-2026).
 // Her tema, uygulamanın kendisi olarak iframe'de açılır (?onizleme=liste|klasik|cini; yerel.js): saat ve sayaç işler, gerçekte nasılsa öyle görünür.
 // Parmakla sağa sola kaydırılır. "Bu temayı seç" kaydeder; kapatınca hiçbir şey değişmez.
-const STILLER = ['liste', 'klasik', 'cini'];
+const STILLER = ['cini', 'gok', 'liste', 'zumrut'];   // Tema 1, 2, 3, 4 (kullanıcı isteği, 20-11-2026)
 
 /**
  * @param {object} o
@@ -16,7 +16,7 @@ export function temaOnizleme({ L, mevcut, sec, telefon = null, geriGuncelle = nu
   const serit = $('#to-serit');
   let sira = 0;
 
-  const ad = (k) => L()[{ liste: 'stilListe', klasik: 'stilKlasik', cini: 'stilCini' }[k]];
+  const ad = (k) => L()[{ liste: 'stilListe', gok: 'stilGok', cini: 'stilCini', zumrut: 'stilZumrut' }[k]];
 
   function ciz() {
     const t = L();

@@ -8,7 +8,7 @@ const C = typeof window !== 'undefined' ? window.Capacitor : undefined;
  */
 export const onizleme = (() => {
   const s = typeof location !== 'undefined' ? new URLSearchParams(location.search).get('onizleme') : null;
-  return s === 'liste' || s === 'klasik' || s === 'cini' ? s : null;
+  return ['liste', 'gok', 'cini', 'zumrut'].includes(s) ? s : null;
 })();
 
 export const yerelMi = !onizleme && !!(C && typeof C.isNativePlatform === 'function' && C.isNativePlatform());

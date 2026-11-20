@@ -26,7 +26,7 @@
 | `mobil/sw.js`, `manifest.webmanifest`, `ikon-*.png` | PWA (Faz C). Uygulama dosyası değişince: `cd tests && node araclar/sw-surum.mjs` (yoksa telefonlar eski sürümde kalır; test yakalar). |
 | `veri/dogrula.js` | İçerik doğrulama: API, panel ve testler aynı dosyayı kullanır. |
 | `api/bildirim/` | Faz D bildirimleri: `anahtar.js` (hazır mı + açık VAPID anahtarı), `abone.js` (kaydet/sil), `planla.js` (günlük cron), `gonder.js` (QStash çağırır), `deneme.js` (Ayarlar'daki "Deneme bildirimi": 1 dk sonra aynı yoldan). Mantık `api/_lib/bildirim.js`, servisler `api/_lib/bildirim-servis.js`. |
-| `mobil/tema-onizleme.js` | Ayarlar'da tema seçimi: tam ekran canlı önizleme (09-11-2026). Her tema uygulamanın kendisi olarak iframe'de (`?onizleme=liste\|klasik\|cini`; `yerel.js` `onizleme`): sağa sola kaydırılır, sadece "Bu temayı seç" kaydeder. iframe ağa gitmez, ayar yazmaz, telefon eklentisine dokunmaz. Android geri tuşu önizlemeyi kapatır (`CamiPlugin.geriYakala`, `camiGeri` olayı). |
+| `mobil/tema-onizleme.js` | Ayarlar'da tema seçimi: tam ekran canlı önizleme (09-11-2026). Her tema uygulamanın kendisi olarak iframe'de (`?onizleme=cini\|gok\|liste\|zumrut`; `yerel.js` `onizleme`): sağa sola kaydırılır, sadece "Bu temayı seç" kaydeder. iframe ağa gitmez, ayar yazmaz, telefon eklentisine dokunmaz. Android geri tuşu önizlemeyi kapatır (`CamiPlugin.geriYakala`, `camiGeri` olayı). |
 | `mobil/bildirim.js` | Uygulamada bildirim ayarları ve ana ekrandaki ziller. İzin sadece dokununca istenir. "Ses" açılır listesi (telefonun sesi, Ezan 1 … 7; 08-11-2026; satır seçer, ▶ seçmeden dinletir, 09-11-2026) sadece Android mağaza uygulamasında. Vakitten önce (`onceVakitler`) ve vakit girince (`vakitler`) ayrı vakit seçimi. |
 | `mobil/yerel.js`, `yerel-plan.js`, `yerel-ayar.js` | Mağaza uygulaması köprüsü: telefona verilen plan (vakitler, bildirimler, sessiz dönemler) ve Ayarlar'daki "Durum çubuğu", "Sessize alma", "Kilit ekranı". Tarayıcıda hiçbir şey yapmaz. Bildirim metinleri `mobil/bildirim-metin.js` (sunucu da kullanır). |
 | `app/` | Mağaza uygulaması (Capacitor 8; Android + iOS). Ayrıntı: `app/README.md`, mağaza metinleri: `app/MAGAZA.md`. Vercel'e yüklenmez. |
@@ -38,10 +38,19 @@
 - Temmuz'dan kalan eski dosyalar `_eski-temmuz/` içinde; git'e ve Vercel'e girmez.
 - `core.autocrlf=false`: dosyalar GitHub'dakiyle bayt bayt aynı kalır (`index.html` 359.624 bayt).
 - Renk temaları (Yeşil, Turkuaz, Bordo) kullanıcı isteğiyle kaldırıldı (06-11-2026). Alt sistem çubuğu artık temaya göre (önceden hep lacivert).
-- Uygulamada üç tema; ayarlarda **Tema 1 / Tema 2 / Tema 3** (NL Thema, EN Theme). Üçünün de gündüz/gece hali var (Ayarlar'da Otomatik/Açık/Koyu).
-  - **08-11-2026'dan beri numaralar yer değiştirdi (kullanıcı isteği):** Tema 1 = liste, Tema 2 = kemer. **11-11-2026'dan beri varsayılan Tema 3** (kullanıcı isteği; hiç seçmeyenler de Tema 3 görür).
-    - Depo: `nzm.stil` `'klasik'` ise kemer, `'liste'` ise liste; yoksa veya `'cini'` ise Tema 3. Testlerde `mobilAc` varsayılan olarak `'klasik'` yazar (eski testler kemeri dener); varsayılanı denemek için `'nzm.stil': null`.
-  - Tema 2: kemer, lacivert (eski "Klasik").
+- Uygulamada dört **sabit** tema (kullanıcı isteği, 20-11-2026): açık/koyu seçimi yok, `data-tema` hep `gunduz`, eski `nzm.tema` etkisiz. Ayarlarda ve önizlemede sırayla **Tema 1–4** (NL Thema, EN Theme):
+  - Tema 1 = `cini` (fotoğraflı, varsayılan), Tema 2 = `gok` (güneş yayı), Tema 3 = `liste` (yeşil desenli), Tema 4 = `zumrut` (koyu).
+  - **Dikkat:** aşağıdaki eski notlarda "Tema 1" = `liste`, "Tema 3" = `cini` diye geçer (numaralar 20-11-2026'da değişti). Gece halleri kalktı.
+  - Depo: `nzm.stil` `'liste'|'gok'|'zumrut'`; `'klasik'` (eski kemer) → `gok`; yoksa veya `'cini'` → Tema 1. Testlerde `mobilAc` hâlâ `'klasik'` yazar (yani Tema 2); varsayılan için `'nzm.stil': null`.
+  - Bütün temalarda üstte küçük logo, cami adı, altında küçük "Amsterdam" (`.ust-alt`), oklu tarih (`gun-gez`).
+  - Yeni temalar için tablet/masaüstü tasarımı yapılmaz (kullanıcı isteği, token tasarrufu).
+  - Tema 2 (`gok`, `mobil/tema-ciz.js`):
+    - Gökyüzü içinde bulunulan vakte göre (`data-gok`: seher, sabah, ogle, ikindi, aksam, gece; `@property --gok1/--gok2`, yumuşak geçiş).
+    - Geniş güneş yayı (gündüz yayı + kesik gece yayı): vakitlerin noktaları, güneş ya da ay. Yayda ad ve saat yok (kullanıcı isteği).
+    - Yayın içinde sıradaki vakte kalan süre, vaktin saati, kerahat. Altında tarih (diğer temalardaki gibi), yarı saydam vakit kartları (sıradaki altın).
+  - Tema 4 (`zumrut`): "Şimdi" kartı (vakit + saat), kalan süre halkası, 7 vakitlik zaman çizgisi, tarih kartı, simge kutulu vakit kartları; sıradaki turkuaz çerçeveli ve "Sıradaki" rozetli (`--t4Sonraki`). Kerahat ve Kuran hatırlatması yok.
+  - Tema 3 (`liste`, 20-11-2026): ters çevrildi: bütün zemin yeşil desenli, sayaç beyaz kartta (yeşil rakam), vakitler beyaz kutularda; sıradaki koyu yeşil, şimdiki altın çizgi. Kısa telefonda (360 × 640) kart küçülür.
+  - Tema 1 (`cini`, 20-11-2026): fotoğrafın üstünde kapsülde logo + ad + Amsterdam, "Vaktin çıkmasına", düz büyük sayaç (karo yok), sıradaki vakit + turuncu saat, kerahat. Fotoğraf tarihin hemen üstünde biter; fotoğraf–tarih ve tarih–liste arası eşit (6 px).
   - Tema 1 (`nzm.stil=liste`, `html[data-stil="liste"]`; eski "Liste"nin yerine): kullanıcının örnek resmine göre; logonun renkleri. Telefonda logo 34 px (08-11-2026; önce 52, sonra 40).
     - 11-11-2026'dan beri fotoğraf yok (kullanıcı isteği): üstte yeşil desenli bant (`--bant` #1F4D2B, `--desen`: kemerli temadaki yıldız deseni, altın çizgi). Bandın yüksekliği JS'ten `--bant-yuk` (yaprağın köşelerine kadar); tarayıcı çubuğu `--ustZemin` (bandın rengi). Yatay tablette solda tam boy yeşil panel.
     - Bandın üstünde: logo + ad; ortada Tema 3'teki gibi büyük harfle "VAKTİN ÇIKMASINA" (beyaz), kalan süre sade büyük sarı rakamlarla (`.sayac`; karo yok, kullanıcı isteği 11-11-2026: Tema 3'e benzemesin), kerahat koyu kapsülde (sarı). Vakit adı ve Arapça adı gösterilmez.

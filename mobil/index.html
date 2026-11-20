@@ -29,14 +29,12 @@
       document.querySelector('meta[name="apple-mobile-web-app-title"]').setAttribute('content', ad);
     }
     var oz = new URLSearchParams(location.search).get('onizleme');   // tam ekran tema önizlemesi (tema-onizleme.js)
-    var s = oz === 'liste' || oz === 'klasik' || oz === 'cini' ? oz : localStorage.getItem('nzm.stil');
-    if (s !== 'klasik') document.documentElement.setAttribute('data-stil', s === 'liste' ? 'liste' : 'cini');   // Tema 3 (cini) varsayılan (kullanıcı isteği, 11-11-2026)
-    var t = localStorage.getItem('nzm.tema');
-    if (t !== 'gunduz' && t !== 'gece') {
-      var h = +new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Amsterdam', hour: '2-digit', hourCycle: 'h23' }).format(new Date());
-      t = (h >= 7 && h < 18) ? 'gunduz' : 'gece';
-    }
-    document.documentElement.setAttribute('data-tema', t);
+    var s = ['liste', 'gok', 'cini', 'zumrut'].indexOf(oz) >= 0 ? oz : localStorage.getItem('nzm.stil');
+    if (s === 'klasik') s = 'gok';                                   /* eski Tema 2 (kemer) yerine gök (20-11-2026) */
+    if (['liste', 'gok', 'zumrut'].indexOf(s) < 0) s = 'cini';       /* Tema 3 (cini) varsayılan (kullanıcı isteği, 11-11-2026) */
+    document.documentElement.setAttribute('data-stil', s);
+    /* sabit temalar (kullanıcı isteği, 20-11-2026): Otomatik / Açık / Koyu seçimi yok, her tema kendi (açık) haliyle */
+    document.documentElement.setAttribute('data-tema', 'gunduz');
   } catch (e) {}
 })();
 </script>
@@ -109,12 +107,24 @@
           <span class="sira-etiket"></span>   <!-- Tema 2: "Vaktin çıkmasına" (app.js ciz) -->
           <span class="kalan-etiket">&nbsp;</span>
           <span class="sayac">–:––:––</span>
-          <span class="sayac-karo" role="timer"><b>––</b><i aria-hidden="true">:</i><b>––</b><i aria-hidden="true">:</i><b>––</b></span>   <!-- Tema 1 ve 3: karolarda (app.js karoCiz) -->
+          <span class="gok-saat"></span>   <!-- Tema 2: "saat 12:29" (app.js) -->
           <span class="kalan-kisa" data-t="kalanSure"></span>
           <span class="sira"><span class="sira-ad">&nbsp;</span><span class="sira-saat"></span></span>
           <span class="sira-ar" lang="ar" dir="rtl"></span>
-          <span class="kh-cumle" hidden></span>   <!-- Tema 2: kerahat, tek cümle (app.js kerahatCiz) -->
+          <span class="kh-cumle" hidden></span>   <!-- Tema 1, 2, 3: kerahat, tek cümle (app.js kerahatCiz) -->
         </div>
+        <svg class="gok-yay" viewBox="0 0 380 196" aria-hidden="true"></svg>   <!-- Tema 2: güneş yayı (tema-ciz.js) -->
+      </div>
+      <!-- Tema 4 (20-11-2026): şimdi kartı, kalan süre halkası, zaman çizgisi (tema-ciz.js zumrutCiz) -->
+      <div class="t4">
+        <div class="t4-ust">
+          <div class="t4-kart t4-simdi"><span class="t4-etiket"></span><span class="t4-ad"></span><span class="t4-saat"></span></div>
+          <div class="t4-kart t4-halka" role="timer">
+            <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="t4-iz" cx="60" cy="60" r="52"/><circle class="t4-dolu" cx="60" cy="60" r="52" transform="rotate(-90 60 60)"/></svg>
+            <span class="t4-kalan"></span><span class="t4-kalan-etiket"></span>
+          </div>
+        </div>
+        <ol class="t4-cizgi" aria-hidden="true"></ol>
       </div>
     </div>
 
@@ -192,11 +202,6 @@
           <span class="ayar-deger" id="stil-ad"></span>
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
         </button>
-        <div class="tema-ayar" id="tema-ayar">
-          <span class="ad-ip"><span class="ayar-ad" id="tema-ad" data-t="theme"></span><button type="button" class="ipucu" aria-expanded="false" aria-controls="ip-tema" data-ip-ad="tema-ad"><span aria-hidden="true">?</span></button></span>
-          <span class="ayar-not ipucu-not" id="ip-tema" data-t="autoHint" hidden></span>
-          <div class="secenekler" role="group" data-t-aria="theme" id="tema-secim"></div>
-        </div>
       </div>
     </section>
 

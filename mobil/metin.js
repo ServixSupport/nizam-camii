@@ -13,7 +13,7 @@ export const ARAPCA = {
 export const METIN = {
   tr: {
     locale: 'tr-TR',
-    camiAlt: 'Camii · Amsterdam',
+    camiAlt: 'Amsterdam',
     camiTam: 'Nizam-ı Alem Süleymaniye Camii',
     logoAlt: 'Nizam-ı Alem Süleymaniye Camii logosu',
     menu: 'Ana menü', tabHome: 'Ana ekran', tabEvents: 'Faaliyetler', tabPrograms: 'Programlar', tabSettings: 'Ayarlar',
@@ -35,7 +35,7 @@ export const METIN = {
     prTitle: 'Programlar', prSub: 'Her hafta düzenli dersler ve sohbetler',
     prEmpty: 'Henüz program eklenmedi.', prEmptySub: 'Haftalık dersler ve sohbetler eklendiğinde burada görünür.',
     // Ayarlar
-    title: 'Ayarlar', lang: 'DİL', look: 'TEMA VE GÖRÜNÜM', theme: 'Açık / koyu', stil: 'Tasarım', stilKlasik: 'Tema 2', stilListe: 'Tema 1', stilCini: 'Tema 3', gunGez: 'Tarih', gunOnceki: 'Önceki gün', gunSonraki: 'Sonraki gün',
+    title: 'Ayarlar', lang: 'DİL', look: 'TEMA VE GÖRÜNÜM', theme: 'Açık / koyu', stil: 'Tasarım', stilGok: 'Tema 2', stilListe: 'Tema 3', stilCini: 'Tema 1', stilZumrut: 'Tema 4', saatte: (s) => `saat ${s}`, t4Simdi: 'Şimdi', t4Sonraki: 'Sıradaki', gunGez: 'Tarih', gunOnceki: 'Önceki gün', gunSonraki: 'Sonraki gün',
     // Tema 2: sıradaki vakit kartı ve kerahat (süre hocaya danışılacak: zaman.js KERAHAT_DK)
     kalanSure: 'kalan süre', vaktinCikmasina: 'Vaktin çıkmasına', namazina: (ad) => `${ad} namazına`, kerahatOnce: (s) => `Kerahat vaktine ${s} kaldı`, kerahatIcinde: 'Kerahat vakti',
     auto: 'Otomatik', light: 'Açık', dark: 'Koyu', autoHint: 'Güneş doğunca açık, Akşam vaktinde koyu tema.',
@@ -43,7 +43,7 @@ export const METIN = {
   },
   nl: {
     locale: 'nl-NL',
-    camiAlt: 'Moskee · Amsterdam',
+    camiAlt: 'Amsterdam',
     camiTam: 'Nizam-ı Alem Süleymaniye Moskee',
     logoAlt: 'Logo Nizam-ı Alem Süleymaniye Moskee',
     menu: 'Hoofdmenu', tabHome: 'Home', tabEvents: 'Activiteiten', tabPrograms: 'Programma’s', tabSettings: 'Instellingen',
@@ -61,14 +61,14 @@ export const METIN = {
     evEmpty: 'Nog geen komende activiteiten.', evEmptySub: 'Zodra de moskee een activiteit toevoegt, zie je die hier.',
     prTitle: 'Programma’s', prSub: 'Wekelijkse lessen en bijeenkomsten',
     prEmpty: 'Nog geen programma’s.', prEmptySub: 'Wekelijkse lessen en bijeenkomsten verschijnen hier zodra ze zijn toegevoegd.',
-    title: 'Instellingen', lang: 'TAAL', look: 'THEMA EN WEERGAVE', theme: 'Licht / donker', stil: 'Ontwerp', stilKlasik: 'Thema 2', stilListe: 'Thema 1', stilCini: 'Thema 3', gunGez: 'Datum', gunOnceki: 'Vorige dag', gunSonraki: 'Volgende dag',
+    title: 'Instellingen', lang: 'TAAL', look: 'THEMA EN WEERGAVE', theme: 'Licht / donker', stil: 'Ontwerp', stilGok: 'Thema 2', stilListe: 'Thema 3', stilCini: 'Thema 1', stilZumrut: 'Thema 4', saatte: (s) => `om ${s}`, t4Simdi: 'Nu', t4Sonraki: 'Volgende', gunGez: 'Datum', gunOnceki: 'Vorige dag', gunSonraki: 'Volgende dag',
     kalanSure: 'resterend', vaktinCikmasina: 'Gebedstijd eindigt over', namazina: (ad) => `${ad} begint over`, kerahatOnce: (s) => `Nog ${s} tot de kerahat-tijd`, kerahatIcinde: 'Kerahat-tijd',
     auto: 'Automatisch', light: 'Licht', dark: 'Donker', autoHint: 'Licht vanaf zonsopgang, donker vanaf maghrib.',
     mosque: 'MOSKEE', source: 'Gebedstijden: Diyanet', harita: 'Openen in kaart',
   },
   en: {
     locale: 'en-GB',
-    camiAlt: 'Mosque · Amsterdam',
+    camiAlt: 'Amsterdam',
     camiTam: 'Nizam-ı Alem Süleymaniye Mosque',
     logoAlt: 'Nizam-ı Alem Süleymaniye Mosque logo',
     menu: 'Main menu', tabHome: 'Home', tabEvents: 'Activities', tabPrograms: 'Programs', tabSettings: 'Settings',
@@ -86,7 +86,7 @@ export const METIN = {
     evEmpty: 'No upcoming activities yet.', evEmptySub: 'New activities from the mosque will appear here.',
     prTitle: 'Programs', prSub: 'Weekly lessons and gatherings',
     prEmpty: 'No programs yet.', prEmptySub: 'Weekly lessons and gatherings will appear here once they are added.',
-    title: 'Settings', lang: 'LANGUAGE', look: 'THEME & APPEARANCE', theme: 'Light / dark', stil: 'Design', stilKlasik: 'Theme 2', stilListe: 'Theme 1', stilCini: 'Theme 3', gunGez: 'Date', gunOnceki: 'Previous day', gunSonraki: 'Next day',
+    title: 'Settings', lang: 'LANGUAGE', look: 'THEME & APPEARANCE', theme: 'Light / dark', stil: 'Design', stilGok: 'Theme 2', stilListe: 'Theme 3', stilCini: 'Theme 1', stilZumrut: 'Theme 4', saatte: (s) => `at ${s}`, t4Simdi: 'Now', t4Sonraki: 'Next', gunGez: 'Date', gunOnceki: 'Previous day', gunSonraki: 'Next day',
     kalanSure: 'remaining', vaktinCikmasina: 'Prayer time ends in', namazina: (ad) => `${ad} begins in`, kerahatOnce: (s) => `${s} until kerahat time`, kerahatIcinde: 'Kerahat time',
     auto: 'Automatic', light: 'Light', dark: 'Dark', autoHint: 'Light from sunrise, dark from maghrib.',
     mosque: 'MOSQUE', source: 'Prayer times: Diyanet', harita: 'Open in maps',

@@ -27,16 +27,11 @@ const DURUMLAR = [
   { ad: '16-ana-ziller-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', bildirim: true },
   { ad: '17-ayarlar-bildirim-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#ayarlar', bildirim: true },
   { ad: '18-ayarlar-bildirim-gece-en', zaman: `${GUN}T21:30:00.500+01:00`, dil: 'en', hash: '#ayarlar', bildirim: true },
-  // "Liste" tasarımı (07-11-2026): açık ve koyu
+  // Tema 3 (yeşil desenli, 'liste')
   { ad: '23-ana-liste-gunduz-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', stil: 'liste' },
   { ad: '24-ana-liste-gece-nl', zaman: `${GUN}T21:30:00.500+01:00`, dil: 'nl', stil: 'liste' },
   { ad: '25-ayarlar-liste-gece-en', zaman: `${GUN}T21:30:00.500+01:00`, dil: 'en', hash: '#ayarlar', stil: 'liste', bildirim: true },
-  // Tema 3 (09-11-2026): lacivert, karolu sayaç, oklu tarih
-  { ad: '26-ana-tema3-tr', zaman: `${GUN}T12:00:00.500+01:00`, dil: 'tr', stil: 'cini', tema: 'gece' },
-  { ad: '27-ana-tema3-ziller-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', stil: 'cini', tema: 'gece', bildirim: true },
-  { ad: '28-ayarlar-tema3-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', hash: '#ayarlar', stil: 'cini', tema: 'gece', bildirim: true },
-  { ad: '29-programlar-tema3-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#programlar', stil: 'cini', tema: 'gece', icerik: true },
-  // Tema 3'ün açık hali (09-11-2026)
+  // Tema 1 (fotoğraflı, 'cini'; 20-11-2026'dan beri sabit temalar, gece hali yok)
   { ad: '30-ana-tema3-acik-tr', zaman: `${GUN}T12:00:00.500+01:00`, dil: 'tr', stil: 'cini', tema: 'gunduz' },
   { ad: '31-ana-tema3-acik-ziller-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', stil: 'cini', tema: 'gunduz', bildirim: true },
   { ad: '32-ayarlar-tema3-acik-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', hash: '#ayarlar', stil: 'cini', tema: 'gunduz', bildirim: true },
@@ -44,7 +39,9 @@ const DURUMLAR = [
   { ad: '34-faaliyetler-tema3-acik-nl', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'nl', hash: '#faaliyetler', stil: 'cini', tema: 'gunduz', icerik: true },
   // namaz vakti bildirimleri ayrı sayfada, her vakit kendi satırında (kullanıcı isteği, 19-11-2026)
   { ad: '35-bildirimler-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#bildirimler', bildirim: true },
-  { ad: '36-bildirimler-tema3-gece-nl', zaman: `${GUN}T21:30:00.500+01:00`, dil: 'nl', hash: '#bildirimler', stil: 'cini', tema: 'gece', bildirim: true },
+  // Tema 2 (güneş yayı, 'gok') = mobilAc'in varsayılanı ('klasik' → 'gok'): 01–04. Tema 4 (koyu, 'zumrut'; 20-11-2026):
+  { ad: '40-ana-tema4-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', stil: 'zumrut' },
+  { ad: '41-ana-tema4-ziller-nl', zaman: `${GUN}T21:30:00.500+01:00`, dil: 'nl', stil: 'zumrut', bildirim: true },
   // iPhone: Apple yükleme düğmesine izin vermez; Ayarlar'da adım adım "Ana Ekrana Ekle" (06-11-2026)
   { ad: '22-ayarlar-iphone-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#ayarlar', ios: true },
 ];
