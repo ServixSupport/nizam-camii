@@ -909,11 +909,9 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
    Fotoğrafın üstünde: küçük logo ve cami adı (yarı saydam kapsülde), "Vaktin çıkmasına", düz büyük sayaç (karo yok),
    sıradaki vakit ve saati (turuncu kapsülde), kerahat. Fotoğraf sayacın altında biter, alt köşeleri yuvarlak; tarih altında, zeminde. */
 @media (max-width: 767px) {   /* tablette logo yandaki menüde, üst satır yok (eskisi gibi) */
-  :root[data-stil="cini"] .ust { position: relative; align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; padding: 4px 14px 4px 4px;
-    border-radius: 999px; background: rgba(8,14,26,.5); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  :root[data-stil="cini"] .ust { position: relative; align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; padding: 4px 0; }   /* kutusuz (kullanıcı isteği, 20-11-2026) */
   :root[data-stil="cini"] .ust img { width: 30px; height: 30px; padding: 2px; }
-  :root[data-stil="cini"] .ust-ad { font-family: inherit; font-size: 15px; font-weight: 600; letter-spacing: 0; text-transform: none; text-shadow: none; }
-  :root[data-stil="cini"] .ust { border-radius: 22px; }
+  :root[data-stil="cini"] .ust-ad { font-family: inherit; font-size: 15px; font-weight: 600; letter-spacing: 0; text-transform: none; }
 }
 :root[data-stil="cini"] .kemer-ic { align-items: flex-start; text-align: left; gap: 2px; padding: 20px 6px 26px; }
 :root[data-stil="cini"] .sira-etiket { display: block; font-size: 18px; font-weight: 600; color: #FFFFFF; text-shadow: 0 1px 2px #000, 0 0 12px rgba(0,0,0,.75); }

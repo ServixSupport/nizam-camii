@@ -621,7 +621,7 @@ test.describe('Tema 1 (cini)', () => {
 
 
 
-  test('ana ekran sırayla: kapsülde logo, ad ve "Amsterdam"; "Vaktin çıkmasına", düz sayaç, sıradaki vakit ve saati, kerahat; altında oklu tarih, 7 vakit; kaymadan sığar', async ({ page }) => {
+  test('ana ekran sırayla: logo, ad ve "Amsterdam" (kutusuz); "Vaktin çıkmasına", düz sayaç, sıradaki vakit ve saati, kerahat; altında oklu tarih, 7 vakit; kaymadan sığar', async ({ page }) => {
     await ac(page, '16:00:00.500');
     await expect(page.locator('.ust img')).toBeVisible();
     await expect(page.locator('.ust-ad')).toBeVisible();
