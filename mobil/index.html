@@ -156,11 +156,14 @@
 
   <!-- ===== FAALİYETLER ===== -->
   <section class="sekme sayfa" id="s-faaliyetler" data-sekme="faaliyetler" hidden>
-    <div class="sayfa-bas">
-      <h1 data-t="evTitle"></h1>
-      <p data-t="evSub"></p>
-    </div>
-    <div class="suz-kap" id="f-cipler"></div>
+    <!-- süzgeç: başlığın solunda, sadece simgeli kutu (kullanıcı isteği, 20-11-2026) -->
+    <header class="sayfa-ust">
+      <div class="suz-kap" id="f-cipler"></div>
+      <div class="sayfa-bas">
+        <h1 data-t="evTitle"></h1>
+        <p data-t="evSub"></p>
+      </div>
+    </header>
     <div class="f-icerik" id="f-icerik"></div>
   </section>
 
@@ -175,7 +178,8 @@
 
   <!-- ===== PROGRAMLAR (Faaliyetler gibi liste; kullanıcı isteği, 19-11-2026) ===== -->
   <section class="sekme sayfa programlar" id="s-programlar" data-sekme="programlar" hidden>
-    <header class="pr-bas">
+    <header class="sayfa-ust">
+      <div class="suz-kap" id="p-cipler"></div>
       <div class="sayfa-bas">
         <h1 data-t="prTitle"></h1>
         <p data-t="prSub"></p>

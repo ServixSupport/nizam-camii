@@ -24,6 +24,11 @@ test.describe('faaliyetler', () => {
     await ac(page, { adres: '/mobil/#faaliyetler' });
     const secim = page.getByRole('combobox', { name: 'Gruba göre süz' });
     await expect(secim.locator('option')).toHaveText(['Tüm gruplar', 'Herkes', 'Erkekler', 'Hanımlar', 'Gençlik', 'Çocuklar']);
+    // başlığın solunda, sadece simgeli kutu (kullanıcı isteği, 20-11-2026)
+    const [kutu, baslik] = await Promise.all([page.locator('#s-faaliyetler .suz').boundingBox(), page.locator('#s-faaliyetler h1').boundingBox()]);
+    expect(kutu.x + kutu.width).toBeLessThanOrEqual(baslik.x);
+    expect(kutu.width).toBe(48);
+    await expect(page.locator('#f-grup')).toHaveCSS('opacity', '0');           // seçim görünmez, kutuda sadece simge
     await secim.selectOption('genclik');
     await expect(page.locator('.suz')).toHaveClass(/aktif/);
     await expect(page.locator('.one-cikan')).toHaveCount(0);
@@ -125,6 +130,10 @@ test.describe('programlar', () => {
 
   test('gruba göre süzme', async ({ page }) => {
     await ac(page, { adres: '/mobil/#programlar' });
+    // ay ve yıl başlıkları (kullanıcı isteği, 20-11-2026); süzgeç başlığın solunda
+    await expect(page.locator('#p-icerik .ay-baslik')).toHaveText(['EKİM 2026', 'KASIM 2026']);
+    const [kutu, baslik] = await Promise.all([page.locator('#s-programlar .suz').boundingBox(), page.locator('#s-programlar h1').boundingBox()]);
+    expect(kutu.x + kutu.width).toBeLessThanOrEqual(baslik.x);
     await page.locator('#p-grup').selectOption('erkekler');
     await expect(page.locator('.p-oge .f-baslik')).toHaveText(['Hadis dersi', 'Tefsir dersi']);
     await page.locator('#p-grup').selectOption('tumu');

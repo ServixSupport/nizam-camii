@@ -224,7 +224,9 @@ main {
   display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;
   padding: 32px 22px 30px; border-radius: 22px; background: var(--card); border: 1px solid var(--line); animation: nzRise .5s both;
 }
-.bos svg { width: 44px; height: 44px; color: var(--gold); margin-bottom: 6px; }
+/* boş sayfada ve öne çıkan kartta desen yerine caminin logosu: logonun şekli tek renk (kullanıcı isteği, 20-11-2026) */
+.bos-logo, .oc-desen { background: var(--gold); -webkit-mask: url(/mobil/logo.png) center / contain no-repeat; mask: url(/mobil/logo.png) center / contain no-repeat; }
+.bos-logo { display: block; width: 76px; height: 76px; margin-bottom: 8px; opacity: .6; }
 .bos p { margin: 0; }
 .bos-baslik { font-weight: 700; font-size: 16px; }
 .bos-alt { font-size: 14px; line-height: 1.45; color: var(--soft); max-width: 320px; }
@@ -281,17 +283,19 @@ main {
 .grup-etiket { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--g); }
 .grup-etiket .elmas { width: 8px; height: 8px; }
 
-  border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer; }
 
-.suz-kap { display: flex; }
-.suz { position: relative; display: inline-flex; align-items: center; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+/* süzgeç: başlığın solunda, sadece simgeli kutu (kullanıcı isteği, 20-11-2026); seçim kutunun üstünde, görünmez */
+.sayfa-ust { display: flex; align-items: center; gap: 14px; }
+.sayfa-ust .sayfa-bas { flex: 1; min-width: 0; }
+.suz-kap { display: flex; flex: none; }
+.suz-kap[hidden] { display: none; }
+.suz { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px;
+  border: 1px solid var(--line); background: var(--card); color: var(--ink); }
 .suz:focus-within { outline: 3px solid var(--cobalt); outline-offset: 2px; }
-.suz select { appearance: none; -webkit-appearance: none; min-height: 44px; padding: 0 42px 0 40px; border: 0; border-radius: 999px; background: transparent; color: inherit;
-  font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; outline: none; }
+.suz select { appearance: none; -webkit-appearance: none; position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0;
+  border-radius: inherit; background: transparent; color: transparent; font: inherit; font-size: 16px; opacity: 0; cursor: pointer; outline: none; }
 .suz select option { color: #14295A; background: #FFFDF8; }
-.suz-ikon, .suz-ok { position: absolute; width: 18px; height: 18px; pointer-events: none; }
-.suz-ikon { left: 14px; color: var(--soft); }
-.suz-ok { right: 14px; }
+.suz-ikon { width: 22px; height: 22px; pointer-events: none; color: currentColor; }
 .suz.aktif { background: var(--g); border-color: transparent; color: var(--card); }
 .suz.aktif .suz-ikon { color: inherit; }
 :root[data-tema="gece"] .suz.aktif { color: #0C1834; }
@@ -299,7 +303,7 @@ main {
 .f-icerik { display: flex; flex-direction: column; gap: 16px; }
 .one-cikan { position: relative; display: flex; gap: 16px; padding: 16px; border-radius: 22px; background: var(--navy); color: #F6F1E7;
   border: 1px solid var(--navyLine); overflow: hidden; }
-.oc-desen { position: absolute; right: -50px; top: -60px; width: 220px; height: 220px; opacity: .14; pointer-events: none; }
+.oc-desen { position: absolute; right: -36px; top: -34px; width: 190px; height: 190px; opacity: .13; pointer-events: none; }
 .tarih-kemer { position: relative; flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; }
 .tarih-kemer svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
 .tarih-kemer span { position: relative; }
@@ -359,7 +363,6 @@ main {
 .d-aciklama { margin: 4px 0 0; font-size: 16px; line-height: 1.55; white-space: pre-line; overflow-wrap: anywhere; }
 .d-dugmeler { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 
-.pr-bas { display: flex; flex-direction: column; gap: 14px; }
 .p-icerik { display: flex; flex-direction: column; gap: 16px; }
 /* Programlar: Faaliyetler gibi alt alta liste, gün seçmeden (kullanıcı isteği, 19-11-2026). Kemerde sıradaki günün tarihi. */
 .p-aciklama { font-size: 13.5px; color: var(--soft); white-space: pre-line; overflow-wrap: anywhere; }

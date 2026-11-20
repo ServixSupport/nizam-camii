@@ -92,7 +92,7 @@ export function ekranlar(c) {
   const grupStil = (g) => ({ '--g': `var(--g-${g})`, '--gt': `var(--gt-${g})` });
   const grupEtiketi = (g) => h('span', { class: 'grup-etiket', style: grupStil(g) }, yildiz('elmas'), c.L().gruplar[g]);
 
-  /** Grup süzgeci: tek açılır seçim düğmesi (telefonda telefonun kendi listesi açılır). */
+  /** Grup süzgeci: başlığın solunda simgeli kutu; dokununca telefonun kendi listesi açılır (seçim kutunun üstünde, görünmez; 20-11-2026). */
   function grupSecici(secili, sec, kimlik) {
     const L = c.L();
     const aktif = secili !== 'tumu';
@@ -100,8 +100,7 @@ export function ekranlar(c) {
       h('svg:svg', { class: 'suz-ikon', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' },
         h('svg:path', { d: 'M4 6h16M7 12h10M10 18h4' })),
       h('select', { id: kimlik, 'aria-label': L.suz, onchange: (e) => sec(e.target.value) },
-        ['tumu', ...GRUP_SIRA].map((g) => h('option', { value: g, selected: g === secili, metin: g === 'tumu' ? L.tumGruplar : L.gruplar[g] }))),
-      ikon(['M6 9l6 6 6-6'], 'suz-ok'));
+        ['tumu', ...GRUP_SIRA].map((g) => h('option', { value: g, selected: g === secili, metin: g === 'tumu' ? L.tumGruplar : L.gruplar[g] }))));
   }
 
   function takvimeEkle(f) {
@@ -175,10 +174,7 @@ export function ekranlar(c) {
       h('button', { type: 'button', class: 'dugme altin', onclick: () => takvimeEkle(f) }, ikon(IKON.takvim), L.takvimeEkle),
       h('button', { type: 'button', class: 'dugme cerceve kare', 'aria-label': L.paylas, onclick: () => paylas(f) }, ikon(IKON.paylas)));
     return h('article', { class: 'one-cikan' + (resim ? ' met-resim' : '') },
-      h('svg:svg', { class: 'oc-desen', viewBox: '0 0 48 48', 'aria-hidden': 'true' },
-        h('svg:g', { fill: 'none', stroke: '#E8C27A', 'stroke-width': 0.6 },
-          h('svg:rect', { x: 14, y: 14, width: 20, height: 20 }), h('svg:rect', { x: 14, y: 14, width: 20, height: 20, transform: 'rotate(45 24 24)' }),
-          h('svg:circle', { cx: 24, cy: 24, r: 6 }))),
+      h('span', { class: 'oc-desen', 'aria-hidden': 'true' }),          // caminin logosu, soluk (kullanıcı isteği, 20-11-2026)
       h('a', { class: 'tarih-kemer buyuk', href: `#faaliyet/${f.id}`, 'aria-hidden': 'true', tabindex: '-1' },
         h('svg:svg', { viewBox: '0 0 76 96' }, h('svg:path', { d: 'M2 94 V44 A50 50 0 0 1 38 2 A50 50 0 0 1 74 44 V94 Z' })),
         h('span', { class: 'tk-gun', metin: t.gun }), h('span', { class: 'tk-ay', metin: t.ay.toLocaleUpperCase(L.locale) }),
@@ -196,8 +192,7 @@ export function ekranlar(c) {
 
   function bosKart(baslik, alt) {
     return h('div', { class: 'bos' },
-      h('svg:svg', { viewBox: '0 0 48 48', 'aria-hidden': 'true' }, h('svg:g', { fill: 'none', stroke: 'currentColor', 'stroke-width': 1.6 },
-        h('svg:rect', { x: 14, y: 14, width: 20, height: 20 }), h('svg:rect', { x: 14, y: 14, width: 20, height: 20, transform: 'rotate(45 24 24)' }))),
+      h('span', { class: 'bos-logo', 'aria-hidden': 'true' }),          // caminin logosu (kullanıcı isteği, 20-11-2026)
       h('p', { class: 'bos-baslik', metin: baslik }), h('p', { class: 'bos-alt', metin: alt }));
   }
 
@@ -231,6 +226,9 @@ export function ekranlar(c) {
     kap.classList.toggle('ilk', ilk);
     const L = c.L(), dil = c.dil();
     const programlar = c.icerik().programlar || [];
+    const suzKap = document.getElementById('p-cipler');
+    suzKap.hidden = !programlar.length;
+    doldur(suzKap, grupSecici(durum.pGrup, (g) => { durum.pGrup = g; programlariCiz(); }, 'p-grup'));
     if (!programlar.length) { doldur(kap, bosKart(L.prEmpty, L.prEmptySub)); return; }
     const simdi = c.simdi();
     const liste = programlar
@@ -239,11 +237,17 @@ export function ekranlar(c) {
       .sort((a, b) => (a.s ? 0 : 1) - (b.s ? 0 : 1)
         || (a.s && b.s ? a.s.ymd.localeCompare(b.s.ymd) || (a.s.zaman.bas ?? 9999) - (b.s.zaman.bas ?? 9999) : 0)
         || metinSec(a.p.baslik, dil).localeCompare(metinSec(b.p.baslik, dil), L.locale));
-    const ul = h('ul', { class: 'f-liste' }, liste.map(({ p, s }, i) => {
+    // ay ve yıl başlıkları, Faaliyetler'deki gibi (kullanıcı isteği, 20-11-2026): sıradaki oturumun ayı
+    let ay = '';
+    const ul = h('ul', { class: 'f-liste' }, liste.flatMap(({ p, s }, i) => {
       const t = s ? tarihParca(s.ymd, L.locale) : null;
+      const ayAdi = t ? `${t.ay} ${t.yil}`.toLocaleUpperCase(L.locale) : '';
+      const baslik = ayAdi && ayAdi !== ay
+        ? h('li', { class: 'ay-baslik', 'aria-hidden': 'true' }, h('span', { metin: (ay = ayAdi) }), h('span', { class: 'cizgi' }))
+        : null;
       const yerHoca = [p.yer, p.hoca && `${L.hoca}: ${p.hoca}`].filter(Boolean).join(' · ');
       const aciklama = metinSec(p.aciklama, dil);
-      return h('li', { class: 'f-oge p-oge', style: { 'animation-delay': `${(0.06 * i).toFixed(2)}s` } },
+      return [baslik, h('li', { class: 'f-oge p-oge', style: { 'animation-delay': `${(0.06 * i).toFixed(2)}s` } },
         h('div', { class: 'p-kart', style: grupStil(p.grup) },
           h('span', { class: 'tarih-kemer kucuk', 'aria-hidden': 'true' },
             h('svg:svg', { viewBox: '0 0 48 60' }, h('svg:path', { d: 'M1.5 58.5 V28 A32 32 0 0 1 24 1.5 A32 32 0 0 1 46.5 28 V58.5 Z' })),
@@ -254,11 +258,9 @@ export function ekranlar(c) {
             t ? h('span', { class: 'gizli', metin: L.sonrakiOturum(`${ilkHarfBuyuk(t.haftaGunu, L.locale)} ${t.gun} ${t.ay}`) }) : null,
             yerHoca ? h('span', { class: 'f-meta', metin: yerHoca }) : null,
             aciklama ? h('span', { class: 'p-aciklama', metin: aciklama }) : null,
-            grupEtiketi(p.grup))));
+            grupEtiketi(p.grup))))].filter(Boolean);
     }));
-    doldur(kap,
-      h('div', { class: 'suz-kap' }, grupSecici(durum.pGrup, (g) => { durum.pGrup = g; programlariCiz(); }, 'p-grup')),
-      liste.length ? ul : h('p', { class: 'bos-satir', metin: L.programGrupBos }));
+    doldur(kap, liste.length ? ul : h('p', { class: 'bos-satir', metin: L.programGrupBos }));
   }
 
   /** Programın sıradaki oturumu (bugünkü bittiyse sonraki): { ymd, zaman }; bir yıl içinde yoksa null. */
