@@ -16,7 +16,7 @@ import { temaOnizleme } from './tema-onizleme.js';
 
 // TV'nin anahtarları (vakitler, nizam-tema, nizam-sayac) kullanılmaz; hepsi "nzm." ile başlar.
 const DEPO = { dil: 'nzm.dil', tema: 'nzm.tema', stil: 'nzm.stil', vakit: 'nzm.vakit', aladhan: 'nzm.aladhan', icerik: 'nzm.icerik' };
-const SEKMELER = ['ana', 'faaliyetler', 'programlar', 'ayarlar', 'bildirimler'];
+const SEKMELER = ['ana', 'faaliyetler', 'programlar', 'ayarlar', 'bildirimler', 'sessiz'];
 const BOS_ICERIK = { guncelleme: null, faaliyetler: [], programlar: [] };
 const ICERIK_ARALIK = 2 * 60 * 1000;      // içerik en fazla 2 dakikada bir istenir (CDN de 2 dk tutar)
 const SVGNS = 'http://www.w3.org/2000/svg';
@@ -298,8 +298,8 @@ function aktifSekme() {
   const m = ad.match(/^faaliyet\/(f-[a-z0-9]{4,12})$/);
   if (m) return { sekme: 'faaliyet', id: m[1], menu: 'faaliyetler' };
   const sekme = SEKMELER.includes(ad) ? ad : 'ana';
-  // namaz vakti bildirimleri Ayarlar'ın alt sayfası (19-11-2026)
-  return { sekme, id: null, menu: sekme === 'bildirimler' ? 'ayarlar' : sekme };
+  // namaz vakti bildirimleri (19-11-2026) ve sessize alma (20-11-2026) Ayarlar'ın alt sayfaları
+  return { sekme, id: null, menu: ['bildirimler', 'sessiz'].includes(sekme) ? 'ayarlar' : sekme };
 }
 
 // ---------------- Android geri tuşu (kullanıcı isteği, 19-11-2026) ----------------
@@ -317,7 +317,7 @@ if (geriTusu) {
     if (document.querySelector('dialog[open]')) return;
     const { sekme } = aktifSekme();
     if (sekme === 'faaliyet') location.hash = '#faaliyetler';
-    else if (sekme === 'bildirimler') location.hash = '#ayarlar';
+    else if (sekme === 'bildirimler' || sekme === 'sessiz') location.hash = '#ayarlar';
     else if (sekme !== 'ana') location.hash = '#ana';
   }, { capture: true });
 }
@@ -712,9 +712,17 @@ function anaSigdir() {
     return;
   }
   const ekran = Math.min(window.innerHeight, kok.clientHeight);
-  if (['cini', 'gok', 'zumrut'].includes(kok.dataset.stil)) {   // Tema 2, 3, 4: yükseklikler CSS'te (--ekran)
+  if (['cini', 'gok', 'zumrut'].includes(kok.dataset.stil)) {   // Tema 1, 2, 4: yükseklikler CSS'te (--ekran)
     kemer.style.setProperty('--k', '1');
     kok.style.setProperty('--ekran', `${ekran}px`);
+    // yine de sığmazsa vakit satırları küçülür (en az 40 px): ana ekran aşağı yukarı kaymasın (kullanıcı isteği, 20-11-2026)
+    const liste = $('.vakitler');
+    liste.style.removeProperty('--satir');
+    const fazla = $('main').offsetHeight - ekran;
+    const satirlar = $$('.vakitler > li:not([hidden])');
+    if (fazla > 0 && satirlar.length) {
+      liste.style.setProperty('--satir', `${Math.max(40, satirlar[0].offsetHeight - Math.ceil(fazla / satirlar.length))}px`);
+    }
     const sigiyor = $('main').offsetHeight <= ekran + 12;
     kok.classList.toggle('kaydirma-yok', sigiyor);
     if (sigiyor && window.scrollY) window.scrollTo(0, 0);
@@ -756,5 +764,6 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(anaSigdir)
 new MutationObserver(() => anaSigdir()).observe($('.vakitler'), { childList: true });
 new MutationObserver(() => anaSigdir()).observe($('.ams-not'), { attributes: true, attributeFilter: ['hidden'] });
 new MutationObserver(() => anaSigdir()).observe($('.kh-cumle'), { attributes: true, attributeFilter: ['hidden'] });
+new MutationObserver(() => anaSigdir()).observe($('.t4-kerahat'), { attributes: true, attributeFilter: ['hidden'] });
 if (window.ResizeObserver) new ResizeObserver(() => bantYuksekligi()).observe($('.kemer'));
 anaSigdir();

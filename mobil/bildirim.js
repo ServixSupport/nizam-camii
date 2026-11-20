@@ -6,7 +6,7 @@
 // - Mağaza uygulamasında (yerel) sunucu ve Web Push yok: bildirimleri telefon kendisi kurar (yerel-plan.js),
 //   ayar değişince app.js planı telefona yeniden gönderir (planDegisti).
 import { VAKITLER } from './zaman.js';
-import { DENEME, NAMAZ, SESLER } from './bildirim-metin.js';
+import { NAMAZ, SESLER } from './bildirim-metin.js';
 
 const DEPO = 'nzm.bildirim';
 /** Vakitten önce kaç dakika (sunucuyla aynı seçenekler); her vakit ayrı (kullanıcı isteği, 19-11-2026). */
@@ -98,7 +98,6 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
   const yaz = (parca) => { ayar = { ...ayar, ...parca }; sakla(ayar); };
   const sesler = () => (sesSecimi ? { ...ayar.sesler } : hepsi('telefon'));
   /** Deneme bildirimi: en son seçilen ses; yoksa ilk seçili namazın sesi. */
-  const denemeSesi = () => (!sesSecimi ? 'telefon' : ayar.sonSes || ayar.sesler[NAMAZ.find((k) => ayar.vakitler.includes(k)) || NAMAZ[0]]);
 
   // service worker hazır değilse sonsuza kadar beklemesin (10 sn sonra hata mesajı)
   function hazirKayit() {
@@ -214,38 +213,6 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     bildir(L().notifOffToast);
   }
 
-  /** Deneme bildirimi: 1 dk sonra gerçek yoldan (QStash) bir bildirim. */
-  let denemeMesgul = false;
-  async function deneme() {
-    if (denemeMesgul || !ayar.aan) return;
-    denemeMesgul = true;
-    ciz();
-    const t = L();
-    try {
-      if (yerel) {
-        // deneme bildirimi seçilen sesle gelir (ezanı dinlemek için de)
-        await yerel.deneme({ ...(DENEME[dil()] || DENEME.nl), ses: denemeSesi() });
-        bildir(t.notifTestSentYerel);
-        return;
-      }
-      const sub = await abonelik(false);
-      if (!sub) throw new Error('abonelik yok');
-      const j = sub.toJSON();
-      const r = await fetch('/api/bildirim/deneme', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ endpoint: j.endpoint, auth: j.keys && j.keys.auth }),
-      });
-      if (r.status === 429) bildir(t.notifTestWait);
-      else if (r.ok) bildir(t.notifTestSent);
-      else throw new Error('HTTP ' + r.status);
-    } catch {
-      bildir(t.notifError);
-    } finally {
-      denemeMesgul = false;
-      ciz();
-    }
-  }
-
   function ayarla(parca) {
     yaz(parca);
     ciz();
@@ -340,7 +307,6 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     if (kuruldu) return;
     kuruldu = true;
     $('#b-ana').addEventListener('click', () => (ayar.aan ? kapat() : ac()));
-    $('#b-deneme').addEventListener('click', deneme);
     // her vakit kendi satırında: vakit girince (anahtar, ses) ve vakitten önce (anahtar, dakika)
     $('#b-giris-liste').replaceChildren(...VAKITLER.map((k) => satirKur('giris', k)));
     $('#b-once-liste').replaceChildren(...VAKITLER.map((k) => satirKur('once', k)));
@@ -475,8 +441,6 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     m.hidden = !yazi;
     m.classList.toggle('bilgi', mesgul);
     m.textContent = yazi;
-    $('#b-deneme-satir').hidden = !ayar.aan;
-    $('#b-deneme').disabled = denemeMesgul;
   }
 
   function zilleriCiz() {

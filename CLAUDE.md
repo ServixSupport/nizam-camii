@@ -25,7 +25,7 @@
 | `admin/` | `/admin` yönetim paneli (Türkçe). |
 | `mobil/sw.js`, `manifest.webmanifest`, `ikon-*.png` | PWA (Faz C). Uygulama dosyası değişince: `cd tests && node araclar/sw-surum.mjs` (yoksa telefonlar eski sürümde kalır; test yakalar). |
 | `veri/dogrula.js` | İçerik doğrulama: API, panel ve testler aynı dosyayı kullanır. |
-| `api/bildirim/` | Faz D bildirimleri: `anahtar.js` (hazır mı + açık VAPID anahtarı), `abone.js` (kaydet/sil), `planla.js` (günlük cron), `gonder.js` (QStash çağırır), `deneme.js` (Ayarlar'daki "Deneme bildirimi": 1 dk sonra aynı yoldan). Mantık `api/_lib/bildirim.js`, servisler `api/_lib/bildirim-servis.js`. |
+| `api/bildirim/` | Faz D bildirimleri: `anahtar.js` (hazır mı + açık VAPID anahtarı), `abone.js` (kaydet/sil), `planla.js` (günlük cron), `gonder.js` (QStash çağırır), `deneme.js` (eskiden Ayarlar'daki "Deneme bildirimi"; düğme 20-11-2026'da kalktı). Mantık `api/_lib/bildirim.js`, servisler `api/_lib/bildirim-servis.js`. |
 | `mobil/tema-onizleme.js` | Ayarlar'da tema seçimi: tam ekran canlı önizleme (09-11-2026). Her tema uygulamanın kendisi olarak iframe'de (`?onizleme=cini\|gok\|liste\|zumrut`; `yerel.js` `onizleme`): sağa sola kaydırılır, sadece "Bu temayı seç" kaydeder. iframe ağa gitmez, ayar yazmaz, telefon eklentisine dokunmaz. Android geri tuşu önizlemeyi kapatır (`CamiPlugin.geriYakala`, `camiGeri` olayı). |
 | `mobil/bildirim.js` | Uygulamada bildirim ayarları ve ana ekrandaki ziller. İzin sadece dokununca istenir. "Ses" açılır listesi (telefonun sesi, Ezan 1 … 7; 08-11-2026; satır seçer, ▶ seçmeden dinletir, 09-11-2026) sadece Android mağaza uygulamasında. Vakitten önce (`onceVakitler`) ve vakit girince (`vakitler`) ayrı vakit seçimi. |
 | `mobil/yerel.js`, `yerel-plan.js`, `yerel-ayar.js` | Mağaza uygulaması köprüsü: telefona verilen plan (vakitler, bildirimler, sessiz dönemler) ve Ayarlar'daki "Durum çubuğu", "Sessize alma", "Kilit ekranı". Tarayıcıda hiçbir şey yapmaz. Bildirim metinleri `mobil/bildirim-metin.js` (sunucu da kullanır). |
@@ -73,7 +73,8 @@
   - Her program bir kez; sıradaki oturumuna göre sıralı (bugünkü bittiyse sonraki gün; `ekranlar.js` `sonrakiOturum`).
   - Kemerde o günün tarihi. Altında günler ("Her Pazartesi", "Pzt – Per", "Çar, Cmt"; `gunlerYazisi`), saat, yer, hoca, açıklama, grup. Detay sayfası yok.
 - **Namaz vakti bildirimleri ayrı sayfada** (`#bildirimler`, kullanıcı isteği 19-11-2026; örnek: başka bir uygulamanın ayarları). Ayarlar'da sadece o sayfaya giden satır ("Açık · 5 vakit").
-  - Sayfada: ana anahtar; "Vakit girince" (7 vakit, her biri anahtar + Android'de "Sesi değiştir" ve seçili ses); "Vakitten önce hatırlat" (7 vakit, anahtar + kaç dakika: 5/10/15/30, `onceDk`); deneme.
+  - Sayfada: ana anahtar; "Vakit girince" (7 vakit, her biri anahtar + Android'de "Sesi değiştir" ve seçili ses); "Vakitten önce hatırlat" (7 vakit, anahtar + kaç dakika: 5/10/15/30, `onceDk`). Deneme bildirimi düğmesi kalktı (kullanıcı isteği, 20-11-2026; `api/bildirim/deneme.js` duruyor ama uygulama çağırmaz).
+- **Namaz vaktinde sessize alma da ayrı sayfada** (`#sessiz`, `#s-sessiz`, kullanıcı isteği 20-11-2026; sadece Android): Ayarlar'da sadece satır ("Açık · 4 vakit"); sayfada anahtar, izin uyarısı, son deneme, nasıl (sessiz/titreşim), her namaz açık/kapalı + süre. Geri tuşu Ayarlar'a döner.
   - `giris` artık hep `true` (vakitler boşsa vakit girince bildirim yok). Eski kayıtta `giris: false` → vakitler boş, `once: 0` → önce listesi boş.
   - Sunucu (Web Push) de `onceDk`'yı saklar ve kullanır (`api/_lib/bildirim.js`); yoksa tek `once`.
   - Önceden hatırlatma hep telefonun sesiyle (ezan sadece vakit girince).
@@ -156,7 +157,7 @@
      - Son sessize alma denemesi ve sonucu telefonda saklanır (`Planlayici` `sessizSon`), Ayarlar'da "Son: 8 Kas 06:41 · telefon sessize alındı" (veya "zaten sessizdeydi", "Rahatsız Etmeyin açıktı" …).
      - "Rahatsız Etmeyin" erişimi Titreşim'de de istenir (16-11-2026): kullanıcının Samsung'unda izin yokken titreşime alınamadı ("izinYok"). Titreşim modunda sonuç "titreşime alınamadı" yazılır.
      - **Her namaz ayrı** (kullanıcı isteği, 19-11-2026):
-       - Ses: `nzm.bildirim.sesler` `{ Fajr: 'ezan-6', … }`. Ayarlar'da "Hangi vakitler"in altında her seçili namazın kendi satırı ve açılır listesi (▶ dinleme aynı). Deneme bildirimi en son seçilen sesle (`sonSes`).
+       - Ses: `nzm.bildirim.sesler` `{ Fajr: 'ezan-6', … }`. Ayarlar'da "Hangi vakitler"in altında her seçili namazın kendi satırı ve açılır listesi (▶ dinleme aynı). (Deneme bildirimi 20-11-2026'da kalktı.) En son seçilen sesle (`sonSes`).
        - Sessize alma süresi: `nzm.sessiz.dakikalar` `{ Fajr: 30, … }`. Her namaz satırında açık/kapalı düğmesi ve süre seçimi (`<select>`, 15–60 dk).
        - Eski kayıtlardaki tek `ses` / `dakika` bütün namazlara geçer (`yerel-plan.js` `namazSesi`, `sessizSuresi`). Java tarafı değişmedi: plan zaten bildirim ve dönem başına.
      - **Android 17 (Samsung One UI 9): arka plandaki uygulama zil ayarını değiştiremez** ("background audio hardening"; `setRingerMode` sessizce yok sayılır). Kullanıcının Samsung'unda "izinYok" bundandı.

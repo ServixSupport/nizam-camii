@@ -131,6 +131,7 @@ export function yerelAyarlar({ L, cami, platform, planDegisti, bildirimAcik }) {
     gizlilik.href = `https://nizam-camii.vercel.app/gizlilik/#${({ tr: 'tr', nl: 'nl', en: 'en' })[document.documentElement.lang] || 'nl'}`;
     $('#sayac-ayar').hidden = !android;
     $('#sessiz-ayar').hidden = !android;
+    $('#sessiz-kart').hidden = !android;                         // ayrı sayfa (#sessiz, 20-11-2026)
     if (!android) { $('#tam-alarm').hidden = true; return; }
     kur();
 
@@ -141,6 +142,8 @@ export function yerelAyarlar({ L, cami, platform, planDegisti, bildirimAcik }) {
     sm.textContent = sayacMesaj ? t[sayacMesaj] : '';
 
     $('#sessiz-anahtar').setAttribute('aria-checked', String(sessiz.aan));
+    // Ayarlar'daki satır: "Açık · 4 vakit" / "Kapalı" (bildirimler satırı gibi)
+    $('#sessiz-git-alt').textContent = sessiz.aan ? `${t.notifAcik} · ${t.vakitSay(sessiz.vakitler.length)}` : t.notifOff;
     $('#sessiz-secenekler').classList.toggle('soluk', !sessiz.aan);
     // "Rahatsız Etmeyin" erişimi: sessiz için şart; titreşim için de bazı telefonlar (Samsung) ister
     // (16-11-2026: Samsung'da izin yokken titreşime alınamadı)

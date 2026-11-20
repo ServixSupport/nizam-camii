@@ -221,13 +221,13 @@ test.describe('sekmeler', () => {
 });
 
 test('ana ekran (varsayılan Tema 1) kaydırmasız sığar ve kaymaz; Yatsı alt menünün üstünde; kısa telefonlarda kaydırılır (farklı telefonlar)', async ({ page }) => {
-  for (const [w, h] of [[390, 844], [412, 915], [360, 740], [375, 667], [360, 640]]) {
+  for (const [w, h] of [[390, 844], [412, 915], [384, 780], [384, 720], [360, 740], [375, 667], [360, 640]]) {   // 384 × 780: Samsung (sistem çubukları hariç)
     await page.setViewportSize({ width: w, height: h });
     await mobilAc(page, { zaman: an('16:00:00.500'), depo: { 'nzm.stil': null } });
     await page.evaluate(() => document.fonts.ready);
     await page.clock.runFor(100);
     await expect(page.locator('html')).toHaveAttribute('data-stil', 'cini');
-    if (h >= 740) {
+    if (h >= 700) {
       const [yukseklik, ekran] = await page.evaluate(() => [document.documentElement.scrollHeight, window.innerHeight]);
       expect(yukseklik, `${w}×${h}`).toBeLessThanOrEqual(ekran);
       await page.mouse.wheel(0, 400);
@@ -759,7 +759,7 @@ test.describe('Ayarlar: açıklamalar', () => {
   test('her açıklamanın "?" düğmesi var, hepsi kapalı başlar; görünür açıklama yazısı kalmaz (kaynak satırı hariç); düğmenin adı dile göre', async ({ page }) => {
     await ac(page);
     const notlar = await page.locator('.ipucu-not').evaluateAll((els) => els.map((e) => ({ id: e.id, kapali: e.hidden, dugme: !!document.querySelector(`.ipucu[aria-controls="${e.id}"]`) })));
-    expect(notlar.map((x) => x.id)).toEqual(['ip-sayac', 'ip-sessiz', 'ip-widget', 'ip-ses']);   // tema açıklaması kalktı (sabit temalar, 20-11-2026)   // ses: bildirim sayfasında (19-11-2026)
+    expect(notlar.map((x) => x.id)).toEqual(['ip-sayac', 'ip-widget', 'ip-ses', 'ip-sessiz']);   // sessize alma ayrı sayfada (20-11-2026)   // tema açıklaması kalktı (sabit temalar, 20-11-2026)   // ses: bildirim sayfasında (19-11-2026)
     for (const x of notlar) expect(x, x.id).toMatchObject({ kapali: true, dugme: true });
     await expect(page.locator('#s-ayarlar .ayar-not:visible')).toHaveText(['Gebedstijden: Diyanet']);
     await page.getByRole('button', { name: 'Türkçe' }).click();

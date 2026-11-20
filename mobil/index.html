@@ -234,30 +234,12 @@
       </div>
     </section>
 
+    <!-- Namaz vaktinde sessize alma: ayrı sayfada (#sessiz; kullanıcı isteği 20-11-2026); burada o sayfaya giden satır -->
     <section class="ayar grup-ici" id="sessiz-ayar" hidden>
-      <div class="b-kart">
-        <div class="b-satir">
-          <span class="ad-ip"><span class="b-ana-ad" id="sessiz-ad" data-t="sessizAna"></span><button type="button" class="ipucu" aria-expanded="false" aria-controls="ip-sessiz" data-ip-ad="sessiz-ad"><span aria-hidden="true">?</span></button></span>
-          <button type="button" class="anahtar" role="switch" aria-checked="false" aria-labelledby="sessiz-ad" id="sessiz-anahtar"><span aria-hidden="true"></span></button>
-          <p class="ayar-not ipucu-not" id="ip-sessiz" data-t="sessizNot" hidden></p>
-        </div>
-        <p class="b-mesaj" id="sessiz-mesaj" role="status" hidden></p>
-        <p class="b-mesaj bilgi" id="sessiz-son" hidden></p>   <!-- son sessize alma denemesi (yerel-ayar.js) -->
-        <div class="b-satir" id="sessiz-izin-satir" hidden>
-          <button type="button" class="dugme altin" id="sessiz-izin" data-t="izinVer"></button>
-        </div>
-        <div class="b-secenekler" id="sessiz-secenekler">
-          <div class="b-satir dikey">
-            <span class="b-ad" id="sessiz-mod-ad" data-t="sessizNasil"></span>
-            <div class="b-once" role="group" aria-labelledby="sessiz-mod-ad" id="sessiz-mod"></div>
-          </div>
-          <!-- her namaz ayrı: açık/kapalı ve süre (yerel-ayar.js, kullanıcı isteği 19-11-2026) -->
-          <div class="b-satir dikey">
-            <span class="b-ad" id="sessiz-vakit-ad" data-t="sessizHangi"></span>
-            <div class="b-namazlar" role="group" aria-labelledby="sessiz-vakit-ad" id="sessiz-vakitler"></div>
-          </div>
-        </div>
-      </div>
+      <a class="b-kart b-git" href="#sessiz" id="sessiz-git">
+        <span class="b-git-metin"><span class="b-ana-ad" data-t="sessizAna"></span><span class="b-git-alt" id="sessiz-git-alt"></span></span>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </a>
     </section>
 
     <section class="ayar grup-ici" id="widget-ayar" hidden>
@@ -327,8 +309,37 @@
         <h2 class="ayar-baslik" id="b-once-baslik" data-t="notifOnceBaslik"></h2>
         <div class="b-kart b-vliste" id="b-once-liste" role="group" aria-labelledby="b-once-baslik"></div>
       </section>
-      <div id="b-deneme-satir" hidden>
-        <button type="button" class="dugme b-deneme" id="b-deneme" data-t="notifTest"></button>
+    </div>
+  </section>
+
+  <!-- ===== NAMAZ VAKTİNDE SESSİZE ALMA (#sessiz; kullanıcı isteği 20-11-2026, bildirimler sayfası gibi). yerel-ayar.js çizer; sadece Android -->
+  <section class="sekme sayfa bildirimler" id="s-sessiz" data-sekme="sessiz" hidden>
+    <a class="geri" href="#ayarlar">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      <span data-t="tabSettings"></span>
+    </a>
+    <div class="sayfa-bas"><h1 data-t="sessizAna"></h1></div>
+    <div class="b-kart" id="sessiz-kart">
+      <div class="b-satir">
+        <span class="ad-ip"><span class="b-ana-ad" id="sessiz-ad" data-t="sessizAna"></span><button type="button" class="ipucu" aria-expanded="false" aria-controls="ip-sessiz" data-ip-ad="sessiz-ad"><span aria-hidden="true">?</span></button></span>
+        <button type="button" class="anahtar" role="switch" aria-checked="false" aria-labelledby="sessiz-ad" id="sessiz-anahtar"><span aria-hidden="true"></span></button>
+        <p class="ayar-not ipucu-not" id="ip-sessiz" data-t="sessizNot" hidden></p>
+      </div>
+      <p class="b-mesaj" id="sessiz-mesaj" role="status" hidden></p>
+      <p class="b-mesaj bilgi" id="sessiz-son" hidden></p>   <!-- son sessize alma denemesi (yerel-ayar.js) -->
+      <div class="b-satir" id="sessiz-izin-satir" hidden>
+        <button type="button" class="dugme altin" id="sessiz-izin" data-t="izinVer"></button>
+      </div>
+      <div class="b-secenekler" id="sessiz-secenekler">
+        <div class="b-satir dikey">
+          <span class="b-ad" id="sessiz-mod-ad" data-t="sessizNasil"></span>
+          <div class="b-once" role="group" aria-labelledby="sessiz-mod-ad" id="sessiz-mod"></div>
+        </div>
+        <!-- her namaz ayrı: açık/kapalı ve süre (yerel-ayar.js, kullanıcı isteği 19-11-2026) -->
+        <div class="b-satir dikey">
+          <span class="b-ad" id="sessiz-vakit-ad" data-t="sessizHangi"></span>
+          <div class="b-namazlar" role="group" aria-labelledby="sessiz-vakit-ad" id="sessiz-vakitler"></div>
+        </div>
       </div>
     </div>
   </section>

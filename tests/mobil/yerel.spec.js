@@ -82,7 +82,7 @@ test('izin verilmezse geri sayım kapalı görünür ve mesaj çıkar', async ({
   await expect(page.locator('#sayac-mesaj')).toHaveText('Meldingen zijn niet toegestaan. Je kunt ze aanzetten in de instellingen van je telefoon.');
 });
 
-test('bildirimler telefonda kurulur (sunucu ve Web Push yok); deneme bildirimi hemen', async ({ page }) => {
+test('bildirimler telefonda kurulur (sunucu ve Web Push yok)', async ({ page }) => {
   await telefon(page, { izin: { bildirim: 'granted' } });
   await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar' });
   await expect(page.locator('#bildirim-ayar')).toBeVisible();
@@ -97,9 +97,7 @@ test('bildirimler telefonda kurulur (sunucu ve Web Push yok); deneme bildirimi h
   ]);
   expect(p.bildirimler.some((b) => b.etiket.endsWith('-Imsak') || b.etiket.endsWith('-Sunrise'))).toBe(false);
 
-  await page.getByRole('button', { name: 'Testmelding sturen' }).click();
-  expect((await cagrilar(page, 'deneme'))[0].arg).toEqual({ baslik: 'Testmelding', govde: 'Meldingen werken. Bij de gebedstijden krijg je zo’n melding.', ses: 'telefon' });
-  await expect(page.locator('.bildirim')).toHaveText('Testmelding verstuurd');
+  await expect(page.getByRole('button', { name: 'Testmelding sturen' })).toHaveCount(0);     // deneme bildirimi kalktı (kullanıcı isteği, 20-11-2026)
 
   // her vakit ayrı dakika (19-11-2026): Akşam 30 dk önce
   await page.locator('#b-once-liste').getByRole('combobox', { name: 'Maghrib: Herinner me vooraf' }).selectOption('30');
@@ -151,8 +149,6 @@ test('vakit girince ses (Android): her namaz kendi satırında (19-11-2026); "Ge
   expect(p.bildirimler.filter((b) => /-(Dhuhr|Asr|Isha)$/.test(b.etiket)).some((b) => 'ses' in b)).toBe(false);
   expect(JSON.parse(await page.evaluate(() => localStorage.getItem('nzm.bildirim'))).sesler)
     .toEqual({ Fajr: 'ezan-6', Dhuhr: 'telefon', Asr: 'telefon', Maghrib: 'ezan-5', Isha: 'telefon' });
-  await page.getByRole('button', { name: 'Testmelding sturen' }).click();
-  expect((await cagrilar(page, 'deneme')).at(-1).arg.ses).toBe('ezan-6');     // en son seçilen sesle
 
   // vakit girince bildirilmeyen namazın ses düğmesi görünmez
   await page.locator('#b-giris-liste').getByRole('switch', { name: 'Melding bij begin gebedstijd: Isha' }).click();
@@ -300,7 +296,13 @@ test('izin telefondan geri alındıysa bildirimler kapalı görünür', async ({
 test('sessize alma: ayar, "Niet storen" izni, süre, nasıl ve hangi namazlar', async ({ page }) => {
   await telefon(page, { izin: { bildirim: 'granted', sessiz: false } });
   await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar' });
-  const bolum = page.locator('#sessiz-ayar');
+  // Ayarlar'da sadece sayfaya giden satır (kullanıcı isteği, 20-11-2026); sayfa bildirimler sayfası gibi
+  await expect(page.locator('#sessiz-git-alt')).toHaveText('Uit');
+  await page.locator('#sessiz-git').click();
+  await expect(page).toHaveURL(/#sessiz$/);
+  await expect(page.locator('#s-sessiz h1')).toHaveText('Telefoon op stil bij gebedstijd');
+  await expect(page.locator('.menu-oge[data-sekme="ayarlar"]')).toHaveAttribute('aria-current', 'page');
+  const bolum = page.locator('#sessiz-kart');
   const anahtar = page.getByRole('switch', { name: 'Telefoon op stil bij gebedstijd' });
   await expect(anahtar).toHaveAttribute('aria-checked', 'false');
   await expect(bolum.locator('#sessiz-mod button')).toHaveText(['Stil', 'Trillen']);
@@ -348,12 +350,14 @@ test('sessize alma: ayar, "Niet storen" izni, süre, nasıl ve hangi namazlar', 
   await expect(page.locator('#sessiz-mesaj')).toBeHidden();
   await bolum.getByRole('button', { name: 'Trillen' }).click();
   await expect(page.locator('#sessiz-mesaj')).toBeHidden();
+  await page.locator('#s-sessiz .geri').click();
+  await expect(page.locator('#sessiz-git-alt')).toHaveText('Aan · 1 gebedstijd');
 });
 
 test('sessize alma: titreşimde izin yoksa sonuç "titreşime alınamadı" (Samsung, 16-11-2026)', async ({ page }) => {
   const titresimAcik = JSON.stringify({ aan: true, dakika: 30, vakitler: ['Dhuhr'], mod: 'titresim' });
   await telefon(page, { izin: { bildirim: 'granted', sessiz: false, sessizSon: { an: new Date('2026-11-16T12:30:00+01:00').getTime(), sonuc: 'izinYok' } } });
-  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar', depo: { 'nzm.sessiz': titresimAcik, 'nzm.dil': 'tr' } });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#sessiz', depo: { 'nzm.sessiz': titresimAcik, 'nzm.dil': 'tr' } });
   await expect(page.locator('#sessiz-son')).toHaveText('Son: 16 Kas 12:30 · izin olmadığı için titreşime alınamadı');
   await expect(page.locator('#sessiz-mesaj')).toHaveText('Bazı telefonlar (ör. Samsung) titreşim için de “Rahatsız Etmeyin” erişimi ister. Uygulamaya bu erişimi verin.');
   await page.getByRole('button', { name: 'İzin ver' }).click();
@@ -363,7 +367,7 @@ test('sessize alma: titreşimde izin yoksa sonuç "titreşime alınamadı" (Sams
 test('sessize alma: son deneme ve sonucu görünür (telefonda ne oldu; kullanıcı isteği, 08-11-2026)', async ({ page }) => {
   const sessizAcik = JSON.stringify({ aan: true, dakika: 30, vakitler: ['Fajr'], mod: 'sessiz' });
   await telefon(page, { izin: { bildirim: 'granted', sessiz: true, sessizSon: { an: new Date('2026-10-28T06:21:00+01:00').getTime(), sonuc: 'rahatsizEtmeyin' } } });
-  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar', depo: { 'nzm.sessiz': sessizAcik, 'nzm.dil': 'tr' } });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#sessiz', depo: { 'nzm.sessiz': sessizAcik, 'nzm.dil': 'tr' } });
   await expect(page.locator('#sessiz-son')).toHaveText('Son: 28 Eki 06:21 · “Rahatsız Etmeyin” açıktı, dokunulmadı');
   await page.evaluate(() => { window.__yerel.izin.sessizSon.sonuc = 'sessiz'; document.dispatchEvent(new Event('visibilitychange')); });
   await expect(page.locator('#sessiz-son')).toHaveText('Son: 28 Eki 06:21 · telefon sessize alındı');
