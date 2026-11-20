@@ -41,6 +41,7 @@ const DURUMLAR = [
   { ad: '35-bildirimler-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#bildirimler', bildirim: true },
   // Tema 2 (güneş yayı, 'gok') = mobilAc'in varsayılanı ('klasik' → 'gok'): 01–04. Tema 4 (koyu, 'zumrut'; 20-11-2026):
   { ad: '40-ana-tema4-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', stil: 'zumrut' },
+  { ad: '42-ana-gunes-kerahat-tr', zaman: `${GUN}T07:40:00.500+01:00`, dil: 'tr', stil: 'cini' },   // güneş doğduktan sonra 45 dk kerahat (20-11-2026)
   { ad: '41-ana-tema4-ziller-nl', zaman: `${GUN}T21:30:00.500+01:00`, dil: 'nl', stil: 'zumrut', bildirim: true },
   // iPhone: Apple yükleme düğmesine izin vermez; Ayarlar'da adım adım "Ana Ekrana Ekle" (06-11-2026)
   { ad: '22-ayarlar-iphone-tr', zaman: `${GUN}T16:00:00.500+01:00`, dil: 'tr', hash: '#ayarlar', ios: true },

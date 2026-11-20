@@ -513,14 +513,17 @@ test.describe('Tema 3 (liste)', () => {
   });
 
 
-  test('kerahat: sadece İkindi vaktinde tek cümle (kerahate ya da bitişine kalan süre); Sabah vaktinde ve başka zaman yok; Tema 2’de var, Tema 4’te yok', async ({ page }) => {
+  test('kerahat: sadece İkindi vaktinde tek cümle (kerahate ya da bitişine kalan süre); güneş doğduktan sonra 45 dk “Kerahat vakti” (20-11-2026); Sabah vaktinde ve başka zaman yok; bütün temalarda', async ({ page }) => {
+    test.slow();                                                               // çok sayfa açar; tam koşuda yük altında 30 sn yetmeyebilir
     const ac = (saat) => mobilAc(page, { zaman: an(saat), depo: { 'nzm.stil': 'liste', 'nzm.dil': 'tr' } });
     const kh = page.locator('.kh-cumle');
     // 28-10: İmsak 05:34, Güneş 07:21, İkindi 14:54, Akşam 17:27 (kerahat 45 dk)
-    // Sabah vaktinde ve güneş doğarken yok (kullanıcı isteği, 08-11-2026)
+    // Sabah vaktinde yok (kullanıcı isteği, 08-11-2026); güneş doğduktan sonra 45 dk (07:21–08:06) "Kerahat vakti" (kullanıcı isteği, 20-11-2026)
     await ac('06:40:00.500');
     await expect(kh).toBeHidden();
     await ac('07:40:00.500');
+    await expect(kh).toHaveText('Kerahat vakti');
+    await ac('08:10:00.500');
     await expect(kh).toBeHidden();
     await ac('12:00:00.500');
     await expect(kh).toBeHidden();
@@ -537,11 +540,12 @@ test.describe('Tema 3 (liste)', () => {
     await expect(kh).toBeHidden();
     await ac('16:00:00.500');
     await expect(kh).toBeVisible();
-    for (const [stil, gorunur] of [['gok', true], ['zumrut', false]]) {         // mobilAc depoyu oturumda bir kez yazar
+    for (const [stil, yer] of [['gok', '.kh-cumle'], ['cini', '.kh-cumle'], ['zumrut', '.t4-kerahat']]) {   // mobilAc depoyu oturumda bir kez yazar
       await page.evaluate((x) => localStorage.setItem('nzm.stil', x), stil);
       await page.reload();
       await expect(page.locator('.vakit')).toHaveCount(7);
-      if (gorunur) await expect(kh, stil).toBeVisible(); else await expect(kh, stil).toBeHidden();
+      await expect(page.locator(yer), stil).toBeVisible();
+      await expect(page.locator(yer), stil).toHaveText(/^Kerahat vaktine 0:41:5\d kaldı$/);
     }
   });
 
@@ -715,6 +719,9 @@ test.describe('Tema 2 ve 4', () => {
     await expect(page.locator('.gok-saat')).toHaveText('saat 17:27');
     await expect(page.locator('.gok-yay .gy-nokta')).toHaveCount(7);
     await expect(page.locator('.gok-yay text')).toHaveCount(0);                // yayda ad ve saat yok (kullanıcı isteği, 20-11-2026)
+    // kerahat ufuk çizgisinin altında (kullanıcı isteği, 20-11-2026)
+    const [yay, kh] = await Promise.all([page.locator('.gok-yay').boundingBox(), page.locator('.kh-cumle').boundingBox()]);
+    expect(kh.y).toBeGreaterThanOrEqual(yay.y + yay.height * 146 / 196);
     await expect(page.locator('.gok-yay .gy-gunes')).toHaveCount(1);
     await expect(page.locator('#gun-miladi')).toHaveText('Çarşamba 28 Ekim 2026');
     for (const [saat, faz] of [['18:00:00.500', 'aksam'], ['21:30:00.500', 'gece']]) {
@@ -724,15 +731,16 @@ test.describe('Tema 2 ve 4', () => {
     await expect(page.locator('.gok-yay .gy-ay')).toHaveCount(1);
   });
 
-  test('Tema 4: "Şimdi" kartı, kalan süre halkası, 7 vakitlik zaman çizgisi, tarih kartı, vakit kartları; sıradaki "Sıradaki" rozetli', async ({ page }) => {
+  test('Tema 4: "Şimdi" kartı, kalan süre halkası, altında kerahat (zaman çizgisi yok), tarih kartı, vakit kartları; sıradaki "Sıradaki" rozetli', async ({ page }) => {
     await mobilAc(page, { zaman: an('16:00:00.500'), depo: { 'nzm.stil': 'zumrut', 'nzm.dil': 'tr' } });
     await expect(page.locator('.t4-etiket')).toHaveText('Şimdi');
     await expect(page.locator('.t4-ad')).toHaveText('İkindi');
     await expect(page.locator('.t4-saat')).toHaveText('16:00');
     await expect(page.locator('.t4-kalan')).toHaveText('1:26:59');
-    await expect(page.locator('.t4-cizgi li')).toHaveCount(7);
-    await expect(page.locator('.t4-cizgi li.siradaki')).toHaveAttribute('data-key', 'Maghrib');
-    await expect(page.locator('.t4-cizgi .t4-zaman')).toHaveText(['05:34', '06:21', '07:21', '12:29', '14:54', '17:27', '19:02']);
+    await expect(page.locator('.t4-kerahat')).toHaveText('Kerahat vaktine 0:41:59 kaldı');
+    const [kutu, kerahat, tarih] = await Promise.all(['.t4-ust', '.t4-kerahat', '.gun-gez'].map((s) => page.locator(s).boundingBox()));
+    expect(kutu.y + kutu.height).toBeLessThanOrEqual(kerahat.y + 1);                 // iki kutunun altında, tarihin üstünde
+    expect(kerahat.y + kerahat.height).toBeLessThanOrEqual(tarih.y + 1);
     // halka: İkindi 14:54 → Akşam 17:27, 66 / 153 dk geçti
     expect(parseFloat(await page.locator('.t4-dolu').getAttribute('stroke-dasharray'))).toBeCloseTo(2 * Math.PI * 52 * (66 / 153), 0);
     expect(await page.locator('.vakit.siradaki .v-ad').evaluate((e) => getComputedStyle(e, '::after').content)).toBe('"Sıradaki"');

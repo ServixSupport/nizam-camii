@@ -138,16 +138,18 @@ export function gunduzMu(simdi, bugun) {
 export const KERAHAT_DK = 45;
 
 /**
- * Sadece İkindi vaktinde (kullanıcı isteği, 08-11-2026: Sabah'ta, yani güneş doğarken kerahat gösterilmez):
- * İkindi girince kerahate (Akşam − KERAHAT_DK) kalan süre ('once'); kerahat girince 'icinde'
- * (ekranda sadece "Kerahat vakti" yazar). Başka zaman null.
- * @returns {null | { tur: 'once'|'icinde', kerahat: 'batis', bas: number, bit: number, hedef: number }}
+ * İkindi vaktinde: İkindi girince kerahate (Akşam − KERAHAT_DK) kalan süre ('once'); kerahat girince 'icinde'
+ * (ekranda sadece "Kerahat vakti" yazar; kullanıcı isteği, 08-11-2026).
+ * Güneş doğduktan sonra KERAHAT_DK dakika da kerahat ('icinde', 'dogus'; kullanıcı isteği, 20-11-2026); öncesinde geri sayım yok.
+ * Başka zaman null.
+ * @returns {null | { tur: 'once'|'icinde', kerahat: 'dogus'|'batis', bas: number, bit: number, hedef: number }}
  */
 export function kerahatDurumu(simdi, bugun, dk = KERAHAT_DK) {
   const bul = (k) => bugun.find((e) => e.key === k);
-  const ikindi = bul('Asr'), aksam = bul('Maghrib');
+  const gunes = bul('Sunrise'), ikindi = bul('Asr'), aksam = bul('Maghrib');
   const sure = dk * 60000;
   const sonuc = (tur, kerahat, bas, bit) => ({ tur, kerahat, bas, bit, hedef: tur === 'once' ? bas : bit });
+  if (gunes && simdi >= gunes.ms && simdi < gunes.ms + sure) return sonuc('icinde', 'dogus', gunes.ms, gunes.ms + sure);
   if (ikindi && aksam) {
     const bas = Math.max(ikindi.ms, aksam.ms - sure), bit = aksam.ms;
     if (simdi >= ikindi.ms && simdi < bas) return sonuc('once', 'batis', bas, bit);

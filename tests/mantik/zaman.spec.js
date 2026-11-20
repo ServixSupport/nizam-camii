@@ -135,14 +135,15 @@ test.describe('ekran durumu ve kemer', () => {
 });
 
 // Tema 1 (liste): kerahat (sadece güneş batmadan önce; süre KERAHAT_DK, hocaya danışılacak)
-test('kerahatDurumu: sadece İkindi vaktinde: İkindi girince kerahate kalan süre, kerahat girince icinde; Sabah vaktinde ve başka zaman null', () => {
+test('kerahatDurumu: İkindi girince kerahate kalan süre, kerahat girince icinde; güneş doğduktan sonra 45 dk icinde (20-11-2026); başka zaman null', () => {
   expect(KERAHAT_DK).toBe(45);
   const b = gunOlaylari(gun('28.10.2026'), '2026-10-28');      // İmsak 05:34, Güneş 07:21, İkindi 14:54, Akşam 17:27
   const k = (s) => kerahatDurumu(an(`2026-10-28T${s}+01:00`), b);
   const ozet = (x) => x && { tur: x.tur, kerahat: x.kerahat, bas: iso(x.bas), bit: iso(x.bit), hedef: iso(x.hedef) };
   expect(k('05:00')).toBeNull();                                // İmsak'tan önce
-  // Sabah'ta (güneş doğarken) kerahat yok (kullanıcı isteği, 08-11-2026)
-  for (const s of ['05:34', '06:21', '07:00', '07:21', '07:40', '08:06']) expect(k(s), s).toBeNull();
+  // Sabah vaktinde geri sayım yok (kullanıcı isteği, 08-11-2026); güneş doğunca 45 dk kerahat (kullanıcı isteği, 20-11-2026)
+  for (const s of ['05:34', '06:21', '07:00', '07:20', '08:06', '12:00']) expect(k(s), s).toBeNull();
+  for (const s of ['07:21', '07:40', '08:05']) expect(ozet(k(s)), s).toEqual({ tur: 'icinde', kerahat: 'dogus', bas: '2026-10-28T06:21Z', bit: '2026-10-28T07:06Z', hedef: '2026-10-28T07:06Z' });
   expect(k('14:53')).toBeNull();
   expect(ozet(k('14:54'))).toEqual({ tur: 'once', kerahat: 'batis', bas: '2026-10-28T15:42Z', bit: '2026-10-28T16:27Z', hedef: '2026-10-28T15:42Z' });   // İkindi girer girmez (kullanıcı isteği, 08-11-2026)
   expect(k('16:41').tur).toBe('once');

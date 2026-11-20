@@ -2,7 +2,7 @@
 //  - Tema 2: gökyüzü rengi içinde bulunulan vakte göre değişir (gece lacivert, Öğle mor, İkindi mavi, Akşam turuncu …);
 //    güneş yayı: gündüz yayı (Güneş → Akşam) ve gece yayı (kesik çizgi), üstünde vakitlerin noktaları (ad ve saat yok),
 //    güneş ya da ay şimdiki yerinde.
-//  - Tema 4: "Şimdi" kartı (vakit ve saat), kalan süre halkası, 7 vakitlik zaman çizgisi.
+//  - Tema 4: "Şimdi" kartı (vakit ve saat), kalan süre halkası (zaman çizgisi kullanıcı isteğiyle kalktı, 20-11-2026).
 // Saf DOM çizimi; zaman hesabı app.js'ten gelir (zaman.js, Amsterdam saati).
 
 const SVGNS = 'http://www.w3.org/2000/svg';
@@ -85,7 +85,7 @@ export function gokYayCiz(svg, { bugun, dun, yarin, simdi, siradaki, adlar }) {
 
 }
 
-// ---------------- Tema 4: şimdi kartı, kalan süre halkası, zaman çizgisi ----------------
+// ---------------- Tema 4: şimdi kartı, kalan süre halkası ----------------
 const T4_CEVRE = 2 * Math.PI * 52;
 /**
  * @param {object} o { bugun, simdi, onceki (ms), sonraki (ms), siradaki (key), simdiAd, saat, kalanYazi, adlar, ikonlar }
@@ -99,21 +99,4 @@ export function zumrutCiz(kok, { bugun, simdi, onceki, sonraki, siradaki, simdiA
   const oran = onceki && sonraki && sonraki > onceki ? Math.min(1, Math.max(0, (simdi - onceki) / (sonraki - onceki))) : 0;
   const dolu = kok.querySelector('.t4-dolu');
   dolu.setAttribute('stroke-dasharray', `${(T4_CEVRE * oran).toFixed(1)} ${T4_CEVRE.toFixed(1)}`);
-  // zaman çizgisi: 7 vakit, sıradaki vurgulu, geçenler dolu
-  const cizgi = kok.querySelector('.t4-cizgi');
-  if (cizgi.children.length !== bugun.length) {
-    cizgi.replaceChildren(...bugun.map((e) => {
-      const li = document.createElement('li');
-      li.dataset.key = e.key;
-      li.innerHTML = '<span class="t4-nokta"><i></i></span><span class="t4-zaman"></span>';
-      return li;
-    }));
-  }
-  for (const li of cizgi.children) {
-    const e = bul(bugun, li.dataset.key);
-    if (!e) continue;
-    li.querySelector('.t4-zaman').textContent = e.saat;
-    li.classList.toggle('siradaki', e.key === siradaki);
-    li.classList.toggle('gecti', e.ms <= simdi);
-  }
 }

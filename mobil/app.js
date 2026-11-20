@@ -590,13 +590,14 @@ function temaCiz(simdi, d, t) {
 
 // ---------------- Tema 1 (liste) ve Tema 3: kerahat (sadece İkindi vaktinde) ----------------
 function kerahatCiz(simdi, veriVar) {
-  const el = $('.kh-cumle');
-  const k = veriVar && ['liste', 'gok', 'cini'].includes(document.documentElement.dataset.stil) ? kerahatDurumu(simdi, durum.olay.bugun) : null;
-  if (el.hidden !== !k) el.hidden = !k;
-  if (!k) return;
-  const t = L();
-  el.classList.toggle('icinde', k.tur === 'icinde');
-  el.textContent = k.tur === 'icinde' ? t.kerahatIcinde : t.kerahatOnce(geriSayim(k.hedef - simdi));
+  const k = veriVar ? kerahatDurumu(simdi, durum.olay.bugun) : null;   // bütün temalarda (Tema 4: .t4-kerahat; 20-11-2026)
+  const yazi = k && (k.tur === 'icinde' ? L().kerahatIcinde : L().kerahatOnce(geriSayim(k.hedef - simdi)));
+  for (const el of $$('.kh-cumle, .t4-kerahat')) {
+    if (el.hidden !== !k) el.hidden = !k;
+    if (!k) continue;
+    el.classList.toggle('icinde', k.tur === 'icinde');
+    el.textContent = yazi;
+  }
 }
 
 let _dakika = -1;
