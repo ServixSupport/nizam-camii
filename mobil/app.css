@@ -328,7 +328,6 @@ main {
   .one-cikan.met-resim .oc-resim { align-self: start; max-width: 92px; }
   .one-cikan.met-resim .oc-resim img { max-height: 124px; border-radius: 10px; }
 }
-.oc-etiket { align-self: flex-start; font-size: 11px; font-weight: 700; letter-spacing: .12em; color: #E8C27A; }
 .one-cikan h2 { margin: 0; font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 600; font-size: 23px; line-height: 1.15; }
 .oc-meta { font-size: 14px; color: #D4DBEA; }
 .oc-dugmeler { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }

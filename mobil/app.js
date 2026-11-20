@@ -9,7 +9,7 @@ import { METIN, DILLER, VARSAYILAN_DIL, ARAPCA } from './metin.js';
 import { ekranlar } from './ekranlar.js';
 import { bildirimler } from './bildirim.js';
 import { gizlilikCiz } from './gizlilik.js';
-import { yerelMi, platform, cami, apiAdresi, onizleme } from './yerel.js';
+import { yerelMi, platform, cami, apiAdresi, onizleme, SUNUCU } from './yerel.js';
 import { yerelPlan, PLAN_GUN } from './yerel-plan.js';
 import { yerelAyarlar } from './yerel-ayar.js';
 import { gokFazi, gokYayCiz, zumrutCiz } from './tema-ciz.js';
@@ -174,6 +174,9 @@ $('#stil-ac').addEventListener('click', temaOn.ac);
 const ekran = ekranlar({
   L, dil: () => durum.dil, icerik: () => durum.icerik, simdi: () => Date.now(),
   tablet: () => tabletMi.matches, olaylar, olaylarYaklasik, bildir,
+  // Android uygulamasında takvim ve paylaş telefonun kendi pencereleriyle (WebView indirmez, navigator.share yok; 20-11-2026)
+  telefon: yerelMi && platform === 'android' ? cami : null,
+  adres: (yol) => (yerelMi ? SUNUCU : location.origin) + yol,
 });
 
 function ekranlariCiz(ilk = false) {

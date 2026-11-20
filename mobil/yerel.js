@@ -22,7 +22,8 @@ export const apiAdresi = (yol) => (yerelMi ? SUNUCU + yol : yol);
 /**
  * Telefon eklentisi: app/android/…/CamiPlugin.java ve app/ios/App/App/CamiPlugin.swift.
  * planKur({ plan }), izinDurumu(), bildirimIzniIste(), deneme({ baslik, govde }), cubuklar({ koyu, zemin }),
- * sessizIzniAc(), tamAlarmIzniAc(), sesDinle({ ses }), sesDurdur(), geriYakala({ acik }) (son beşi sadece Android).
+ * sessizIzniAc(), tamAlarmIzniAc(), sesDinle({ ses }), sesDurdur(), geriYakala({ acik }) (son beşi sadece Android),
+ * takvimeEkle({ baslik, bas, bit, tumGun, yer, aciklama }), paylas({ baslik, metin }) (sadece Android, 20-11-2026).
  * Paketleyici yok (@capacitor/core yüklenmez): telefonun köprüsü (native-bridge.js) doğrudan çağrılır.
  */
 export const cami = yerelMi

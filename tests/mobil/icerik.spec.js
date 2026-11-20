@@ -11,7 +11,7 @@ test.describe('faaliyetler', () => {
   test('öne çıkan kart, aylara göre liste; taslak görünmez', async ({ page }) => {
     const k = await ac(page, { adres: '/mobil/#faaliyetler' });
     const one = page.locator('.one-cikan');
-    await expect(one).toContainText('SIRADAKİ FAALİYET');
+    await expect(one).not.toContainText('SIRADAKİ FAALİYET');                 // etiket yok (kullanıcı isteği, 20-11-2026)
     await expect(one.locator('h2')).toHaveText('Aile Kahvaltısı');
     await expect(one).toContainText('10:00 – 12:30 · Konferans salonu');
     await expect(page.locator('.f-oge .f-baslik')).toHaveText(['Gençlik Buluşması', 'Kermes', 'Hanımlar Sohbeti', 'Çocuklar Kur’an Yarışması']);

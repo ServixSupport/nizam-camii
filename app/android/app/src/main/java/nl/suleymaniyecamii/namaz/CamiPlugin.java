@@ -2,6 +2,7 @@ package nl.suleymaniyecamii.namaz;
 
 import android.Manifest;
 import android.app.NotificationManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -10,6 +11,7 @@ import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
+import android.provider.CalendarContract;
 import android.provider.Settings;
 import android.view.Window;
 import androidx.activity.OnBackPressedCallback;
@@ -184,6 +186,42 @@ public class CamiPlugin extends Plugin {
     public void sessizIzniAc(PluginCall call) {
         ac(new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS));
         call.resolve();
+    }
+
+    /**
+     * Faaliyeti takvime ekle (kullanıcı isteği, 20-11-2026: WebView dosya indirmez): takvim uygulamasının "yeni etkinlik"
+     * ekranı dolu açılır, kullanıcı kaydeder. İzin gerekmez. { baslik, bas, bit (ms), tumGun, yer, aciklama }
+     */
+    @PluginMethod
+    public void takvimeEkle(PluginCall call) {
+        Intent i = new Intent(Intent.ACTION_INSERT).setData(CalendarContract.Events.CONTENT_URI)
+            .putExtra(CalendarContract.Events.TITLE, call.getString("baslik", ""))
+            .putExtra(CalendarContract.Events.EVENT_LOCATION, call.getString("yer", ""))
+            .putExtra(CalendarContract.Events.DESCRIPTION, call.getString("aciklama", ""));
+        Double bas = call.getDouble("bas"), bit = call.getDouble("bit");
+        if (bas != null) i.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, bas.longValue());
+        if (bit != null) i.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, bit.longValue());
+        if (Boolean.TRUE.equals(call.getBoolean("tumGun", false))) i.putExtra(CalendarContract.EXTRA_EVENT_ALL_DAY, true);
+        try {
+            getActivity().startActivity(i);
+            call.resolve();
+        } catch (ActivityNotFoundException e) {
+            call.reject("takvimYok");
+        }
+    }
+
+    /** Android'in paylaş penceresi (WebView'de navigator.share yok; kullanıcı isteği, 20-11-2026). { baslik, metin } */
+    @PluginMethod
+    public void paylas(PluginCall call) {
+        Intent i = new Intent(Intent.ACTION_SEND).setType("text/plain")
+            .putExtra(Intent.EXTRA_SUBJECT, call.getString("baslik", ""))
+            .putExtra(Intent.EXTRA_TEXT, call.getString("metin", ""));
+        try {
+            getActivity().startActivity(Intent.createChooser(i, call.getString("baslik", "")));
+            call.resolve();
+        } catch (ActivityNotFoundException e) {
+            call.reject("paylasimYok");
+        }
     }
 
     /** "Alarmlar ve hatırlatıcılar" (Android 12+): her şey tam zamanında olsun. */

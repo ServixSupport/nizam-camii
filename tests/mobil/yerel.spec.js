@@ -2,6 +2,7 @@
 // Gerçek telefon davranışı (bildirim, durum çubuğu, sessize alma) app/ altındaki eklentide; burada uygulama tarafı.
 import { test, expect } from '@playwright/test';
 import { mobilAc } from '../yardimci/mobil.js';
+import { tasarimIcerik } from '../fixtures/tasarim-icerik.js';
 
 const ZAMAN = '2026-10-28T16:00:00.500+01:00';
 const an = (s) => new Date(s).getTime();
@@ -421,4 +422,21 @@ test('tarayıcıda (web uygulaması) yeni bölümler hiç görünmez ve telefon 
   await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar' });
   for (const id of ['#sayac-ayar', '#sessiz-ayar', '#widget-ayar', '#tam-alarm', '#gizlilik-link']) await expect(page.locator(id)).toBeHidden();
   await expect(page.locator('#b-giris-liste .b-sesdegis')).toHaveCount(0);
+});
+
+// Android WebView dosya indirmez ve navigator.share yok: takvim ve paylaş telefonun kendi pencereleriyle (kullanıcı isteği, 20-11-2026)
+test('faaliyet: "Takvime ekle" takvim uygulamasını dolu açar, "Paylaş" telefonun paylaş penceresini açar', async ({ page }) => {
+  await telefon(page, { izin: { bildirim: 'granted' } });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#faaliyetler', icerik: tasarimIcerik(), depo: { 'nzm.dil': 'nl' } });
+  const kart = page.locator('.one-cikan');
+  await kart.getByRole('button', { name: 'Zet in agenda' }).click();
+  expect((await cagrilar(page, 'takvimeEkle'))[0].arg).toEqual({
+    baslik: 'Familieontbijt', bas: new Date('2026-10-31T10:00:00+01:00').getTime(), bit: new Date('2026-10-31T12:30:00+01:00').getTime(),
+    tumGun: false, yer: 'Konferans salonu, Ookmeerweg 206, Amsterdam', aciklama: expect.any(String),
+  });
+  await kart.getByRole('button', { name: 'Delen' }).click();
+  const p = (await cagrilar(page, 'paylas'))[0].arg;
+  expect(p.baslik).toBe('Familieontbijt');
+  expect(p.metin).toMatch(/^Familieontbijt\nZaterdag 31 oktober · 10:00 – 12:30 · Konferans salonu\nhttps:\/\/nizam-camii\.vercel\.app\/mobil\/#faaliyet\/f-kahvalti$/);
+  await expect(page.getByText('Link gekopieerd')).toHaveCount(0);             // panoya kopyalanmaz
 });

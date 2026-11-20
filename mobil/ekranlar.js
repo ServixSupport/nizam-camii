@@ -104,6 +104,19 @@ export function ekranlar(c) {
   }
 
   function takvimeEkle(f) {
+    if (c.telefon) {                                            // Android uygulaması: takvim uygulaması dolu açılır
+      const tum = !!f.tumGun;
+      const gun = (ymd) => Date.parse(`${ymd}T00:00:00Z`);     // tüm gün: UTC gece yarısı (Android takvimi böyle ister)
+      c.telefon.takvimeEkle({
+        baslik: metinSec(f.baslik, c.dil()),
+        bas: tum ? gun(f.baslangic.slice(0, 10)) : faaliyetBaslangic(f),
+        bit: tum ? gun((f.bitis || f.baslangic).slice(0, 10)) + 864e5 : faaliyetBitis(f),
+        tumGun: tum,
+        yer: [f.yer, 'Ookmeerweg 206, Amsterdam'].filter(Boolean).join(', '),
+        aciklama: metinSec(f.aciklama, c.dil()) || '',
+      }).catch(() => c.bildir(c.L().takvimYok));
+      return;
+    }
     const ics = icsOlustur(f, c.dil(), c.simdi());
     const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar;charset=utf-8' }));
     const a = h('a', { href: url, download: `${f.id}.ics` });
@@ -112,8 +125,14 @@ export function ekranlar(c) {
   }
   async function paylas(f) {
     const L = c.L();
-    const url = `${location.origin}/mobil/#faaliyet/${f.id}`;
+    const url = c.adres ? c.adres(`/mobil/#faaliyet/${f.id}`) : `${location.origin}/mobil/#faaliyet/${f.id}`;
     const baslik = metinSec(f.baslik, c.dil());
+    if (c.telefon) {                                            // Android uygulaması: telefonun paylaş penceresi
+      const t = tarihParca(amsGun(faaliyetBaslangic(f)), L.locale);
+      const ne = [`${ilkHarfBuyuk(t.haftaGunu, L.locale)} ${t.gun} ${t.ay}`, faaliyetSaati(f, L), f.yer].filter(Boolean).join(' · ');
+      c.telefon.paylas({ baslik, metin: `${baslik}\n${ne}\n${url}` }).catch(() => {});
+      return;
+    }
     try {
       if (navigator.share) { await navigator.share({ title: baslik, url }); return; }
       await navigator.clipboard.writeText(url);
@@ -139,7 +158,7 @@ export function ekranlar(c) {
     const one = liste.find((f) => f.oneCikan);
     const kalan = liste.filter((f) => f !== one);
     const parca = [];
-    if (one) parca.push(oneCikanKart(one, one === liste[0] ? L.siradakiFaaliyet : L.oneCikan));
+    if (one) parca.push(oneCikanKart(one));
     let ay = '';
     const ul = h('ul', { class: 'f-liste' });
     kalan.forEach((f, i) => {
@@ -166,7 +185,7 @@ export function ekranlar(c) {
     doldur(kap, ...parca);
   }
 
-  function oneCikanKart(f, etiket) {
+  function oneCikanKart(f) {
     const L = c.L(), dil = c.dil();
     const t = tarihParca(amsGun(faaliyetBaslangic(f)), L.locale);
     const resim = f.resim && f.resim.startsWith('https://') ? f.resim : '';
@@ -180,7 +199,7 @@ export function ekranlar(c) {
         h('span', { class: 'tk-gun', metin: t.gun }), h('span', { class: 'tk-ay', metin: t.ay.toLocaleUpperCase(L.locale) }),
         h('span', { class: 'tk-hg', metin: ilkHarfBuyuk(t.haftaGunu, L.locale) })),
       h('div', { class: 'oc-metin' },
-        h('span', { class: 'oc-etiket', metin: etiket }),
+        // "Sıradaki faaliyet" / "Öne çıkan" yazısı yok (kullanıcı isteği, 20-11-2026)
         h('h2', {}, h('a', { href: `#faaliyet/${f.id}`, metin: metinSec(f.baslik, dil) })),
         h('span', { class: 'oc-meta', metin: [faaliyetSaati(f, L), f.yer].filter(Boolean).join(' · ') }),
         resim ? null : dugmeler),
