@@ -332,6 +332,11 @@ final class Planlayici {
             .setContentIntent(acilis(c));
         if (dk > 0) b.setSmallIcon(IconCompat.createWithBitmap(CamiSimgesi.ciz(dk)));
         else b.setSmallIcon(R.drawable.ic_stat_cami);
+        // en düşük önemde Android bildirimi tek satıra katlar (tablo görünmez): o satırda sıradaki vakte kalan süre,
+        // sistemin kendi geri sayımıyla (her dakika yenilemeye gerek yok; kullanıcı isteği, 22-11-2026)
+        if (!sesli && dk <= 0 && Build.VERSION.SDK_INT >= 24) {
+            b.setShowWhen(true).setWhen(an).setUsesChronometer(true).setChronometerCountDown(true);
+        }
         nm.notify(ID_SAYAC, b.build());
     }
 
