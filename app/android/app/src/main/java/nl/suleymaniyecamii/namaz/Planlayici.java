@@ -173,9 +173,9 @@ final class Planlayici {
         sayac.setSound(null, null);
         sayac.enableVibration(false);
         nm.deleteNotificationChannel(ESKI_KANAL_SAYAC);
-        // vakte 30 dakikadan fazla varken: sessiz, tablo hep açık (kullanıcı isteği, 22-11-2026; önce en düşük önemdi, tablo katlanıyordu)
-        nm.deleteNotificationChannel(PlanMantigi.ESKI_KANAL_TABLO);
-        NotificationChannel tablo = new NotificationChannel(KANAL_TABLO, adi(ad, "tablo", c.getString(R.string.kanal_tablo)), NotificationManager.IMPORTANCE_LOW);
+        // vakte 30 dakikadan fazla varken: en düşük önem, üst çubukta simge yok (kullanıcı isteği, 19-11-2026; 22-11-2026'da düşük önem denendi, geri alındı)
+        nm.deleteNotificationChannel(PlanMantigi.DENEME_KANAL_TABLO);
+        NotificationChannel tablo = new NotificationChannel(KANAL_TABLO, adi(ad, "tablo", c.getString(R.string.kanal_tablo)), NotificationManager.IMPORTANCE_MIN);
         tablo.setShowBadge(false);
         tablo.setSound(null, null);
         tablo.enableVibration(false);
