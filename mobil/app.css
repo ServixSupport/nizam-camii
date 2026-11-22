@@ -225,9 +225,9 @@ main {
   padding: 32px 22px 30px; border-radius: 22px; background: var(--card); border: 1px solid var(--line); animation: nzRise .5s both;
 }
 /* boş sayfada ve öne çıkan kartta desen yerine caminin logosu: logonun şekli tek renk (kullanıcı isteği, 20-11-2026) */
-.bos-logo, .oc-desen { background: var(--gold); -webkit-mask: url(/mobil/logo.png) center / contain no-repeat; mask: url(/mobil/logo.png) center / contain no-repeat; }
-/* boş sayfada logonun çizgi hali, içi boş ve küçük (kullanıcı isteği, 22-11-2026; logo-cizgi.png logo.png'den üretildi) */
-.bos-logo { display: block; width: 52px; height: 52px; margin-bottom: 6px; opacity: .8; -webkit-mask-image: url(/mobil/logo-cizgi.png); mask-image: url(/mobil/logo-cizgi.png); }
+.oc-desen { background: var(--gold); -webkit-mask: url(/mobil/logo.png) center / contain no-repeat; mask: url(/mobil/logo.png) center / contain no-repeat; }
+/* boş sayfada caminin kendi logosu, renkli, hafif saydam, küçük (kullanıcı isteği, 22-11-2026) */
+.bos-logo { display: block; width: 56px; height: 56px; margin-bottom: 6px; border-radius: 50%; background: #FBF7EE url(/mobil/logo.png) center / 84% no-repeat; opacity: .8; }   /* üst çubuktaki gibi açık yuvarlakta */
 .bos p { margin: 0; }
 .bos-baslik { font-weight: 700; font-size: 16px; }
 .bos-alt { font-size: 14px; line-height: 1.45; color: var(--soft); max-width: 320px; }
