@@ -24,10 +24,13 @@ final class PlanMantigi {
     /** Panel (vakit tablosu), vakte 30 dk kala: üst çubukta cami simgesi ve kalan dakika. */
     static final String KANAL_SAYAC = "vakitler";
     /**
-     * Panel, diğer zamanlar: en düşük önem, üst çubukta simge yok; tablo bildirim ekranında durur
-     * (kullanıcı isteği, 19-11-2026: simge sadece vakitten önceki 30 dakikada, vakit girince kalkar).
+     * Panel, diğer zamanlar: sessiz (düşük önem), tablo bildirim ekranında hep açık durur (kullanıcı isteği, 22-11-2026:
+     * bugünün vakitleri hep görünsün; önceki "en düşük önem" kanalı tabloyu tek satıra katlıyordu).
+     * Üst çubuktaki cami simgesi sadece vakitten önceki 30 dakikada (KANAL_SAYAC); sessiz bildirimin simgesini çoğu telefon göstermez.
      */
-    static final String KANAL_TABLO = "vakitler_sakin";
+    static final String KANAL_TABLO = "vakitler_tablo";
+    /** 19-11-2026 – 22-11-2026 arasındaki en düşük önemli tablo kanalı (silinir; Android'de kanalın önemi sonradan değişmez). */
+    static final String ESKI_KANAL_TABLO = "vakitler_sakin";
     /** Vakit girince panel bir kez sesli uyarır (ezan en çok 30 sn); bu kadar sonra sessizce yenilenir ve simge kalkar. */
     static final long SES_SURE = 40_000L;
 
