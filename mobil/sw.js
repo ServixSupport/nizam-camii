@@ -5,7 +5,7 @@
 // - Yeni sürüm kendiliğinden devreye girmez: sayfa "Yeni sürüm hazır" gösterir, kullanıcı dokununca geçilir.
 // SURUM: uygulama dosyalarının özeti. Dosya değişince `cd tests && node araclar/sw-surum.mjs` ile güncellenir
 // (test, unutulursa kırmızı olur).
-const SURUM = '3938522003';
+const SURUM = '9b61c2890f';
 const KABUK = `nzm-kabuk-${SURUM}`;
 const VERI = 'nzm-veri';
 const RESIM = 'nzm-resim';

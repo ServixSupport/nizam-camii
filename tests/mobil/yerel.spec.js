@@ -327,7 +327,8 @@ test('sessize alma: ayar, "Niet storen" izni, süre, nasıl ve hangi namazlar', 
   await page.clock.runFor(1000);
   let p = await sonPlan(page, (x) => x.sessiz.length > 0);
   expect(p.sessizMod).toBe('sessiz');
-  expect(p.sessiz[0]).toMatchObject({ bas: an('2026-10-28T17:27:00+01:00'), bit: an('2026-10-28T17:57:00+01:00'), baslik: 'Telefoon op stil' });
+  // sessize alındı diye bildirim yok (kullanıcı isteği, 23-11-2026): dönemde sadece başlangıç ve bitiş
+  expect(p.sessiz[0]).toEqual({ bas: an('2026-10-28T17:27:00+01:00'), bit: an('2026-10-28T17:57:00+01:00') });
 
   // titreşim: bazı telefonlar (Samsung) burada da izin ister (16-11-2026); 45 dk; Sabah hariç
   await bolum.getByRole('button', { name: 'Trillen' }).click();

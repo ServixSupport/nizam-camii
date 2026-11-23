@@ -52,6 +52,7 @@ final class Planlayici {
     private static final String ESKI_KANAL_SAYAC = "sayac";
     static final String KANAL_SESSIZ = "sessiz";
     private static final int ID_SAYAC = 1;
+    /** Eskiden sessizken duran "Telefon sessizde" notu; artık gösterilmez (kullanıcı isteği, 23-11-2026), kalmışsa silinir. */
     private static final int ID_SESSIZ = 2;
     /** SessizServis'in (kısa ön plan hizmeti) bildirimi; genelde hiç görünmez. */
     static final int ID_SERVIS = 3;
@@ -59,7 +60,6 @@ final class Planlayici {
     // her tür kendi grubunda: Android tabloyu ve vakit bildirimini tek bir "2 bildirim" grubunda toplamasın
     private static final String GRUP_PANEL = "nl.suleymaniyecamii.namaz.panel";
     private static final String GRUP_VAKIT = "nl.suleymaniyecamii.namaz.vakit";
-    private static final String GRUP_SESSIZ = "nl.suleymaniyecamii.namaz.sessiz";
 
     private Planlayici() {}
 
@@ -340,13 +340,11 @@ final class Planlayici {
         nm.notify(ID_SAYAC, b.build());
     }
 
-    /** Tablo: üst satırda hicri tarih (sessizken "Op stil tot 07:10") ve "Öğle'ye 1:23:45"; altta günün 7 vakti, sıradaki kırmızı. */
+    /** Tablo: üst satırda hicri tarih ve "Öğle'ye 1:23:45"; altta günün 7 vakti, sıradaki kırmızı. Sessize alma yazılmaz (23-11-2026). */
     private static RemoteViews tablo(Context c, JSONObject plan, JSONObject v, JSONObject gun, long simdi, int duzen, String uyariYazi) {
         long an = v.optLong("an");
         RemoteViews rv = new RemoteViews(c.getPackageName(), duzen);
         String sol = gun == null ? "" : gun.optString("hicri");
-        JSONObject sessiz = PlanMantigi.aktifSessiz(plan, simdi);
-        if (sessiz != null && depo(c).contains(K_SESSIZ)) sol = "\uD83D\uDD15 " + sessiz.optString("kisa");
         if (uyariYazi != null && !uyariYazi.isEmpty()) sol = uyariYazi;
         rv.setTextViewText(R.id.ust_sol, sol);
         JSONObject kalan = plan.optJSONObject("kalanKisa");
@@ -396,7 +394,6 @@ final class Planlayici {
                     durum.put("bit", donem.optLong("bit"));
                 } catch (JSONException e) { /* */ }
                 p.edit().putString(K_SESSIZ, durum.toString()).apply();
-                sessizNotu(c, plan, donem, durum.optInt("kurulan"));
             }
             return;
         }
@@ -408,7 +405,7 @@ final class Planlayici {
                 yeni.put("bit", donem.optLong("bit"));
             } catch (JSONException e) { /* */ }
             p.edit().putString(K_SESSIZ, yeni.toString()).apply();
-            sessizNotu(c, plan, donem, yeni.optInt("kurulan"));
+            // sessize alındı diye bildirim yok (kullanıcı isteği, 23-11-2026)
         }
     }
 
@@ -485,32 +482,6 @@ final class Planlayici {
             } catch (SecurityException e) { /* izin geri alındı */ }
         }
         NotificationManagerCompat.from(c).cancel(ID_SESSIZ);
-    }
-
-    @SuppressWarnings("MissingPermission")
-    private static void sessizNotu(Context c, JSONObject plan, JSONObject donem, int kurulan) {
-        if (!bildirimIzni(c)) return;
-        if (panelAcik(c, plan)) {
-            // panel açık: not tablonun üst satırında (tek bildirim)
-            NotificationManagerCompat.from(c).cancel(ID_SESSIZ);
-            return;
-        }
-        JSONObject basliklar = plan.optJSONObject("sessizBasliklar");
-        String baslik = donem.optString("baslik");
-        if (basliklar != null) {
-            baslik = basliklar.optString(kurulan == AudioManager.RINGER_MODE_VIBRATE ? "titresim" : "sessiz", baslik);
-        }
-        NotificationCompat.Builder b = new NotificationCompat.Builder(c, KANAL_SESSIZ)
-            .setSmallIcon(R.drawable.ic_stat_sessiz)
-            .setColor(ContextCompat.getColor(c, R.color.cami_lacivert))
-            .setContentTitle(baslik)
-            .setContentText(donem.optString("govde"))
-            .setOngoing(true)
-            .setSilent(true)
-            .setCategory(NotificationCompat.CATEGORY_STATUS)
-            .setGroup(GRUP_SESSIZ)
-            .setContentIntent(acilis(c));
-        NotificationManagerCompat.from(c).notify(ID_SESSIZ, b.build());
     }
 
     // ---------------- alarm ----------------

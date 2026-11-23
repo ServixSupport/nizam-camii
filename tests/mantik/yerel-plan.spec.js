@@ -108,7 +108,6 @@ test('her namaz için ayrı sessiz kalma süresi (kullanıcı isteği, 19-11-202
   expect(sure('Fajr')).toBe(20);
   expect(sure('Dhuhr')).toBe(15);
   expect(sure('Asr')).toBe(30);
-  expect(p.sessiz[0].kisa).toBe('Op stil tot 18:12');                        // Akşam 17:27 + 45
   // eski kayıt: tek "dakika" hepsine
   const eski = plan({ sessiz: { aan: true, dakika: 20, vakitler: ['Maghrib'], mod: 'sessiz' } }).sessiz;
   expect(eski.every((x) => x.bit - x.bas === 20 * 60000)).toBe(true);
@@ -153,7 +152,6 @@ test('sessize alma: seçilen namazlarda vakit girince, süre kadar; Güneş ve �
   expect(p.sessizMod).toBe('sessiz');
   expect(p.sessiz[0]).toEqual({
     bas: an('2026-10-28T17:27:00+01:00'), bit: an('2026-10-28T17:57:00+01:00'),
-    baslik: 'Telefoon op stil', govde: 'Gebedstijd. Om 17:57 staat je telefoon weer zoals hij was.', kisa: 'Op stil tot 17:57',
   });
   expect(p.sessiz).toHaveLength(2 + 5);
   expect(p.sessiz.every((s) => s.bit - s.bas === 30 * 60000)).toBe(true);
@@ -164,8 +162,7 @@ test('sessize alma: seçilen namazlarda vakit girince, süre kadar; Güneş ve �
   const tr = yerelPlan({ gunler: gunler('2026-10-28', 1), bildirim: KAPALI, sessiz: { ...sessiz, mod: 'titresim', vakitler: ['Isha'] }, sayac: true, dil: 'tr', t: METIN.tr, simdi: SIMDI });
   expect(tr.sessizMod).toBe('titresim');
   expect(tr.sessiz).toHaveLength(1);
-  expect(tr.sessiz[0].baslik).toBe('Telefon titreşimde');
-  expect(tr.sessiz[0].govde).toMatch(/^Namaz vakti\. \d{2}:\d{2} itibarıyla telefon eski haline döner\.$/);
+  expect(Object.keys(tr.sessiz[0])).toEqual(['bas', 'bit']);       // sessize alındı diye yazı yok (kullanıcı isteği, 23-11-2026)
   // kapalı: hiç dönem yok
   expect(plan({ sessiz: { ...sessiz, aan: false } }).sessiz).toEqual([]);
 });
@@ -179,5 +176,4 @@ test('iç içe geçen sessiz dönemler birleşir', () => {
     sayac: false, dil: 'nl', t: METIN.nl, simdi: SIMDI,
   });
   expect(p.sessiz.map((s) => [s.bas, s.bit])).toEqual([[an(`${ymd}T17:27:00+01:00`), an(`${ymd}T19:20:00+01:00`)]]);
-  expect(p.sessiz[0].govde).toBe('Gebedstijd. Om 19:20 staat je telefoon weer zoals hij was.');
 });

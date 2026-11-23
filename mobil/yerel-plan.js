@@ -83,9 +83,8 @@ export function yerelPlan({ gunler, bildirim, sessiz, sayac, dil, t, simdi }) {
     if (son && p.bas <= son.bit) son.bit = Math.max(son.bit, p.bit);
     else sessizler.push({ ...p });
   }
-  // sessizken bildirim çubuğunda duran not: neden sessiz ve ne zaman eski haline döner
+  // sessize alındı diye bildirim veya panel yazısı yok (kullanıcı isteği, 23-11-2026)
   const mod = sessiz.mod === 'titresim' ? 'titresim' : 'sessiz';
-  for (const p of sessizler) Object.assign(p, { baslik: t.sessizBaslik[mod], govde: t.sessizGovde(saatYaz(p.bit)), kisa: t.sessizKisa(saatYaz(p.bit)) });
   return {
     surum: 1,
     dil,
@@ -100,7 +99,6 @@ export function yerelPlan({ gunler, bildirim, sessiz, sayac, dil, t, simdi }) {
     kalanKisa: Object.fromEntries(VAKITLER.map((k) => [k, t.kalanKisa(k)])),
     kanallar: { vakit: t.kanalVakit, sayac: t.kanalSayac, tablo: t.kanalTablo, sessiz: t.kanalSessiz },
     sessizMod: mod,
-    sessizBasliklar: t.sessizBaslik,                         // telefon izin yoksa sessiz yerine titreşime alır
     vakitler,
     bildirimler,
     sessiz: sessiz.aan ? sessizler : [],

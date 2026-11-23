@@ -77,6 +77,7 @@
 - **Namaz vakti bildirimleri ayrı sayfada** (`#bildirimler`, kullanıcı isteği 19-11-2026; örnek: başka bir uygulamanın ayarları). Ayarlar'da sadece o sayfaya giden satır ("Açık · 5 vakit").
   - Sayfada: ana anahtar; "Vakit girince" (7 vakit, her biri anahtar + Android'de "Sesi değiştir" ve seçili ses); "Vakitten önce hatırlat" (7 vakit, anahtar + kaç dakika: 5/10/15/30, `onceDk`). Deneme bildirimi düğmesi kalktı (kullanıcı isteği, 20-11-2026; `api/bildirim/deneme.js` duruyor ama uygulama çağırmaz).
 - **Namaz vaktinde sessize alma da ayrı sayfada** (`#sessiz`, `#s-sessiz`, kullanıcı isteği 20-11-2026; sadece Android): Ayarlar'da sadece satır ("Açık · 4 vakit"); sayfada anahtar, izin uyarısı, son deneme, nasıl (sessiz/titreşim), her namaz açık/kapalı + süre. Geri tuşu Ayarlar'a döner.
+  - Telefon sessize alınınca bildirim yok, paneldeki tabloda da yazmaz (kullanıcı isteği, 23-11-2026). Ayarlar'daki "Son: …" satırı kalır.
   - `giris` artık hep `true` (vakitler boşsa vakit girince bildirim yok). Eski kayıtta `giris: false` → vakitler boş, `once: 0` → önce listesi boş.
   - Sunucu (Web Push) de `onceDk`'yı saklar ve kullanır (`api/_lib/bildirim.js`); yoksa tek `once`.
   - Önceden hatırlatma hep telefonun sesiyle (ezan sadece vakit girince).

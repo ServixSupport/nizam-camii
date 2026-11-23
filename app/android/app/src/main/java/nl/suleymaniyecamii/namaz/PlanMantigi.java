@@ -10,7 +10,7 @@ import org.json.JSONObject;
 /**
  * Planın saf mantığı (Android'e bağlı değil; app/src/test'te denenir).
  * Plan biçimi: mobil/yerel-plan.js → { sayac, vakitler[{an, vakit, baslik}], bildirimler[{an, etiket, baslik, govde, ses?}],
- * sessiz[{bas, bit, baslik, govde}], sessizMod, sayacAlt, kanallar }. Zamanlar epoch ms.
+ * sessiz[{bas, bit}], sessizMod, sayacAlt, kanallar }. Zamanlar epoch ms.
  */
 final class PlanMantigi {
 
