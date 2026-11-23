@@ -209,6 +209,18 @@
       </div>
     </section>
 
+    <!-- Vakitler: kerahat süresi (kullanıcı isteği, 23-11-2026: 20 ya da 30 dk seçilebilsin) -->
+    <section class="ayar">
+      <h2 class="ayar-baslik" data-t="vakitAyar"></h2>
+      <div class="ayar-kart">
+        <div class="ayar-satir secimli">
+          <span class="ad-ip"><span class="ayar-ad" id="kerahat-ad" data-t="kerahatAyar"></span><button type="button" class="ipucu" aria-expanded="false" aria-controls="ip-kerahat" data-ip-ad="kerahat-ad"><span aria-hidden="true">?</span></button></span>
+          <span class="b-sec"><select id="kerahat-sure" aria-labelledby="kerahat-ad"></select></span>
+        </div>
+        <p class="ayar-not ipucu-not" id="ip-kerahat" data-t="kerahatNot" hidden></p>
+      </div>
+    </section>
+
     <!-- Bildirimler ve ses: tek grup (kullanıcı isteği, 08-11-2026). Namaz vakti bildirimleri ayrı sayfada (#bildirimler,
          kullanıcı isteği 19-11-2026: her vakit kendi satırında); burada o sayfaya giden satır. Alttaki bölümler (panel, sessiz …) aynı grubun kartları. -->
     <section class="ayar" id="bildirim-ayar" hidden>

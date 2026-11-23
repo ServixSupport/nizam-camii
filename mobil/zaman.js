@@ -136,6 +136,8 @@ export function gunduzMu(simdi, bugun) {
  * Süre (dakika) hocaya danışılmalı; Diyanet "yaklaşık 45 dakika" der. Öğle öncesi (istiva) burada yok.
  */
 export const KERAHAT_DK = 45;
+/** Ayarlar'da seçilebilen süreler (kullanıcı isteği, 23-11-2026: "20 ya da 30 dk yapabileyim"). */
+export const KERAHAT_SECENEK = [15, 20, 25, 30, 35, 40, 45];
 
 /**
  * İkindi vaktinde: İkindi girince kerahate (Akşam − KERAHAT_DK) kalan süre ('once'); kerahat girince 'icinde'

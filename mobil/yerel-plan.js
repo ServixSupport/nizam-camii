@@ -19,6 +19,8 @@ export const SESSIZ_DK_VARSAYILAN = 30;
 export const SESSIZ_VARSAYILAN = { aan: false, dakikalar: Object.fromEntries(NAMAZ.map((k) => [k, SESSIZ_DK_VARSAYILAN])), vakitler: [...NAMAZ], mod: 'sessiz' };
 /** Ezan bitene kadar beklenen süre (sn; en uzun kayıt 30 sn). Sessize alma ezan bitince başlar, yoksa ezanı keser. */
 export const EZAN_SN = 35;
+/** Telefonun kendi bildirim sesi çalarken sessize alınmasın (kullanıcı: "ses çalmadan titreşime geçiyor", 23-11-2026). */
+export const TELEFON_SES_SN = 15;
 const ezanMi = (ses) => ses !== 'telefon' && SESLER.includes(ses);
 /** O namazın sesi: sesler[vakit] (her namaz ayrı, 19-11-2026); eski kayıtlarda tek ses. */
 export const namazSesi = (bildirim, k) => (bildirim.sesler && bildirim.sesler[k]) || bildirim.ses || 'telefon';
@@ -65,9 +67,11 @@ export function yerelPlan({ gunler, bildirim, sessiz, sayac, dil, t, simdi }) {
         }
       }
       if (sessiz.aan && NAMAZ.includes(e.key) && sessiz.vakitler.includes(e.key)) {
-        // bu vakitte ezan okunacaksa telefon ezan bitince susar (kullanıcı isteği, 08-11-2026: önce ezan, sonra sessiz)
-        const ezanli = bildirim.aan && bildirim.giris && bildirim.vakitler.includes(e.key) && ezanMi(namazSesi(bildirim, e.key));
-        const bas = e.ms + (ezanli ? EZAN_SN * 1000 : 0);
+        // bu vakitte ezan okunacaksa telefon ezan bitince susar (kullanıcı isteği, 08-11-2026: önce ezan, sonra sessiz);
+        // telefonun kendi sesiyse de önce ses çalar (23-11-2026: aynı anda sessize alınınca ses hiç çıkmıyordu)
+        const sesli = bildirim.aan && bildirim.giris && bildirim.vakitler.includes(e.key);
+        const ezanli = sesli && ezanMi(namazSesi(bildirim, e.key));
+        const bas = e.ms + (ezanli ? EZAN_SN : sesli ? TELEFON_SES_SN : 0) * 1000;
         const bit = e.ms + sessizSuresi(sessiz, e.key) * 60000;
         if (bit > simdi) pencereler.push({ bas, bit });
       }

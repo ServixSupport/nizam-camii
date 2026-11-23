@@ -1145,3 +1145,8 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 .gz-icerik ul { padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
 .gz-icerik h2 { margin: 12px 0 0; font-size: 16px; font-weight: 700; color: var(--ink); }
 .gz-icerik .gz-tarih { font-size: 13px; color: var(--soft); }
+
+/* Ayarlar → Vakitler: kerahat süresi (23-11-2026); ad solda, seçim sağda */
+.ayar-satir.secimli { cursor: default; justify-content: space-between; }
+.ayar-satir.secimli .ad-ip { flex: 1; min-width: 0; }
+.ayar-satir.secimli .b-sec { flex: 0 0 auto; width: 112px; }

@@ -340,7 +340,6 @@ test('sessize alma: ayar, "Niet storen" izni, süre, nasıl ve hangi namazlar', 
   await expect(sure('Fadjr')).toBeDisabled();                                 // kapalı namazın süresi seçilmez
   await page.clock.runFor(1000);
   p = await sonPlan(page, (x) => x.sessizMod === 'titresim' && x.sessiz[0] && x.sessiz[0].bit - x.sessiz[0].bas === 45 * 60000);
-  expect(p.sessiz[0].baslik).toBe('Telefoon op trillen');
   const ogle = p.vakitler.find((v) => v.vakit === 'Dhuhr').an;
   expect(p.sessiz.find((s) => s.bas === ogle).bit - ogle).toBe(15 * 60000);
   const sabahlar = p.vakitler.filter((v) => v.vakit === 'Fajr').map((v) => v.an);

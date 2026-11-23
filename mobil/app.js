@@ -3,7 +3,7 @@
 // Metinler her zaman textContent ile yazılır.
 import {
   VAKITLER, amsParcalar, amsGun, gunEkle, diyanetAnahtari, diyanetGunu, aladhanGunu, aladhanAdresi,
-  gunOlaylari, anDurumu, geriSayim, hicriYazi, kerahatDurumu, vakitSonu, AMS,
+  gunOlaylari, anDurumu, geriSayim, hicriYazi, kerahatDurumu, vakitSonu, AMS, KERAHAT_DK, KERAHAT_SECENEK,
 } from './zaman.js';
 import { METIN, DILLER, VARSAYILAN_DIL, ARAPCA } from './metin.js';
 import { ekranlar } from './ekranlar.js';
@@ -16,7 +16,7 @@ import { gokFazi, gokYayCiz, zumrutCiz } from './tema-ciz.js';
 import { temaOnizleme } from './tema-onizleme.js';
 
 // TV'nin anahtarları (vakitler, nizam-tema, nizam-sayac) kullanılmaz; hepsi "nzm." ile başlar.
-const DEPO = { dil: 'nzm.dil', tema: 'nzm.tema', stil: 'nzm.stil', vakit: 'nzm.vakit', aladhan: 'nzm.aladhan', icerik: 'nzm.icerik' };
+const DEPO = { dil: 'nzm.dil', tema: 'nzm.tema', stil: 'nzm.stil', vakit: 'nzm.vakit', aladhan: 'nzm.aladhan', icerik: 'nzm.icerik', kerahat: 'nzm.kerahat' };
 const SEKMELER = ['ana', 'faaliyetler', 'programlar', 'ayarlar', 'bildirimler', 'sessiz', 'gizlilik'];
 const BOS_ICERIK = { guncelleme: null, faaliyetler: [], programlar: [] };
 const ICERIK_ARALIK = 2 * 60 * 1000;      // içerik en fazla 2 dakikada bir istenir (CDN de 2 dk tutar)
@@ -36,6 +36,8 @@ const durum = {
   // 'cini' (Tema 3, 09-11-2026: caminin fotoğrafı, karolu sayaç, oklu tarih). Kullanıcı isteği (11-11-2026): Tema 3 varsayılan; seçmeyenler de bunu görür.
   // 20-11-2026: Tema 2 (kemer) yerine 'gok' (gökyüzü, güneş yayı); 'zumrut' Tema 4. Eski 'klasik' kaydı Tema 2'ye geçer.
   stil: onizleme || (() => { const s = oku(DEPO.stil); return s === 'klasik' ? 'gok' : ['liste', 'gok', 'zumrut'].includes(s) ? s : 'cini'; })(),
+  // kerahat süresi (dk; Ayarlar → Vakitler, 23-11-2026): güneş doğduktan sonra ve Akşam'dan önce
+  kerahat: (() => { const n = Number(oku(DEPO.kerahat)); return KERAHAT_SECENEK.includes(n) ? n : KERAHAT_DK; })(),
   diyanet: new Map(),      // 'GG.AA.YYYY' → gün
   aladhan: new Map(),      // 'YYYY-MM-DD' → gün
   veriVar: false,
@@ -260,9 +262,25 @@ function metinleriYaz() {
     return b;
   }));
   $('#stil-ad').textContent = t[{ liste: 'stilListe', gok: 'stilGok', cini: 'stilCini', zumrut: 'stilZumrut' }[durum.stil]];
+  kerahatSecimi();
   document.documentElement.style.setProperty('--t4Sonraki', JSON.stringify(t.t4Sonraki));   // Tema 4: "Sıradaki" rozeti (CSS)
   _tarihImza = ''; _satirImza = ''; _gunImza = '';
   bld.ciz();
+}
+
+// kerahat süresi seçimi (Ayarlar → Vakitler; kullanıcı isteği 23-11-2026)
+function kerahatSecimi() {
+  const sec = $('#kerahat-sure');
+  if (!sec.options.length) {
+    sec.append(...KERAHAT_SECENEK.map((n) => Object.assign(document.createElement('option'), { value: String(n) })));
+    sec.addEventListener('change', () => {
+      durum.kerahat = Number(sec.value);
+      yaz(DEPO.kerahat, sec.value);
+      ciz();
+    });
+  }
+  for (const o of sec.options) o.textContent = `${o.value} ${L().notifMin}`;
+  sec.value = String(durum.kerahat);
 }
 
 function dilSec(k) {
@@ -596,7 +614,7 @@ function temaCiz(simdi, d, t) {
 
 // ---------------- Tema 1 (liste) ve Tema 3: kerahat (sadece İkindi vaktinde) ----------------
 function kerahatCiz(simdi, veriVar) {
-  const k = veriVar ? kerahatDurumu(simdi, durum.olay.bugun) : null;   // bütün temalarda (Tema 4: .t4-kerahat; 20-11-2026)
+  const k = veriVar ? kerahatDurumu(simdi, durum.olay.bugun, durum.kerahat) : null;   // bütün temalarda (Tema 4: .t4-kerahat; 20-11-2026)
   const yazi = k && (k.tur === 'icinde' ? L().kerahatIcinde : L().kerahatOnce(geriSayim(k.hedef - simdi)));
   for (const el of $$('.kh-cumle, .t4-kerahat')) {
     if (el.hidden !== !k) el.hidden = !k;

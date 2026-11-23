@@ -87,13 +87,13 @@ test('her namaz için ayrı ses (kullanıcı isteği, 19-11-2026): sesler[vakit]
   expect(ses('2026-10-29-Dhuhr')).toBeUndefined();                           // telefonun sesi
   expect(ses('2026-10-28-Isha')).toBeUndefined();
   expect(ses('2026-10-29-Imsak')).toBeUndefined();                           // İmsak hep telefonun sesiyle
-  // sessize alma: ezan okunan namazda ezan bitince, okunmayanda vakit girince başlar
+  // sessize alma: ezan okunan namazda ezan bitince, telefonun sesiyle 15 sn sonra (ses çalsın; 23-11-2026)
   const sessiz = { aan: true, dakikalar: { Fajr: 30, Dhuhr: 30, Asr: 30, Maghrib: 30, Isha: 30 }, vakitler: ['Maghrib', 'Isha'], mod: 'sessiz' };
   const s = plan({ sessiz, bildirim: { aan: true, once: 0, giris: true, vakitler: ['Maghrib', 'Isha'], sesler } }).sessiz;
   const aksam = an('2026-10-28T17:27:00+01:00');
   expect(s[0].bas).toBe(aksam + 35000);
   const yatsi = p.vakitler.find((v) => v.vakit === 'Isha').an;
-  expect(s.find((x) => x.bit === yatsi + 30 * 60000).bas).toBe(yatsi);
+  expect(s.find((x) => x.bit === yatsi + 30 * 60000).bas).toBe(yatsi + 15000);
 });
 
 test('her namaz için ayrı sessiz kalma süresi (kullanıcı isteği, 19-11-2026): dakikalar[vakit]; eski kayıtta tek süre', () => {
@@ -139,9 +139,10 @@ test('ezan ve sessize alma aynı vakitte: telefon ezan bitince susar (kullanıc�
   const aksam = an('2026-10-28T17:27:00+01:00');
   const ilk = (bildirim) => plan({ sessiz, bildirim }).sessiz[0];
   expect(ilk({ aan: true, once: 0, giris: true, vakitler: ['Maghrib'], ses: 'ezan-3' })).toMatchObject({ bas: aksam + 35000, bit: aksam + 30 * 60000 });
-  // ezan yoksa (telefonun sesi, bildirim kapalı, o vakit seçili değil, giriş bildirimi kapalı) vakit girince
-  for (const b of [{ aan: true, once: 0, giris: true, vakitler: ['Maghrib'], ses: 'telefon' },
-    { aan: false, once: 0, giris: true, vakitler: ['Maghrib'], ses: 'ezan-3' },
+  // telefonun sesi: önce ses çalsın, 15 sn sonra sessize (kullanıcı: "ses çalmadan titreşime geçiyor", 23-11-2026)
+  expect(ilk({ aan: true, once: 0, giris: true, vakitler: ['Maghrib'], ses: 'telefon' })).toMatchObject({ bas: aksam + 15000, bit: aksam + 30 * 60000 });
+  // ses yoksa (bildirim kapalı, o vakit seçili değil, giriş bildirimi kapalı) vakit girince
+  for (const b of [{ aan: false, once: 0, giris: true, vakitler: ['Maghrib'], ses: 'ezan-3' },
     { aan: true, once: 0, giris: true, vakitler: ['Isha'], ses: 'ezan-3' },
     { aan: true, once: 15, giris: false, vakitler: ['Maghrib'], ses: 'ezan-3' }]) expect(ilk(b).bas).toBe(aksam);
 });
