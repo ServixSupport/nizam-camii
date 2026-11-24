@@ -403,19 +403,48 @@ test('tema: sistem çubukları temaya göre (Tema 2 ve 4 koyu zeminli: açık si
   }
 });
 
-test('iPhone: sessize alma ve durum çubuğu yok (Apple izin vermez), kilit ekranı widget açıklaması var; izin kendiliğinden sorulmaz', async ({ page }) => {
+test('iPhone: sessize alma ve durum çubuğu yok (Apple izin vermez), widget açıklaması var; izin kendiliğinden sorulmaz', async ({ page }) => {
   await telefon(page, { platform: 'ios' });
   await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#ayarlar' });
   await expect(page.locator('#widget-ayar')).toBeVisible();
-  await expect(page.locator('#widget-ayar')).toContainText('Aftel-widget');
+  await expect(page.locator('#widget-ayar')).toContainText('Widgets');
   await expect(page.locator('#sessiz-ayar')).toBeHidden();
   await expect(page.locator('#sayac-ayar')).toBeHidden();
   await expect(page.locator('#tam-alarm')).toBeHidden();
-  await expect(page.locator('#b-giris-liste .b-sesdegis')).toHaveCount(0);      // ezan sesi şimdilik sadece Android'de
   const p = await sonPlan(page);
   expect(p.sayac).toBe(false);
   expect(p.vakitler.length).toBeGreaterThan(0);                               // kilit ekranı widget'ı için
   expect(await cagrilar(page, 'bildirimIzniIste')).toHaveLength(0);
+});
+
+test('iPhone (24-11-2026): ezan sesi her namaz için seçilir, plan seçilen sesle; açıklama iPhone’a göre', async ({ page }) => {
+  await telefon(page, { platform: 'ios', izin: { bildirim: 'granted' } });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#bildirimler', depo: { 'nzm.bildirim': SES_DEPO } });
+  await expect(page.locator('#b-ses-Maghrib')).toHaveText('Geluid wijzigen');
+  await expect(page.locator('#ip-ses')).toContainText('maximaal 30 seconden');
+  await page.locator('#b-ses-Maghrib').click();
+  await expect(page.locator('#b-ses-liste-Maghrib .b-ses-sec')).toHaveText(['Standaard telefoonmelding', 'Ezan 1', 'Ezan 2', 'Ezan 3', 'Ezan 4', 'Ezan 5', 'Ezan 6', 'Ezan 7']);
+  await page.locator('#b-ses-liste-Maghrib').getByRole('button', { name: 'Ezan 2', exact: true }).click();
+  await page.clock.runFor(1000);
+  const p = await sonPlan(page, (x) => x.bildirimler.some((b) => b.ses === 'ezan-2'));
+  expect(p.bildirimler.find((b) => b.etiket === '2026-10-28-Maghrib' && b.ses)).toMatchObject({ an: an('2026-10-28T17:27:00+01:00'), ses: 'ezan-2' });
+});
+
+test('iPhone (24-11-2026): "Takvime ekle" ve "Paylaş" telefonun kendi pencereleriyle; takvim izni yoksa açıklama', async ({ page }) => {
+  await telefon(page, { platform: 'ios', izin: { bildirim: 'granted' } });
+  await page.addInitScript(() => {
+    const asil = window.Capacitor.nativePromise;
+    window.Capacitor.nativePromise = (ad, m, arg) => (m === 'takvimeEkle' && window.__takvimRet ? Promise.reject(new Error('izinYok')) : asil(ad, m, arg));
+  });
+  await mobilAc(page, { zaman: ZAMAN, adres: '/mobil/#faaliyetler', icerik: tasarimIcerik(), depo: { 'nzm.dil': 'nl' } });
+  const kart = page.locator('.one-cikan');
+  await kart.getByRole('button', { name: 'Zet in agenda' }).click();
+  expect((await cagrilar(page, 'takvimeEkle'))[0].arg.baslik).toBe('Familieontbijt');
+  await kart.getByRole('button', { name: 'Delen' }).click();
+  expect((await cagrilar(page, 'paylas'))[0].arg.baslik).toBe('Familieontbijt');
+  await page.evaluate(() => { window.__takvimRet = true; });
+  await kart.getByRole('button', { name: 'Zet in agenda' }).click();
+  await expect(page.getByText('Geen toegang tot je agenda.', { exact: false })).toBeVisible();
 });
 
 test('tarayıcıda (web uygulaması) yeni bölümler hiç görünmez ve telefon eklentisi çağrılmaz', async ({ page }) => {

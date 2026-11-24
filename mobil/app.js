@@ -139,10 +139,12 @@ function bildir(metin) {
 }
 
 // Faz D: bildirim ayarları ve ana ekrandaki ziller (sunucu hazır değilse hiç görünmez)
-// Vakit girince ses (telefonun sesi, kısa veya uzun ezan): sadece Android mağaza uygulamasında (tarayıcı ve iPhone'da yok)
+// Vakit girince ses (telefonun sesi veya Ezan 1 … 7): mağaza uygulamasında (Android; iPhone 24-11-2026'dan beri), tarayıcıda yok
 const bld = bildirimler({ L, dil: () => durum.dil, bildir, kuruluMu: () => kuruluMu(), iosMu: () => iosMu(),
-  yerel: cami, planDegisti: planGonderSonra, sesSecimi: yerelMi && platform === 'android',
+  yerel: cami, planDegisti: planGonderSonra, sesSecimi: yerelMi,
   zilliOnizleme: !!onizleme && window.parent.document.documentElement.classList.contains('zilli') });
+// iPhone'da ses açıklaması farklı (en fazla 30 sn, sessiz modda duyulmaz)
+if (yerelMi && platform === 'ios') $('#ip-ses').dataset.t = 'notifSesNotIos';
 // Mağaza uygulaması: durum çubuğunda geri sayım, sessize alma, kilit ekranı (tarayıcıda yok)
 const yerelAyar = yerelMi ? yerelAyarlar({ L, cami, platform, planDegisti: planGonderSonra, bildirimAcik: () => bld.ayar().aan }) : null;
 
@@ -176,8 +178,8 @@ $('#stil-ac').addEventListener('click', temaOn.ac);
 const ekran = ekranlar({
   L, dil: () => durum.dil, icerik: () => durum.icerik, simdi: () => Date.now(),
   tablet: () => tabletMi.matches, olaylar, olaylarYaklasik, bildir,
-  // Android uygulamasında takvim ve paylaş telefonun kendi pencereleriyle (WebView indirmez, navigator.share yok; 20-11-2026)
-  telefon: yerelMi && platform === 'android' ? cami : null,
+  // mağaza uygulamasında takvim ve paylaş telefonun kendi pencereleriyle (WebView indirmez; Android 20-11-2026, iPhone 24-11-2026)
+  telefon: yerelMi ? cami : null,
   adres: (yol) => (yerelMi ? SUNUCU : location.origin) + yol,
 });
 

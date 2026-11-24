@@ -1,0 +1,16 @@
+/* Widget'lar (SayacWidget.swift); anahtar İngilizce metin */
+"Next prayer" = "Volgend gebed";
+"Time left until the next prayer." = "Hoe lang het nog duurt tot het volgende gebed.";
+"Prayer times" = "Gebedstijden";
+"Today's prayer times and the time left." = "De gebedstijden van vandaag en de resterende tijd.";
+"Colors" = "Kleuren";
+"Background and text color of the widget." = "Achtergrond- en tekstkleur van de widget.";
+"Background" = "Achtergrond";
+"Text color" = "Tekstkleur";
+"Automatic" = "Automatisch";
+"White" = "Wit";
+"Black" = "Zwart";
+"Gold" = "Goud";
+"Green" = "Groen";
+"Red" = "Rood";
+"Blue" = "Blauw";

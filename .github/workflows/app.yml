@@ -59,6 +59,16 @@ jobs:
           xcodebuild -project App.xcodeproj -scheme App -configuration Debug \
             -destination "id=${{ steps.sim.outputs.cihaz }}" -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO build | tail -40
+      - name: Ezan sesleri pakette (iPhone bildirim sesi 30 sn'den kısa olmalı)
+        working-directory: app/ios/App/build/Build/Products/Debug-iphonesimulator/App.app
+        run: |
+          ls ezan_*.caf
+          test "$(ls ezan_*.caf | wc -l)" -eq 7
+          for f in ezan_*.caf; do
+            sn=$(afinfo "$f" | awk '/estimated duration/ { print $3 }')
+            echo "$f: $sn sn"
+            awk -v s="$sn" 'BEGIN { exit !(s > 0 && s < 30) }'
+          done
       - name: Simülatörde aç, ekran görüntüsü
         working-directory: app/ios/App
         run: |

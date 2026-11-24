@@ -21,6 +21,7 @@
 		CA5100000000000000000067 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = CA5100000000000000000032 /* InfoPlist.strings */; };
 		CA510000000000000000006B /* SayacWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA5100000000000000000007 /* SayacWidget.swift */; };
 		CA510000000000000000006E /* SayacWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CA5100000000000000000014 /* SayacWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CA5100000000000000000075 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = CA5100000000000000000074 /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +70,9 @@
 		CA5100000000000000000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CA5100000000000000000009 /* SayacWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SayacWidget.entitlements; sourceTree = "<group>"; };
 		CA5100000000000000000014 /* SayacWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SayacWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		CA5100000000000000000071 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CA5100000000000000000072 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CA5100000000000000000073 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,6 +139,7 @@
 				CA5100000000000000000007 /* SayacWidget.swift */,
 				CA5100000000000000000008 /* Info.plist */,
 				CA5100000000000000000009 /* SayacWidget.entitlements */,
+				CA5100000000000000000074 /* Localizable.strings */,
 			);
 			path = SayacWidget;
 			sourceTree = "<group>";
@@ -149,6 +154,7 @@
 				504EC3001FED79650016851F /* Sources */,
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
+				CA5100000000000000000076 /* Ezan sesleri */,
 				CA510000000000000000001F /* Embed Foundation Extensions */,
 			);
 			buildRules = (
@@ -243,10 +249,47 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CA5100000000000000000075 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		CA5100000000000000000076 /* Ezan sesleri */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/ezan-sesleri.sh",
+				"$(SRCROOT)/../../android/app/src/main/res/raw/ezan_1.mp3",
+				"$(SRCROOT)/../../android/app/src/main/res/raw/ezan_2.mp3",
+				"$(SRCROOT)/../../android/app/src/main/res/raw/ezan_3.mp3",
+				"$(SRCROOT)/../../android/app/src/main/res/raw/ezan_4.mp3",
+				"$(SRCROOT)/../../android/app/src/main/res/raw/ezan_5.mp3",
+				"$(SRCROOT)/../../android/app/src/main/res/raw/ezan_6.mp3",
+				"$(SRCROOT)/../../android/app/src/main/res/raw/ezan_7.mp3",
+			);
+			name = "Ezan sesleri";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/ezan_1.caf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/ezan_2.caf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/ezan_3.caf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/ezan_4.caf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/ezan_5.caf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/ezan_6.caf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/ezan_7.caf",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh \"$SRCROOT/ezan-sesleri.sh\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		504EC3001FED79650016851F /* Sources */ = {
@@ -303,6 +346,16 @@
 				CA5100000000000000000006 /* en */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		CA5100000000000000000074 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CA5100000000000000000071 /* tr */,
+				CA5100000000000000000072 /* nl */,
+				CA5100000000000000000073 /* en */,
+			);
+			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -422,6 +475,7 @@
 			baseConfigurationReference = 958DCC722DB07C7200EA8C5F /* debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -445,6 +499,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -470,7 +525,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = SayacWidget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -493,7 +548,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = SayacWidget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

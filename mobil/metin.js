@@ -102,7 +102,7 @@ const EK = {
     gruplar: { herkes: 'Herkes', erkekler: 'Erkekler', hanimlar: 'Hanımlar', genclik: 'Gençlik', cocuklar: 'Çocuklar' },
     tumu: 'Tümü', tumGruplar: 'Tüm gruplar', suz: 'Gruba göre süz',
     oneCikan: 'ÖNE ÇIKAN', tumGun: 'Tüm gün',
-    takvimeEkle: 'Takvime ekle', paylas: 'Paylaş', linkKopyalandi: 'Link kopyalandı', takvimYok: 'Takvim uygulaması bulunamadı', dahaFazla: 'Daha fazla bilgi',
+    takvimeEkle: 'Takvime ekle', paylas: 'Paylaş', linkKopyalandi: 'Link kopyalandı', takvimYok: 'Takvim uygulaması bulunamadı', takvimIzin: 'Takvime erişim izni yok. iPhone Ayarlar’ından izin verin.', dahaFazla: 'Daha fazla bilgi',
     kategoriBos: 'Bu grupta yaklaşan faaliyet yok.', geri: 'Faaliyetler', bulunamadi: 'Bu faaliyet artık yok.',
     prSubTablet: 'Haftalık ders ve sohbet takvimi',
     herGun: 'Her gün', herHafta: (g) => `Her ${g}`, programGrupBos: 'Bu grupta program yok.', sonrakiOturum: (t) => `Sıradaki: ${t}`,
@@ -116,7 +116,7 @@ const EK = {
     gruplar: { herkes: 'Iedereen', erkekler: 'Mannen', hanimlar: 'Vrouwen', genclik: 'Jongeren', cocuklar: 'Kinderen' },
     tumu: 'Alles', tumGruplar: 'Alle groepen', suz: 'Filter op groep',
     oneCikan: 'UITGELICHT', tumGun: 'Hele dag',
-    takvimeEkle: 'Zet in agenda', paylas: 'Delen', linkKopyalandi: 'Link gekopieerd', takvimYok: 'Geen agenda-app gevonden', dahaFazla: 'Meer informatie',
+    takvimeEkle: 'Zet in agenda', paylas: 'Delen', linkKopyalandi: 'Link gekopieerd', takvimYok: 'Geen agenda-app gevonden', takvimIzin: 'Geen toegang tot je agenda. Geef toestemming in de iPhone-instellingen.', dahaFazla: 'Meer informatie',
     kategoriBos: 'Geen komende activiteiten in deze groep.', geri: 'Activiteiten', bulunamadi: 'Deze activiteit bestaat niet meer.',
     prSubTablet: 'Wekelijks rooster van lessen en bijeenkomsten',
     herGun: 'Elke dag', herHafta: (g) => `Elke ${g}`, programGrupBos: 'Geen programma’s in deze groep.', sonrakiOturum: (t) => `Volgende: ${t}`,
@@ -130,7 +130,7 @@ const EK = {
     gruplar: { herkes: 'Everyone', erkekler: 'Men', hanimlar: 'Women', genclik: 'Youth', cocuklar: 'Children' },
     tumu: 'All', tumGruplar: 'All groups', suz: 'Filter by group',
     oneCikan: 'FEATURED', tumGun: 'All day',
-    takvimeEkle: 'Add to calendar', paylas: 'Share', linkKopyalandi: 'Link copied', takvimYok: 'No calendar app found', dahaFazla: 'More information',
+    takvimeEkle: 'Add to calendar', paylas: 'Share', linkKopyalandi: 'Link copied', takvimYok: 'No calendar app found', takvimIzin: 'No access to your calendar. Allow it in the iPhone Settings.', dahaFazla: 'More information',
     kategoriBos: 'No upcoming activities in this group.', geri: 'Activities', bulunamadi: 'This activity no longer exists.',
     prSubTablet: 'Weekly schedule of lessons and gatherings',
     herGun: 'Every day', herHafta: (g) => `Every ${g}`, programGrupBos: 'No programs in this group.', sonrakiOturum: (t) => `Next: ${t}`,
@@ -200,6 +200,7 @@ const BILDIRIM = {
     notifGirisBaslik: 'VAKİT GİRİNCE', notifOnceBaslik: 'VAKİTTEN ÖNCE HATIRLAT', sesDegistir: 'Sesi değiştir',
     onceDk: (n) => `${n} dk önce`, notifAcik: 'Açık', vakitSay: (n) => `${n} vakit`,
     notifSesNot: 'Her namaz için ayrı ses seçebilirsiniz; ▶ ile seçmeden önce dinleyin. Ezan sadece beş vakit namazda okunur. Durdurmak için bildirim ekranını aşağı çekin veya bildirime dokunun.',
+    notifSesNotIos: 'Her namaz için ayrı ses seçebilirsiniz; ▶ ile seçmeden önce dinleyin. Ezan sadece beş vakit namazda ve en fazla 30 saniye okunur (iPhone sınırı). iPhone sessiz moddaysa ezan duyulmaz.',
   },
   nl: {
     notif: 'MELDINGEN EN GELUID', notifMaster: 'Meldingen voor gebedstijden', notifBefore: 'Herinner me vooraf',
@@ -218,6 +219,7 @@ const BILDIRIM = {
     notifGirisBaslik: 'BIJ BEGIN GEBEDSTIJD', notifOnceBaslik: 'HERINNERING VOORAF', sesDegistir: 'Geluid wijzigen',
     onceDk: (n) => `${n} min van tevoren`, notifAcik: 'Aan', vakitSay: (n) => `${n} ${n === 1 ? 'gebedstijd' : 'gebedstijden'}`,
     notifSesNot: 'Je kiest per gebed een eigen geluid; met ▶ luister je eerst. De adhan klinkt alleen bij de vijf gebeden. Trek het meldingenscherm omlaag of tik op de melding om te stoppen.',
+    notifSesNotIos: 'Je kiest per gebed een eigen geluid; met ▶ luister je eerst. De adhan klinkt alleen bij de vijf gebeden, maximaal 30 seconden (grens van de iPhone). Staat je iPhone op stil, dan hoor je de adhan niet.',
   },
   en: {
     notif: 'NOTIFICATIONS & SOUND', notifMaster: 'Prayer time notifications', notifBefore: 'Remind me before',
@@ -236,6 +238,7 @@ const BILDIRIM = {
     notifGirisBaslik: 'WHEN THE PRAYER TIME BEGINS', notifOnceBaslik: 'REMINDER BEFORE', sesDegistir: 'Change sound',
     onceDk: (n) => `${n} min before`, notifAcik: 'On', vakitSay: (n) => `${n} ${n === 1 ? 'prayer time' : 'prayer times'}`,
     notifSesNot: 'Choose a sound for each prayer; tap ▶ to listen first. The adhan only plays for the five daily prayers. Pull down the notification shade or tap the notification to stop it.',
+    notifSesNotIos: 'Choose a sound for each prayer; tap ▶ to listen first. The adhan only plays for the five daily prayers, for at most 30 seconds (an iPhone limit). If your iPhone is in silent mode, you will not hear it.',
   },
 };
 for (const d of Object.keys(BILDIRIM)) Object.assign(METIN[d], BILDIRIM[d]);
@@ -258,8 +261,8 @@ const YEREL = {
       izinYokTitresim: 'izin olmadığı için titreşime alınamadı' },
     tamAlarm: 'Her şeyin tam zamanında olması için “Alarmlar ve hatırlatıcılar” iznini açın.',
     izinVer: 'İzin ver', ayarAc: 'Ayarları aç', notifTestSentYerel: 'Deneme bildirimi gönderildi', gizlilik: 'Gizlilik',
-    widgetAna: 'Geri sayım widget’ı',
-    widgetNot: 'Kilit ekranına basılı tutun, “Özelleştir”e dokunun ve Süleymaniye widget’ını ekleyin. Sıradaki vakte kalan süre orada görünür.',
+    widgetAna: 'Widget’lar',
+    widgetNot: 'Ana ekrana veya kilit ekranına basılı tutun, “Düzenle” veya “Özelleştir”e dokunun ve Süleymaniye widget’larını ekleyin: sıradaki vakit (küçük, kilit ekranı) ve günün vakitleri (orta, büyük). Renkleri seçmek için widget’a basılı tutun ve “Widget’ı düzenle”ye dokunun.',
   },
   nl: {
     sayacAlt: 'Volgende gebedstijd', kanalVakit: 'Gebedstijden', kanalSayac: 'Gebedstijden-widget', kanalTablo: 'Gebedstijden-tabel', kanalSessiz: 'Op stil zetten',
@@ -278,8 +281,8 @@ const YEREL = {
       izinYokTitresim: 'kon niet op trillen (geen toestemming)' },
     tamAlarm: 'Zet “Wekkers en herinneringen” aan, dan gebeurt alles precies op tijd.',
     izinVer: 'Toestaan', ayarAc: 'Instellingen openen', notifTestSentYerel: 'Testmelding verstuurd', gizlilik: 'Privacy',
-    widgetAna: 'Aftel-widget',
-    widgetNot: 'Houd je vergrendelscherm ingedrukt, tik op “Pas aan” en voeg de widget Süleymaniye toe. Daar zie je hoe lang het nog duurt tot het volgende gebed.',
+    widgetAna: 'Widgets',
+    widgetNot: 'Houd je beginscherm of vergrendelscherm ingedrukt, tik op “Wijzig” of “Pas aan” en voeg de Süleymaniye-widgets toe: volgend gebed (klein, vergrendelscherm) en gebedstijden van vandaag (middel, groot). Kleuren kies je door de widget ingedrukt te houden en op “Wijzig widget” te tikken.',
   },
   en: {
     sayacAlt: 'Next prayer time', kanalVakit: 'Prayer times', kanalSayac: 'Prayer times widget', kanalTablo: 'Prayer times table', kanalSessiz: 'Silencing',
@@ -297,8 +300,8 @@ const YEREL = {
       izinYokTitresim: 'could not set to vibrate (no permission)' },
     tamAlarm: 'Turn on “Alarms & reminders” so everything happens right on time.',
     izinVer: 'Allow', ayarAc: 'Open settings', notifTestSentYerel: 'Test notification sent', gizlilik: 'Privacy',
-    widgetAna: 'Countdown widget',
-    widgetNot: 'Touch and hold your Lock Screen, tap “Customize” and add the Süleymaniye widget. It shows the time left until the next prayer.',
+    widgetAna: 'Widgets',
+    widgetNot: 'Touch and hold your Home Screen or Lock Screen, tap “Edit” or “Customize” and add the Süleymaniye widgets: next prayer (small, Lock Screen) and today’s prayer times (medium, large). To choose colors, touch and hold the widget and tap “Edit Widget”.',
   },
 };
 for (const d of Object.keys(YEREL)) Object.assign(METIN[d], YEREL[d]);

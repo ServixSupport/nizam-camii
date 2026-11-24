@@ -114,7 +114,7 @@ export function ekranlar(c) {
         tumGun: tum,
         yer: [f.yer, 'Ookmeerweg 206, Amsterdam'].filter(Boolean).join(', '),
         aciklama: metinSec(f.aciklama, c.dil()) || '',
-      }).catch(() => c.bildir(c.L().takvimYok));
+      }).catch((e) => c.bildir(e && e.message === 'izinYok' ? c.L().takvimIzin : c.L().takvimYok));   // izinYok: iPhone (iOS 16)
       return;
     }
     const ics = icsOlustur(f, c.dil(), c.simdi());
