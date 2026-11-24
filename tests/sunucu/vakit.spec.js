@@ -1,7 +1,7 @@
 // api/vakit.js asıl mod (hafızalı, 25-10-2026): Diyanet sınırına takılmamak için son iyi liste Blob'da.
 // Diyanet ve Blob sahte; gerçek Diyanet'e hiç istek gitmez.
 import { test, expect } from '@playwright/test';
-import { vakitAnaMod, TAZE_MS, DENEME_MS } from '../../api/vakit.js';
+import vakitHandler, { vakitAnaMod, TAZE_MS, DENEME_MS } from '../../api/vakit.js';
 import { VAKIT } from '../yardimci/tv.js';
 
 const SAAT = 3600e3;
@@ -98,4 +98,29 @@ test('Blob çalışmazsa (okuma boş) eskisi gibi doğrudan Diyanet', async () =
   const r = await iste();
   expect(r.govde.count).toBe(30);
   expect(s.aylikCagri).toBe(1);
+});
+
+// Güvenlik (24-11-2026): yardımcı modlar herkese açıktı (Diyanet sınırını doldurma, "?eyaletler=../.." ile başka yollar)
+test('yardımcı modlar (?tani, ?ulkeler, ?eyaletler, ?sehirler, ?gunun) anahtarsız 403; id sadece rakam; Diyanet\'e gidilmez', async () => {
+  const sahteRes = () => ({ durum: 0, basliklar: {}, setHeader(k, v) { this.basliklar[k.toLowerCase()] = v; }, status(d) { this.durum = d; return this; }, json(v) { this.veri = v; return this; } });
+  const asilFetch = globalThis.fetch, eskiAnahtar = process.env.ADMIN_ANAHTAR;
+  let cagri = 0;
+  globalThis.fetch = async () => { cagri++; throw new Error('ağ yok'); };
+  process.env.ADMIN_ANAHTAR = 'a'.repeat(40);
+  try {
+    for (const query of [{ tani: '1' }, { ulkeler: '' }, { eyaletler: '../../PrayerTime/Monthly/1' }, { sehirler: '1' }, { gunun: '1' }]) {
+      const r = sahteRes();
+      await vakitHandler({ query, headers: {} }, r);
+      expect(r.durum, JSON.stringify(query)).toBe(403);
+      expect(r.basliklar['cache-control']).toBe('no-store');
+    }
+    const yetkili = { authorization: 'Bearer ' + 'a'.repeat(40) };
+    const r = sahteRes();
+    await vakitHandler({ query: { eyaletler: '../../PrayerTime/Monthly/1' }, headers: yetkili }, r);
+    expect(r.durum).toBe(400);
+    expect(cagri).toBe(0);
+  } finally {
+    globalThis.fetch = asilFetch;
+    if (eskiAnahtar === undefined) delete process.env.ADMIN_ANAHTAR; else process.env.ADMIN_ANAHTAR = eskiAnahtar;
+  }
 });

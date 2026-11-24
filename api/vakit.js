@@ -8,10 +8,14 @@
 // ÖNEMLİ: Diyanet API'sinde her endpoint için istek limiti vardır (ilk 15 gün 100,
 // sonrasında 5). Bu yüzden AYLIK veriyi tek istekte çekip uzun süre cache'liyoruz.
 //
-// Yardımcı modlar (şehir id'sini bulmak için, sadece birkaç kez kullan):
+// Yardımcı modlar (şehir id'sini bulmak için, sadece birkaç kez kullan). 24-11-2026'dan beri sadece yönetici
+// anahtarıyla (güvenlik: açıkken herkes Diyanet sınırını doldurabilir, "?eyaletler=../.." ile başka yolları çağırabilirdi):
+//   curl -H "Authorization: Bearer <ADMIN_ANAHTAR>" "https://…/api/vakit?ulkeler=1"
 //   /api/vakit?ulkeler=1            -> ülke listesi
 //   /api/vakit?eyaletler=<ulkeId>   -> o ülkenin eyalet/bölge listesi
 //   /api/vakit?sehirler=<eyaletId>  -> o bölgenin şehir listesi  (Amsterdam'ın id'si burada)
+
+import { yetkiliMi } from "./_lib/anahtar.js";
 
 const BASE = "https://awqatsalah.diyanet.gov.tr";
 
@@ -218,6 +222,8 @@ async function anaModGetir() {
   return _anaMod;
 }
 
+const YARDIMCI = ["ulkeler", "eyaletler", "sehirler", "gunun", "tani"];
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   // vakitler sabittir: 24 saat taze, 14 gün boyunca eski veriyi servis ederken arkada tazele
@@ -225,6 +231,15 @@ export default async function handler(req, res) {
   res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate=1209600");
 
   const q = req.query || {};
+
+  // yardımcı modlar (yer listeleri, günün içeriği, teşhis): sadece yönetici anahtarıyla; id'ler sadece rakam
+  if (YARDIMCI.some((k) => q[k] !== undefined)) {
+    res.setHeader("Cache-Control", "no-store");
+    if (!yetkiliMi(req)) return res.status(403).json({ ok: false, reason: "yetki yok" });
+    for (const k of ["eyaletler", "sehirler"]) {
+      if (q[k] !== undefined && !/^\d{1,6}$/.test(String(q[k]))) return res.status(400).json({ ok: false, reason: "geçersiz id" });
+    }
+  }
 
   try {
     // ---- yardımcı modlar: yer listeleri ----

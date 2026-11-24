@@ -14,7 +14,6 @@ import { aboneIsleyici } from '../../api/bildirim/abone.js';
 import { planlaIsleyici } from '../../api/bildirim/planla.js';
 import { gonderIsleyici } from '../../api/bildirim/gonder.js';
 import { anahtarIsleyici } from '../../api/bildirim/anahtar.js';
-import { denemeIsleyici } from '../../api/bildirim/deneme.js';
 import { cagir } from '../yardimci/sahte-depo.js';
 import { sahteOrtam, testAboneligi, aboneGovdesi, cronYetki, TEST_CRON, TEST_KOK } from '../yardimci/sahte-bildirim.js';
 import { vapidSleutels } from '../araclar/vapid.mjs';
@@ -248,7 +247,9 @@ test.describe('/api/bildirim/planla (günlük cron)', () => {
 
 test.describe('/api/bildirim/gonder (QStash çağırır)', () => {
   async function hazir(abonelerAyar) {
-    const o = sahteOrtam({ pushSonuc: (a) => (a.endpoint.includes('/gitti-') ? { tamam: false, durum: 410 } : a.endpoint.includes('/bozuk-') ? { tamam: false, durum: 500 } : { tamam: true }) });
+    // kayıt anında push servisi hepsini kabul eder (onay bildirimi); sonra bazıları "gider" veya bozulur
+    let kayitta = true;
+    const o = sahteOrtam({ pushSonuc: (a) => (kayitta ? { tamam: true } : a.endpoint.includes('/gitti-') ? { tamam: false, durum: 410 } : a.endpoint.includes('/bozuk-') ? { tamam: false, durum: 500 } : { tamam: true }) });
     const isle = aboneIsleyici(() => o, () => SIMDI);
     const abonelikler = [];
     for (const [ad, ayar] of abonelerAyar) {
@@ -257,6 +258,7 @@ test.describe('/api/bildirim/gonder (QStash çağırır)', () => {
       expect((await cagir(isle, { method: 'POST', body: aboneGovdesi(abonelik, ayar) })).durum).toBe(200);
     }
     o._.gonderilen.length = 0;                 // kayıttaki onay bildirimleri sayılmasın
+    kayitta = false;
     return { o, abonelikler };
   }
   const gonder = (o, an, saat, headers = cronYetki()) => cagir(gonderIsleyici(() => o, () => saat), { method: 'POST', headers, body: an });
@@ -296,47 +298,22 @@ test.describe('/api/bildirim/gonder (QStash çağırır)', () => {
     expect(o._.redis.hash.get('nzm:preview:aboneler').size).toBe(2);
   });
 
+  test('yeni abonelik: onay bildirimi gönderilemezse kaydedilmez (uydurma adresle sınırı doldurma; güvenlik, 24-11-2026)', async () => {
+    const o = sahteOrtam({ pushSonuc: () => ({ tamam: false, durum: 400 }) });
+    const { abonelik } = testAboneligi('uydurma');
+    const r = await cagir(aboneIsleyici(() => o, () => SIMDI), { method: 'POST', body: aboneGovdesi(abonelik) });
+    expect(r.durum).toBe(400);
+    expect(o._.redis.hash.get('nzm:preview:aboneler')?.size || 0).toBe(0);
+    const hata = sahteOrtam({ pushSonuc: () => { throw new Error('ağ yok'); } });
+    expect((await cagir(aboneIsleyici(() => hata, () => SIMDI), { method: 'POST', body: aboneGovdesi(abonelik) })).durum).toBe(400);
+  });
+
   test('yetkisiz 401, uydurma an 400', async () => {
     const { o } = await hazir([]);
     const an = anBul('2026-10-28', 'Isha', 'giris');
     expect((await gonder(o, an, an.an, {})).durum).toBe(401);
     expect((await gonder(o, { ...an, id: 'x' }, an.an)).durum).toBe(400);
     expect((await gonder(o, { ...an, vakit: 'Cuma', id: '2026-10-28_Cuma_giris' }, an.an)).durum).toBe(400);
-  });
-});
-
-test.describe('deneme bildirimi (Ayarlar → düğme)', () => {
-  test('1 dk sonra, gerçek yoldan (QStash → /gonder), sadece isteyen aboneye ve kendi dilinde', async () => {
-    const o = sahteOrtam();
-    const { abonelik } = testAboneligi('deneme');
-    const baska = testAboneligi('baska').abonelik;
-    await cagir(aboneIsleyici(() => o, () => SIMDI), { method: 'POST', body: aboneGovdesi(abonelik, { dil: 'tr' }) });
-    await cagir(aboneIsleyici(() => o, () => SIMDI), { method: 'POST', body: aboneGovdesi(baska) });
-    o._.kuyrukta.length = 0;
-    o._.gonderilen.length = 0;
-    const r = await cagir(denemeIsleyici(() => o, () => SIMDI), { method: 'POST', body: { endpoint: abonelik.endpoint, auth: abonelik.keys.auth } });
-    expect(r.durum).toBe(200);
-    const id = aboneId(abonelik.endpoint);
-    expect(o._.kuyrukta).toEqual([{ hedef: `${TEST_KOK}/api/bildirim/gonder`, zaman: SIMDI + 60000, yetki: TEST_CRON,
-      govde: { id: `deneme_${id}_${SIMDI + 60000}`, tur: 'deneme', abone: id, an: SIMDI + 60000 } }]);
-    // 5 dakika içinde tekrar: 429
-    expect((await cagir(denemeIsleyici(() => o, () => SIMDI + 1000), { method: 'POST', body: { endpoint: abonelik.endpoint, auth: abonelik.keys.auth } })).durum).toBe(429);
-    // QStash 1 dk sonra çağırır
-    const g = await cagir(gonderIsleyici(() => o, () => SIMDI + 61000), { method: 'POST', headers: cronYetki(), body: o._.kuyrukta[0].govde });
-    expect(g.govde).toEqual({ gonderilen: 1, silinen: 0, hata: 0 });
-    expect(o._.gonderilen).toEqual([{ abonelik, yuk: { baslik: 'Deneme bildirimi', govde: 'Bildirimler çalışıyor. Namaz vakitlerinde böyle bir bildirim alacaksınız.', etiket: 'deneme', dil: 'tr', adres: '/mobil/' } }]);
-    expect((await cagir(gonderIsleyici(() => o, () => SIMDI + 62000), { method: 'POST', headers: cronYetki(), body: o._.kuyrukta[0].govde })).govde).toEqual({ atlandi: 'tekrar' });
-  });
-
-  test('sahibi değilse 403, kayıtlı değilse 404, yetkisiz /gonder 401', async () => {
-    const o = sahteOrtam();
-    const { abonelik } = testAboneligi('d2');
-    await cagir(aboneIsleyici(() => o, () => SIMDI), { method: 'POST', body: aboneGovdesi(abonelik) });
-    expect((await cagir(denemeIsleyici(() => o, () => SIMDI), { method: 'POST', body: { endpoint: abonelik.endpoint, auth: 'AAAAAAAAAAAAAAAAAAAAAA' } })).durum).toBe(403);
-    expect((await cagir(denemeIsleyici(() => o, () => SIMDI), { method: 'POST', body: { endpoint: testAboneligi('yok').abonelik.endpoint, auth: 'x' } })).durum).toBe(404);
-    const id = aboneId(abonelik.endpoint);
-    const an = { id: `deneme_${id}_${SIMDI}`, tur: 'deneme', abone: id, an: SIMDI };
-    expect((await cagir(gonderIsleyici(() => o, () => SIMDI), { method: 'POST', body: an })).durum).toBe(401);
   });
 });
 

@@ -171,6 +171,8 @@ test.describe('faaliyetler', () => {
     await satir.getByRole('button', { name: 'Evet, sil' }).click();
     await expect(page.locator('#bildirim')).toContainText('Silindi');
     expect(depo.durum().silinen).toEqual([url]);
+    // canlıdaki CSP ile (vercel.json) hiçbir şey engellenmedi (güvenlik başlıkları, 24-11-2026)
+    expect(await page.evaluate(() => window.__csp)).toEqual([]);
   });
 
   test('çakışma: başka biri değiştirdiyse uyarı, veri kaybolmaz', async ({ page }) => {

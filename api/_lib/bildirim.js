@@ -3,7 +3,7 @@
 import crypto from 'node:crypto';
 import { VAKITLER, diyanetGunu, gunOlaylari } from '../../mobil/zaman.js';
 import { DILLER } from '../../mobil/metin.js';
-import { bildirimMetni, DENEME } from '../../mobil/bildirim-metin.js';
+import { bildirimMetni } from '../../mobil/bildirim-metin.js';
 
 // Metinler uygulamayla ortak (mağaza uygulaması bildirimleri telefonda kendisi kurar)
 export { saatEki, bildirimMetni } from '../../mobil/bildirim-metin.js';
@@ -133,12 +133,3 @@ export function onayYuku(dil) {
 }
 
 /** Deneme bildirimi (Ayarlar'daki düğme): gerçek bildirimlerle aynı yoldan, QStash ile 1 dk sonra. */
-export const DENEME_GECIKME = 60 * 1000;
-export function denemeGecerli(a) {
-  return !!a && typeof a === 'object' && a.tur === 'deneme' && /^[0-9a-f]{32}$/.test(a.abone)
-    && Number.isFinite(a.an) && a.id === `deneme_${a.abone}_${a.an}`;
-}
-export function denemeYuku(dil) {
-  const m = DENEME[dil] || DENEME.nl;
-  return JSON.stringify({ ...m, etiket: 'deneme', dil, adres: '/mobil/' });
-}

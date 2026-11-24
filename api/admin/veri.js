@@ -1,4 +1,5 @@
-// Panel için tam içerik (taslaklar dahil) + etag. Okumak için anahtar gerekmez; "yetkili" bilgisi döner.
+// Panel için içerik + etag. Okumak için anahtar gerekmez; "yetkili" bilgisi döner.
+// Taslaklar (yayında olmayan faaliyetler) sadece anahtarla (24-11-2026, güvenlik).
 import { gercekDepo } from '../_lib/depo.js';
 import { yetkiliMi, anahtarTanimli, anahtarDurumu, cevap } from '../_lib/anahtar.js';
 import { BOS_ICERIK } from '../../veri/dogrula.js';
@@ -8,10 +9,12 @@ export function veriIsleyici(depo) {
     if (req.method !== 'GET') return cevap(res, 405, { hata: 'sadece GET' });
     try {
       const o = await depo.oku();
+      const yetkili = yetkiliMi(req);
+      const icerik = (o && o.icerik) || BOS_ICERIK;
       return cevap(res, 200, {
-        icerik: (o && o.icerik) || BOS_ICERIK,
+        icerik: yetkili ? icerik : { ...icerik, faaliyetler: (icerik.faaliyetler || []).filter((f) => f.yayinda === true) },
         etag: (o && o.etag) || null,
-        yetkili: yetkiliMi(req),
+        yetkili,
         anahtarTanimli: anahtarTanimli(),
         anahtarDurumu: anahtarDurumu(),
       });

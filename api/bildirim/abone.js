@@ -30,9 +30,13 @@ export function aboneIsleyici(ortam = () => bildirimOrtami(), saat = () => Date.
       const eski = await o.depo.aboneOku(id);
       if (eski && !ayniAuth(eski.abonelik.keys.auth, d.abone.abonelik.keys.auth)) return cevap(res, 403, { hata: 'bu abonelik başka bir cihazın' });
       if (!eski && (await o.depo.aboneSayisi()) >= SINIR_ABONE) return cevap(res, 503, { hata: 'abone sınırı doldu' });
+      // ilk kayıtta önce onay bildirimi: push servisi kabul etmezse kaydedilmez (24-11-2026, güvenlik:
+      // uydurma adreslerle abone sınırı doldurulamasın)
+      if (!eski) {
+        const onay = await o.push.gonder(d.abone.abonelik, onayYuku(d.abone.dil)).catch(() => null);
+        if (!onay || !onay.tamam) return cevap(res, 400, { hata: 'abonelik adresine bildirim gönderilemedi' });
+      }
       await o.depo.aboneYaz(id, { ...d.abone, guncelleme: new Date(saat()).toISOString() });
-      // ilk kayıtta hemen bir onay bildirimi (sonucu beklenir ama kaydı etkilemez)
-      if (!eski) await o.push.gonder(d.abone.abonelik, onayYuku(d.abone.dil)).catch(() => {});
       // Bugün ve yarın henüz zamanlanmadıysa şimdi zamanla (günlük cron'u beklemeden).
       let plan;
       try { plan = await planYap(o, saat()); } catch (e) { plan = { planlanan: 0, hatalar: [(e && e.message) || 'hata'] }; }
