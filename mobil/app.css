@@ -230,7 +230,6 @@ main {
 .bos-logo { display: block; width: 56px; height: 56px; margin-bottom: 6px; border-radius: 50%; background: #FBF7EE url(/mobil/logo.png) center / 84% no-repeat; opacity: .8; }   /* üst çubuktaki gibi açık yuvarlakta */
 .bos p { margin: 0; }
 .bos-baslik { font-weight: 700; font-size: 16px; }
-.bos-alt { font-size: 14px; line-height: 1.45; color: var(--soft); max-width: 320px; }
 
 .ayar { display: flex; flex-direction: column; gap: 10px; }
 .ayar-baslik { margin: 0; font-size: 11.5px; font-weight: 700; letter-spacing: .16em; color: var(--soft); }
@@ -1146,7 +1145,6 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 .gz-icerik h2 { margin: 12px 0 0; font-size: 16px; font-weight: 700; color: var(--ink); }
 .gz-icerik .gz-tarih { font-size: 13px; color: var(--soft); }
 
-/* Ayarlar → Vakitler: kerahat süresi (23-11-2026); ad solda, seçim sağda */
+/* Ayarlar → Bildirimler ve ses, en alttaki kerahat süresi (23/24-11-2026); ad solda, seçim sağda */
 .ayar-satir.secimli { cursor: default; justify-content: space-between; }
-.ayar-satir.secimli .ad-ip { flex: 1; min-width: 0; }
 .ayar-satir.secimli .b-sec { flex: 0 0 auto; width: 112px; }

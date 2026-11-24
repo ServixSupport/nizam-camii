@@ -151,7 +151,7 @@ export function ekranlar(c) {
     doldur(ciplerKap, grupSecici(durum.fGrup, (g) => { durum.fGrup = g; faaliyetleriCiz(); }, 'f-grup'));
 
     if (!tumu.length) {
-      doldur(kap, bosKart(L.evEmpty, L.evEmptySub));
+      doldur(kap, bosKart(L.evEmpty));
       return;
     }
     const liste = tumu.filter((f) => durum.fGrup === 'tumu' || f.grup === durum.fGrup);
@@ -209,10 +209,11 @@ export function ekranlar(c) {
       resim ? dugmeler : null);
   }
 
-  function bosKart(baslik, alt) {
+  // boş sayfa: logo ve tek cümle ("… burada görünür" alt yazısı yok; kullanıcı isteği, 24-11-2026)
+  function bosKart(baslik) {
     return h('div', { class: 'bos' },
       h('span', { class: 'bos-logo', 'aria-hidden': 'true' }),          // caminin logosu (kullanıcı isteği, 20-11-2026)
-      h('p', { class: 'bos-baslik', metin: baslik }), h('p', { class: 'bos-alt', metin: alt }));
+      h('p', { class: 'bos-baslik', metin: baslik }));
   }
 
   // ---------- Faaliyet detayı ----------
@@ -220,7 +221,7 @@ export function ekranlar(c) {
     const L = c.L(), dil = c.dil();
     const f = gorunurFaaliyetler(c.icerik().faaliyetler, c.simdi()).find((x) => x.id === id);
     const kap = document.getElementById('d-icerik');
-    if (!f) { doldur(kap, bosKart(L.bulunamadi, '')); return; }
+    if (!f) { doldur(kap, bosKart(L.bulunamadi)); return; }
     const t = tarihParca(amsGun(faaliyetBaslangic(f)), L.locale);
     const aciklama = metinSec(f.aciklama, dil);
     doldur(kap,
@@ -248,7 +249,7 @@ export function ekranlar(c) {
     const suzKap = document.getElementById('p-cipler');
     suzKap.hidden = !programlar.length;
     doldur(suzKap, grupSecici(durum.pGrup, (g) => { durum.pGrup = g; programlariCiz(); }, 'p-grup'));
-    if (!programlar.length) { doldur(kap, bosKart(L.prEmpty, L.prEmptySub)); return; }
+    if (!programlar.length) { doldur(kap, bosKart(L.prEmpty)); return; }
     const simdi = c.simdi();
     const liste = programlar
       .filter((p) => durum.pGrup === 'tumu' || p.grup === durum.pGrup)

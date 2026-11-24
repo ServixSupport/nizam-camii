@@ -209,23 +209,12 @@
       </div>
     </section>
 
-    <!-- Vakitler: kerahat süresi (kullanıcı isteği, 23-11-2026: 20 ya da 30 dk seçilebilsin) -->
-    <section class="ayar">
-      <h2 class="ayar-baslik" data-t="vakitAyar"></h2>
-      <div class="ayar-kart">
-        <div class="ayar-satir secimli">
-          <span class="ad-ip"><span class="ayar-ad" id="kerahat-ad" data-t="kerahatAyar"></span><button type="button" class="ipucu" aria-expanded="false" aria-controls="ip-kerahat" data-ip-ad="kerahat-ad"><span aria-hidden="true">?</span></button></span>
-          <span class="b-sec"><select id="kerahat-sure" aria-labelledby="kerahat-ad"></select></span>
-        </div>
-        <p class="ayar-not ipucu-not" id="ip-kerahat" data-t="kerahatNot" hidden></p>
-      </div>
-    </section>
-
     <!-- Bildirimler ve ses: tek grup (kullanıcı isteği, 08-11-2026). Namaz vakti bildirimleri ayrı sayfada (#bildirimler,
-         kullanıcı isteği 19-11-2026: her vakit kendi satırında); burada o sayfaya giden satır. Alttaki bölümler (panel, sessiz …) aynı grubun kartları. -->
-    <section class="ayar" id="bildirim-ayar" hidden>
+         kullanıcı isteği 19-11-2026: her vakit kendi satırında); burada o sayfaya giden satır. Alttaki bölümler (panel, sessiz …) aynı grubun kartları.
+         Başlık hep görünür (en alttaki kerahat süresi için); bildirim sunucusu yoksa sadece #b-git gizli. -->
+    <section class="ayar" id="bildirim-ayar">
       <h2 class="ayar-baslik" data-t="notif"></h2>
-      <a class="b-kart b-git" href="#bildirimler" id="b-git">
+      <a class="b-kart b-git" href="#bildirimler" id="b-git" hidden>
         <span class="b-git-metin"><span class="b-ana-ad" data-t="notifMaster"></span><span class="b-git-alt" id="b-git-alt"></span></span>
         <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
       </a>
@@ -262,6 +251,16 @@
       <div class="ayar-kart">
         <span class="ad-ip"><span class="ayar-ad" id="widget-ad" data-t="widgetAna"></span><button type="button" class="ipucu" aria-expanded="false" aria-controls="ip-widget" data-ip-ad="widget-ad"><span aria-hidden="true">?</span></button></span>
         <span class="ayar-not ipucu-not" id="ip-widget" data-t="widgetNot" hidden></span>
+      </div>
+    </section>
+
+    <!-- Kerahat süresi: grubun en altında ek ayar (kullanıcı isteği 23-11-2026; 24-11-2026: Bildirimler ve ses altında, açıklamasız) -->
+    <section class="ayar grup-ici" id="kerahat-ayar">
+      <div class="ayar-kart">
+        <div class="ayar-satir secimli">
+          <span class="ayar-ad" id="kerahat-ad" data-t="kerahatAyar"></span>
+          <span class="b-sec"><select id="kerahat-sure" aria-labelledby="kerahat-ad"></select></span>
+        </div>
       </div>
     </section>
 

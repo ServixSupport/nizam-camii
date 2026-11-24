@@ -192,9 +192,11 @@ test.describe('sekmeler', () => {
     await expect(page.locator('#s-ana')).toBeHidden();
     await expect(page.locator('.menu-oge[data-sekme="faaliyetler"]')).toHaveAttribute('aria-current', 'page');
     await expect(page.locator('#s-faaliyetler')).toContainText('Nog geen komende activiteiten.');
+    await expect(page.locator('#s-faaliyetler .bos p')).toHaveCount(1);            // "… zie je die hier" yok (kullanıcı isteği, 24-11-2026)
 
     await page.getByRole('link', { name: 'Programma’s' }).click();
     await expect(page.locator('#s-programlar')).toContainText('Nog geen programma’s.');
+    await expect(page.locator('#s-programlar')).not.toContainText('verschijnen hier');
 
     await page.goBack();
     await expect(page.locator('#s-faaliyetler')).toBeVisible();
@@ -659,11 +661,16 @@ test.describe('Tema 1 (cini)', () => {
     await expect(page.locator('.kh-cumle')).toHaveText('Afgeraden gebedstijd');
   });
 
-  test('kerahat süresi Ayarlar’da seçilir (15–45 dk, varsayılan 45; kullanıcı isteği 23-11-2026); seçim saklanır', async ({ page }) => {
+  test('kerahat süresi Ayarlar’da, Meldingen en geluid’in altında seçilir (15–45 dk, varsayılan 45; 23/24-11-2026); seçim saklanır', async ({ page }) => {
     await ac(page, '16:00:00.500');
     await expect(page.locator('.kh-cumle')).toHaveText('Nog 0:41:59 tot de afgeraden gebedstijd');   // 45 dk: 16:42
     await page.locator('.menu-oge[data-sekme="ayarlar"]').click();
-    await expect(page.locator('#s-ayarlar')).toContainText('GEBEDSTIJDEN');
+    await expect(page.locator('#s-ayarlar')).not.toContainText('GEBEDSTIJDEN');      // ayrı bölüm yok (24-11-2026)
+    // "Meldingen en geluid" grubunun en altında, açıklamasız (kullanıcı isteği, 24-11-2026)
+    const sira = await page.locator('#s-ayarlar > section.ayar').evaluateAll((l) => l.map((e) => e.id));
+    expect(sira.indexOf('kerahat-ayar')).toBe(sira.indexOf('widget-ayar') + 1);
+    expect(sira.indexOf('bildirim-ayar')).toBeLessThan(sira.indexOf('kerahat-ayar'));
+    await expect(page.locator('#kerahat-ayar .ipucu')).toHaveCount(0);
     const sec = page.getByRole('combobox', { name: 'Afgeraden gebedstijd' });
     await expect(sec).toHaveValue('45');
     await expect(sec.locator('option')).toHaveText(['15 min', '20 min', '25 min', '30 min', '35 min', '40 min', '45 min']);
@@ -674,9 +681,6 @@ test.describe('Tema 1 (cini)', () => {
     // güneş doğduktan sonra da 20 dk
     await page.reload();
     await expect(page.locator('.kh-cumle')).toHaveText(/^Nog 1:06:5\d tot de afgeraden gebedstijd$/);
-    await page.locator('.menu-oge[data-sekme="ayarlar"]').click();
-    await page.getByRole('button', { name: 'Uitleg: Afgeraden gebedstijd' }).click();
-    await expect(page.locator('#ip-kerahat')).toContainText('makroeh');
   });
 
   test('tarih okları: başka günlerin vakitleri (veri kadar), sayaç bugünün; sıradaki vurgusu sadece bugün; sekme değişince bugüne döner', async ({ page }) => {
@@ -779,7 +783,7 @@ test.describe('Ayarlar: açıklamalar', () => {
   test('her açıklamanın "?" düğmesi var, hepsi kapalı başlar; görünür açıklama yazısı kalmaz (kaynak satırı hariç); düğmenin adı dile göre', async ({ page }) => {
     await ac(page);
     const notlar = await page.locator('.ipucu-not').evaluateAll((els) => els.map((e) => ({ id: e.id, kapali: e.hidden, dugme: !!document.querySelector(`.ipucu[aria-controls="${e.id}"]`) })));
-    expect(notlar.map((x) => x.id)).toEqual(['ip-kerahat', 'ip-sayac', 'ip-widget', 'ip-ses', 'ip-sessiz']);   // sessize alma ayrı sayfada (20-11-2026)   // tema açıklaması kalktı (sabit temalar, 20-11-2026)   // ses: bildirim sayfasında (19-11-2026)
+    expect(notlar.map((x) => x.id)).toEqual(['ip-sayac', 'ip-widget', 'ip-ses', 'ip-sessiz']);   // sessize alma ayrı sayfada (20-11-2026)   // tema açıklaması kalktı (sabit temalar, 20-11-2026)   // ses: bildirim sayfasında (19-11-2026)
     for (const x of notlar) expect(x, x.id).toMatchObject({ kapali: true, dugme: true });
     await expect(page.locator('#s-ayarlar .ayar-not:visible')).toHaveText(['Gebedstijden: Diyanet']);
     await page.getByRole('button', { name: 'Türkçe' }).click();

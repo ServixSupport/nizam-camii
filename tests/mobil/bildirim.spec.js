@@ -14,13 +14,15 @@ const once = (page, ad) => page.locator('#b-once-liste').getByRole('switch', { n
 const onceDk = (page, ad) => page.locator('#b-once-liste').getByRole('combobox', { name: `${ad}: Herinner me vooraf` });
 const acik = (page, liste) => page.locator(`${liste} .b-vsatir:not(.kapali) .b-vsatir-ad`).allTextContents();
 
-test('sunucu kurulmamışsa bildirim bölümü ve ziller hiç görünmez', async ({ page }) => {
+test('sunucu kurulmamışsa bildirim satırı ve ziller hiç görünmez (başlık kerahat süresi için kalır)', async ({ page }) => {
   await bildirimKur(page, { zaman: ZAMAN, aktif: false });
   await mobilAc(page, { zaman: ZAMAN });
   await expect(page.locator('.v-zil:visible')).toHaveCount(0);
   await page.goto('/mobil/#ayarlar');
   await expect(page.locator('#s-ayarlar h1')).toBeVisible();
-  await expect(page.locator('#bildirim-ayar')).toBeHidden();
+  await expect(page.locator('#b-git')).toBeHidden();
+  await expect(page.locator('#bildirim-ayar h2')).toBeVisible();                 // grubun altında kerahat süresi (24-11-2026)
+  await expect(page.locator('#kerahat-sure')).toBeVisible();
   await page.goto('/mobil/#bildirimler');
   await expect(page.locator('#b-ana')).toBeHidden();
 });

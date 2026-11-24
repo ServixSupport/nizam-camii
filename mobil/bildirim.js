@@ -418,7 +418,7 @@ export function bildirimler({ L, dil, bildir, kuruluMu, iosMu, yerel = null, pla
     const bolum = $('#bildirim-ayar');
     zilleriCiz();
     if (!bolum) return;
-    bolum.hidden = !sunucu.aktif;
+    $('#b-git').hidden = !sunucu.aktif;            // başlık kalır: grubun altında kerahat süresi var (24-11-2026)
     // ayrı sayfa (#bildirimler): sunucu yoksa içerik yok
     for (const e of document.querySelectorAll('#s-bildirimler > .b-kart, #s-bildirimler > .b-secenekler')) e.hidden = !sunucu.aktif;
     if (!sunucu.aktif) return;
