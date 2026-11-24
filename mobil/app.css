@@ -1148,3 +1148,13 @@ html.kaydirma-yok, html.kaydirma-yok body { overflow: hidden; overscroll-behavio
 /* Ayarlar → Bildirimler ve ses, en alttaki kerahat süresi (23/24-11-2026); ad solda, seçim sağda */
 .ayar-satir.secimli { cursor: default; justify-content: space-between; }
 .ayar-satir.secimli .b-sec { flex: 0 0 auto; width: 112px; }
+
+/* uzun, boşluksuz başlıklar (ör. "Kinderkoranrecitatiewedstrijd") kutudan taşmasın (24-11-2026) */
+.one-cikan h2, .f-baslik, .d-baslik, .kb-baslik, .kf-baslik, .p-baslik, .kart-baslik { overflow-wrap: anywhere; }
+
+/* kısa telefonlar (ör. 360×640, iPhone SE): satırlar 40 px'e inse de sığmazsa (app.js anaSigdir, 24-11-2026) Yatsı menünün altında kalmasın */
+:root.kisa-ekran .vakitler { gap: 4px; }
+:root.kisa-ekran[data-stil="gok"] .v-metin, :root.kisa-ekran[data-stil="zumrut"] .v-metin { flex-direction: row; align-items: baseline; gap: 8px; }
+:root.kisa-ekran[data-stil="zumrut"] .v-ikon { width: 30px; height: 30px; border-radius: 9px; }
+:root.kisa-ekran[data-stil="zumrut"] .v-ikon::before { width: 18px; height: 18px; }
+:root.kisa-ekran[data-stil="zumrut"] .gun-gez { min-height: 52px; }

@@ -67,9 +67,16 @@ final class Planlayici {
         return c.getSharedPreferences(DEPO, Context.MODE_PRIVATE);
     }
 
+    /** Yeni plan kaydedilince geriye bakılan süre: tam alarm izni yoksa Android alarmı birkaç dakika geciktirebilir. */
+    private static final long GECIKME_PAYI = 5 * 60_000L;
+
     static synchronized void planKaydet(Context c, String json) {
-        // yeni plan: geçmişteki olaylar tekrar işlenmesin (son = şimdi)
-        depo(c).edit().putString(K_PLAN, json).putLong(K_SON, System.currentTimeMillis()).commit();
+        // yeni plan: geçmişteki olaylar tekrar işlenmesin. Ama gecikmiş (henüz çalmamış) alarmın vakti son 5 dk içindeyse
+        // kaybolmasın: uygulama tam o sırada açılınca bildirim gelmiyordu (24-11-2026 hata ayıklama).
+        long simdi = System.currentTimeMillis();
+        long eski = depo(c).getLong(K_SON, simdi);
+        long son = Math.min(simdi, Math.max(eski, simdi - GECIKME_PAYI));
+        depo(c).edit().putString(K_PLAN, json).putLong(K_SON, son).commit();
         calistir(c);
     }
 

@@ -198,9 +198,10 @@ public class CamiPlugin extends Plugin {
             .putExtra(CalendarContract.Events.TITLE, call.getString("baslik", ""))
             .putExtra(CalendarContract.Events.EVENT_LOCATION, call.getString("yer", ""))
             .putExtra(CalendarContract.Events.DESCRIPTION, call.getString("aciklama", ""));
-        Double bas = call.getDouble("bas"), bit = call.getDouble("bit");
-        if (bas != null) i.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, bas.longValue());
-        if (bit != null) i.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, bit.longValue());
+        // ms: JSON'da büyük sayı Long gelir, Capacitor'ın getDouble'ı Long'u okumaz (null döner; 24-11-2026 hatası)
+        Object bas = call.getData().opt("bas"), bit = call.getData().opt("bit");
+        if (bas instanceof Number) i.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, ((Number) bas).longValue());
+        if (bit instanceof Number) i.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, ((Number) bit).longValue());
         if (Boolean.TRUE.equals(call.getBoolean("tumGun", false))) i.putExtra(CalendarContract.EXTRA_EVENT_ALL_DAY, true);
         try {
             getActivity().startActivity(i);

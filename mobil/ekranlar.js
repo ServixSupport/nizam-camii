@@ -64,7 +64,12 @@ const amsSaat = (ms) => { const p = amsParcalar(ms); return `${String(p.h).padSt
 
 /** "10:00 – 12:30" / "Tüm gün" / iki gün sürerse "31 okt 10:00 – 1 nov 13:00" */
 function faaliyetSaati(f, L) {
-  if (f.tumGun) return L.tumGun;
+  if (f.tumGun) {
+    const g1 = f.baslangic.slice(0, 10), g2 = (f.bitis || f.baslangic).slice(0, 10);
+    if (g2 <= g1) return L.tumGun;
+    const t1 = tarihParca(g1, L.locale), t2 = tarihParca(g2, L.locale);   // "5 Kasım – 7 Kasım · Tüm gün" (24-11-2026)
+    return `${t1.gun} ${t1.ay} – ${t2.gun} ${t2.ay} · ${L.tumGun}`;
+  }
   const bas = faaliyetBaslangic(f);
   if (!f.bitis) return amsSaat(bas);
   const bit = faaliyetBitis(f);
@@ -221,7 +226,8 @@ export function ekranlar(c) {
     const L = c.L(), dil = c.dil();
     const f = gorunurFaaliyetler(c.icerik().faaliyetler, c.simdi()).find((x) => x.id === id);
     const kap = document.getElementById('d-icerik');
-    if (!f) { doldur(kap, bosKart(L.bulunamadi)); return; }
+    // içerik hiç gelmediyse (paylaşılan link, ilk açılış) "artık yok" deme (24-11-2026)
+    if (!f) { doldur(kap, bosKart(c.icerikVar && !c.icerikVar() ? L.yukleniyorKisa : L.bulunamadi)); return; }
     const t = tarihParca(amsGun(faaliyetBaslangic(f)), L.locale);
     const aciklama = metinSec(f.aciklama, dil);
     doldur(kap,

@@ -52,7 +52,9 @@ const L = () => METIN[durum.dil];
 
 // ---------------- veri ----------------
 function diyanetYukle(days) {
-  durum.diyanet = new Map(days.filter((x) => x && x.date).map((x) => [x.date, x]));
+  // 7 vaktin hepsi okunamayan gün "yok" sayılır: o gün Aladhan yedeği kullanılır (24-11-2026)
+  const tam = (x) => { try { return gunOlaylari(diyanetGunu(x), '2026-01-15').length === VAKITLER.length; } catch { return false; } };
+  durum.diyanet = new Map(days.filter((x) => x && x.date && tam(x)).map((x) => [x.date, x]));
 }
 function gunVerisi(ymd) {
   const x = durum.diyanet.get(diyanetAnahtari(ymd));
@@ -65,7 +67,7 @@ function gunVerisi(ymd) {
   const v = jsonOku(DEPO.vakit);
   if (v && Array.isArray(v.days)) diyanetYukle(v.days);
   const ic = jsonOku(DEPO.icerik);
-  if (ic && ic.icerik && Array.isArray(ic.icerik.faaliyetler)) { durum.icerik = ic.icerik; durum.icerikAlindi = ic.alindi || 0; }
+  if (ic && ic.icerik && Array.isArray(ic.icerik.faaliyetler) && Array.isArray(ic.icerik.programlar)) { durum.icerik = ic.icerik; durum.icerikAlindi = ic.alindi || 0; }
   const a = jsonOku(DEPO.aladhan);
   if (a && typeof a === 'object') for (const [k, d] of Object.entries(a)) durum.aladhan.set(k, d);
 })();
@@ -177,7 +179,7 @@ $('#stil-ac').addEventListener('click', temaOn.ac);
 
 const ekran = ekranlar({
   L, dil: () => durum.dil, icerik: () => durum.icerik, simdi: () => Date.now(),
-  tablet: () => tabletMi.matches, olaylar, olaylarYaklasik, bildir,
+  tablet: () => tabletMi.matches, olaylar, olaylarYaklasik, bildir, icerikVar: () => durum.icerikAlindi > 0,
   // mağaza uygulamasında takvim ve paylaş telefonun kendi pencereleriyle (WebView indirmez; Android 20-11-2026, iPhone 24-11-2026)
   telefon: yerelMi ? cami : null,
   adres: (yol) => (yerelMi ? SUNUCU : location.origin) + yol,
@@ -516,7 +518,7 @@ let _gunImza = '';
 const gunVar = (kayma) => olaylar(gunEkle(durum.gun, kayma)).length === VAKITLER.length;
 function gunGezCiz() {
   const ymd = gunEkle(durum.gun, _gunKayma);
-  const imza = durum.dil + ymd + durum.diyanet.size;
+  const imza = durum.dil + ymd + durum.diyanet.size + '/' + durum.aladhan.size;
   if (imza === _gunImza) return;
   _gunImza = imza;
   const t = L();
@@ -577,6 +579,10 @@ function ciz() {
     $('.sira-ad').textContent = t.names[d.siradaki.key];
     $('.sira-saat').textContent = d.siradaki.saat;
     $('.sira-ar').textContent = ARAPCA[d.siradaki.key];
+  } else {                                                   // eldeki verinin sonu (yarının vakitleri yok)
+    $('.kalan-etiket').textContent = ' ';
+    $('.sayac').textContent = '–:––:––';
+    $('.sira-ad').textContent = ' '; $('.sira-saat').textContent = ''; $('.sira-ar').textContent = '';
   }
   // Tema 1 ve Tema 3 (20-11-2026, örnek resme göre): "Vaktin çıkmasına": sayaç içinde bulunulan vaktin bitişine;
   // İmsak → Sabah namazı "Sabah namazına", Güneş → Öğle "Öğle namazına". Tema 3'te altında sıradaki vakit ve saati.
@@ -608,7 +614,7 @@ function temaCiz(simdi, d, t) {
     const p = amsParcalar(simdi);
     zumrutCiz($('.t4'), {
       bugun: o.bugun, simdi, onceki: onceki && onceki.ms, sonraki: sonraki && sonraki.ms, siradaki: d.siradaki && d.siradaki.key,
-      simdiAd: onceki ? t.names[onceki.key] : '', saat: `${pad(p.h)}:${pad(p.mi)}`, kalanYazi: geriSayim(d.kalan),
+      simdiAd: onceki ? t.names[onceki.key] : '', saat: `${pad(p.h)}:${pad(p.mi)}`, kalanYazi: d.siradaki ? geriSayim(d.kalan) : '–:––:––',
       simdiEtiket: t.t4Simdi, kalanEtiket: t.kalanSure,
     });
   }
@@ -628,12 +634,17 @@ function kerahatCiz(simdi, veriVar) {
 
 let _dakika = -1;
 function tik() {
-  const onceki = durum.gun;
-  ciz();
-  const dk = Math.floor(Date.now() / 60000);
-  if (dk !== _dakika) { if (_dakika >= 0) ekranlariCiz(); _dakika = dk; }
-  if (onceki && durum.gun !== onceki) yenile();             // gün değişti
-  setTimeout(tik, 1000 - (Date.now() % 1000) + 5);           // saniye başında
+  try {
+    const onceki = durum.gun;
+    ciz();
+    const dk = Math.floor(Date.now() / 60000);
+    if (dk !== _dakika) { if (_dakika >= 0) ekranlariCiz(); _dakika = dk; }
+    if (onceki && durum.gun !== onceki) yenile();           // gün değişti
+  } catch (e) {
+    console.error(e);                                        // bir çizim hatası saati durdurmasın
+  } finally {
+    setTimeout(tik, 1000 - (Date.now() % 1000) + 5);         // saniye başında
+  }
 }
 
 // ---------------- başlat ----------------
@@ -741,13 +752,17 @@ function anaSigdir() {
   if (['cini', 'gok', 'zumrut'].includes(kok.dataset.stil)) {   // Tema 1, 2, 4: yükseklikler CSS'te (--ekran)
     kemer.style.setProperty('--k', '1');
     kok.style.setProperty('--ekran', `${ekran}px`);
-    // yine de sığmazsa vakit satırları küçülür (en az 40 px): ana ekran aşağı yukarı kaymasın (kullanıcı isteği, 20-11-2026)
+    // yine de sığmazsa vakit satırları küçülür (en az 40 px): ana ekran aşağı yukarı kaymasın (kullanıcı isteği, 20-11-2026).
+    // Kısa telefonda (ör. 360×640, iPhone SE) o da yetmezse "kisa-ekran": Arapça ad yanına, satırlar en az 30 px (24-11-2026)
     const liste = $('.vakitler');
     liste.style.removeProperty('--satir');
-    const fazla = $('main').offsetHeight - ekran;
+    kok.classList.toggle('kisa-ekran', false);
     const satirlar = $$('.vakitler > li:not([hidden])');
-    if (fazla > 0 && satirlar.length) {
-      liste.style.setProperty('--satir', `${Math.max(40, satirlar[0].offsetHeight - Math.ceil(fazla / satirlar.length))}px`);
+    const gereken = () => satirlar[0].offsetHeight - Math.ceil(($('main').offsetHeight - ekran) / satirlar.length);
+    if ($('main').offsetHeight > ekran && satirlar.length) {
+      let yeni = gereken();
+      if (yeni < 40 && Math.max(screen.width, screen.height) < 900) { kok.classList.toggle('kisa-ekran', true); yeni = Math.max(30, gereken()); }   // sadece telefonda
+      liste.style.setProperty('--satir', `${Math.max(kok.classList.contains('kisa-ekran') ? 30 : 40, yeni)}px`);
     }
     const sigiyor = $('main').offsetHeight <= ekran + 12;
     kok.classList.toggle('kaydirma-yok', sigiyor);

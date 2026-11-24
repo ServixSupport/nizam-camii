@@ -790,3 +790,21 @@ test.describe('Ayarlar: açıklamalar', () => {
     await expect(page.locator('.ipucu[aria-controls="ip-sayac"]')).toHaveAttribute('aria-label', 'Açıklama: Vakitler ve geri sayım');
   });
 });
+
+// Kısa telefonlar (360×640, iPhone SE 375×667; hata ayıklama 24-11-2026): ana ekran kaymaz, Yatsı menünün üstünde
+test.describe('kısa telefon', () => {
+  for (const [w, h] of [[360, 640], [375, 667]]) {
+    for (const stil of [null, 'klasik', 'liste', 'zumrut']) {
+      test(`${w}×${h}, ${stil || 'Tema 1'}: Yatsı menünün üstünde, sayfa kaymaz`, async ({ page }) => {
+        await page.setViewportSize({ width: w, height: h });
+        await mobilAc(page, { zaman: '2026-10-28T16:00:00.500+01:00', depo: { 'nzm.dil': 'nl', 'nzm.stil': stil } });
+        await expect(page.locator('.vakitler li[data-key="Isha"]')).toBeVisible();
+        await expect.poll(() => page.evaluate(() => {
+          const y = document.querySelector('.vakitler li[data-key="Isha"]').getBoundingClientRect().bottom;
+          const m = document.querySelector('.menu').getBoundingClientRect().top;
+          return y <= m && document.documentElement.scrollHeight <= innerHeight + 1;
+        })).toBe(true);
+      });
+    }
+  }
+});
